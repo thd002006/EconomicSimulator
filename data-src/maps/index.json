@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "maps": [
+    {
+      "id": "architecture-probe",
+      "manifest": "architecture-probe/map.json"
+    }
+  ]
+}

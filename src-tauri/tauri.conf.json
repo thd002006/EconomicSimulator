@@ -1,0 +1,33 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Economic Simulator",
+  "version": "0.1.0",
+  "identifier": "com.economicsimulator.app",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @economic-simulator/client dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "pnpm --filter @economic-simulator/client build",
+    "frontendDist": "../apps/client/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Economic Simulator",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": "all"
+  }
+}

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.idea/
+.vscode/
+public/generated/
+src-tauri/target/
+src-tauri/gen/
+*.tmp
+*.bak

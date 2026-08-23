@@ -1,0 +1,14 @@
+{
+  "name": "@economic-simulator/simulation-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@economic-simulator/save-codec": "workspace:*",
+    "@economic-simulator/simulation-core": "workspace:*"
+  }
+}

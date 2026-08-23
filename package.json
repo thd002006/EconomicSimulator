@@ -1,0 +1,38 @@
+{
+  "name": "economic-simulator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @economic-simulator/client dev",
+    "sim": "pnpm --filter @economic-simulator/simulation-cli start",
+    "map:inspect": "pnpm --filter @economic-simulator/map-pipeline start",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "build:web": "pnpm --filter @economic-simulator/client build",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build:web",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@tauri-apps/cli": "2.11.4",
+    "@types/node": "26.2.0",
+    "eslint": "10.9.0",
+    "globals": "17.11.0",
+    "prettier": "3.9.6",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.11"
+  }
+}
