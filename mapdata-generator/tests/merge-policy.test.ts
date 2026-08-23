@@ -169,6 +169,10 @@ test("official macroregions apply at 5 million km2 and are skipped above it", ()
   const retained = buildMergeGroups(overLimit, adjacency(4, pairs), parameters);
   assert.equal(retained.length, 4);
   assert.ok(retained.every((group) => group.method === "retained"));
+  assert.deepEqual(
+    retained.map((group) => group.name),
+    ["Province 0", "Province 1", "Province 2", "Province 3"]
+  );
 });
 
 test("merged official macroregions concatenate macroregion names instead of province names", () => {

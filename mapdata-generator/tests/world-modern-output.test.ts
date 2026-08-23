@@ -91,6 +91,13 @@ test("countries over 5 million km2 skip official macroregions", () => {
       (province) => !largeCountries.has(province.countryId) || province.method !== "official-region"
     )
   );
+  assert.ok(
+    report.provinces
+      .filter((province) => largeCountries.has(province.countryId))
+      .every(
+        (province) => !/^(Northeast|Midwest|South|West|Siberian|Central)$/i.test(province.nameEn)
+      )
+  );
 });
 
 test("Baikonur is absorbed into Kazakhstan instead of remaining KAB", () => {

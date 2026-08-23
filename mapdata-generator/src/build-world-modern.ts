@@ -251,6 +251,11 @@ function weightedCenter(
 interface Cluster {
   key: number;
   members: number[];
+  nameParts: Array<{
+    order: number;
+    name: string;
+    nameEn: string;
+  }>;
   countryId: string;
   areaKm2: number;
   center: readonly [number, number];
@@ -316,21 +321,9 @@ function officialRegionComponents(
       }
     }
     component.sort((a, b) => a - b);
-    result.push({ members: component, official: component.length > 1 });
+    result.push({ members: component, official: true });
   }
   return result;
-}
-
-function countryHasCompleteMacroregions(
-  indices: readonly number[],
-  provinces: readonly SourceProvince[]
-): boolean {
-  const members = indices.map((index) => provinces[index]!);
-  return (
-    members.length > 0 &&
-    members.every((member) => validCode(member.region)) &&
-    new Set(members.map((member) => member.region)).size >= 2
-  );
 }
 
 function sourceFragmentCount(province: SourceProvince): number {
@@ -435,6 +428,7 @@ function mergeClusterInto(
   clusters.set(targetKey, {
     key: targetKey,
     members,
+    nameParts: [...source.nameParts, ...target.nameParts].sort((a, b) => a.order - b.order),
     countryId: target.countryId,
     areaKm2: source.areaKm2 + target.areaKm2,
     center: weightedCenter(members, provinces),
@@ -561,9 +555,22 @@ export function buildMergeGroups(
       const key = nextKey++;
       const members = component.members;
       const areaKm2 = members.reduce((sum, member) => sum + provinces[member]!.areaKm2, 0);
+      const firstMember = provinces[members[0]!]!;
+      const excludedFromName = members.every((member) =>
+        EXCLUDED_FROM_MERGED_PROVINCE_NAMES.has(provinces[member]!.id)
+      );
       clusters.set(key, {
         key,
         members,
+        nameParts: excludedFromName
+          ? []
+          : [
+              {
+                order: members[0]!,
+                name: component.official ? firstMember.region! : firstMember.name,
+                nameEn: component.official ? firstMember.region! : firstMember.nameEn
+              }
+            ],
         countryId: provinces[members[0]!]!.countryId,
         areaKm2,
         center: weightedCenter(members, provinces),
@@ -694,37 +701,22 @@ export function buildMergeGroups(
   );
   const groups = [...clusters.values()].map((cluster): MergeGroup => {
     const members = cluster.members.map((index) => provinces[index]!);
-    const usesMacroregionNames = countryHasCompleteMacroregions(
-      countries.get(cluster.countryId)!,
-      provinces
+    const nameParts = cluster.nameParts.filter(
+      (part, index, parts) =>
+        parts.findIndex(
+          (candidate) => candidate.name === part.name && candidate.nameEn === part.nameEn
+        ) === index
     );
-    if (members.length === 1 && !usesMacroregionNames) {
-      const member = members[0]!;
-      return {
-        id: member.id,
-        name: member.name,
-        nameEn: member.nameEn,
-        countryId: member.countryId,
-        memberIndices: cluster.members,
-        method: cluster.method
-      };
+    if (nameParts.length === 0) {
+      throw new Error(`Final province ${cluster.countryId} has no display name.`);
     }
-    const nameMembers = members.filter(
-      (member) => !EXCLUDED_FROM_MERGED_PROVINCE_NAMES.has(member.id)
-    );
-    const namedMembers = nameMembers.length > 0 ? nameMembers : members;
-    const uniqueNames = (values: readonly string[]): string[] => [...new Set(values)];
-    const names = usesMacroregionNames
-      ? uniqueNames(namedMembers.map((member) => member.region!))
-      : namedMembers.map((member) => member.name);
-    const namesEn = usesMacroregionNames ? names : namedMembers.map((member) => member.nameEn);
     return {
       id:
         members.length === 1
           ? members[0]!.id
           : `${cluster.countryId}-G${groupHash(cluster.countryId, members)}`,
-      name: names.join("–"),
-      nameEn: namesEn.join("–"),
+      name: nameParts.map((part) => part.name).join("–"),
+      nameEn: nameParts.map((part) => part.nameEn).join("–"),
       countryId: cluster.countryId,
       memberIndices: cluster.members,
       method: cluster.method
@@ -933,7 +925,7 @@ async function main(args: readonly string[]): Promise<void> {
   bytes.manifest = await writeJson(join(outDir, "map.json"), {
     schemaVersion: 2,
     id: "world-modern",
-    version: "0.3.3",
+    version: "0.3.4",
     nameKey: "map.worldModern.name",
     coordinateReferenceSystem: "EPSG:4326",
     layers: {
