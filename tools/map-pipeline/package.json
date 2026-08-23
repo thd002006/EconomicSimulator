@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "build:world-modern": "tsx src/build-world-modern.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

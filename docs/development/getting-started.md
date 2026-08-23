@@ -35,6 +35,10 @@ pnpm sim -- --ticks 100 --seed 42
 
 # 校验 GeoJSON 输入
 pnpm map:inspect -- data-src/maps/architecture-probe/provinces.geojson
+pnpm map:inspect -- data-src/maps/world-modern/provinces.geojson
+
+# 从 Natural Earth 重新生成默认世界地图（需网络；原始缓存在 data-src/maps/_vendor/）
+pnpm map:build-world-modern
 
 # 浏览器 + Web Worker
 pnpm dev

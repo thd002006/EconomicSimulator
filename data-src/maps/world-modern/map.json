@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "world-modern",
+  "version": "0.1.0",
+  "nameKey": "map.worldModern.name",
+  "coordinateReferenceSystem": "EPSG:4326",
+  "layers": {
+    "provinces": "provinces.geojson",
+    "coastlines": "coastlines.geojson",
+    "cities": "cities.geojson"
+  },
+  "source": {
+    "provider": "Natural Earth",
+    "license": "public domain",
+    "scale": "1:10m",
+    "themes": {
+      "provinces": "ne_10m_admin_1_states_provinces_lakes",
+      "coastlines": "ne_10m_coastline",
+      "cities": "ne_10m_populated_places"
+    },
+    "cityMaxScalerank": 6
+  }
+}

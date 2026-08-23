@@ -4,6 +4,10 @@
     {
       "id": "architecture-probe",
       "manifest": "architecture-probe/map.json"
+    },
+    {
+      "id": "world-modern",
+      "manifest": "world-modern/map.json"
     }
   ]
 }

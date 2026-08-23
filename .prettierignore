@@ -4,3 +4,5 @@ coverage
 public/generated
 src-tauri/target
 pnpm-lock.yaml
+data-src/maps/_vendor
+**/*.geojson

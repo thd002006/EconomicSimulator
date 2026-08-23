@@ -6,7 +6,9 @@ coverage/
 .idea/
 .vscode/
 public/generated/
+data-src/maps/_vendor/
 src-tauri/target/
 src-tauri/gen/
 *.tmp
 *.bak
+data-src/maps/world-modern/provinces.geojson

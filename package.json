@@ -11,6 +11,7 @@
     "dev": "pnpm --filter @economic-simulator/client dev",
     "sim": "pnpm --filter @economic-simulator/simulation-cli start",
     "map:inspect": "pnpm --filter @economic-simulator/map-pipeline start",
+    "map:build-world-modern": "pnpm --filter @economic-simulator/map-pipeline build:world-modern",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
