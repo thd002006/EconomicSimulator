@@ -1,21 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  createDefaultViewport,
   createMapViewModel,
   loadMapPack,
-  panViewport,
-  unprojectFromScreen,
-  zoomViewportAt,
-  type MapViewModel,
   type ProvinceFeature
 } from "@economic-simulator/map-runtime";
 
 import {
-  buildMapRenderCache,
+  boundaryOwnerChanges,
+  GlobeRenderer,
   provinceLabel,
-  rebuildOwnershipStyles,
-  renderMapView,
-  type MapRenderCache
+  type GlobeRuntimeModel
 } from "./map-renderer";
 
 export interface MapViewProps {
@@ -33,50 +27,19 @@ export interface MapViewProps {
 
 type LoadState = "loading" | "ready" | "error";
 
-type RuntimeModel = MapViewModel & {
-  hitTest(lon: number, lat: number): ProvinceFeature | undefined;
-  findProvince(id: string): ProvinceFeature | undefined;
-  getProvinceOwner(provinceId: string): string | undefined;
-};
-
 function createOwnerLookup(
-  model: RuntimeModel,
+  model: GlobeRuntimeModel,
   provinceOwners: Readonly<Record<string, string>> | undefined
 ): (provinceId: string) => string | undefined {
-  return (provinceId: string) => {
-    const override = provinceOwners?.[provinceId];
-    if (override !== undefined) {
-      return override;
-    }
-    return model.getProvinceOwner(provinceId);
-  };
-}
-
-function collectOwnerChanges(
-  previous: Readonly<Record<string, string>> | undefined,
-  next: Readonly<Record<string, string>> | undefined
-): readonly string[] | undefined {
-  if (previous === undefined || next === undefined) {
-    return undefined;
-  }
-  const changed: string[] = [];
-  const ids = new Set([...Object.keys(previous), ...Object.keys(next)]);
-  for (const id of ids) {
-    if (previous[id] !== next[id]) {
-      changed.push(id);
-    }
-  }
-  return changed;
+  return (provinceId: string) => provinceOwners?.[provinceId] ?? model.getProvinceOwner(provinceId);
 }
 
 function resolveFeatureOwner(
-  model: RuntimeModel | undefined,
+  model: GlobeRuntimeModel | undefined,
   feature: ProvinceFeature | undefined,
   provinceOwners: Readonly<Record<string, string>> | undefined
 ): string {
-  if (feature === undefined || model === undefined) {
-    return "—";
-  }
+  if (feature === undefined || model === undefined) return "—";
   return createOwnerLookup(model, provinceOwners)(feature.id) ?? "—";
 }
 
@@ -84,152 +47,151 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   const mapId = props.mapId ?? "world-modern";
   const baseUrl = props.baseUrl ?? "/maps";
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const modelRef = useRef<RuntimeModel | undefined>(undefined);
-  const cacheRef = useRef<MapRenderCache | undefined>(undefined);
+  const modelRef = useRef<GlobeRuntimeModel | undefined>(undefined);
+  const globeRef = useRef<GlobeRenderer | undefined>(undefined);
   const dragRef = useRef<{ pointerId: number; x: number; y: number; moved: boolean } | undefined>(
     undefined
   );
-  const interactiveRef = useRef(false);
   const rafRef = useRef<number | undefined>(undefined);
-  const dprRef = useRef(1);
   const ownersRef = useRef<Readonly<Record<string, string>> | undefined>(props.provinceOwners);
-  const prevOwnersRef = useRef<Readonly<Record<string, string>> | undefined>(undefined);
-
+  const previousOwnersRef = useRef<Readonly<Record<string, string>> | undefined>(undefined);
   ownersRef.current = props.provinceOwners;
 
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [hovered, setHovered] = useState<ProvinceFeature | undefined>(undefined);
   const [selected, setSelected] = useState<ProvinceFeature | undefined>(undefined);
+  const [contextEpoch, setContextEpoch] = useState(0);
 
   const scheduleDraw = (): void => {
-    if (rafRef.current !== undefined) {
-      return;
-    }
+    if (rafRef.current !== undefined) return;
     rafRef.current = window.requestAnimationFrame(() => {
       rafRef.current = undefined;
-      const canvas = canvasRef.current;
-      const model = modelRef.current;
-      const cache = cacheRef.current;
-      if (canvas === null || model === undefined || cache === undefined) {
-        return;
-      }
-      const ctx = canvas.getContext("2d");
-      if (ctx === null) {
-        return;
-      }
-      renderMapView(ctx, model, cache, dprRef.current, {
-        interactive: interactiveRef.current
-      });
+      globeRef.current?.render();
     });
   };
 
   useEffect(() => {
     let cancelled = false;
+    let createdGlobe: GlobeRenderer | undefined;
     setLoadState("loading");
     setErrorMessage(undefined);
-    cacheRef.current = undefined;
+    setHovered(undefined);
 
     void loadMapPack(`${baseUrl}/${mapId}`)
       .then((pack) => {
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
         const canvas = canvasRef.current;
-        const model = createMapViewModel(
-          pack,
-          createDefaultViewport(canvas?.clientWidth ?? 960, canvas?.clientHeight ?? 540),
-          {
-            getProvinceOwner: (provinceId) => ownersRef.current?.[provinceId]
-          }
-        );
+        if (canvas === null) throw new Error("地图画布不可用。");
+        const model = createMapViewModel(pack, {
+          getProvinceOwner: (provinceId) => ownersRef.current?.[provinceId]
+        }) as GlobeRuntimeModel;
+        modelRef.current = model;
         if (props.selectedProvinceId !== undefined) {
           model.selectedProvinceId = props.selectedProvinceId;
           setSelected(model.findProvince(props.selectedProvinceId));
         }
-        modelRef.current = model;
-        const ownerLookup = createOwnerLookup(model, props.provinceOwners);
-        cacheRef.current = buildMapRenderCache(model, ownerLookup);
+        createdGlobe = new GlobeRenderer(
+          canvas,
+          model,
+          createOwnerLookup(model, ownersRef.current),
+          scheduleDraw
+        );
+        if (cancelled) {
+          createdGlobe.dispose();
+          return;
+        }
+        globeRef.current = createdGlobe;
+        createdGlobe.setSelected(model.selectedProvinceId);
+        previousOwnersRef.current = ownersRef.current;
         setLoadState("ready");
         scheduleDraw();
       })
       .catch((error: unknown) => {
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
         setLoadState("error");
-        setErrorMessage(error instanceof Error ? error.message : "地图加载失败。");
+        setErrorMessage(error instanceof Error ? error.message : "3D 地球仪加载失败。");
       });
 
     return () => {
       cancelled = true;
+      if (globeRef.current === createdGlobe) globeRef.current = undefined;
+      if (modelRef.current !== undefined) modelRef.current = undefined;
+      createdGlobe?.dispose();
     };
-  }, [baseUrl, mapId]);
+  }, [baseUrl, mapId, contextEpoch]);
 
   useEffect(() => {
     const model = modelRef.current;
-    const cache = cacheRef.current;
-    if (model === undefined || cache === undefined) {
-      return;
-    }
-    const ownerLookup = createOwnerLookup(model, ownersRef.current);
-    const changed = collectOwnerChanges(prevOwnersRef.current, props.provinceOwners);
-    rebuildOwnershipStyles(cache, model, ownerLookup, changed);
-    prevOwnersRef.current = props.provinceOwners;
-    scheduleDraw();
+    const globe = globeRef.current;
+    if (model === undefined || globe === undefined) return;
+    const changed = boundaryOwnerChanges(previousOwnersRef.current, props.provinceOwners);
+    globe.updateOwners(createOwnerLookup(model, props.provinceOwners), changed);
+    previousOwnersRef.current = props.provinceOwners;
   }, [props.provinceOwners]);
 
   useEffect(() => {
     const model = modelRef.current;
-    if (model === undefined) {
-      return;
-    }
+    if (model === undefined) return;
     model.selectedProvinceId = props.selectedProvinceId;
-    setSelected(
+    const feature =
       props.selectedProvinceId === undefined
         ? undefined
-        : model.findProvince(props.selectedProvinceId)
-    );
-    scheduleDraw();
+        : model.findProvince(props.selectedProvinceId);
+    setSelected(feature);
+    globeRef.current?.setSelected(props.selectedProvinceId);
   }, [props.selectedProvinceId]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (canvas === null) {
-      return;
-    }
-    const resize = (): void => {
-      const model = modelRef.current;
-      if (model === undefined) {
-        return;
-      }
-      const ratio = window.devicePixelRatio || 1;
-      dprRef.current = ratio;
-      const width = Math.max(1, Math.floor(canvas.clientWidth));
-      const height = Math.max(1, Math.floor(canvas.clientHeight));
-      canvas.width = Math.floor(width * ratio);
-      canvas.height = Math.floor(height * ratio);
-      model.viewport.width = width;
-      model.viewport.height = height;
-      scheduleDraw();
-    };
-    resize();
+    if (canvas === null || loadState !== "ready") return;
+    const resize = (): void => globeRef.current?.resize();
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
+    resize();
     return () => observer.disconnect();
   }, [loadState]);
 
   useEffect(() => {
     return () => {
-      if (rafRef.current !== undefined) {
-        window.cancelAnimationFrame(rafRef.current);
-      }
+      if (rafRef.current !== undefined) window.cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null) return;
+    const lost = (event: Event): void => {
+      event.preventDefault();
+      setLoadState("error");
+      setErrorMessage("WebGL 上下文已丢失，正在等待恢复…");
+    };
+    const restored = (): void => setContextEpoch((value) => value + 1);
+    canvas.addEventListener("webglcontextlost", lost);
+    canvas.addEventListener("webglcontextrestored", restored);
+    return () => {
+      canvas.removeEventListener("webglcontextlost", lost);
+      canvas.removeEventListener("webglcontextrestored", restored);
+    };
+  }, []);
+
+  const localPointer = (
+    event: React.PointerEvent<HTMLCanvasElement>
+  ): readonly [number, number] => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return [event.clientX - rect.left, event.clientY - rect.top];
+  };
+
+  const updateHover = (feature: ProvinceFeature | undefined): void => {
+    const model = modelRef.current;
+    if (model === undefined || feature?.id === model.hoveredProvinceId) return;
+    model.hoveredProvinceId = feature?.id;
+    globeRef.current?.setHovered(feature?.id);
+    setHovered(feature);
+  };
+
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>): void => {
-    canvasRef.current?.setPointerCapture(event.pointerId);
-    interactiveRef.current = true;
+    event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = {
       pointerId: event.pointerId,
       x: event.clientX,
@@ -239,88 +201,46 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>): void => {
-    const canvas = canvasRef.current;
-    const model = modelRef.current;
-    if (canvas === null || model === undefined) {
-      return;
-    }
-    const rect = canvas.getBoundingClientRect();
+    const globe = globeRef.current;
+    if (globe === undefined) return;
     const drag = dragRef.current;
     if (drag !== undefined && drag.pointerId === event.pointerId) {
-      const dx = event.clientX - drag.x;
-      const dy = event.clientY - drag.y;
-      if (Math.abs(dx) + Math.abs(dy) > 2) {
+      if (Math.abs(event.clientX - drag.x) + Math.abs(event.clientY - drag.y) > 2) {
         drag.moved = true;
       }
-      panViewport(model.viewport, dx, dy);
-      drag.x = event.clientX;
-      drag.y = event.clientY;
-      scheduleDraw();
       return;
     }
-    const [lon, lat] = unprojectFromScreen(
-      event.clientX - rect.left,
-      event.clientY - rect.top,
-      model.viewport
-    );
-    const feature = model.hitTest(lon, lat);
-    if (feature?.id !== model.hoveredProvinceId) {
-      model.hoveredProvinceId = feature?.id;
-      setHovered(feature);
-      scheduleDraw();
-    }
+    const [x, y] = localPointer(event);
+    updateHover(globe.pick(x, y));
   };
 
   const endDrag = (event: React.PointerEvent<HTMLCanvasElement>): void => {
-    const canvas = canvasRef.current;
+    const globe = globeRef.current;
     const model = modelRef.current;
     const drag = dragRef.current;
-    if (canvas === null || model === undefined || drag === undefined) {
+    if (
+      globe === undefined ||
+      model === undefined ||
+      drag === undefined ||
+      drag.pointerId !== event.pointerId
+    ) {
       return;
     }
-    if (drag.pointerId !== event.pointerId) {
-      return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    canvas.releasePointerCapture(event.pointerId);
     dragRef.current = undefined;
-    interactiveRef.current = false;
-    if (drag.moved) {
-      scheduleDraw();
-      return;
-    }
-    const rect = canvas.getBoundingClientRect();
-    const [lon, lat] = unprojectFromScreen(
-      event.clientX - rect.left,
-      event.clientY - rect.top,
-      model.viewport
-    );
-    const feature = model.hitTest(lon, lat);
+    if (drag.moved) return;
+    const [x, y] = localPointer(event);
+    const feature = globe.pick(x, y);
     model.selectedProvinceId = feature?.id;
+    globe.setSelected(feature?.id);
     setSelected(feature);
     props.onSelectProvince?.(feature?.id, feature);
-    scheduleDraw();
   };
 
-  const onWheel = (event: React.WheelEvent<HTMLCanvasElement>): void => {
-    event.preventDefault();
-    const canvas = canvasRef.current;
-    const model = modelRef.current;
-    if (canvas === null || model === undefined) {
-      return;
-    }
-    const rect = canvas.getBoundingClientRect();
-    interactiveRef.current = true;
-    zoomViewportAt(
-      model.viewport,
-      event.clientX - rect.left,
-      event.clientY - rect.top,
-      event.deltaY < 0 ? 1.12 : 1 / 1.12
-    );
-    scheduleDraw();
-    window.setTimeout(() => {
-      interactiveRef.current = false;
-      scheduleDraw();
-    }, 120);
+  const onPointerLeave = (): void => {
+    if (dragRef.current === undefined) updateHover(undefined);
   };
 
   const displayCountry =
@@ -331,7 +251,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   return (
     <section
       className={props.fill === true ? "map-panel map-panel-fill" : "map-panel"}
-      aria-label="世界地图"
+      aria-label="3D 世界地球仪"
     >
       {props.fill === true ? null : (
         <div className="map-toolbar">
@@ -361,9 +281,10 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
-          onWheel={onWheel}
+          onPointerLeave={onPointerLeave}
+          onContextMenu={(event) => event.preventDefault()}
         />
-        {loadState === "loading" ? <p className="map-overlay">正在加载世界地图…</p> : null}
+        {loadState === "loading" ? <p className="map-overlay">正在加载 3D 世界地球仪…</p> : null}
         {loadState === "error" ? (
           <p className="map-overlay map-overlay-error">{errorMessage}</p>
         ) : null}
@@ -374,7 +295,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           </div>
         ) : null}
       </div>
-      {props.fill === true ? null : <p className="map-hint">拖拽平移 · 滚轮缩放 · 点击选择省份</p>}
+      {props.fill === true ? null : <p className="map-hint">拖拽旋转 · 滚轮缩放 · 点击选择省份</p>}
     </section>
   );
 }

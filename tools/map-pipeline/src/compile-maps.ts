@@ -14,10 +14,11 @@ import { assertUniqueFeatureIds } from "./feature-ids.js";
 import { resolveContainedFile } from "./path-safety.js";
 import { signedRingArea, simplifyRingSafely } from "./simplify.js";
 import { parseSourceMapManifest } from "./source-manifest.js";
+import { compileGlobeMesh, serializeGlobeMesh } from "./globe-mesh.js";
 
 export const LOD_TOLERANCES = [0.25, 0.08, 0] as const;
 const GRID_CELL_SIZE = 5;
-const TOOL_VERSION = "0.4.0";
+const TOOL_VERSION = "0.5.0";
 
 type RecordValue = Record<string, unknown>;
 type Feature = {
@@ -32,8 +33,14 @@ function isRecord(value: unknown): value is RecordValue {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function sha256(content: string): string {
+function sha256(content: string | Uint8Array): string {
   return `sha256:${createHash("sha256").update(content).digest("hex")}`;
+}
+
+async function writeBinary(path: string, value: Uint8Array): Promise<string> {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, value);
+  return sha256(value);
 }
 
 async function readJson(path: string): Promise<unknown> {
@@ -234,9 +241,46 @@ export async function compilePack(
   assetHashes.spatialIndex = (
     await writeJson(join(outDir, "spatial-index.json"), buildSpatialIndex(provinces))
   ).hash;
+  const globeProvinceIds = provinces.map((province) => province.id).sort();
+  const provinceSlot = new Map(globeProvinceIds.map((id, index) => [id, index]));
+  const globeLods: Array<{
+    tolerance: number;
+    file: string;
+    vertexCount: number;
+    indexCount: number;
+  }> = [];
+  for (const [lodIndex, tolerance] of LOD_TOLERANCES.entries()) {
+    const mesh = compileGlobeMesh(
+      provinces
+        .map((province) => ({
+          id: province.id,
+          provinceSlot: provinceSlot.get(province.id)!,
+          geometry: province.lod[lodIndex]!
+        }))
+        .sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0))
+    );
+    const file = `globe-lod-${lodIndex}.bin`;
+    assetHashes[`globeLod${lodIndex}`] = await writeBinary(
+      join(outDir, file),
+      serializeGlobeMesh(mesh)
+    );
+    globeLods.push({
+      tolerance,
+      file,
+      vertexCount: mesh.provinceSlots.length,
+      indexCount: mesh.indices.length
+    });
+  }
+  assetHashes.globeMesh = (
+    await writeJson(join(outDir, "globe-mesh.json"), {
+      format: "economic-simulator.globe-mesh/v1",
+      provinceIds: globeProvinceIds,
+      lods: globeLods
+    })
+  ).hash;
   const manifestCore = {
-    schemaVersion: 3,
-    format: "economic-simulator.map-runtime/v2",
+    schemaVersion: 4,
+    format: "economic-simulator.map-runtime/v3",
     id: manifest.id,
     version: manifest.version,
     nameKey: manifest.nameKey,
@@ -245,7 +289,8 @@ export async function compilePack(
       provinces: "provinces.json",
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
-      spatialIndex: "spatial-index.json"
+      spatialIndex: "spatial-index.json",
+      globeMesh: "globe-mesh.json"
     },
     lodTolerances: [...LOD_TOLERANCES],
     provenance: {

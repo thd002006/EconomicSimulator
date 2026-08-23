@@ -2,17 +2,31 @@ import { describe, expect, it } from "vitest";
 import {
   MapSchemaError,
   ProvinceGridIndex,
-  createDefaultViewport,
   createMapViewModel,
   inspectFeatureCollection,
+  lonLatToUnitVector,
   parsePolygonGeometry,
   pointInPolygon,
+  unitVectorToLonLat,
   type LoadedMapPack,
   type LonLat,
   type ProvinceFeature
 } from "../src/index.js";
 
 describe("map runtime validation", () => {
+  it("round-trips globe coordinates across the antimeridian and poles", () => {
+    for (const [lon, lat] of [
+      [179.5, 12],
+      [-179.5, -12],
+      [30, 89.9],
+      [-45, -89.9]
+    ] as const) {
+      const actual = unitVectorToLonLat(lonLatToUnitVector(lon, lat));
+      expect(actual[0]).toBeCloseTo(lon, 8);
+      expect(actual[1]).toBeCloseTo(lat, 8);
+    }
+  });
+
   it("indexes stable GeoJSON feature IDs", () => {
     const result = inspectFeatureCollection({
       type: "FeatureCollection",
@@ -163,8 +177,8 @@ describe("map runtime validation", () => {
     };
     const pack: LoadedMapPack = {
       manifest: {
-        schemaVersion: 3,
-        format: "economic-simulator.map-runtime/v2",
+        schemaVersion: 4,
+        format: "economic-simulator.map-runtime/v3",
         id: "test",
         version: "0.0.1",
         nameKey: "test",
@@ -172,7 +186,8 @@ describe("map runtime validation", () => {
         assets: {
           provinces: "provinces.runtime.json",
           boundaries: "boundaries.runtime.json",
-          spatialIndex: "spatial-index.json"
+          spatialIndex: "spatial-index.json",
+          globeMesh: "globe-mesh.json"
         },
         lodTolerances: [0.1],
         provenance: {
@@ -199,14 +214,25 @@ describe("map runtime validation", () => {
       spatialIndex: {
         cellSizeDegrees: 5,
         cells: { "0:0": ["A", "B"] }
+      },
+      globeMesh: {
+        provinceIds: ["A", "B"],
+        lods: [
+          {
+            tolerance: 0.1,
+            positions: new Float32Array([0, 0, 1, 0.01, 0, 1, 0, 0.01, 1]),
+            provinceSlots: new Uint16Array([0, 0, 0]),
+            indices: new Uint32Array([0, 1, 2])
+          }
+        ]
       }
     };
 
-    const model = createMapViewModel(pack, createDefaultViewport(800, 600));
+    const model = createMapViewModel(pack);
     expect(model.getProvinceOwner("A")).toBe("AAA");
     expect(model.getProvinceOwner("B")).toBe("BBB");
 
-    const annexed = createMapViewModel(pack, createDefaultViewport(800, 600), {
+    const annexed = createMapViewModel(pack, {
       getProvinceOwner: (id) =>
         id === "B" ? "AAA" : pack.provinces.find((p) => p.id === id)?.properties.adm0A3
     });

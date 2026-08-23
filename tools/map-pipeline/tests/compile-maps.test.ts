@@ -104,12 +104,16 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
   return { sourceRoot, outputRoot };
 }
 
-async function readCompiledFiles(directory: string): Promise<Record<string, string>> {
-  const result: Record<string, string> = {};
+async function readCompiledFiles(directory: string): Promise<Record<string, Uint8Array>> {
+  const result: Record<string, Uint8Array> = {};
   for (const filename of (await readdir(directory)).sort()) {
-    result[filename] = await readFile(join(directory, filename), "utf8");
+    result[filename] = await readFile(join(directory, filename));
   }
   return result;
+}
+
+function jsonFile(files: Record<string, Uint8Array>, filename: string): unknown {
+  return JSON.parse(new TextDecoder().decode(files[filename])) as unknown;
 }
 
 describe("map compiler", () => {
@@ -145,14 +149,14 @@ describe("map compiler", () => {
     const second = await readCompiledFiles(compiledDirectory);
     expect(second).toEqual(first);
 
-    const manifest = JSON.parse(second["map.json"]!) as {
+    const manifest = jsonFile(second, "map.json") as {
       lodTolerances: number[];
       provenance: Record<string, unknown>;
     };
     expect(manifest.lodTolerances).toEqual([0.25, 0.08, 0]);
     expect(manifest.provenance).not.toHaveProperty("builtAt");
 
-    const provinces = JSON.parse(second["provinces.json"]!) as {
+    const provinces = jsonFile(second, "provinces.json") as {
       features: Array<{ lod: unknown[] }>;
     };
     expect(provinces.features[0]?.lod.at(-1)).toEqual(
@@ -166,7 +170,7 @@ describe("map compiler", () => {
       ])
     );
 
-    const coastlines = JSON.parse(second["coastlines.json"]!) as {
+    const coastlines = jsonFile(second, "coastlines.json") as {
       features: Array<{ coordinates: unknown }>;
     };
     expect(coastlines.features[0]?.coordinates).toEqual([
@@ -179,9 +183,17 @@ describe("map compiler", () => {
       parseMapPackBundle({
         manifest,
         provinces,
-        boundaries: JSON.parse(second["boundaries.json"]!),
+        boundaries: jsonFile(second, "boundaries.json"),
         coastlines,
-        spatialIndex: JSON.parse(second["spatial-index.json"]!)
+        spatialIndex: jsonFile(second, "spatial-index.json"),
+        globeMeshMetadata: jsonFile(second, "globe-mesh.json"),
+        globeMeshBuffers: [0, 1, 2].map((index) => {
+          const bytes = second[`globe-lod-${index}.bin`]!;
+          return bytes.buffer.slice(
+            bytes.byteOffset,
+            bytes.byteOffset + bytes.byteLength
+          ) as ArrayBuffer;
+        })
       })
     ).not.toThrow();
   });

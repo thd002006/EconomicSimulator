@@ -1,20 +1,9 @@
 import type { LoadedMapPack } from "./load-map-pack.js";
 import { ProvinceGridIndex } from "./spatial-index.js";
-import type { MapViewModel, MapViewModelHooks, MapViewport, ProvinceFeature } from "./types.js";
-
-export function createDefaultViewport(width: number, height: number): MapViewport {
-  return {
-    centerLon: 10,
-    centerLat: 20,
-    zoom: Math.max(width, 1) / 360,
-    width,
-    height
-  };
-}
+import type { MapViewModel, MapViewModelHooks, ProvinceFeature } from "./types.js";
 
 export function createMapViewModel(
   pack: LoadedMapPack,
-  viewport: MapViewport,
   hooks: MapViewModelHooks = {}
 ): MapViewModel & {
   readonly provinceIndex: ProvinceGridIndex;
@@ -45,7 +34,7 @@ export function createMapViewModel(
     boundaries: pack.boundaries,
     hoveredProvinceId: undefined,
     selectedProvinceId: undefined,
-    viewport,
+    globeMesh: pack.globeMesh,
     hooks: mergedHooks,
     provinceIndex,
     getProvinceOwner,

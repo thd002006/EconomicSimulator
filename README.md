@@ -13,6 +13,7 @@
 - `packages/game-data`：静态数据清单及运行时校验。
 - `assets/maps`：自包含的地图资产目录；保存可维护的成品数据及其就地生成的 `compiled/` 发布文件。
 - `packages/map-runtime`、`tools/map-pipeline`：地图运行时加载，以及成品地图的校验和编译。
+- `apps/client` 使用 Three.js WebGL2 渲染可旋转的 3D 地球仪；球面网格由地图发布管线预编译，不在浏览器中即时三角化。
 - `mapdata-generator`：独立的上游资料制作子项目，保存 Natural Earth 下载器、缓存规则和草稿生成流程。
 - `packages/platform-api`：Web、桌面和 Steam 能力边界。
 - `src-tauri`：Tauri 2 桌面壳。

@@ -26,6 +26,7 @@ export interface MapPackManifest {
     boundaries: string;
     coastlines?: string;
     spatialIndex: string;
+    globeMesh: string;
   }>;
   readonly lodTolerances: readonly number[];
   readonly provenance: MapPackProvenance;
@@ -81,13 +82,18 @@ export interface SpatialIndexData {
   readonly cells: Readonly<Record<string, readonly string[]>>;
 }
 
-export interface MapViewport {
-  centerLon: number;
-  centerLat: number;
-  /** Screen pixels per degree of longitude. */
-  zoom: number;
-  width: number;
-  height: number;
+export type Vec3 = readonly [number, number, number];
+
+export interface GlobeMeshLod {
+  readonly tolerance: number;
+  readonly positions: Float32Array;
+  readonly provinceSlots: Uint16Array;
+  readonly indices: Uint32Array;
+}
+
+export interface GlobeMeshData {
+  readonly provinceIds: readonly string[];
+  readonly lods: readonly GlobeMeshLod[];
 }
 
 export interface MapViewModelHooks {
@@ -103,7 +109,7 @@ export interface MapViewModel {
   readonly boundaries: readonly MapBoundary[];
   hoveredProvinceId: string | undefined;
   selectedProvinceId: string | undefined;
-  readonly viewport: MapViewport;
+  readonly globeMesh: GlobeMeshData;
   readonly hooks: MapViewModelHooks;
 }
 

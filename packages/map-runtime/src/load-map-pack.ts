@@ -5,7 +5,9 @@ import {
   parsePolygonGeometry,
   parseProvinceCapital
 } from "./schema.js";
+import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
 import type {
+  GlobeMeshData,
   MapBoundary,
   MapFeature,
   MapFeatureProperties,
@@ -109,9 +111,9 @@ function parseManifest(input: unknown): MapPackManifest {
   if (!isRecord(input)) {
     throw new MapSchemaError("Invalid map pack manifest.", "manifest");
   }
-  if (input.schemaVersion !== 3) {
+  if (input.schemaVersion !== 4) {
     throw new MapSchemaError(
-      `Unsupported schemaVersion ${String(input.schemaVersion)}; expected 3.`,
+      `Unsupported schemaVersion ${String(input.schemaVersion)}; expected 4.`,
       "manifest"
     );
   }
@@ -127,10 +129,11 @@ function parseManifest(input: unknown): MapPackManifest {
   }
   if (
     typeof input.assets.boundaries !== "string" ||
-    typeof input.assets.spatialIndex !== "string"
+    typeof input.assets.spatialIndex !== "string" ||
+    typeof input.assets.globeMesh !== "string"
   ) {
     throw new MapSchemaError(
-      "Manifest assets.boundaries and assets.spatialIndex are required.",
+      "Manifest assets.boundaries, assets.spatialIndex, and assets.globeMesh are required.",
       "manifest"
     );
   }
@@ -146,7 +149,7 @@ function parseManifest(input: unknown): MapPackManifest {
 
   const coastlines = asString(input.assets.coastlines);
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     format: input.format,
     id: input.id,
     version: input.version,
@@ -156,7 +159,8 @@ function parseManifest(input: unknown): MapPackManifest {
       provinces: input.assets.provinces,
       boundaries: input.assets.boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
-      spatialIndex: input.assets.spatialIndex
+      spatialIndex: input.assets.spatialIndex,
+      globeMesh: input.assets.globeMesh
     },
     lodTolerances,
     provenance: parseProvenance(input.provenance)
@@ -289,12 +293,21 @@ async function fetchJson(url: string): Promise<unknown> {
   return (await response.json()) as unknown;
 }
 
+async function fetchArrayBuffer(url: string): Promise<ArrayBuffer> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}: HTTP ${response.status}`);
+  }
+  return response.arrayBuffer();
+}
+
 export interface LoadedMapPack {
   readonly manifest: MapPackManifest;
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
   readonly spatialIndex: SpatialIndexData;
+  readonly globeMesh: GlobeMeshData;
 }
 
 export interface MapPackBundleInput {
@@ -302,6 +315,10 @@ export interface MapPackBundleInput {
   readonly provinces: unknown;
   readonly boundaries: unknown;
   readonly spatialIndex: unknown;
+  readonly globeMeshMetadata: unknown;
+  readonly globeMeshBuffers: readonly ArrayBuffer[];
+  /** Metadata indices corresponding to globeMeshBuffers; omitted when every LOD is present. */
+  readonly globeMeshLodIndices?: readonly number[];
   readonly coastlines?: unknown;
 }
 
@@ -327,11 +344,30 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
   const manifest = parseManifest(raw.manifest);
   const provinces = parseRuntimeProvinces(raw.provinces);
   assertLodCount(manifest, provinces);
+  const globeMeshMetadata = parseGlobeMeshMetadata(raw.globeMeshMetadata);
+  if (
+    globeMeshMetadata.lods.length !== manifest.lodTolerances.length ||
+    globeMeshMetadata.lods.some((lod, index) => lod.tolerance !== manifest.lodTolerances[index])
+  ) {
+    throw new MapSchemaError("Globe mesh LODs do not match the map manifest.", "globeMesh");
+  }
+  const provinceIds = new Set(provinces.map((province) => province.id));
+  if (
+    globeMeshMetadata.provinceIds.length !== provinces.length ||
+    globeMeshMetadata.provinceIds.some((id) => !provinceIds.has(id))
+  ) {
+    throw new MapSchemaError("Globe mesh province IDs do not match provinces.", "globeMesh");
+  }
   return {
     manifest,
     provinces,
     boundaries: parseRuntimeBoundaries(raw.boundaries),
     spatialIndex: parseSpatialIndex(raw.spatialIndex),
+    globeMesh: createGlobeMeshData(
+      globeMeshMetadata,
+      raw.globeMeshBuffers,
+      raw.globeMeshLodIndices
+    ),
     coastlines: raw.coastlines === undefined ? [] : parseRuntimeCoastlines(raw.coastlines)
   };
 }
@@ -341,20 +377,34 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
   const root = baseUrl.replace(/\/$/, "");
   const manifest = parseManifest(await fetchJson(`${root}/map.json`));
 
-  const [provincesRaw, boundariesRaw, spatialIndexRaw, coastlinesRaw] = await Promise.all([
-    fetchJson(`${root}/${manifest.assets.provinces}`),
-    fetchJson(`${root}/${manifest.assets.boundaries}`),
-    fetchJson(`${root}/${manifest.assets.spatialIndex}`),
-    manifest.assets.coastlines === undefined
-      ? Promise.resolve(undefined)
-      : fetchJson(`${root}/${manifest.assets.coastlines}`)
-  ]);
+  const [provincesRaw, boundariesRaw, spatialIndexRaw, coastlinesRaw, globeMeshMetadataRaw] =
+    await Promise.all([
+      fetchJson(`${root}/${manifest.assets.provinces}`),
+      fetchJson(`${root}/${manifest.assets.boundaries}`),
+      fetchJson(`${root}/${manifest.assets.spatialIndex}`),
+      manifest.assets.coastlines === undefined
+        ? Promise.resolve(undefined)
+        : fetchJson(`${root}/${manifest.assets.coastlines}`),
+      fetchJson(`${root}/${manifest.assets.globeMesh}`)
+    ]);
+  const globeMeshMetadata = parseGlobeMeshMetadata(globeMeshMetadataRaw);
+  // The renderer currently uses authored geometry exclusively. Do not download
+  // the coarse meshes until distance-based switching is enabled again.
+  const globeMeshLodIndices = [globeMeshMetadata.lods.length - 1];
+  const globeMeshBuffers = await Promise.all(
+    globeMeshLodIndices.map((index) =>
+      fetchArrayBuffer(`${root}/${globeMeshMetadata.lods[index]!.file}`)
+    )
+  );
 
   return parseMapPackBundle({
     manifest,
     provinces: provincesRaw,
     boundaries: boundariesRaw,
     spatialIndex: spatialIndexRaw,
+    globeMeshMetadata,
+    globeMeshBuffers,
+    globeMeshLodIndices,
     ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw })
   });
 }

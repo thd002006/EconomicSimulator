@@ -13,18 +13,23 @@ export type {
   MapPackProvenance,
   MapViewModel,
   MapViewModelHooks,
-  MapViewport,
+  GlobeMeshData,
+  GlobeMeshLod,
+  Vec3,
   SpatialIndexData
 } from "./types.js";
 
+export { lonLatToUnitVector, unitVectorToLonLat } from "./globe.js";
+
 export {
-  clampZoom,
-  featureVisibleInViewport,
-  panViewport,
-  projectToScreen,
-  unprojectFromScreen,
-  zoomViewportAt
-} from "./project.js";
+  createGlobeMeshData,
+  GLOBE_MESH_BINARY_MAGIC,
+  GLOBE_MESH_BINARY_VERSION,
+  GLOBE_MESH_HEADER_BYTES,
+  parseGlobeMeshBuffer,
+  parseGlobeMeshMetadata
+} from "./globe-mesh.js";
+export type { GlobeMeshMetadata } from "./globe-mesh.js";
 
 export {
   computeBBox,
@@ -44,4 +49,4 @@ export {
   parseProvinceCapital,
   parsePolygonGeometry
 } from "./schema.js";
-export { createDefaultViewport, createMapViewModel } from "./view-model.js";
+export { createMapViewModel } from "./view-model.js";
