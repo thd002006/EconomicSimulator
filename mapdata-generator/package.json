@@ -1,0 +1,15 @@
+{
+  "name": "economic-simulator-mapdata-generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:world-modern": "tsx src/build-world-modern.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3"
+  }
+}

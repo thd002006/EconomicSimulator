@@ -66,9 +66,6 @@ function parseProvenance(value: unknown): MapPackProvenance {
   if (typeof value.toolVersion !== "string" || typeof value.outputHash !== "string") {
     throw new MapSchemaError("provenance requires toolVersion and outputHash.", "manifest");
   }
-  if (typeof value.builtAt !== "string") {
-    throw new MapSchemaError("provenance.builtAt missing.", "manifest");
-  }
   if (!isRecord(value.sourceHashes) || !isRecord(value.assetHashes)) {
     throw new MapSchemaError("provenance hashes missing.", "manifest");
   }
@@ -92,8 +89,7 @@ function parseProvenance(value: unknown): MapPackProvenance {
       value.naturalEarthCommit === null ? null : (asString(value.naturalEarthCommit) ?? null),
     sourceHashes,
     assetHashes,
-    outputHash: value.outputHash,
-    builtAt: value.builtAt
+    outputHash: value.outputHash
   };
 }
 

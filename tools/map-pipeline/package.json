@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "validate-maps": "tsx src/validate-maps.ts",
+    "publish-maps": "tsx src/compile-maps.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

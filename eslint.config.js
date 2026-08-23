@@ -8,7 +8,7 @@ export default tseslint.config(
       "**/dist/**",
       "**/node_modules/**",
       "**/coverage/**",
-      "public/generated/**",
+      "assets/maps/*/compiled/**",
       "src-tauri/target/**"
     ]
   },

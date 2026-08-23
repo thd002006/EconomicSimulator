@@ -3,6 +3,8 @@ dist
 coverage
 src-tauri/target
 pnpm-lock.yaml
-**/*.geojson
-data-src/maps/**/*.runtime.json
-data-src/maps/**/spatial-index.json
+assets/maps/**/*.geojson
+assets/maps/**/boundaries.json
+assets/maps/*/compiled
+mapdata-generator/cache
+mapdata-generator/output

@@ -5,6 +5,11 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+assets/maps/*/compiled/
+mapdata-generator/node_modules/
+mapdata-generator/cache/
+mapdata-generator/output/
+data-src/maps/
 src-tauri/target/
 src-tauri/gen/
 *.tmp

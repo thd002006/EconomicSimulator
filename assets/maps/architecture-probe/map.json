@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "architecture-probe",
+  "version": "0.1.0",
+  "nameKey": "map.architectureProbe.name",
+  "coordinateReferenceSystem": "EPSG:4326",
+  "layers": {
+    "provinces": "provinces.geojson",
+    "boundaries": "boundaries.json"
+  }
+}

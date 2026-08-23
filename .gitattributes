@@ -1,0 +1,2 @@
+assets/maps/**/*.geojson filter=lfs diff=lfs merge=lfs -text
+assets/maps/**/boundaries.json filter=lfs diff=lfs merge=lfs -text

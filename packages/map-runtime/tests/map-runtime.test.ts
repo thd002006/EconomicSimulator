@@ -180,8 +180,7 @@ describe("map runtime validation", () => {
           naturalEarthCommit: null,
           sourceHashes: {},
           assetHashes: {},
-          outputHash: "sha256:test",
-          builtAt: "2026-01-01T00:00:00.000Z"
+          outputHash: "sha256:test"
         }
       },
       provinces: [left, right],

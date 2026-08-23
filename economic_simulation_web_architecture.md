@@ -42,19 +42,19 @@
 
 项目采用以下技术路线：
 
-| 模块     | 技术与职责                                                                 |
-| -------- | -------------------------------------------------------------------------- |
-| UI       | React + TypeScript，负责界面、面板、图表和交互                             |
-| 地图     | 版本化 runtime map pack；Canvas 2D 渲染；归属变化由 UI Read Model 驱动样式 |
-| 模拟核心 | 纯 TypeScript 包，不依赖 React、DOM、Tauri 或文件系统                      |
-| 模拟线程 | 单个 Web Worker 起步，负责持有和推进权威 World State                       |
-| 通信     | 版本化 Command / Query / Event / Snapshot 协议                             |
-| 静态数据 | 游戏内只接收校验过的 runtime 地图包与 JSON 配置；不在仓库内维护 GeoJSON 源 |
-| 存档     | 版本化快照；初期 JSON，规模增长后可替换为压缩或二进制编码                  |
-| 自动测试 | Node.js 环境直接运行 Simulation Core，不启动 React 或 Tauri                |
-| 桌面壳   | Tauri 2，负责窗口、文件系统、设置、日志和平台原生能力                      |
-| Steam    | 通过 Platform Services 抽象和 Tauri 原生桥接接入                           |
-| 性能优化 | 基准测试 → TypeScript 数据结构优化 → 可转移缓冲区 → 必要时 Rust/WASM       |
+| 模块     | 技术与职责                                                                            |
+| -------- | ------------------------------------------------------------------------------------- |
+| UI       | React + TypeScript，负责界面、面板、图表和交互                                        |
+| 地图     | 可维护的成品地图源；构建时生成运行格式；Canvas 2D 渲染；归属由 UI Read Model 驱动样式 |
+| 模拟核心 | 纯 TypeScript 包，不依赖 React、DOM、Tauri 或文件系统                                 |
+| 模拟线程 | 单个 Web Worker 起步，负责持有和推进权威 World State                                  |
+| 通信     | 版本化 Command / Query / Event / Snapshot 协议                                        |
+| 静态数据 | 仓库维护成品 GeoJSON 与 JSON；游戏只加载构建后、校验过的运行格式                      |
+| 存档     | 版本化快照；初期 JSON，规模增长后可替换为压缩或二进制编码                             |
+| 自动测试 | Node.js 环境直接运行 Simulation Core，不启动 React 或 Tauri                           |
+| 桌面壳   | Tauri 2，负责窗口、文件系统、设置、日志和平台原生能力                                 |
+| Steam    | 通过 Platform Services 抽象和 Tauri 原生桥接接入                                      |
+| 性能优化 | 基准测试 → TypeScript 数据结构优化 → 可转移缓冲区 → 必要时 Rust/WASM                  |
 
 ### 2.1 默认工程工具
 
@@ -197,7 +197,7 @@ project/
 │   └── shared-types/              # 少量真正跨边界的基础类型
 │
 ├── tools/
-│   ├── map-pipeline/              # 成品地图包校验
+│   ├── map-pipeline/              # 成品地图校验与运行格式编译
 │   ├── data-validator/            # 游戏数据引用和单位校验
 │   └── save-migrator/             # 存档迁移与检查工具
 │
@@ -208,8 +208,9 @@ project/
 │   ├── integration/
 │   └── performance/
 │
-├── data-src/                      # 游戏数据与成品地图包
-├── public/                        # 其它静态资源（不含地图副本）
+├── assets/
+│   └── maps/                     # 自包含地图：成品源数据及其 compiled/ 发布文件
+├── mapdata-generator/             # 独立的 Natural Earth 下载、缓存和草稿制作子项目
 ├── src-tauri/                     # Tauri 2 桌面壳与原生桥接
 └── docs/
     ├── architecture/
@@ -635,55 +636,85 @@ TransportEdge
 
 ## 12. 地图数据与发布
 
-### 12.1 成品地图包
+### 12.1 可维护的成品地图
 
-游戏仓库只保存 **runtime map pack**，不在项目内维护 GeoJSON 源数据、Natural Earth 下载器或拓扑/LOD 生成脚本。地图由外部制作流程生产后，以版本化成品形式导入：
+游戏仓库以 `assets/maps/` 中的**制作完成地图**为地图真相来源。每张地图是可整体添加、移动或分享的自包含目录；其中的源文件使用 GeoJSON 和语义明确的 JSON，保留稳定 ID、可读属性与显式关系，能够被开发者检查、修订和版本管理：
 
 ```text
-data-src/maps/
-├── index.json
+assets/maps/
 └── world-modern/
     ├── map.json
-    ├── provinces.runtime.json
-    ├── boundaries.runtime.json
-    ├── coastlines.runtime.json
-    ├── cities.runtime.json
-    └── spatial-index.json
+    ├── provinces.geojson
+    ├── boundaries.json
+    ├── coastlines.geojson
+    ├── cities.geojson
+    └── compiled/
+        ├── map.json
+        ├── provinces.json
+        ├── boundaries.json
+        ├── coastlines.json
+        ├── cities.json
+        └── spatial-index.json
 ```
 
-经济状态不得写入地图几何。省份要素只保存稳定 ID 和少量展示所需属性；当前归属由模拟读模型提供。
+这里的 GeoJSON 是已经制作完成的游戏地图，不等于 Natural Earth 原始资料。经济状态不得写入地图几何；省份要素只保存稳定 ID 和少量展示所需属性，当前归属由模拟读模型提供。
 
-外部制作流程（不在本仓库）负责：
-
-```text
-原始地理参考数据
-→ Schema 与坐标系校验
-→ 坐标量化与相邻边吸附
-→ 共享省界拓扑与边界提取
-→ 受预算约束的多级 LOD 简化
-→ 包围盒与空间索引
-→ 输出 runtime map pack
-```
-
-`neighbors`、共享 Boundary 和包围盒由外部流程预计算并写入成品包，运行时不再重新生成几何。
-
-国界是运行时概念：
+`boundaries.json` 保存制作阶段确定的共享省份关系。国界是运行时概念：
 
 ```text
 boundary.provinceA.ownerCountryId != boundary.provinceB.ownerCountryId
 ```
 
-因此成品包提供共享省份边；渲染阶段根据当前归属决定省界或国界样式。
+因此成品地图提供共享省份边；渲染阶段根据当前归属决定省界或国界样式。
 
-### 12.2 仓库内地图工具
+### 12.2 Natural Earth 制作子项目
 
-本仓库仅保留：
+`mapdata-generator/` 是仓库内独立维护的地图资料制作子项目，集中保存：
 
-- `map:validate`：校验成品包 schema、几何约束与 LOD 层数。
+- 固定版本的 Natural Earth 下载地址与下载器；
+- 原始下载缓存（目录规则保留，缓存内容默认不提交）；
+- 从上游资料生成 GeoJSON 草稿的脚本；
+- 制作流程、来源和输出边界说明。
 
-客户端通过 `loadMapPack("/maps/<id>")` 直接加载 `data-src/maps/`，不在仓库内维护第二份“发布副本”。
+该子项目不加入游戏 workspace，也不参与 `dev`、`build` 或发行构建。它只在制作或更新地图时手动运行：
 
-### 12.3 运行时渲染层
+```text
+Natural Earth 原始资料
+→ mapdata-generator 下载与缓存
+→ 生成地图草稿
+→ 人工检查、整理、确定稳定 ID 和关系
+→ 导入 assets/maps/<mapId>/
+```
+
+任何 Natural Earth 原始下载文件、缓存和上游下载逻辑都不得出现在 `assets/maps/`、游戏包或客户端运行路径中。
+
+### 12.3 校验、编译与发布
+
+主项目的 `tools/map-pipeline` 只处理已经完成的 `assets/maps/`：
+
+```text
+assets/maps/<mapId>/
+→ map:validate（Schema、引用、稳定 ID、几何约束）
+→ map:publish（LOD、包围盒、空间索引和运行清单）
+→ assets/maps/<mapId>/compiled/
+→ Vite 开发时直接提供、发行时打包为 /maps/<id>
+→ loadMapPack("/maps/<id>")
+```
+
+`compiled/` 是地图目录内可重复生成、默认忽略提交的发布文件，不是人工维护入口。`dev` 和 `build` 会先执行 `map:publish`，过程中不会联网或读取 Natural Earth 缓存；发行构建把它作为只读资源打包，发布后的程序不会执行编译或向安装目录写文件。
+
+编译必须满足以下正确性约束：
+
+- 最高精度 LOD 逐坐标保留成品地图的原始几何，并作为命中测试的权威几何；
+- 较低 LOD 按要素尺度限制容差，并校验面积偏差、环方向和自相交，失败时回退到更小容差或原始环；
+- 当前运行格式只支持单级海岸线，因此发布文件保留原始海岸线，不能用最粗省份容差代替；
+- 相同输入必须产生字节一致的 `compiled/`，动态构建时间不得写入地图清单；
+- `map.json.layers` 只能引用当前地图目录内的真实文件，必须拒绝绝对路径、目录穿越和符号链接逃逸。
+- 源地图清单的版本、名称键、坐标系和全部图层字段必须在构建期完整校验；所有图层要素都必须拥有稳定且唯一的 ID。
+
+未来若支持玩家导入或编辑地图，完整地图目录应位于平台用户数据目录；运行时产生的 `compiled/` 也必须留在对应的用户地图目录。通用、可丢弃的下载缓存才放平台用户缓存目录，二者均不得写入安装目录。
+
+### 12.4 运行时渲染层
 
 ```text
 Layer 1：海洋、陆地和基础省份填充
@@ -1162,7 +1193,7 @@ Windows 是第一优先平台，但启用 macOS/Linux 前必须各自建立真�
 
 交付：
 
-- runtime 地图包校验与发布复制；
+- 可维护成品地图的校验与运行格式编译；
 - 共享 Boundary、LOD 与空间索引消费；
 - Province/Country 数据着色；
 - 城市、道路、铁路和港口图；
@@ -1236,7 +1267,7 @@ Tauri 最小壳在 Phase 0 建立，Steam 接口在早期预留；Phase 5 完成
 - [ ] Tick 阶段、随机种子和确定性规则已实现；
 - [ ] 数值单位和第一组经济不变量已定义；
 - [ ] 存档包含版本并能往返恢复；
-- [ ] 成品 runtime 地图包校验与发布已有原型；
+- [ ] 成品地图校验、运行格式编译与发布已有原型；
 - [ ] 标准基准场景和基准机器已记录；
 - [ ] Tauri 2 最小桌面壳能够运行 Worker 和读写测试存档；
 - [ ] 至少一个完整纵向经济场景可以自动运行和回放。
@@ -1256,7 +1287,7 @@ Tauri 最小壳在 Phase 0 建立，Steam 接口在早期预留；Phase 5 完成
 9. Tick 顺序、随机数和排序规则必须显式，以保证确定性和可回放性。
 10. 大量主体优先采用可解释的聚合模型，热点内部布局可以独立优化。
 11. 经济数值必须拥有统一单位、误差和会计规则。
-12. 地图由外部流程生产；仓库只保存版本化 runtime map pack，并在发布前校验。
+12. 每张地图以自包含目录保存成品 GeoJSON/JSON 及就地生成的 `compiled/`；Natural Earth 制作管线独立隔离。
 13. 存档必须版本化、可迁移、可校验并采用安全写入流程。
 14. Inspector、Debugger、长时间测试和性能基准从项目第一阶段存在。
 15. Tauri 负责平台能力，不负责模拟；Steam 通过 Platform Services 接入。
@@ -1283,9 +1314,9 @@ Tauri 最小壳在 Phase 0 建立，Steam 接口在早期预留；Phase 5 完成
                                   │
         ┌─────────────────────────┼─────────────────────────┐
         │                         │                         │
- Compiled Game Data        Versioned Save State      Metrics / Events
+ Compiled Game/Map Data    Versioned Save State      Metrics / Events
         │                         │                         │
- JSON / GeoJSON Source      Migration / Checksum      Inspector / Tests
+ Authored JSON / GeoJSON    Migration / Checksum      Inspector / Tests
 ```
 
 最终目标不是简单地“用 Web 技术制作一个桌面游戏”，而是建立一套：

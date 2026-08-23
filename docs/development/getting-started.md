@@ -43,11 +43,16 @@ Steamworks（成就、云存档、Overlay）按架构文档经 Platform Services
 # Node CLI 直接运行 Simulation Core
 pnpm sim -- --ticks 100 --seed 42
 
-# 校验 data-src/maps 中的成品地图包
+# 校验 assets/maps 中可维护的成品地图
 pnpm map:validate
 
-# 浏览器 + Web Worker（直接读取 data-src/maps，映射为 /maps）
+# 校验并就地编译到每个地图的 compiled/ 目录
+pnpm map:publish
+
+# 浏览器 + Web Worker（启动前会自动执行 map:publish）
 pnpm dev
 ```
 
-成品地图保存在 `data-src/maps/`。Natural Earth 等公开数据只是某次制作时的可选参考，不是项目地图来源约束。
+每张地图是一个自包含的 `assets/maps/<mapId>/` 目录，其中包括 GeoJSON 几何、稳定 ID、显式关系数据，以及自动生成且忽略提交的 `compiled/`。客户端开发服务器直接读取该目录，发行构建则将 `compiled/` 打包到只读应用资源 `/maps/<id>`；发布后的程序不会向项目或安装目录写文件。
+
+Natural Earth 原始下载文件、缓存、下载器和草稿生成逻辑统一放在独立的 `mapdata-generator/` 子项目中。它不属于游戏的开发或构建依赖，只有制作或更新底图时才手动运行；其输出经过人工检查和整理后再导入 `assets/maps/<mapId>/`。

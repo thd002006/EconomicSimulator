@@ -12,7 +12,6 @@ export interface MapPackProvenance {
   readonly sourceHashes: Readonly<Record<string, string>>;
   readonly assetHashes: Readonly<Record<string, string>>;
   readonly outputHash: string;
-  readonly builtAt: string;
 }
 
 export interface MapPackManifest {
