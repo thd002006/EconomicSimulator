@@ -2,8 +2,8 @@ import {
   MapSchemaError,
   parseBBox,
   parseLineGeometry,
-  parsePointGeometry,
-  parsePolygonGeometry
+  parsePolygonGeometry,
+  parseProvinceCapital
 } from "./schema.js";
 import type {
   MapBoundary,
@@ -11,6 +11,8 @@ import type {
   MapFeatureProperties,
   MapPackManifest,
   MapPackProvenance,
+  ProvinceFeature,
+  ProvinceFeatureProperties,
   SpatialIndexData
 } from "./types.js";
 
@@ -59,6 +61,16 @@ function normalizeProperties(raw: Record<string, unknown> | null): MapFeaturePro
   };
 }
 
+function normalizeProvinceProperties(
+  raw: Record<string, unknown> | null,
+  id: string
+): ProvinceFeatureProperties {
+  return {
+    ...normalizeProperties(raw),
+    capital: parseProvinceCapital(raw?.capital, "provinces", id)
+  };
+}
+
 function parseProvenance(value: unknown): MapPackProvenance {
   if (!isRecord(value)) {
     throw new MapSchemaError("provenance missing.", "manifest");
@@ -97,9 +109,9 @@ function parseManifest(input: unknown): MapPackManifest {
   if (!isRecord(input)) {
     throw new MapSchemaError("Invalid map pack manifest.", "manifest");
   }
-  if (input.schemaVersion !== 2) {
+  if (input.schemaVersion !== 3) {
     throw new MapSchemaError(
-      `Unsupported schemaVersion ${String(input.schemaVersion)}; expected 2.`,
+      `Unsupported schemaVersion ${String(input.schemaVersion)}; expected 3.`,
       "manifest"
     );
   }
@@ -133,10 +145,8 @@ function parseManifest(input: unknown): MapPackManifest {
     : [];
 
   const coastlines = asString(input.assets.coastlines);
-  const cities = asString(input.assets.cities);
-
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     format: input.format,
     id: input.id,
     version: input.version,
@@ -146,7 +156,6 @@ function parseManifest(input: unknown): MapPackManifest {
       provinces: input.assets.provinces,
       boundaries: input.assets.boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
-      ...(cities === undefined ? {} : { cities }),
       spatialIndex: input.assets.spatialIndex
     },
     lodTolerances,
@@ -154,11 +163,11 @@ function parseManifest(input: unknown): MapPackManifest {
   };
 }
 
-function parseRuntimeProvinces(input: unknown): MapFeature[] {
+function parseRuntimeProvinces(input: unknown): ProvinceFeature[] {
   if (!isRecord(input) || input.type !== "ProvinceCollection" || !Array.isArray(input.features)) {
     throw new MapSchemaError("Expected ProvinceCollection.", "provinces");
   }
-  const features: MapFeature[] = [];
+  const features: ProvinceFeature[] = [];
   for (const [index, feature] of input.features.entries()) {
     if (!isRecord(feature)) {
       throw new MapSchemaError(`Feature ${index} is invalid.`, "provinces");
@@ -176,9 +185,10 @@ function parseRuntimeProvinces(input: unknown): MapFeature[] {
     const geometry = lod[lod.length - 1]!;
     features.push({
       id,
-      properties: isRecord(feature.properties)
-        ? normalizeProperties(feature.properties)
-        : normalizeProperties(null),
+      properties: normalizeProvinceProperties(
+        isRecord(feature.properties) ? feature.properties : null,
+        id
+      ),
       geometry,
       bbox: parseBBox(feature.bbox, "provinces", id),
       lod
@@ -250,38 +260,6 @@ function parseRuntimeCoastlines(input: unknown): MapFeature[] {
   return features;
 }
 
-function parseRuntimeCities(input: unknown): MapFeature[] {
-  if (!isRecord(input) || input.type !== "CityCollection" || !Array.isArray(input.features)) {
-    throw new MapSchemaError("Expected CityCollection.", "cities");
-  }
-  const features: MapFeature[] = [];
-  for (const [index, feature] of input.features.entries()) {
-    if (!isRecord(feature)) {
-      throw new MapSchemaError(`Feature ${index} is invalid.`, "cities");
-    }
-    const id = asString(feature.id) ?? `city-${index}`;
-    const geometry = parsePointGeometry(
-      { type: "Point", coordinates: feature.coordinates },
-      "cities",
-      id
-    );
-    features.push({
-      id,
-      properties: isRecord(feature.properties)
-        ? normalizeProperties(feature.properties)
-        : normalizeProperties(null),
-      geometry,
-      bbox: [
-        geometry.coordinates[0],
-        geometry.coordinates[1],
-        geometry.coordinates[0],
-        geometry.coordinates[1]
-      ]
-    });
-  }
-  return features;
-}
-
 function parseSpatialIndex(input: unknown): SpatialIndexData {
   if (!isRecord(input)) {
     throw new MapSchemaError("Invalid spatial index.", "spatialIndex");
@@ -313,10 +291,9 @@ async function fetchJson(url: string): Promise<unknown> {
 
 export interface LoadedMapPack {
   readonly manifest: MapPackManifest;
-  readonly provinces: readonly MapFeature[];
+  readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
-  readonly cities: readonly MapFeature[];
   readonly spatialIndex: SpatialIndexData;
 }
 
@@ -326,10 +303,9 @@ export interface MapPackBundleInput {
   readonly boundaries: unknown;
   readonly spatialIndex: unknown;
   readonly coastlines?: unknown;
-  readonly cities?: unknown;
 }
 
-function assertLodCount(manifest: MapPackManifest, provinces: readonly MapFeature[]): void {
+function assertLodCount(manifest: MapPackManifest, provinces: readonly ProvinceFeature[]): void {
   const expected = manifest.lodTolerances.length;
   if (expected === 0) {
     return;
@@ -356,8 +332,7 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
     provinces,
     boundaries: parseRuntimeBoundaries(raw.boundaries),
     spatialIndex: parseSpatialIndex(raw.spatialIndex),
-    coastlines: raw.coastlines === undefined ? [] : parseRuntimeCoastlines(raw.coastlines),
-    cities: raw.cities === undefined ? [] : parseRuntimeCities(raw.cities)
+    coastlines: raw.coastlines === undefined ? [] : parseRuntimeCoastlines(raw.coastlines)
   };
 }
 
@@ -366,26 +341,21 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
   const root = baseUrl.replace(/\/$/, "");
   const manifest = parseManifest(await fetchJson(`${root}/map.json`));
 
-  const [provincesRaw, boundariesRaw, spatialIndexRaw, coastlinesRaw, citiesRaw] =
-    await Promise.all([
-      fetchJson(`${root}/${manifest.assets.provinces}`),
-      fetchJson(`${root}/${manifest.assets.boundaries}`),
-      fetchJson(`${root}/${manifest.assets.spatialIndex}`),
-      manifest.assets.coastlines === undefined
-        ? Promise.resolve(undefined)
-        : fetchJson(`${root}/${manifest.assets.coastlines}`),
-      manifest.assets.cities === undefined
-        ? Promise.resolve(undefined)
-        : fetchJson(`${root}/${manifest.assets.cities}`)
-    ]);
+  const [provincesRaw, boundariesRaw, spatialIndexRaw, coastlinesRaw] = await Promise.all([
+    fetchJson(`${root}/${manifest.assets.provinces}`),
+    fetchJson(`${root}/${manifest.assets.boundaries}`),
+    fetchJson(`${root}/${manifest.assets.spatialIndex}`),
+    manifest.assets.coastlines === undefined
+      ? Promise.resolve(undefined)
+      : fetchJson(`${root}/${manifest.assets.coastlines}`)
+  ]);
 
   return parseMapPackBundle({
     manifest,
     provinces: provincesRaw,
     boundaries: boundariesRaw,
     spatialIndex: spatialIndexRaw,
-    ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw }),
-    ...(citiesRaw === undefined ? {} : { cities: citiesRaw })
+    ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw })
   });
 }
 

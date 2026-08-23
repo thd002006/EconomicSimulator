@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { MapFeature } from "@economic-simulator/map-runtime";
+import type { ProvinceFeature } from "@economic-simulator/map-runtime";
 import { MapView } from "./components/MapView";
 import { ProvinceInspector } from "./components/ProvinceInspector";
 import { TimeControls, type PlaySpeed } from "./components/TimeControls";
@@ -28,7 +28,7 @@ export function App(): React.JSX.Element {
   const [simulationId, setSimulationId] = useState(GAME_ID);
   const [tick, setTick] = useState(0);
   const [speed, setSpeed] = useState<PlaySpeed>(0);
-  const [selectedProvince, setSelectedProvince] = useState<MapFeature | undefined>(undefined);
+  const [selectedProvince, setSelectedProvince] = useState<ProvinceFeature | undefined>(undefined);
   const [provinceOwners] = useState<Readonly<Record<string, string>>>({});
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export function App(): React.JSX.Element {
   }, [advanceTicks, connection, speed]);
 
   const onSelectProvince = useCallback(
-    (_provinceId: string | undefined, feature: MapFeature | undefined) => {
+    (_provinceId: string | undefined, feature: ProvinceFeature | undefined) => {
       setSelectedProvince(feature);
     },
     []

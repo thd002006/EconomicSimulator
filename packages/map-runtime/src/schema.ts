@@ -1,4 +1,4 @@
-import type { GeoJsonGeometry, LonLat } from "./types.js";
+import type { GeoJsonGeometry, LonLat, ProvinceCapital } from "./types.js";
 
 export class MapSchemaError extends Error {
   readonly layer: string;
@@ -147,6 +147,30 @@ export function parsePointGeometry(
   return {
     type: "Point",
     coordinates: assertFiniteCoord(value.coordinates, layer, featureId, "coordinates")
+  };
+}
+
+export function parseProvinceCapital(
+  value: unknown,
+  layer: string,
+  featureId: string
+): ProvinceCapital {
+  if (!isRecord(value)) {
+    throw new MapSchemaError("properties.capital is required.", layer, featureId);
+  }
+  const coordinates = assertFiniteCoord(
+    value.coordinates,
+    layer,
+    featureId,
+    "properties.capital.coordinates"
+  );
+  const name = typeof value.name === "string" && value.name.trim() !== "" ? value.name : undefined;
+  const nameEn =
+    typeof value.nameEn === "string" && value.nameEn.trim() !== "" ? value.nameEn : undefined;
+  return {
+    coordinates,
+    ...(name === undefined ? {} : { name }),
+    ...(nameEn === undefined ? {} : { nameEn })
   };
 }
 

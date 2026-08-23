@@ -1,6 +1,6 @@
 # Map Data Generator
 
-独立的地图资料制作子项目。它负责下载和缓存 Natural Earth 原始资料，并生成供人工整理的 GeoJSON 草稿。
+独立的地图资料制作子项目。它负责固定版本 Natural Earth 资料的下载与规范化、统一规则区划归并、拓扑简化、首府选择和审查报告生成。
 
 它不属于游戏的构建链：主项目的 `dev`、`build:web` 和 `tauri:build` 都不会调用这里的脚本。
 
@@ -10,8 +10,23 @@ pnpm install
 pnpm generate:world-modern
 ```
 
+边界简化默认保留 50% 的加权弧点，可通过命令行调整：
+
+```powershell
+# 小数和百分数写法等价；允许范围为 (0, 1] 或 (0%, 100%]
+pnpm generate:world-modern -- --retain 0.5
+pnpm generate:world-modern -- --retain 50%
+```
+
+该比例是基础目标。面积误差超过 5%、环方向改变或几何退化的省份会自动保留更多点；`review-report.json` 中的 `requestedRetainedFraction` 和 `retainedFraction` 分别记录请求值与最终采用值。
+
 - 原始下载缓存：`cache/natural-earth/`
-- 生成草稿：`output/world-modern/`
+- 可审计的全局归并参数：`config/world-modern-merges.json`
+- 生成的最终候选与审查报告：`output/world-modern/`
 - 游戏采用的制作完成地图：`../assets/maps/<mapId>/`
 
-将草稿导入主项目前必须经过人工检查、稳定 ID 审核和地图包校验；不要直接把生成器输出覆盖到游戏资产目录。
+生成流程依次执行：下载与规范化 → 官方宏观区连通分组 → 同国完全包围合并 → 动态最低面积合并 → 700 km 群岛合并 → TopoJSON dissolve 与简化 → 输出报告。所有国家使用同一套参数，不存在按国家 ID 编写的特殊分组。最低省面积从 25,000 km²随国家面积线性增长，在国家面积达到 1,000,000 km²时封顶为 50,000 km²。普通合并必须共享线段边界，仅群岛可以在多边形边缘距离不超过 700 km 时形成 MultiPolygon。
+
+生成器保持独立，不加入根 workspace，也不参与游戏构建。`review-report.json` 会逐国记录国家面积、动态阈值、合并前后数量和无法合法继续合并的低面积例外。
+
+输出目录仅包含可发布图层 `map.json`、`provinces.geojson`、`boundaries.json` 和 `coastlines.geojson`，以及不会进入发行包的 `review-report.json`。地图没有独立城市图层；每个省份都内嵌一个首府。将候选导入主项目前必须审查报告并执行根项目的 `pnpm map:validate` 与 `pnpm map:publish`。

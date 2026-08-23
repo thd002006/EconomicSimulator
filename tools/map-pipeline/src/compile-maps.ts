@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import {
   computeBBox,
   parseLineGeometry,
-  parsePointGeometry,
   parsePolygonGeometry,
+  parseProvinceCapital,
   type GeoJsonGeometry,
   type LonLat
 } from "@economic-simulator/map-runtime";
@@ -15,9 +15,9 @@ import { resolveContainedFile } from "./path-safety.js";
 import { signedRingArea, simplifyRingSafely } from "./simplify.js";
 import { parseSourceMapManifest } from "./source-manifest.js";
 
-export const LOD_TOLERANCES = [0.12, 0.04, 0] as const;
+export const LOD_TOLERANCES = [0.25, 0.08, 0] as const;
 const GRID_CELL_SIZE = 5;
-const TOOL_VERSION = "0.3.0";
+const TOOL_VERSION = "0.4.0";
 
 type RecordValue = Record<string, unknown>;
 type Feature = {
@@ -166,7 +166,10 @@ export async function compilePack(
     const geometry = parsePolygonGeometry(feature.geometry, "provinces", id);
     return {
       id,
-      properties: pickProperties(feature.properties),
+      properties: {
+        ...pickProperties(feature.properties),
+        capital: parseProvinceCapital(feature.properties?.capital, "provinces", id)
+      },
       bbox: computeBBox(geometry),
       lod: LOD_TOLERANCES.map((tolerance) => simplifyGeometry(geometry, tolerance))
     };
@@ -211,24 +214,6 @@ export async function compilePack(
     }
   }
 
-  const cities: Array<{ id: string; properties: RecordValue; coordinates: LonLat }> = [];
-  if (manifest.layers.cities !== undefined) {
-    const cityPath = await resolveContainedFile(sourceDir, manifest.layers.cities, "layers.cities");
-    const text = await readFile(cityPath, "utf8");
-    sourceHashes.cities = sha256(text);
-    const collection = parseCollection(JSON.parse(text) as unknown, "cities");
-    const cityIds = assertUniqueFeatureIds(collection.features, "cities");
-    for (const [index, feature] of collection.features.entries()) {
-      const id = cityIds[index]!;
-      const geometry = parsePointGeometry(feature.geometry, "cities", id);
-      cities.push({
-        id,
-        properties: pickProperties(feature.properties),
-        coordinates: geometry.coordinates
-      });
-    }
-  }
-
   const outDir = join(outputRoot, entry.path, "compiled");
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
@@ -246,15 +231,12 @@ export async function compilePack(
       features: coastlines
     })
   ).hash;
-  assetHashes.cities = (
-    await writeJson(join(outDir, "cities.json"), { type: "CityCollection", features: cities })
-  ).hash;
   assetHashes.spatialIndex = (
     await writeJson(join(outDir, "spatial-index.json"), buildSpatialIndex(provinces))
   ).hash;
   const manifestCore = {
-    schemaVersion: 2,
-    format: "economic-simulator.map-runtime/v1",
+    schemaVersion: 3,
+    format: "economic-simulator.map-runtime/v2",
     id: manifest.id,
     version: manifest.version,
     nameKey: manifest.nameKey,
@@ -263,13 +245,12 @@ export async function compilePack(
       provinces: "provinces.json",
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
-      cities: "cities.json",
       spatialIndex: "spatial-index.json"
     },
     lodTolerances: [...LOD_TOLERANCES],
     provenance: {
       toolVersion: TOOL_VERSION,
-      naturalEarthCommit: null,
+      naturalEarthCommit: manifest.attribution?.naturalEarthCommit ?? null,
       sourceHashes,
       assetHashes
     }

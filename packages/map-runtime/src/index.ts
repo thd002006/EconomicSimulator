@@ -6,6 +6,9 @@ export type {
   MapBoundary,
   MapFeature,
   MapFeatureProperties,
+  ProvinceCapital,
+  ProvinceFeature,
+  ProvinceFeatureProperties,
   MapPackManifest,
   MapPackProvenance,
   MapViewModel,
@@ -38,6 +41,7 @@ export {
   parseBBox,
   parseLineGeometry,
   parsePointGeometry,
+  parseProvinceCapital,
   parsePolygonGeometry
 } from "./schema.js";
 export { createDefaultViewport, createMapViewModel } from "./view-model.js";

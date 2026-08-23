@@ -1,0 +1,7 @@
+{
+  "baseMinimumProvinceAreaKm2": 25000,
+  "maximumMinimumProvinceAreaKm2": 50000,
+  "fullScaleCountryAreaKm2": 1000000,
+  "maximumArchipelagoGapKm": 700,
+  "defaultRetainedArcFraction": 0.5
+}

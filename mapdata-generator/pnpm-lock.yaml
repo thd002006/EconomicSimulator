@@ -7,10 +7,44 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@turf/area':
+        specifier: 7.4.0
+        version: 7.4.0
+      polylabel:
+        specifier: 2.1.0
+        version: 2.1.0
+      topojson-client:
+        specifier: 3.1.0
+        version: 3.1.0
+      topojson-server:
+        specifier: 3.0.1
+        version: 3.0.1
+      topojson-simplify:
+        specifier: 3.0.3
+        version: 3.0.3
     devDependencies:
+      '@types/geojson':
+        specifier: 7946.0.16
+        version: 7946.0.16
       '@types/node':
         specifier: 26.2.0
         version: 26.2.0
+      '@types/polylabel':
+        specifier: 2.0.0
+        version: 2.0.0
+      '@types/topojson-client':
+        specifier: 3.1.5
+        version: 3.1.5
+      '@types/topojson-server':
+        specifier: 3.0.4
+        version: 3.0.4
+      '@types/topojson-simplify':
+        specifier: 3.0.3
+        version: 3.0.3
+      '@types/topojson-specification':
+        specifier: 1.0.5
+        version: 1.0.5
       tsx:
         specifier: 4.23.12
         version: 4.23.12
@@ -176,8 +210,38 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@turf/area@7.4.0':
+    resolution: {integrity: sha512-B7q5f6QwKIxxbl4/L59lAYA+FF7h2hv6st96PuKue0TGCYGSxAG/lV8LHSPUSOuOrLywN4jytJcKK3vOFBs7Nw==}
+
+  '@turf/helpers@7.4.0':
+    resolution: {integrity: sha512-7PAwLZqOdRzTI5g9bHvUwlloAXPDH/mlajtryk0tw4ZwGMtmXsAyF4QundsAMfy4u48Fyd3AUqMXY0SMxqJGWg==}
+
+  '@turf/meta@7.4.0':
+    resolution: {integrity: sha512-3cLUvlEyDuSnMSzrjhaLAEiYR8xhbfWyTVQlrlEw40xL81d4KF4PqUWbjTXKpXZStdYbet2GCurl79KMypNw6g==}
+
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
   '@types/node@26.2.0':
     resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
+
+  '@types/polylabel@2.0.0':
+    resolution: {integrity: sha512-di+2+kta2AQu9/SPkDuPZi23sWucX9QpchPIv9ZgTU215piNWODbFeuFF7k6NtUlYVtz+d6QB9pMHohASuD9Mg==}
+
+  '@types/topojson-client@3.1.5':
+    resolution: {integrity: sha512-C79rySTyPxnQNNguTZNI1Ct4D7IXgvyAs3p9HPecnl6mNrJ5+UhvGNYcZfpROYV2lMHI48kJPxwR+F9C6c7nmw==}
+
+  '@types/topojson-server@3.0.4':
+    resolution: {integrity: sha512-5+ieK8ePfP+K2VH6Vgs1VCt+fO1U8XZHj0UsF+NktaF0DavAo1q3IvCBXgokk/xmtvoPltSUs6vxuR/zMdOE1g==}
+
+  '@types/topojson-simplify@3.0.3':
+    resolution: {integrity: sha512-sBO5UZ0O2dB0bNwo0vut2yLHhj3neUGi9uL7/ROdm8Gs6dtt4jcB9OGDKr+M2isZwQM2RuzVmifnMZpxj4IGNw==}
+
+  '@types/topojson-specification@1.0.5':
+    resolution: {integrity: sha512-C7KvcQh+C2nr6Y2Ub4YfgvWvWCgP2nOQMtfhlnwsRL4pYmmwzBS7HclGiS87eQfDOU/DLQpX6GEscviaz4yLIQ==}
+
+  commander@2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
   esbuild@0.28.2:
     resolution: {integrity: sha512-HKVLS8dvII+xoKW9kmqxbRKrnWEXfJJr/FZhhJmiqIB0e053QNYFqOBouTMO/k5sID4MvCiUCvv8b9M4h32wIA==}
@@ -188,6 +252,27 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  polylabel@2.1.0:
+    resolution: {integrity: sha512-ZCL9pc/BpnyBB1Es5Eh6baziBhZFS0fTlEXGarLMqbMYbAyawqGAjyo2+MfignMggSubmllMgRGcR0L0liOugg==}
+
+  tinyqueue@3.0.0:
+    resolution: {integrity: sha512-gRa9gwYU3ECmQYv3lslts5hxuIa90veaEcxDYuu3QGOIAEM2mOZkVHp48ANJuu1CURtRdHKUBY5Lm1tHV+sD4g==}
+
+  topojson-client@3.1.0:
+    resolution: {integrity: sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw==}
+    hasBin: true
+
+  topojson-server@3.0.1:
+    resolution: {integrity: sha512-/VS9j/ffKr2XAOjlZ9CgyyeLmgJ9dMwq6Y0YEON8O7p/tGGk+dCWnrE03zEdu7i4L7YsFZLEPZPzCvcB7lEEXw==}
+    hasBin: true
+
+  topojson-simplify@3.0.3:
+    resolution: {integrity: sha512-V+pBjLVzSQ3+hSOxBiV01OVXgFiCmMO8ia3huxKEyIMTC1ApQHBcdXdOqcQ6U2JJJD31TZduwY6KyF15R8sUgg==}
+    hasBin: true
+
+  tslib@2.8.1:
+    resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
   tsx@4.23.12:
     resolution: {integrity: sha512-FDf4L4sYzKtzWYhU/Xm0AQFdTjdIxNo9ElTf2mxXM6k8YMHXzYUe4yODVaXP4V9uMFbVg8c0qyBccK2OOxb45Q==}
@@ -282,9 +367,52 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
+  '@turf/area@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@turf/meta': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/helpers@7.4.0':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/meta@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@types/geojson@7946.0.16': {}
+
   '@types/node@26.2.0':
     dependencies:
       undici-types: 8.3.0
+
+  '@types/polylabel@2.0.0': {}
+
+  '@types/topojson-client@3.1.5':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      '@types/topojson-specification': 1.0.5
+
+  '@types/topojson-server@3.0.4':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      '@types/topojson-specification': 1.0.5
+
+  '@types/topojson-simplify@3.0.3':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      '@types/topojson-specification': 1.0.5
+
+  '@types/topojson-specification@1.0.5':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
+  commander@2.20.3: {}
 
   esbuild@0.28.2:
     optionalDependencies:
@@ -317,6 +445,27 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  polylabel@2.1.0:
+    dependencies:
+      tinyqueue: 3.0.0
+
+  tinyqueue@3.0.0: {}
+
+  topojson-client@3.1.0:
+    dependencies:
+      commander: 2.20.3
+
+  topojson-server@3.0.1:
+    dependencies:
+      commander: 2.20.3
+
+  topojson-simplify@3.0.3:
+    dependencies:
+      commander: 2.20.3
+      topojson-client: 3.1.0
+
+  tslib@2.8.1: {}
 
   tsx@4.23.12:
     dependencies:

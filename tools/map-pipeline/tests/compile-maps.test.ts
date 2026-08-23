@@ -36,7 +36,7 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
   await writeFile(
     join(mapDirectory, "map.json"),
     JSON.stringify({
-      schemaVersion: 1,
+      schemaVersion: 2,
       id: "test-map",
       version: "1.0.0",
       nameKey: "map.test",
@@ -57,7 +57,10 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
         {
           type: "Feature",
           id: "tiny",
-          properties: { name: "Tiny" },
+          properties: {
+            name: "Tiny",
+            capital: { coordinates: [0.005, 0.005], nameEn: "Tiny Capital" }
+          },
           geometry: polygon([
             [0, 0],
             [0.01, 0],
@@ -146,7 +149,7 @@ describe("map compiler", () => {
       lodTolerances: number[];
       provenance: Record<string, unknown>;
     };
-    expect(manifest.lodTolerances).toEqual([0.12, 0.04, 0]);
+    expect(manifest.lodTolerances).toEqual([0.25, 0.08, 0]);
     expect(manifest.provenance).not.toHaveProperty("builtAt");
 
     const provinces = JSON.parse(second["provinces.json"]!) as {
@@ -178,7 +181,6 @@ describe("map compiler", () => {
         provinces,
         boundaries: JSON.parse(second["boundaries.json"]!),
         coastlines,
-        cities: JSON.parse(second["cities.json"]!),
         spatialIndex: JSON.parse(second["spatial-index.json"]!)
       })
     ).not.toThrow();

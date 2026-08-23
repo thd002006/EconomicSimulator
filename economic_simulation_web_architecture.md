@@ -647,17 +647,15 @@ assets/maps/
     ├── provinces.geojson
     ├── boundaries.json
     ├── coastlines.geojson
-    ├── cities.geojson
     └── compiled/
         ├── map.json
         ├── provinces.json
         ├── boundaries.json
         ├── coastlines.json
-        ├── cities.json
         └── spatial-index.json
 ```
 
-这里的 GeoJSON 是已经制作完成的游戏地图，不等于 Natural Earth 原始资料。经济状态不得写入地图几何；省份要素只保存稳定 ID 和少量展示所需属性，当前归属由模拟读模型提供。
+这里的 GeoJSON 是已经制作完成的游戏地图，不等于 Natural Earth 原始资料。经济状态不得写入地图几何；省份要素保存稳定 ID、少量展示属性和必填的内嵌首府 `capital`，当前归属由模拟读模型提供。地图包不再包含独立城市图层。
 
 `boundaries.json` 保存制作阶段确定的共享省份关系。国界是运行时概念：
 
@@ -673,16 +671,17 @@ boundary.provinceA.ownerCountryId != boundary.provinceB.ownerCountryId
 
 - 固定版本的 Natural Earth 下载地址与下载器；
 - 原始下载缓存（目录规则保留，缓存内容默认不提交）；
-- 从上游资料生成 GeoJSON 草稿的脚本；
-- 制作流程、来源和输出边界说明。
+- 从上游资料规范化、归并、拓扑简化并生成成品候选的脚本；
+- 可审计的全局归并参数和审查报告。
 
 该子项目不加入游戏 workspace，也不参与 `dev`、`build` 或发行构建。它只在制作或更新地图时手动运行：
 
 ```text
 Natural Earth 原始资料
 → mapdata-generator 下载与缓存
-→ 生成地图草稿
-→ 人工检查、整理、确定稳定 ID 和关系
+→ 按统一的动态面积、完全包围和群岛规则归并
+→ 共享拓扑简化、首府选择与审查报告
+→ 人工检查并确认稳定 ID 和关系
 → 导入 assets/maps/<mapId>/
 ```
 

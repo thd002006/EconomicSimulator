@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "architecture-probe",
   "version": "0.1.0",
   "nameKey": "map.architectureProbe.name",

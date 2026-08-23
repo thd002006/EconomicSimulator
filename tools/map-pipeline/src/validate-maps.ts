@@ -3,15 +3,16 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   parseLineGeometry,
-  parsePointGeometry,
-  parsePolygonGeometry
+  parsePolygonGeometry,
+  parseProvinceCapital,
+  pointInGeometry
 } from "@economic-simulator/map-runtime";
 import { assertUniqueFeatureIds } from "./feature-ids.js";
 import { resolveContainedFile } from "./path-safety.js";
 import { parseSourceMapManifest } from "./source-manifest.js";
 
 type RecordValue = Record<string, unknown>;
-type Feature = { id?: string | number; geometry?: unknown };
+type Feature = { id?: string | number; properties?: RecordValue | null; geometry?: unknown };
 type FeatureCollection = { type: "FeatureCollection"; features: Feature[] };
 
 function isRecord(value: unknown): value is RecordValue {
@@ -47,7 +48,11 @@ export async function validatePack(
   const provinceIds = new Set(assertUniqueFeatureIds(provinces.features, "provinces"));
   for (const feature of provinces.features) {
     const id = String(feature.id);
-    parsePolygonGeometry(feature.geometry, "provinces", id);
+    const geometry = parsePolygonGeometry(feature.geometry, "provinces", id);
+    const capital = parseProvinceCapital(feature.properties?.capital, "provinces", id);
+    if (!pointInGeometry(capital.coordinates[0], capital.coordinates[1], geometry)) {
+      throw new Error(`Province ${id} capital lies outside its geometry.`);
+    }
   }
 
   const boundaryPath = await resolveContainedFile(
@@ -97,21 +102,10 @@ export async function validatePack(
       parseLineGeometry(feature.geometry, "coastlines", coastlineIds[index]!);
     }
   }
-  let cities = 0;
-  if (manifest.layers.cities !== undefined) {
-    const cityPath = await resolveContainedFile(packDir, manifest.layers.cities, "layers.cities");
-    const collection = parseCollection(await readJson(cityPath), "cities");
-    cities = collection.features.length;
-    const cityIds = assertUniqueFeatureIds(collection.features, "cities");
-    for (const [index, feature] of collection.features.entries()) {
-      parsePointGeometry(feature.geometry, "cities", cityIds[index]!);
-    }
-  }
   return {
     provinces: provinces.features.length,
     boundaries: boundaryValue.features.length,
-    coastlines,
-    cities
+    coastlines
   };
 }
 

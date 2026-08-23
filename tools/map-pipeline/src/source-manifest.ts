@@ -1,5 +1,5 @@
 export interface SourceMapManifest {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly id: string;
   readonly version: string;
   readonly nameKey: string;
@@ -8,7 +8,11 @@ export interface SourceMapManifest {
     readonly provinces: string;
     readonly boundaries: string;
     readonly coastlines?: string;
-    readonly cities?: string;
+  };
+  readonly attribution?: {
+    readonly source: string;
+    readonly license: string;
+    readonly naturalEarthCommit?: string;
   };
 }
 
@@ -25,9 +29,9 @@ function requiredString(value: unknown, field: string): string {
 
 export function parseSourceMapManifest(value: unknown, expectedId: string): SourceMapManifest {
   if (!isRecord(value)) throw new Error("Source map manifest must be an object.");
-  if (value.schemaVersion !== 1) {
+  if (value.schemaVersion !== 2) {
     throw new Error(
-      `Unsupported source map schemaVersion ${String(value.schemaVersion)}; expected 1.`
+      `Unsupported source map schemaVersion ${String(value.schemaVersion)}; expected 2.`
     );
   }
   const id = requiredString(value.id, "id");
@@ -52,13 +56,23 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     value.layers.coastlines === undefined
       ? undefined
       : requiredString(value.layers.coastlines, "layers.coastlines");
-  const cities =
-    value.layers.cities === undefined
-      ? undefined
-      : requiredString(value.layers.cities, "layers.cities");
-
+  let attribution: SourceMapManifest["attribution"];
+  if (value.attribution !== undefined) {
+    if (!isRecord(value.attribution)) {
+      throw new Error("Source map manifest attribution must be an object.");
+    }
+    const naturalEarthCommit =
+      value.attribution.naturalEarthCommit === undefined
+        ? undefined
+        : requiredString(value.attribution.naturalEarthCommit, "attribution.naturalEarthCommit");
+    attribution = {
+      source: requiredString(value.attribution.source, "attribution.source"),
+      license: requiredString(value.attribution.license, "attribution.license"),
+      ...(naturalEarthCommit === undefined ? {} : { naturalEarthCommit })
+    };
+  }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     id,
     version,
     nameKey,
@@ -66,8 +80,8 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     layers: {
       provinces,
       boundaries,
-      ...(coastlines === undefined ? {} : { coastlines }),
-      ...(cities === undefined ? {} : { cities })
-    }
+      ...(coastlines === undefined ? {} : { coastlines })
+    },
+    ...(attribution === undefined ? {} : { attribution })
   };
 }

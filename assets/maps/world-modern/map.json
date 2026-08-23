@@ -1,18 +1,17 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "id": "world-modern",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "nameKey": "map.worldModern.name",
   "coordinateReferenceSystem": "EPSG:4326",
   "layers": {
     "provinces": "provinces.geojson",
     "boundaries": "boundaries.json",
-    "coastlines": "coastlines.geojson",
-    "cities": "cities.geojson"
+    "coastlines": "coastlines.geojson"
   },
   "attribution": {
     "source": "Natural Earth 1:10m",
     "license": "public domain",
-    "note": "Imported and maintained as authored game map data; the game build never downloads upstream geography."
+    "naturalEarthCommit": "9380cca83db5f9aef52d5e762765100745f84b27"
   }
 }

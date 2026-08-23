@@ -25,7 +25,6 @@ export interface MapPackManifest {
     provinces: string;
     boundaries: string;
     coastlines?: string;
-    cities?: string;
     spatialIndex: string;
   }>;
   readonly lodTolerances: readonly number[];
@@ -42,6 +41,16 @@ export interface MapFeatureProperties {
   readonly [key: string]: unknown;
 }
 
+export interface ProvinceCapital {
+  readonly coordinates: LonLat;
+  readonly name?: string;
+  readonly nameEn?: string;
+}
+
+export interface ProvinceFeatureProperties extends MapFeatureProperties {
+  readonly capital: ProvinceCapital;
+}
+
 export type GeoJsonGeometry =
   | { readonly type: "Point"; readonly coordinates: LonLat }
   | { readonly type: "MultiPoint"; readonly coordinates: readonly LonLat[] }
@@ -50,13 +59,15 @@ export type GeoJsonGeometry =
   | { readonly type: "Polygon"; readonly coordinates: readonly LonLat[][] }
   | { readonly type: "MultiPolygon"; readonly coordinates: readonly LonLat[][][] };
 
-export interface MapFeature {
+export interface MapFeature<P extends MapFeatureProperties = MapFeatureProperties> {
   readonly id: string;
-  readonly properties: MapFeatureProperties;
+  readonly properties: P;
   readonly geometry: GeoJsonGeometry;
   readonly bbox: readonly [number, number, number, number];
   readonly lod?: readonly GeoJsonGeometry[];
 }
+
+export type ProvinceFeature = MapFeature<ProvinceFeatureProperties>;
 
 export interface MapBoundary {
   readonly id: string;
@@ -87,10 +98,9 @@ export interface MapViewModelHooks {
 
 export interface MapViewModel {
   readonly mapId: string;
-  readonly provinces: readonly MapFeature[];
+  readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
-  readonly cities: readonly MapFeature[];
   hoveredProvinceId: string | undefined;
   selectedProvinceId: string | undefined;
   readonly viewport: MapViewport;

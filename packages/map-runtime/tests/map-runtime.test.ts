@@ -9,7 +9,7 @@ import {
   pointInPolygon,
   type LoadedMapPack,
   type LonLat,
-  type MapFeature
+  type ProvinceFeature
 } from "../src/index.js";
 
 describe("map runtime validation", () => {
@@ -94,9 +94,9 @@ describe("map runtime validation", () => {
   });
 
   it("hit-tests multipolygons with holes via spatial index", () => {
-    const feature: MapFeature = {
+    const feature: ProvinceFeature = {
       id: "island-with-lake",
-      properties: { adm0A3: "TST" },
+      properties: { adm0A3: "TST", capital: { coordinates: [1, 1] } },
       bbox: [0, 0, 6, 6],
       geometry: {
         type: "MultiPolygon",
@@ -127,9 +127,9 @@ describe("map runtime validation", () => {
   });
 
   it("styles shared boundaries by ownership in the view model", () => {
-    const left: MapFeature = {
+    const left: ProvinceFeature = {
       id: "A",
-      properties: { adm0A3: "AAA" },
+      properties: { adm0A3: "AAA", capital: { coordinates: [0.5, 0.5] } },
       bbox: [0, 0, 1, 1],
       geometry: {
         type: "Polygon",
@@ -144,9 +144,9 @@ describe("map runtime validation", () => {
         ]
       }
     };
-    const right: MapFeature = {
+    const right: ProvinceFeature = {
       id: "B",
-      properties: { adm0A3: "BBB" },
+      properties: { adm0A3: "BBB", capital: { coordinates: [1.5, 0.5] } },
       bbox: [1, 0, 2, 1],
       geometry: {
         type: "Polygon",
@@ -163,8 +163,8 @@ describe("map runtime validation", () => {
     };
     const pack: LoadedMapPack = {
       manifest: {
-        schemaVersion: 2,
-        format: "economic-simulator.map-runtime/v1",
+        schemaVersion: 3,
+        format: "economic-simulator.map-runtime/v2",
         id: "test",
         version: "0.0.1",
         nameKey: "test",
@@ -196,7 +196,6 @@ describe("map runtime validation", () => {
           ]
         }
       ],
-      cities: [],
       spatialIndex: {
         cellSizeDegrees: 5,
         cells: { "0:0": ["A", "B"] }

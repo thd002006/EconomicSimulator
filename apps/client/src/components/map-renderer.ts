@@ -3,7 +3,8 @@ import type {
   LonLat,
   MapBoundary,
   MapFeature,
-  MapViewModel
+  MapViewModel,
+  ProvinceFeature
 } from "@economic-simulator/map-runtime";
 import { featureVisibleInViewport, projectToScreen } from "@economic-simulator/map-runtime";
 
@@ -12,7 +13,8 @@ const LAND_STROKE = "#2a4558";
 const COAST = "#7eb6c9";
 const PROVINCE_BORDER = "#3d5a6e";
 const COUNTRY_BORDER = "#d7e6f2";
-const CITY = "#d7e8f5";
+const CAPITAL = "#d7e8f5";
+const CAPITAL_MIN_ZOOM_FACTOR = 2;
 const HOVER_FILL = "#3a6f88";
 const SELECT_FILL = "#4f8fad";
 const SELECT_STROKE = "#b7e4f4";
@@ -20,7 +22,7 @@ const SELECT_STROKE = "#b7e4f4";
 export interface MapRenderCache {
   readonly provincePathsByLod: readonly ReadonlyMap<string, Path2D>[];
   readonly provinceOrder: readonly string[];
-  readonly provinceById: ReadonlyMap<string, MapFeature>;
+  readonly provinceById: ReadonlyMap<string, ProvinceFeature>;
   readonly boundariesByProvince: ReadonlyMap<string, readonly MapBoundary[]>;
   readonly provinceFills: Map<string, string>;
   readonly coastPath: Path2D;
@@ -204,7 +206,7 @@ export function buildMapRenderCache(
   ownerLookup?: (provinceId: string) => string | undefined
 ): MapRenderCache {
   const provinceOrder: string[] = [];
-  const provinceById = new Map<string, MapFeature>();
+  const provinceById = new Map<string, ProvinceFeature>();
   const provinceFills = new Map<string, string>();
   const lodCount = Math.max(1, ...model.provinces.map((feature) => feature.lod?.length ?? 1));
   const provincePathsByLod: Map<string, Path2D>[] = Array.from(
@@ -341,22 +343,24 @@ export function renderMapView(
   ctx.lineWidth = screenLineWidth(model.viewport, 0.9);
   ctx.stroke(cache.coastPath);
 
-  if (interactive || model.viewport.zoom < 2 || model.cities.length === 0) {
+  const fitWorldZoom = Math.max(model.viewport.width, 1) / 360;
+  if (
+    interactive ||
+    model.viewport.zoom < fitWorldZoom * CAPITAL_MIN_ZOOM_FACTOR ||
+    model.provinces.length === 0
+  ) {
     return;
   }
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = CITY;
-  for (const feature of model.cities) {
+  ctx.fillStyle = CAPITAL;
+  for (const feature of model.provinces) {
     if (!featureVisibleInViewport(feature, model.viewport)) {
       continue;
     }
-    if (feature.geometry.type !== "Point") {
-      continue;
-    }
     const [x, y] = projectToScreen(
-      feature.geometry.coordinates[0],
-      feature.geometry.coordinates[1],
+      feature.properties.capital.coordinates[0],
+      feature.properties.capital.coordinates[1],
       model.viewport
     );
     ctx.beginPath();

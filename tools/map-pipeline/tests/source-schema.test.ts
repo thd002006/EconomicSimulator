@@ -3,7 +3,7 @@ import { assertUniqueFeatureIds } from "../src/feature-ids.js";
 import { parseSourceMapManifest } from "../src/source-manifest.js";
 
 const validManifest = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   id: "test-map",
   version: "1.2.3",
   nameKey: "map.test.name",
@@ -17,7 +17,7 @@ describe("source map schema", () => {
   });
 
   it.each([
-    ["schemaVersion", { ...validManifest, schemaVersion: 2 }],
+    ["schemaVersion", { ...validManifest, schemaVersion: 1 }],
     ["version", { ...validManifest, version: undefined }],
     ["version format", { ...validManifest, version: "first" }],
     ["nameKey", { ...validManifest, nameKey: "" }],
@@ -30,7 +30,7 @@ describe("source map schema", () => {
 
 describe("stable feature IDs", () => {
   it("requires IDs on every layer feature", () => {
-    expect(() => assertUniqueFeatureIds([{ id: "one" }, {}], "cities")).toThrow(
+    expect(() => assertUniqueFeatureIds([{ id: "one" }, {}], "provinces")).toThrow(
       "missing a stable id"
     );
   });

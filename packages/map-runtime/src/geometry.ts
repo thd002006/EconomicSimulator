@@ -74,8 +74,32 @@ export function pointInRing(lon: number, lat: number, ring: readonly LonLat[]): 
   return inside;
 }
 
+function pointOnRing(lon: number, lat: number, ring: readonly LonLat[]): boolean {
+  const tolerance = 1e-9;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
+    const [ax, ay] = ring[j]!;
+    const [bx, by] = ring[i]!;
+    const cross = (lon - ax) * (by - ay) - (lat - ay) * (bx - ax);
+    if (Math.abs(cross) > tolerance) continue;
+    if (
+      lon >= Math.min(ax, bx) - tolerance &&
+      lon <= Math.max(ax, bx) + tolerance &&
+      lat >= Math.min(ay, by) - tolerance &&
+      lat <= Math.max(ay, by) + tolerance
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function pointInPolygon(lon: number, lat: number, rings: readonly LonLat[][]): boolean {
   const outer = rings[0];
+  // Treat the polygon boundary as part of the province. This matters for tiny
+  // islands whose quantized geometry may have no numerically stable interior.
+  if (rings.some((ring) => pointOnRing(lon, lat, ring))) {
+    return true;
+  }
   if (outer === undefined || !pointInRing(lon, lat, outer)) {
     return false;
   }

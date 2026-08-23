@@ -1,8 +1,8 @@
-import type { MapFeature } from "@economic-simulator/map-runtime";
+import type { ProvinceFeature } from "@economic-simulator/map-runtime";
 import { provinceLabel } from "./map-renderer";
 
 export interface ProvinceInspectorProps {
-  readonly feature: MapFeature | undefined;
+  readonly feature: ProvinceFeature | undefined;
   /** Current simulated owner id; falls back to geographic adm0A3 when omitted. */
   readonly ownerId?: string;
   readonly gameDate: string;
@@ -27,6 +27,8 @@ export function ProvinceInspector(props: ProvinceInspectorProps): React.JSX.Elem
   const country = props.ownerId ?? feature.properties.adm0A3 ?? "—";
   const iso = feature.properties.isoA2 ?? "—";
   const kind = feature.properties.type ?? "一级行政区";
+  const capital =
+    feature.properties.capital.nameEn ?? feature.properties.capital.name ?? "未命名首府";
 
   return (
     <aside className="inspector" aria-label="省份检视">
@@ -52,6 +54,10 @@ export function ProvinceInspector(props: ProvinceInspectorProps): React.JSX.Elem
           <div>
             <dt>所属国家</dt>
             <dd>{country}</dd>
+          </div>
+          <div>
+            <dt>首府</dt>
+            <dd>{capital}</dd>
           </div>
         </dl>
       </section>

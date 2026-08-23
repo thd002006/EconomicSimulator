@@ -6,8 +6,8 @@ import {
   panViewport,
   unprojectFromScreen,
   zoomViewportAt,
-  type MapFeature,
-  type MapViewModel
+  type MapViewModel,
+  type ProvinceFeature
 } from "@economic-simulator/map-runtime";
 
 import {
@@ -27,15 +27,15 @@ export interface MapViewProps {
   readonly provinceOwners?: Readonly<Record<string, string>>;
   readonly onSelectProvince?: (
     provinceId: string | undefined,
-    feature: MapFeature | undefined
+    feature: ProvinceFeature | undefined
   ) => void;
 }
 
 type LoadState = "loading" | "ready" | "error";
 
 type RuntimeModel = MapViewModel & {
-  hitTest(lon: number, lat: number): MapFeature | undefined;
-  findProvince(id: string): MapFeature | undefined;
+  hitTest(lon: number, lat: number): ProvinceFeature | undefined;
+  findProvince(id: string): ProvinceFeature | undefined;
   getProvinceOwner(provinceId: string): string | undefined;
 };
 
@@ -71,7 +71,7 @@ function collectOwnerChanges(
 
 function resolveFeatureOwner(
   model: RuntimeModel | undefined,
-  feature: MapFeature | undefined,
+  feature: ProvinceFeature | undefined,
   provinceOwners: Readonly<Record<string, string>> | undefined
 ): string {
   if (feature === undefined || model === undefined) {
@@ -99,8 +99,8 @@ export function MapView(props: MapViewProps): React.JSX.Element {
 
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [hovered, setHovered] = useState<MapFeature | undefined>(undefined);
-  const [selected, setSelected] = useState<MapFeature | undefined>(undefined);
+  const [hovered, setHovered] = useState<ProvinceFeature | undefined>(undefined);
+  const [selected, setSelected] = useState<ProvinceFeature | undefined>(undefined);
 
   const scheduleDraw = (): void => {
     if (rafRef.current !== undefined) {

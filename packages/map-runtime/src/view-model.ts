@@ -1,6 +1,6 @@
 import type { LoadedMapPack } from "./load-map-pack.js";
 import { ProvinceGridIndex } from "./spatial-index.js";
-import type { MapFeature, MapViewModel, MapViewModelHooks, MapViewport } from "./types.js";
+import type { MapViewModel, MapViewModelHooks, MapViewport, ProvinceFeature } from "./types.js";
 
 export function createDefaultViewport(width: number, height: number): MapViewport {
   return {
@@ -18,8 +18,8 @@ export function createMapViewModel(
   hooks: MapViewModelHooks = {}
 ): MapViewModel & {
   readonly provinceIndex: ProvinceGridIndex;
-  hitTest(lon: number, lat: number): MapFeature | undefined;
-  findProvince(id: string): MapFeature | undefined;
+  hitTest(lon: number, lat: number): ProvinceFeature | undefined;
+  findProvince(id: string): ProvinceFeature | undefined;
   getProvinceOwner(provinceId: string): string | undefined;
 } {
   const byId = new Map(pack.provinces.map((feature) => [feature.id, feature]));
@@ -43,17 +43,16 @@ export function createMapViewModel(
     provinces: pack.provinces,
     coastlines: pack.coastlines,
     boundaries: pack.boundaries,
-    cities: pack.cities,
     hoveredProvinceId: undefined,
     selectedProvinceId: undefined,
     viewport,
     hooks: mergedHooks,
     provinceIndex,
     getProvinceOwner,
-    hitTest(lon: number, lat: number): MapFeature | undefined {
+    hitTest(lon: number, lat: number): ProvinceFeature | undefined {
       return provinceIndex.hitTest(lon, lat);
     },
-    findProvince(id: string): MapFeature | undefined {
+    findProvince(id: string): ProvinceFeature | undefined {
       return byId.get(id);
     }
   };
