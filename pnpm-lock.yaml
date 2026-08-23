@@ -41,6 +41,9 @@ importers:
 
   apps/client:
     dependencies:
+      '@economic-simulator/map-runtime':
+        specifier: workspace:*
+        version: link:../../packages/map-runtime
       '@economic-simulator/simulation-protocol':
         specifier: workspace:*
         version: link:../../packages/simulation-protocol
@@ -119,6 +122,10 @@ importers:
       '@economic-simulator/map-runtime':
         specifier: workspace:*
         version: link:../../packages/map-runtime
+    devDependencies:
+      tsx:
+        specifier: 4.23.12
+        version: 4.23.12
 
 packages:
 

@@ -1,0 +1,1 @@
+{"type":"ProvinceCollection","features":[{"id":"probe-province","properties":{},"bbox":[0,0,1,1],"lod":[{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]},{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}]}]}

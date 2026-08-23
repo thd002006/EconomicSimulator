@@ -1,10 +1,32 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "format": "economic-simulator.map-runtime/v1",
   "id": "architecture-probe",
   "version": "0.1.0",
   "nameKey": "map.architectureProbe.name",
   "coordinateReferenceSystem": "EPSG:4326",
-  "layers": {
-    "provinces": "provinces.geojson"
+  "assets": {
+    "provinces": "provinces.runtime.json",
+    "boundaries": "boundaries.runtime.json",
+    "coastlines": "coastlines.runtime.json",
+    "cities": "cities.runtime.json",
+    "spatialIndex": "spatial-index.json"
+  },
+  "lodTolerances": [0.12, 0.04],
+  "provenance": {
+    "toolVersion": "0.1.0",
+    "naturalEarthCommit": null,
+    "sourceHashes": {
+      "provinces": "sha256:68f6fab85177b14698ada0971f677fe527d06453da4d0bb0ea789e4c65ef138a"
+    },
+    "assetHashes": {
+      "provinces": "sha256:825ce19920c4ea4779621a013d099dafa50a8cc400fdc92b63d257936deaedb2",
+      "boundaries": "sha256:f6cfbf756716b7e5f23f30e964a59d7c1471cbfaac453b60a9c144a9d2fa0be5",
+      "coastlines": "sha256:ce07f2de9da7bd0b481a42fca082cf6f5da3d83e1d75031fee40ef9629fba36e",
+      "cities": "sha256:a1fcec9f3fba2206ef05567f7d10856dd5ae580c710a12bb982ff19cd038544a",
+      "spatialIndex": "sha256:8db0903aa2e1166980d27fc7295a3615599a20bc1b62e63ebd61ebda2a71f800"
+    },
+    "outputHash": "sha256:8ef69afa5f35b065af37459e010e609024db53be4b9af2f3f3f913080a4e6bea",
+    "builtAt": "2026-08-23T07:22:54.487Z"
   }
 }

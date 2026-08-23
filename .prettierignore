@@ -1,8 +1,8 @@
 node_modules
 dist
 coverage
-public/generated
 src-tauri/target
 pnpm-lock.yaml
-data-src/maps/_vendor
 **/*.geojson
+data-src/maps/**/*.runtime.json
+data-src/maps/**/spatial-index.json

@@ -11,7 +11,7 @@
 - `apps/simulation-cli`：不启动 UI 的 Node 运行入口。
 - `packages/save-codec`：版本化存档信封、规范化 JSON 和校验和。
 - `packages/game-data`：静态数据清单及运行时校验。
-- `packages/map-runtime`、`tools/map-pipeline`：地图运行时和 GeoJSON 构建工具基线。
+- `packages/map-runtime`、`tools/map-pipeline`：地图运行时加载与成品地图包校验。
 - `packages/platform-api`：Web、桌面和 Steam 能力边界。
 - `src-tauri`：Tauri 2 桌面壳。
 

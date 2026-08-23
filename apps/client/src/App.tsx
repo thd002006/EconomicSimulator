@@ -1,165 +1,155 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  PROTOCOL_VERSION,
-  type WorkerResultResponse
-} from "@economic-simulator/simulation-protocol";
+import type { MapFeature } from "@economic-simulator/map-runtime";
+import { MapView } from "./components/MapView";
+import { ProvinceInspector } from "./components/ProvinceInspector";
+import { TimeControls, type PlaySpeed } from "./components/TimeControls";
 import { SimulationWorkerClient } from "./worker-client";
 
-type ConnectionState = "starting" | "online" | "error";
+type ConnectionState = "starting" | "ready" | "error";
 
-function payloadFingerprint(payload: unknown): string {
-  if (typeof payload === "object" && payload !== null && "stateFingerprint" in payload) {
-    const value = (payload as { stateFingerprint?: unknown }).stateFingerprint;
-    return typeof value === "string" ? value : "—";
-  }
-  if (typeof payload === "object" && payload !== null && "summary" in payload) {
-    return payloadFingerprint((payload as { summary?: unknown }).summary);
-  }
-  return "—";
+const GAME_ID = "world-campaign";
+const START_YEAR = 1900;
+
+function formatGameDate(tick: number): string {
+  const date = new Date(Date.UTC(START_YEAR, 0, 1 + tick));
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function App(): React.JSX.Element {
   const clientRef = useRef<SimulationWorkerClient | undefined>(undefined);
-  const snapshotRef = useRef<unknown>(undefined);
-  const [connection, setConnection] = useState<ConnectionState>("starting");
-  const [simulationId, setSimulationId] = useState("architecture-probe");
-  const [tick, setTick] = useState(0);
-  const [fingerprint, setFingerprint] = useState("—");
-  const [message, setMessage] = useState("正在启动独立模拟线程…");
-  const [busy, setBusy] = useState(false);
+  const tickRef = useRef(0);
+  const advancingRef = useRef(false);
 
-  const applyResponse = useCallback((response: WorkerResultResponse) => {
-    setSimulationId(response.simulationId);
-    setTick(response.simulationTick);
-    const nextFingerprint = payloadFingerprint(response.payload);
-    if (nextFingerprint !== "—") {
-      setFingerprint(nextFingerprint);
-    }
-  }, []);
+  const [connection, setConnection] = useState<ConnectionState>("starting");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [simulationId, setSimulationId] = useState(GAME_ID);
+  const [tick, setTick] = useState(0);
+  const [speed, setSpeed] = useState<PlaySpeed>(0);
+  const [selectedProvince, setSelectedProvince] = useState<MapFeature | undefined>(undefined);
+  const [provinceOwners] = useState<Readonly<Record<string, string>>>({});
+
+  useEffect(() => {
+    tickRef.current = tick;
+  }, [tick]);
 
   useEffect(() => {
     const client = new SimulationWorkerClient();
     clientRef.current = client;
     void client
-      .initialize("architecture-probe", 42)
+      .initialize(GAME_ID, START_YEAR)
       .then((response) => {
-        applyResponse(response);
-        setConnection("online");
-        setMessage("Worker、协议与 Simulation Core 已贯通。");
+        setSimulationId(response.simulationId);
+        setTick(response.simulationTick);
+        tickRef.current = response.simulationTick;
+        setConnection("ready");
       })
       .catch((error: unknown) => {
         setConnection("error");
-        setMessage(error instanceof Error ? error.message : "初始化失败。");
+        setErrorMessage(error instanceof Error ? error.message : "模拟初始化失败。");
       });
 
     return () => client.terminate();
-  }, [applyResponse]);
+  }, []);
 
-  const run = useCallback(
-    async (
-      operation: (client: SimulationWorkerClient) => Promise<WorkerResultResponse>,
-      label: string
-    ) => {
+  const advanceTicks = useCallback(
+    async (count: number): Promise<void> => {
       const client = clientRef.current;
-      if (client === undefined) {
+      if (client === undefined || advancingRef.current || connection !== "ready") {
         return;
       }
-      setBusy(true);
+      advancingRef.current = true;
       try {
-        const response = await operation(client);
-        applyResponse(response);
-        setMessage(label);
+        const response = await client.advance(simulationId, tickRef.current, count);
+        setTick(response.simulationTick);
+        tickRef.current = response.simulationTick;
       } catch (error) {
+        setSpeed(0);
         setConnection("error");
-        setMessage(error instanceof Error ? error.message : "操作失败。");
+        setErrorMessage(error instanceof Error ? error.message : "时间推进失败。");
       } finally {
-        setBusy(false);
+        advancingRef.current = false;
       }
     },
-    [applyResponse]
+    [connection, simulationId]
   );
 
-  const createSnapshot = useCallback(() => {
-    void run(async (client) => {
-      const response = await client.createSnapshot(simulationId);
-      snapshotRef.current = response.payload;
-      return response;
-    }, "内存快照已创建。");
-  }, [run, simulationId]);
-
-  const restoreSnapshot = useCallback(() => {
-    if (snapshotRef.current === undefined) {
-      setMessage("请先创建快照。");
+  useEffect(() => {
+    if (connection !== "ready" || speed === 0) {
       return;
     }
-    void run(
-      (client) => client.restoreSnapshot(simulationId, snapshotRef.current),
-      "快照已恢复，确定性状态边界有效。"
-    );
-  }, [run, simulationId]);
+    const intervalMs = speed === 1 ? 700 : speed === 5 ? 220 : 80;
+    const ticksPerPulse = speed === 30 ? 3 : 1;
+    const timer = window.setInterval(() => {
+      void advanceTicks(ticksPerPulse);
+    }, intervalMs);
+    return () => window.clearInterval(timer);
+  }, [advanceTicks, connection, speed]);
+
+  const onSelectProvince = useCallback(
+    (_provinceId: string | undefined, feature: MapFeature | undefined) => {
+      setSelectedProvince(feature);
+    },
+    []
+  );
+
+  const selectedOwner =
+    selectedProvince === undefined
+      ? undefined
+      : (provinceOwners[selectedProvince.id] ?? selectedProvince.properties.adm0A3);
+
+  const mapProps =
+    selectedProvince === undefined
+      ? {
+          mapId: "world-modern" as const,
+          fill: true as const,
+          provinceOwners,
+          onSelectProvince
+        }
+      : {
+          mapId: "world-modern" as const,
+          fill: true as const,
+          provinceOwners,
+          selectedProvinceId: selectedProvince.id,
+          onSelectProvince
+        };
 
   return (
-    <main className="shell">
-      <header className="hero">
-        <p className="eyebrow">ECONOMIC SIMULATOR</p>
-        <h1>架构探针</h1>
-        <p className="intro">当前页面只验证基础设施，不包含任何经济玩法。</p>
+    <div className="game-root">
+      <header className="game-topbar">
+        <div className="game-brand">
+          <p className="eyebrow">Economic Simulator</p>
+          <h1>世界经营</h1>
+        </div>
+
+        <TimeControls
+          dateLabel={formatGameDate(tick)}
+          tick={tick}
+          speed={speed}
+          disabled={connection !== "ready"}
+          onPause={() => setSpeed(0)}
+          onPlay={() => setSpeed((current) => (current === 0 ? 1 : current))}
+          onSetSpeed={setSpeed}
+          onStep={() => void advanceTicks(1)}
+        />
+
+        <div className="game-topbar-status" aria-live="polite">
+          {connection === "starting" ? "正在载入模拟…" : null}
+          {connection === "ready" ? "运行中" : null}
+          {connection === "error" ? (errorMessage ?? "连接异常") : null}
+        </div>
       </header>
 
-      <section className="status-grid" aria-label="架构状态">
-        <article className="status-card">
-          <span>Simulation Worker</span>
-          <strong className={`status-${connection}`}>
-            {connection === "online" ? "ONLINE" : connection.toUpperCase()}
-          </strong>
-        </article>
-        <article className="status-card">
-          <span>Protocol</span>
-          <strong>v{PROTOCOL_VERSION}</strong>
-        </article>
-        <article className="status-card">
-          <span>Simulation ID</span>
-          <strong>{simulationId}</strong>
-        </article>
-        <article className="status-card">
-          <span>Current Tick</span>
-          <strong>{tick.toLocaleString()}</strong>
-        </article>
-      </section>
-
-      <section className="probe-panel">
-        <div>
-          <p className="label">状态指纹</p>
-          <code>{fingerprint}</code>
-        </div>
-        <div className="actions">
-          <button
-            disabled={busy || connection !== "online"}
-            onClick={() =>
-              void run((client) => client.advance(simulationId, tick, 1), "已推进 1 Tick。")
-            }
-          >
-            +1 Tick
-          </button>
-          <button
-            disabled={busy || connection !== "online"}
-            onClick={() =>
-              void run((client) => client.advance(simulationId, tick, 100), "已推进 100 Tick。")
-            }
-          >
-            +100 Ticks
-          </button>
-          <button disabled={busy || connection !== "online"} onClick={createSnapshot}>
-            创建快照
-          </button>
-          <button disabled={busy || connection !== "online"} onClick={restoreSnapshot}>
-            恢复快照
-          </button>
-        </div>
-        <p className={`message message-${connection}`}>{message}</p>
-      </section>
-
-      <footer>React UI → Versioned Protocol → Web Worker Host → Pure TypeScript Core</footer>
-    </main>
+      <div className="game-main">
+        <MapView {...mapProps} />
+        <ProvinceInspector
+          feature={selectedProvince}
+          {...(selectedOwner === undefined ? {} : { ownerId: selectedOwner })}
+          gameDate={formatGameDate(tick)}
+        />
+      </div>
+    </div>
   );
 }

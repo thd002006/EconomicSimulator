@@ -3,11 +3,11 @@
   "maps": [
     {
       "id": "architecture-probe",
-      "manifest": "architecture-probe/map.json"
+      "path": "architecture-probe"
     },
     {
       "id": "world-modern",
-      "manifest": "world-modern/map.json"
+      "path": "world-modern"
     }
   ]
 }

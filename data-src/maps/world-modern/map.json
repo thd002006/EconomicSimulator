@@ -1,23 +1,34 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "format": "economic-simulator.map-runtime/v1",
   "id": "world-modern",
   "version": "0.1.0",
   "nameKey": "map.worldModern.name",
   "coordinateReferenceSystem": "EPSG:4326",
-  "layers": {
-    "provinces": "provinces.geojson",
-    "coastlines": "coastlines.geojson",
-    "cities": "cities.geojson"
+  "assets": {
+    "provinces": "provinces.runtime.json",
+    "boundaries": "boundaries.runtime.json",
+    "coastlines": "coastlines.runtime.json",
+    "cities": "cities.runtime.json",
+    "spatialIndex": "spatial-index.json"
   },
-  "source": {
-    "provider": "Natural Earth",
-    "license": "public domain",
-    "scale": "1:10m",
-    "themes": {
-      "provinces": "ne_10m_admin_1_states_provinces_lakes",
-      "coastlines": "ne_10m_coastline",
-      "cities": "ne_10m_populated_places"
+  "lodTolerances": [0.12, 0.04],
+  "provenance": {
+    "toolVersion": "0.1.0",
+    "naturalEarthCommit": "9380cca83db5f9aef52d5e762765100745f84b27",
+    "sourceHashes": {
+      "provinces": "sha256:9a1317b074f050b85430483e5668811994cae706e06841b16a7ad58c437b98fa",
+      "coastlines": "sha256:7fd507c27d5285b44203452ae9b7367503629d8f48808d6a95a42184d60de904",
+      "cities": "sha256:c8bed988de281dabd6d5b0532cc684eb655bb6582fee1850b146659cea2f212a"
     },
-    "cityMaxScalerank": 6
+    "assetHashes": {
+      "provinces": "sha256:0dd71aae39c7812870374fc71af122e5e7b69b9e8c1a4993e8ac2ade1d2ddcb7",
+      "boundaries": "sha256:438d2be70369e54e740ca459cbc965443b54c349eb2b07a3361715a847a179a2",
+      "coastlines": "sha256:19979ab21264fa761b7ae74c7f4a6320c55d97b5fcca6a47fd3a6e3c4959b962",
+      "cities": "sha256:85244178d566939e5b6e984b82355f05178d5828b7f9d67b057d77c324b50da5",
+      "spatialIndex": "sha256:603c3e8d0ee53da7c8d4392ba59b7a9f6d2042ea2d0b412eac3115af0d39d28f"
+    },
+    "outputHash": "sha256:227056251d2a68cfcf36a0042a1e644ff1786800a81e2c6aaf1acd14c1b637e2",
+    "builtAt": "2026-08-23T07:23:14.735Z"
   }
 }

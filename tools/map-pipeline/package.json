@@ -4,11 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "tsx src/index.ts",
-    "build:world-modern": "tsx src/build-world-modern.ts",
+    "validate-maps": "tsx src/validate-maps.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@economic-simulator/map-runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "4.23.12"
   }
 }
