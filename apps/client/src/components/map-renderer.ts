@@ -16,7 +16,7 @@ import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js
 
 const OCEAN = 0x0b1c2c;
 const COAST = 0x7eb6c9;
-const PROVINCE_BORDER = 0x3d5a6e;
+const PROVINCE_BORDER = 0xffffff;
 const COUNTRY_BORDER = 0xd7e6f2;
 const CAPITAL = 0xd7e8f5;
 const HOVER_FILL = new THREE.Color("#3a6f88");
@@ -73,13 +73,21 @@ function addGeometryLines(target: number[], geometry: GeoJsonGeometry, radius: n
   }
 }
 
-function makeWideLines(positions: number[], color: number, width: number): LineSegments2 {
+function makeWideLines(
+  positions: number[],
+  color: number,
+  width: number,
+  opacity = 1,
+  renderOrder = 0
+): LineSegments2 {
   const geometry = new LineSegmentsGeometry();
   geometry.setPositions(positions.length === 0 ? [0, 0, 0, 0, 0, 0] : positions);
   const material = new LineMaterial({
     color,
     linewidth: width,
     worldUnits: false,
+    transparent: opacity < 1,
+    opacity,
     alphaToCoverage: true,
     depthTest: true,
     depthWrite: false
@@ -87,6 +95,7 @@ function makeWideLines(positions: number[], color: number, width: number): LineS
   const lines = new LineSegments2(geometry, material);
   lines.frustumCulled = false;
   lines.visible = positions.length > 0;
+  lines.renderOrder = renderOrder;
   return lines;
 }
 
@@ -285,8 +294,8 @@ export class GlobeRenderer {
       addGeometryLines(coastPositions, feature.geometry, LINE_RADIUS);
     }
     this.coastLines = makeWideLines(coastPositions, COAST, 0.9);
-    this.provinceLines = makeWideLines([], PROVINCE_BORDER, 0.65);
-    this.countryLines = makeWideLines([], COUNTRY_BORDER, 1.45);
+    this.provinceLines = makeWideLines([], PROVINCE_BORDER, 0.9, 0.55, 1);
+    this.countryLines = makeWideLines([], COUNTRY_BORDER, 1.45, 1, 2);
     this.scene.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
 
@@ -334,7 +343,8 @@ export class GlobeRenderer {
     this.landMeshes.forEach((mesh, index) => {
       mesh.visible = index === this.landMeshes.length - 1;
     });
-    this.provinceLines.visible = this.provinceLineHasGeometry && showProvinceBorders(distance);
+    const showProvinces = this.provinceLineHasGeometry && showProvinceBorders(distance);
+    this.provinceLines.visible = showProvinces;
     this.capitalPoints.visible = showProvinceBorders(distance);
   }
 
@@ -378,9 +388,9 @@ export class GlobeRenderer {
     this.scene.remove(this.provinceLines, this.countryLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
-    this.provinceLines = makeWideLines(provincePositions, PROVINCE_BORDER, 0.65);
+    this.provinceLines = makeWideLines(provincePositions, PROVINCE_BORDER, 0.9, 0.55, 1);
     this.provinceLineHasGeometry = provincePositions.length > 0;
-    this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, 1.45);
+    this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, 1.45, 1, 2);
     this.scene.add(this.provinceLines, this.countryLines);
   }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "id": "world-modern",
-  "version": "0.2.0",
+  "version": "0.3.3",
   "nameKey": "map.worldModern.name",
   "coordinateReferenceSystem": "EPSG:4326",
   "layers": {

@@ -106,6 +106,22 @@ export function simplifyGeometry(geometry: PolygonGeometry, tolerance: number): 
   return relativeAreaError <= 0.1 ? candidate : cloneGeometry(geometry);
 }
 
+function buildTriangulatableLods(id: string, geometry: PolygonGeometry): PolygonGeometry[] {
+  const candidates = LOD_TOLERANCES.map((tolerance) => simplifyGeometry(geometry, tolerance));
+  return candidates.map((candidate, lodIndex) => {
+    for (let fallbackIndex = lodIndex; fallbackIndex < candidates.length; fallbackIndex += 1) {
+      const fallback = candidates[fallbackIndex]!;
+      try {
+        compileGlobeMesh([{ id, provinceSlot: 0, geometry: fallback }]);
+        return fallback;
+      } catch (error) {
+        if (fallbackIndex === candidates.length - 1) throw error;
+      }
+    }
+    throw new Error(`No triangulatable geometry LOD for ${id}.`);
+  });
+}
+
 function pickProperties(properties: RecordValue | null | undefined): RecordValue {
   if (properties === null || properties === undefined) return {};
   const allowed = [
@@ -178,7 +194,7 @@ export async function compilePack(
         capital: parseProvinceCapital(feature.properties?.capital, "provinces", id)
       },
       bbox: computeBBox(geometry),
-      lod: LOD_TOLERANCES.map((tolerance) => simplifyGeometry(geometry, tolerance))
+      lod: buildTriangulatableLods(id, geometry)
     };
   });
 

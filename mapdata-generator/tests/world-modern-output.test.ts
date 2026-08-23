@@ -4,6 +4,7 @@ import test from "node:test";
 
 interface ReviewProvince {
   readonly id: string;
+  readonly nameEn: string;
   readonly countryId: string;
   readonly method: string;
   readonly members: readonly string[];
@@ -53,7 +54,7 @@ test("every source province is assigned exactly once", () => {
 
 test("dynamic thresholds and low-area exceptions are auditable", () => {
   for (const [countryId, summary] of Object.entries(report.countrySummary)) {
-    assert.ok(summary.minimumAreaKm2 >= 25_000 && summary.minimumAreaKm2 <= 50_000, countryId);
+    assert.ok(summary.minimumAreaKm2 >= 10_000 && summary.minimumAreaKm2 <= 100_000, countryId);
     assert.ok(summary.areaKm2 >= 0, countryId);
     assert.equal(summary.after, report.countryCounts[countryId]);
     assert.equal(
@@ -68,6 +69,38 @@ test("dynamic thresholds and low-area exceptions are auditable", () => {
       assert.equal(province.belowMinimumReason, "no-legal-neighbor", province.id);
     }
   }
+});
+
+test("France uses macroregion names rather than department names", () => {
+  const departmentNames = /Territoire de Belfort|Doubs|Jura|Manche|Calvados/;
+  const france = report.provinces.filter((province) => province.countryId === "FRA");
+  assert.ok(france.length > 0);
+  assert.ok(france.every((province) => !departmentNames.test(province.nameEn)));
+  assert.ok(france.some((province) => province.nameEn.includes("Bourgogne-Franche-Comté")));
+});
+
+test("countries over 5 million km2 skip official macroregions", () => {
+  const largeCountries = new Set(
+    Object.entries(report.countrySummary)
+      .filter(([, summary]) => summary.areaKm2 > 5_000_000)
+      .map(([countryId]) => countryId)
+  );
+  assert.ok(largeCountries.size > 0);
+  assert.ok(
+    report.provinces.every(
+      (province) => !largeCountries.has(province.countryId) || province.method !== "official-region"
+    )
+  );
+});
+
+test("Baikonur is absorbed into Kazakhstan instead of remaining KAB", () => {
+  assert.equal(report.countryCounts.KAB, undefined);
+  assert.equal(report.countrySummary.KAB, undefined);
+  assert.ok(report.provinces.every((province) => province.countryId !== "KAB"));
+  const kyzylorda = report.provinces.find((province) => province.members.includes("KZ-KZY"));
+  assert.ok(kyzylorda?.members.includes("-99-X05~"));
+  assert.equal(kyzylorda?.countryId, "KAZ");
+  assert.doesNotMatch(kyzylorda?.name ?? "", /Bai|Bay/i);
 });
 
 test("known same-country enclosures use the general enclosure rule", () => {

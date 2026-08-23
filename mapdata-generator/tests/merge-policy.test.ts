@@ -7,9 +7,10 @@ import type { SourceProvince } from "../src/types.js";
 import type { AdjacencyData } from "../src/topology.js";
 
 const parameters: MergeParameters = {
-  baseMinimumProvinceAreaKm2: 25_000,
-  maximumMinimumProvinceAreaKm2: 50_000,
+  baseMinimumProvinceAreaKm2: 10_000,
+  maximumMinimumProvinceAreaKm2: 100_000,
   fullScaleCountryAreaKm2: 1_000_000,
+  macroRegionCountryAreaLimitKm2: 5_000_000,
   maximumArchipelagoGapKm: 700,
   defaultRetainedArcFraction: 0.5
 };
@@ -59,12 +60,12 @@ function adjacency(
   return { neighbors, sharedBorder, exposedBoundary: exposed };
 }
 
-test("dynamic minimum province area scales linearly and caps at 50,000 km2", () => {
-  assert.equal(dynamicMinimumProvinceAreaKm2(0, parameters), 25_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(100_000, parameters), 27_500);
-  assert.equal(dynamicMinimumProvinceAreaKm2(500_000, parameters), 37_500);
-  assert.equal(dynamicMinimumProvinceAreaKm2(1_000_000, parameters), 50_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(2_000_000, parameters), 50_000);
+test("dynamic minimum province area scales linearly and caps at 100,000 km2", () => {
+  assert.equal(dynamicMinimumProvinceAreaKm2(0, parameters), 10_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(100_000, parameters), 19_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(500_000, parameters), 55_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(1_000_000, parameters), 100_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(2_000_000, parameters), 100_000);
 });
 
 test("simplification retention accepts fractions and percentages", () => {
@@ -92,6 +93,11 @@ test("area merging absorbs the smallest province only through a shared line", ()
   assert.ok(
     groups.some((group) => group.memberIndices.includes(0) && group.memberIndices.includes(1))
   );
+  const merged = groups.find(
+    (group) => group.memberIndices.includes(0) && group.memberIndices.includes(1)
+  );
+  assert.equal(merged?.name, "Province 0–Province 1");
+  assert.equal(merged?.nameEn, "Province 0–Province 1");
 });
 
 test("a same-country province fully enclosed by one province merges regardless of area", () => {
@@ -145,6 +151,45 @@ test("official macroregions are split when their members have no shared line", (
   ];
   const groups = buildMergeGroups(provinces, adjacency(3), parameters);
   assert.equal(groups.length, 3);
+});
+
+test("official macroregions apply at 5 million km2 and are skipped above it", () => {
+  const pairs = [
+    [0, 1, 100],
+    [2, 3, 100]
+  ] as const;
+  const regions = ["North", "North", "South", "South"] as const;
+  const atLimit = regions.map((region, index) => province(index, 1_250_000, { region }));
+  const overLimit = regions.map((region, index) => province(index, 1_500_000, { region }));
+
+  const grouped = buildMergeGroups(atLimit, adjacency(4, pairs), parameters);
+  assert.equal(grouped.length, 2);
+  assert.ok(grouped.every((group) => group.method === "official-region"));
+
+  const retained = buildMergeGroups(overLimit, adjacency(4, pairs), parameters);
+  assert.equal(retained.length, 4);
+  assert.ok(retained.every((group) => group.method === "retained"));
+});
+
+test("merged official macroregions concatenate macroregion names instead of province names", () => {
+  const provinces = [
+    province(0, 1_000, { region: "North" }),
+    province(1, 1_000, { region: "North" }),
+    province(2, 1_000, { region: "South" }),
+    province(3, 1_000, { region: "South" })
+  ];
+  const groups = buildMergeGroups(
+    provinces,
+    adjacency(4, [
+      [0, 1, 100],
+      [1, 2, 100],
+      [2, 3, 100]
+    ]),
+    parameters
+  );
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0]!.name, "North–South");
+  assert.equal(groups[0]!.nameEn, "North–South");
 });
 
 test("archipelago gap uses polygon edges and obeys the 700 km limit", () => {

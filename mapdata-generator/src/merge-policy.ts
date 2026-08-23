@@ -4,6 +4,7 @@ export interface MergeParameters {
   readonly baseMinimumProvinceAreaKm2: number;
   readonly maximumMinimumProvinceAreaKm2: number;
   readonly fullScaleCountryAreaKm2: number;
+  readonly macroRegionCountryAreaLimitKm2: number;
   readonly maximumArchipelagoGapKm: number;
   readonly defaultRetainedArcFraction: number;
 }
@@ -29,6 +30,10 @@ export async function loadMergePolicy(path: string): Promise<MergeParameters> {
     fullScaleCountryAreaKm2: positiveNumber(
       value.fullScaleCountryAreaKm2,
       "fullScaleCountryAreaKm2"
+    ),
+    macroRegionCountryAreaLimitKm2: positiveNumber(
+      value.macroRegionCountryAreaLimitKm2,
+      "macroRegionCountryAreaLimitKm2"
     ),
     maximumArchipelagoGapKm: positiveNumber(
       value.maximumArchipelagoGapKm,

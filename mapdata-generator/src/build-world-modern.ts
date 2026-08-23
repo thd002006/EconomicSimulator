@@ -45,6 +45,8 @@ import type {
 
 const NATURAL_EARTH_COMMIT = "9380cca83db5f9aef52d5e762765100745f84b27";
 const NATURAL_EARTH_BASE = `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/${NATURAL_EARTH_COMMIT}/geojson`;
+const COUNTRY_ID_REASSIGNMENTS = new Map([["KAB", "KAZ"]]);
+const EXCLUDED_FROM_MERGED_PROVINCE_NAMES = new Set(["-99-X05~"]);
 const SOURCES = {
   provinces: {
     fileName: "ne_10m_admin_1_states_provinces_lakes.geojson",
@@ -167,8 +169,9 @@ function normalizeProvinces(source: GeoJsonFeatureCollection): SourceProvince[] 
           : `province-${sourceIndex}`;
     const fallback = validCode(neId) ? `ne-${neId}` : `province-${sourceIndex}`;
     const id = uniqueId(preferred, used, fallback);
-    const countryId = asString(prop(properties, "adm0_a3"));
-    if (!validCode(countryId)) throw new Error(`Province ${id} has no country code.`);
+    const sourceCountryId = asString(prop(properties, "adm0_a3"));
+    if (!validCode(sourceCountryId)) throw new Error(`Province ${id} has no country code.`);
+    const countryId = COUNTRY_ID_REASSIGNMENTS.get(sourceCountryId) ?? sourceCountryId;
     const lon = asNumber(prop(properties, "longitude"));
     const lat = asNumber(prop(properties, "latitude"));
     const type = asString(prop(properties, "type_en", "type"));
@@ -276,8 +279,12 @@ function groupHash(countryId: string, members: readonly SourceProvince[]): strin
 function officialRegionComponents(
   indices: readonly number[],
   provinces: readonly SourceProvince[],
-  adjacency: ReturnType<typeof buildAdjacency>
+  adjacency: ReturnType<typeof buildAdjacency>,
+  allowOfficialRegions: boolean
 ): Array<{ members: number[]; official: boolean }> {
+  if (!allowOfficialRegions) {
+    return indices.map((index) => ({ members: [index], official: false }));
+  }
   const members = indices.map((index) => provinces[index]!);
   const distinctRegions = new Set(members.map((member) => member.region));
   const hasCompleteMacroregions =
@@ -312,6 +319,18 @@ function officialRegionComponents(
     result.push({ members: component, official: component.length > 1 });
   }
   return result;
+}
+
+function countryHasCompleteMacroregions(
+  indices: readonly number[],
+  provinces: readonly SourceProvince[]
+): boolean {
+  const members = indices.map((index) => provinces[index]!);
+  return (
+    members.length > 0 &&
+    members.every((member) => validCode(member.region)) &&
+    new Set(members.map((member) => member.region)).size >= 2
+  );
 }
 
 function sourceFragmentCount(province: SourceProvince): number {
@@ -530,8 +549,15 @@ export function buildMergeGroups(
   const clusters = new Map<number, Cluster>();
   const owner = provinces.map(() => -1);
   let nextKey = 0;
-  for (const [, indices] of [...countries].sort(([a], [b]) => a.localeCompare(b))) {
-    for (const component of officialRegionComponents(indices, provinces, adjacency)) {
+  for (const [countryId, indices] of [...countries].sort(([a], [b]) => a.localeCompare(b))) {
+    const allowOfficialRegions =
+      countryAreas.get(countryId)! <= parameters.macroRegionCountryAreaLimitKm2;
+    for (const component of officialRegionComponents(
+      indices,
+      provinces,
+      adjacency,
+      allowOfficialRegions
+    )) {
       const key = nextKey++;
       const members = component.members;
       const areaKm2 = members.reduce((sum, member) => sum + provinces[member]!.areaKm2, 0);
@@ -668,7 +694,11 @@ export function buildMergeGroups(
   );
   const groups = [...clusters.values()].map((cluster): MergeGroup => {
     const members = cluster.members.map((index) => provinces[index]!);
-    if (members.length === 1) {
+    const usesMacroregionNames = countryHasCompleteMacroregions(
+      countries.get(cluster.countryId)!,
+      provinces
+    );
+    if (members.length === 1 && !usesMacroregionNames) {
       const member = members[0]!;
       return {
         id: member.id,
@@ -679,18 +709,22 @@ export function buildMergeGroups(
         method: cluster.method
       };
     }
-    const largest = [...members].sort(
-      (a, b) => b.areaKm2 - a.areaKm2 || a.id.localeCompare(b.id)
-    )[0]!;
-    const officialName =
-      cluster.method === "official-region" &&
-      members.every((member) => member.region === members[0]!.region)
-        ? members[0]!.region
-        : undefined;
+    const nameMembers = members.filter(
+      (member) => !EXCLUDED_FROM_MERGED_PROVINCE_NAMES.has(member.id)
+    );
+    const namedMembers = nameMembers.length > 0 ? nameMembers : members;
+    const uniqueNames = (values: readonly string[]): string[] => [...new Set(values)];
+    const names = usesMacroregionNames
+      ? uniqueNames(namedMembers.map((member) => member.region!))
+      : namedMembers.map((member) => member.name);
+    const namesEn = usesMacroregionNames ? names : namedMembers.map((member) => member.nameEn);
     return {
-      id: `${cluster.countryId}-G${groupHash(cluster.countryId, members)}`,
-      name: officialName ?? `${largest.name} region`,
-      nameEn: officialName ?? `${largest.nameEn} Region`,
+      id:
+        members.length === 1
+          ? members[0]!.id
+          : `${cluster.countryId}-G${groupHash(cluster.countryId, members)}`,
+      name: names.join("–"),
+      nameEn: namesEn.join("–"),
       countryId: cluster.countryId,
       memberIndices: cluster.members,
       method: cluster.method
@@ -899,7 +933,7 @@ async function main(args: readonly string[]): Promise<void> {
   bytes.manifest = await writeJson(join(outDir, "map.json"), {
     schemaVersion: 2,
     id: "world-modern",
-    version: "0.2.0",
+    version: "0.3.3",
     nameKey: "map.worldModern.name",
     coordinateReferenceSystem: "EPSG:4326",
     layers: {
