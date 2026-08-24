@@ -148,7 +148,7 @@ button[aria-pressed="true"] {
 .map-panel-fill {
   border: 0;
   border-radius: 0;
-  background: #071018;
+  background: #c8b898;
 }
 
 .map-toolbar {
@@ -168,7 +168,8 @@ button[aria-pressed="true"] {
   position: relative;
   flex: 1;
   min-height: 0;
-  background: #071018;
+  background: #c8b898;
+  overflow: hidden;
 }
 
 .map-panel:not(.map-panel-fill) .map-stage {
@@ -188,19 +189,57 @@ button[aria-pressed="true"] {
   cursor: grabbing;
 }
 
+.map-label-layer {
+  z-index: 2;
+}
+
+.map-label {
+  font-family: "EB Garamond", "Times New Roman", Times, serif;
+  color: #3a2a1a;
+  text-shadow:
+    0 0 2px rgb(232 220 200 / 90%),
+    0 1px 0 rgb(232 220 200 / 70%);
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  letter-spacing: 0.04em;
+  opacity: 0.88;
+}
+
+.map-label-country {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.map-label-country-major {
+  font-size: 1.15rem;
+  font-weight: 700;
+  opacity: 0.92;
+}
+
+.map-label-province {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.78;
+}
+
 .map-overlay {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   margin: 0;
-  background: rgb(7 16 24 / 72%);
-  color: #9ec4d6;
+  background: rgb(200 184 152 / 72%);
+  color: #4a3828;
   font-size: 0.95rem;
+  z-index: 3;
 }
 
 .map-overlay-error {
-  color: #f0a8a8;
+  color: #8a3030;
   padding: 1rem;
   text-align: center;
 }
@@ -212,19 +251,21 @@ button[aria-pressed="true"] {
   display: grid;
   gap: 0.15rem;
   padding: 0.55rem 0.75rem;
-  border: 1px solid #35516a;
-  border-radius: 0.55rem;
-  background: rgb(10 20 30 / 88%);
+  border: 1px solid #5a4838;
+  border-radius: 0.35rem;
+  background: rgb(232 220 200 / 92%);
   pointer-events: none;
+  z-index: 3;
 }
 
 .map-tooltip strong {
-  color: #f2f8ff;
+  color: #2a1810;
   font-size: 0.9rem;
+  font-family: "EB Garamond", "Times New Roman", Times, serif;
 }
 
 .map-tooltip span {
-  color: #8fb0c2;
+  color: #5a4838;
   font-size: 0.75rem;
 }
 

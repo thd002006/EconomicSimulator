@@ -1,184 +1,589 @@
 {
   "manualGroups": [
     {
-      "id": "EGY-SINAI",
-      "countryId": "EGY",
-      "members": ["EG-SIN", "EG-JS"],
-      "name": "Sinai",
-      "nameEn": "Sinai"
-    },
-    {
-      "id": "EGY-CANAL",
-      "countryId": "EGY",
-      "members": ["EG-SUZ", "EG-IS", "EG-PTS"],
-      "name": "Suez Canal",
-      "nameEn": "Suez Canal"
-    },
-    {
-      "id": "EGY-DELTA",
-      "countryId": "EGY",
-      "members": ["EG-DK", "EG-SHR", "EG-DT", "EG-KFS", "EG-BH", "EG-MNF", "EG-KB", "EG-GH"],
-      "name": "Nile Delta",
-      "nameEn": "Nile Delta"
-    },
-    {
-      "id": "EGY-CAIRO",
-      "countryId": "EGY",
-      "members": ["EG-C", "EG-GZ", "EG-FYM", "EG-BNS", "EG-MN"],
-      "name": "Greater Cairo & Middle Nile",
-      "nameEn": "Greater Cairo & Middle Nile"
-    },
-    {
-      "id": "EGY-UPPER",
-      "countryId": "EGY",
-      "members": ["EG-AST", "EG-SHG", "EG-KN", "EG-LX", "EG-ASN"],
-      "name": "Upper Nile",
-      "nameEn": "Upper Nile"
-    },
-    {
-      "id": "AZE-M008",
+      "id": "AZE-Absheron-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-QAZ", "AZ-AGA", "AZ-TOV", "AZ-GAD", "AZ-SKR"],
-      "name": "Qazax–Ağstafa–Tovuz–Gədəbəy–Şəmkir",
-      "nameEn": "Qazax–Agstafa–Tovuz–Gadabay–Shamkir"
+      "members": [
+        "AZ-ABS",
+        "AZ-BA",
+        "AZ-SM",
+        "AZ-XIZ"
+      ],
+      "name": "Absheron Economic Region",
+      "nameEn": "Absheron Economic Region"
     },
     {
-      "id": "AZE-M009",
+      "id": "AZE-Aran-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-QBI", "AZ-ZAN", "AZ-CAB", "AZ-FUZ", "AZ-XVD"],
-      "name": "Qubadli–Zəngilan–Cəbrayıl–Füzuli–Xocavənd",
-      "nameEn": "Qubadli–Zangilan–Jabrayil–Fuzuli–Khojavend"
+      "members": [
+        "AZ-AGC",
+        "AZ-AGS",
+        "AZ-BAR",
+        "AZ-BEY",
+        "AZ-BIL",
+        "AZ-GOY",
+        "AZ-HAC",
+        "AZ-IMI",
+        "AZ-KUR",
+        "AZ-MI",
+        "AZ-NEF",
+        "AZ-SAB",
+        "AZ-SAL",
+        "AZ-SAT",
+        "AZ-SR",
+        "AZ-UCA",
+        "AZ-YEV",
+        "AZ-YEV",
+        "AZ-ZAR"
+      ],
+      "name": "Aran Economic Region",
+      "nameEn": "Aran Economic Region"
     },
     {
-      "id": "AZE-M010",
+      "id": "AZE-Daghlig-Shirvan-Economic-Regio",
       "countryId": "AZE",
-      "members": ["AZ-DAS", "AZ-SMX", "AZ-TAR", "AZ-GOR", "AZ-GYG", "AZ-GA", "AZ-NA"],
-      "name": "Daşkəsən–Samux–Tərtər–Goranboy–Xanlar–Gəncə–Naftalan",
-      "nameEn": "Dashkasan–Samukh–Tartar–Goranboy–Goygol–Ganja–Naftalan"
+      "members": [
+        "AZ-AGU",
+        "AZ-ISM",
+        "AZ-QOB",
+        "AZ-SMI"
+      ],
+      "name": "Daghlig Shirvan Economic Region",
+      "nameEn": "Daghlig Shirvan Economic Region"
     },
     {
-      "id": "AZE-M011",
+      "id": "AZE-Ganja-Gazakh-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-KAL", "AZ-LAN", "AZ-SUS", "AZ-XCI", "AZ-X01~", "AZ-AGM", "AZ-XA"],
-      "name": "Kəlbəcər–Lankaran–Şuşa–Xocalı–Şuşa–Ağdam–Stepanakert",
-      "nameEn": "Kalbajar–Lankaran–Susa–Khojali–Shusha–Agdam–Stepanakert"
+      "members": [
+        "AZ-AGA",
+        "AZ-DAS",
+        "AZ-GA",
+        "AZ-GAD",
+        "AZ-GOR",
+        "AZ-GYG",
+        "AZ-NA",
+        "AZ-QAZ",
+        "AZ-SKR",
+        "AZ-SMX",
+        "AZ-TOV"
+      ],
+      "name": "Ganja-Gazakh Economic Region",
+      "nameEn": "Ganja-Gazakh Economic Region"
     },
     {
-      "id": "AZE-M012",
+      "id": "AZE-Guba-Khachmaz-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-BAL", "AZ-ZAQ", "AZ-SA", "AZ-QAX", "ne-1159317281"],
-      "name": "Balakən–Zaqatala–Şəki–Qax–Şəki",
-      "nameEn": "Balakan–Zaqatala–Sheki–Qakh–Shaki"
+      "members": [
+        "AZ-QBA",
+        "AZ-QUS",
+        "AZ-SBN",
+        "AZ-SIY",
+        "AZ-XAC"
+      ],
+      "name": "Guba-Khachmaz Economic Region",
+      "nameEn": "Guba-Khachmaz Economic Region"
     },
     {
-      "id": "AZE-M013",
+      "id": "AZE-Kalbajar-Lachin-Economic-Regio",
       "countryId": "AZE",
-      "members": ["AZ-XIZ", "AZ-SM", "AZ-BA", "AZ-ABS", "AZ-QOB"],
-      "name": "Xizı–Sumqayıt–Bakı–Abşeron–Qobustan",
-      "nameEn": "Khizi–Sumqayit–Baku–Absheron–Gobustan"
+      "members": [
+        "AZ-KAL",
+        "AZ-LAN",
+        "AZ-QBI",
+        "AZ-ZAN"
+      ],
+      "name": "Kalbajar-Lachin Economic Region",
+      "nameEn": "Kalbajar-Lachin Economic Region"
     },
     {
-      "id": "AZE-M014",
+      "id": "AZE-Lankaran-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-OGU", "AZ-QAB", "AZ-AGU", "AZ-SMI", "AZ-ISM"],
-      "name": "Oğuz–Qəbələ–Ağsu–Şamaxı–İsmayıllı",
-      "nameEn": "Oghuz–Qabala–Agsu–Shamakhi–Ismayilli"
+      "members": [
+        "AZ-AST",
+        "AZ-CAL",
+        "AZ-LA",
+        "AZ-LA",
+        "AZ-LER",
+        "AZ-MAS",
+        "AZ-YAR"
+      ],
+      "name": "Lankaran Economic Region",
+      "nameEn": "Lankaran Economic Region"
     },
     {
-      "id": "AZE-M015",
+      "id": "AZE-Naxçıvan-Autonomous-Republic",
       "countryId": "AZE",
-      "members": ["AZ-XAC", "AZ-QUS", "AZ-SBN", "AZ-SIY", "AZ-QBA"],
-      "name": "Xaçmaz–Qusar–Dəvəçi–Siyəzən–Quba",
-      "nameEn": "Khachmaz–Qusar–Shabran–Siyazan–Quba"
+      "members": [
+        "AZ-BAB",
+        "AZ-CUL",
+        "AZ-KAN",
+        "AZ-NX",
+        "AZ-ORD",
+        "AZ-SAD",
+        "AZ-SAH",
+        "AZ-SAR"
+      ],
+      "name": "Naxçıvan Autonomous Republic",
+      "nameEn": "Naxçıvan Autonomous Republic"
     },
     {
-      "id": "AZE-M016",
+      "id": "AZE-Shaki-Zaqatala-Economic-Region",
       "countryId": "AZE",
-      "members": ["AZ-IMI", "AZ-BEY", "AZ-KUR"],
-      "name": "İmişli–Beyləqan–Kürdəmir",
-      "nameEn": "Imishli–Beylagan–Kurdamir"
+      "members": [
+        "AZ-BAL",
+        "AZ-OGU",
+        "AZ-QAB",
+        "AZ-QAX",
+        "AZ-SA",
+        "AZ-SA",
+        "AZ-ZAQ"
+      ],
+      "name": "Shaki-Zaqatala Economic Region",
+      "nameEn": "Shaki-Zaqatala Economic Region"
     },
     {
-      "id": "AZE-M017",
+      "id": "AZE-Yukhari-Garabakh-Economic-Regi",
       "countryId": "AZE",
-      "members": ["AZ-CAL", "AZ-YAR", "AZ-LER", "AZ-AST", "AZ-LA", "AZ-MAS", "ne-1159317287"],
-      "name": "Cəlilabad–Yardımlı–Lerik–Astara–Lankaran–Masallı–Lankaran",
-      "nameEn": "Jalilabad–Yardimli–Lerik–Astara–Lankaran–Masally–Lankaran"
+      "members": [
+        "AZ-AGM",
+        "AZ-CAB",
+        "AZ-FUZ",
+        "AZ-SUS",
+        "AZ-TAR",
+        "AZ-X01~",
+        "AZ-XA",
+        "AZ-XCI",
+        "AZ-XVD"
+      ],
+      "name": "Yukhari Garabakh Economic Region",
+      "nameEn": "Yukhari Garabakh Economic Region"
     },
     {
-      "id": "AZE-M018",
-      "countryId": "AZE",
-      "members": ["AZ-YEV", "AZ-MI", "AZ-AGS", "ne-1159316489"],
-      "name": "Yevlakh Rayon–Mingəçevir–Ağdaş–Yevlakh",
-      "nameEn": "Yevlakh–Mingachevir–Agdash–Yevlakh"
+      "id": "BEL-Capital-Region",
+      "countryId": "BEL",
+      "members": [
+        "BE-BRU"
+      ],
+      "name": "Capital Region",
+      "nameEn": "Capital Region"
     },
     {
-      "id": "AZE-M019",
-      "countryId": "AZE",
-      "members": ["AZ-BIL", "AZ-SAL", "AZ-NEF", "AZ-HAC", "AZ-SAB", "AZ-SR", "AZ-SAT"],
-      "name": "Biləsuvar–Salyan–Neftçala–Hajigabul–Sabirabad–Shirvan–Saatlı",
-      "nameEn": "Bilasuvar–Salyan–Neftchala–Hajigabul–Sabirabad–Şirvan–Saatly"
+      "id": "BEL-Flemish",
+      "countryId": "BEL",
+      "members": [
+        "BE-VAN",
+        "BE-VBR",
+        "BE-VLI",
+        "BE-VOV",
+        "BE-VWV"
+      ],
+      "name": "Flemish",
+      "nameEn": "Flemish"
     },
     {
-      "id": "AZE-M020",
-      "countryId": "AZE",
-      "members": ["AZ-ZAR", "AZ-BAR", "AZ-UCA", "AZ-GOY", "AZ-AGC"],
-      "name": "Zərdab–Bərdə–Ucar–Göyçay–Ağcabədi",
-      "nameEn": "Zardab–Barda–Ujar–Goychay–Aghjabadi"
+      "id": "BEL-Walloon",
+      "countryId": "BEL",
+      "members": [
+        "BE-WBR",
+        "BE-WHT",
+        "BE-WLG",
+        "BE-WLX",
+        "BE-WNA"
+      ],
+      "name": "Walloon",
+      "nameEn": "Walloon"
+    },
+    {
+      "id": "BFA-Boucle-du-Mouhoun",
+      "countryId": "BFA",
+      "members": [
+        "BF-BAL",
+        "BF-BAN",
+        "BF-KOS",
+        "BF-MOU",
+        "BF-NAY",
+        "BF-SOR"
+      ],
+      "name": "Boucle du Mouhoun",
+      "nameEn": "Boucle du Mouhoun"
+    },
+    {
+      "id": "BFA-Cascades",
+      "countryId": "BFA",
+      "members": [
+        "BF-COM",
+        "BF-LER"
+      ],
+      "name": "Cascades",
+      "nameEn": "Cascades"
+    },
+    {
+      "id": "BFA-Centre",
+      "countryId": "BFA",
+      "members": [
+        "BF-KAD"
+      ],
+      "name": "Centre",
+      "nameEn": "Centre"
+    },
+    {
+      "id": "BFA-Centre-Est",
+      "countryId": "BFA",
+      "members": [
+        "BF-BLG",
+        "BF-KOP",
+        "BF-KOT"
+      ],
+      "name": "Centre-Est",
+      "nameEn": "Centre-Est"
+    },
+    {
+      "id": "BFA-Centre-Nord",
+      "countryId": "BFA",
+      "members": [
+        "BF-BAM",
+        "BF-NAM",
+        "BF-SMT"
+      ],
+      "name": "Centre-Nord",
+      "nameEn": "Centre-Nord"
+    },
+    {
+      "id": "BFA-Centre-Ouest",
+      "countryId": "BFA",
+      "members": [
+        "BF-BLK",
+        "BF-SIS",
+        "BF-SNG",
+        "BF-ZIR"
+      ],
+      "name": "Centre-Ouest",
+      "nameEn": "Centre-Ouest"
+    },
+    {
+      "id": "BFA-Centre-Sud",
+      "countryId": "BFA",
+      "members": [
+        "BF-BAZ",
+        "BF-NAO",
+        "BF-ZOU"
+      ],
+      "name": "Centre-Sud",
+      "nameEn": "Centre-Sud"
+    },
+    {
+      "id": "BFA-Est",
+      "countryId": "BFA",
+      "members": [
+        "BF-GNA",
+        "BF-GOU",
+        "BF-KMD",
+        "BF-KMP",
+        "BF-TAP"
+      ],
+      "name": "Est",
+      "nameEn": "Est"
+    },
+    {
+      "id": "BFA-Hauts-Bassins",
+      "countryId": "BFA",
+      "members": [
+        "BF-HOU",
+        "BF-KEN",
+        "BF-TUI"
+      ],
+      "name": "Hauts-Bassins",
+      "nameEn": "Hauts-Bassins"
+    },
+    {
+      "id": "BFA-Nord",
+      "countryId": "BFA",
+      "members": [
+        "BF-LOR",
+        "BF-PAS",
+        "BF-YAT",
+        "BF-ZON"
+      ],
+      "name": "Nord",
+      "nameEn": "Nord"
+    },
+    {
+      "id": "BFA-Plateau-Central",
+      "countryId": "BFA",
+      "members": [
+        "BF-GAN",
+        "BF-KOW",
+        "BF-OUB"
+      ],
+      "name": "Plateau-Central",
+      "nameEn": "Plateau-Central"
+    },
+    {
+      "id": "BFA-Sahel",
+      "countryId": "BFA",
+      "members": [
+        "BF-OUD",
+        "BF-SEN",
+        "BF-SOM",
+        "BF-YAG"
+      ],
+      "name": "Sahel",
+      "nameEn": "Sahel"
+    },
+    {
+      "id": "BFA-Sud-Ouest",
+      "countryId": "BFA",
+      "members": [
+        "BF-BGR",
+        "BF-IOB",
+        "BF-NOU",
+        "BF-PON"
+      ],
+      "name": "Sud-Ouest",
+      "nameEn": "Sud-Ouest"
+    },
+    {
+      "id": "BGR-NORTH",
+      "countryId": "BGR",
+      "members": [
+        "BG-15",
+        "BG-04",
+        "BG-07",
+        "BG-24"
+      ],
+      "name": "North Central Bulgaria",
+      "nameEn": "North Central Bulgaria"
+    },
+    {
+      "id": "BGR-SOUTH",
+      "countryId": "BGR",
+      "members": [
+        "BG-01",
+        "BG-09",
+        "BG-16",
+        "BG-21",
+        "BG-26",
+        "BG-28"
+      ],
+      "name": "South Bulgaria",
+      "nameEn": "South Bulgaria"
     },
     {
       "id": "BHS-M021",
       "countryId": "BHS",
-      "members": ["BS-IN", "BS-MG", "BS-AK"],
+      "members": [
+        "BS-IN",
+        "BS-MG",
+        "BS-AK"
+      ],
       "name": "Inagua–Mayaguana–Acklins",
       "nameEn": "Inagua–Mayaguana–Acklins"
     },
     {
       "id": "BHS-M022",
       "countryId": "BHS",
-      "members": ["BS-BY", "BS-MI", "BS-FP", "BS-WG", "BS-EG", "BS-CO", "BS-SO", "BS-NO", "BS-BI"],
+      "members": [
+        "BS-BY",
+        "BS-MI",
+        "BS-FP",
+        "BS-WG",
+        "BS-EG",
+        "BS-CO",
+        "BS-SO",
+        "BS-NO",
+        "BS-BI"
+      ],
       "name": "Berry Islands–Moore's Island–City of Freeport–West Grand Bahama–East Grand Bahama–Central Abaco–South Abaco–North Abaco–Bimini",
       "nameEn": "Berry Islands–Moore's Island–Freeport–West Grand Bahama–East Grand Bahama–Central Abaco–South Abaco–North Abaco–Bimini"
     },
     {
       "id": "BHS-M023",
       "countryId": "BHS",
-      "members": ["BS-EX", "BS-RC", "BS-BP", "BS-SS", "BS-CI", "BS-CE", "BS-SE"],
+      "members": [
+        "BS-EX",
+        "BS-RC",
+        "BS-BP",
+        "BS-SS",
+        "BS-CI",
+        "BS-CE",
+        "BS-SE"
+      ],
       "name": "Exuma–Rum Cay–Black Point–San Salvador–Cat Island–Central Eleuthera–South Eleuthera",
       "nameEn": "Exuma–Rum Cay–Black Point–San Salvador Island–Cat Island–Central Eleuthera–South Eleuthera"
     },
     {
       "id": "BHS-M024",
       "countryId": "BHS",
-      "members": ["BS-CS", "BS-MC", "BS-SA", "BS-X01~", "BS-NS", "BS-NE", "BS-HI", "BS-SW"],
+      "members": [
+        "BS-CS",
+        "BS-MC",
+        "BS-SA",
+        "BS-X01~",
+        "BS-NS",
+        "BS-NE",
+        "BS-HI",
+        "BS-SW"
+      ],
       "name": "Central Andros–Mangrove Cay–South Andros–New Providence–North Andros–North Eleuthera–Harbour Island–Spanish Wells",
       "nameEn": "Central Andros–Mangrove Cay–South Andros–New Providence–North Andros–North Eleuthera–Harbour Island–Spanish Wells"
     },
     {
       "id": "BHS-M025",
       "countryId": "BHS",
-      "members": ["BS-CK", "BS-LI", "BS-RI"],
+      "members": [
+        "BS-CK",
+        "BS-LI",
+        "BS-RI"
+      ],
       "name": "Crooked Island and Long Cay–Long Island–Ragged Island",
       "nameEn": "Crooked Island–Long Island–Ragged Island"
     },
     {
+      "id": "BMU-M266",
+      "countryId": "BMU",
+      "members": [
+        "BM-HAM",
+        "BM-SMI",
+        "BM-SGE",
+        "BM-SG"
+      ],
+      "name": "Hamilton–Smith's–Saint George's–City of Saint George",
+      "nameEn": "Hamilton–Smith's Parish–Saint George–St. George"
+    },
+    {
+      "id": "BMU-M267",
+      "countryId": "BMU",
+      "members": [
+        "BM-SOU",
+        "BM-SAN"
+      ],
+      "name": "Southampton–Sandys",
+      "nameEn": "Southampton–Sandys Parish"
+    },
+    {
+      "id": "BMU-M268",
+      "countryId": "BMU",
+      "members": [
+        "BM-DEV",
+        "BM-PEM",
+        "BM-HA",
+        "BM-PAG",
+        "BM-WAR"
+      ],
+      "name": "Devonshire–Pembroke–City of Hamilton–Paget–Warwick",
+      "nameEn": "Devonshire–Pembroke Parish–Hamilton–Paget Parish–Warwick"
+    },
+    {
+      "id": "BTN-Central",
+      "countryId": "BTN",
+      "members": [
+        "BT-21",
+        "BT-22",
+        "BT-23",
+        "BT-24",
+        "BT-31",
+        "BT-GA"
+      ],
+      "name": "Central",
+      "nameEn": "Central"
+    },
+    {
+      "id": "BTN-Eastern",
+      "countryId": "BTN",
+      "members": [
+        "BT-41",
+        "BT-42",
+        "BT-43",
+        "BT-44",
+        "BT-45",
+        "BT-TY"
+      ],
+      "name": "Eastern",
+      "nameEn": "Eastern"
+    },
+    {
+      "id": "BTN-Southern",
+      "countryId": "BTN",
+      "members": [
+        "BT-32",
+        "BT-33",
+        "BT-34"
+      ],
+      "name": "Southern",
+      "nameEn": "Southern"
+    },
+    {
+      "id": "BTN-Western",
+      "countryId": "BTN",
+      "members": [
+        "BT-11",
+        "BT-12",
+        "BT-13",
+        "BT-14",
+        "BT-15"
+      ],
+      "name": "Western",
+      "nameEn": "Western"
+    },
+    {
+      "id": "CHE-M269",
+      "countryId": "CHE",
+      "members": [
+        "CH-VS",
+        "CH-GE",
+        "CH-VD"
+      ],
+      "name": "Valais–Genève–Vaud",
+      "nameEn": "Valais–Geneva–Vaud"
+    },
+    {
+      "id": "CHE-M270",
+      "countryId": "CHE",
+      "members": [
+        "CH-TI",
+        "CH-GR",
+        "CH-TG",
+        "CH-SG",
+        "CH-GL",
+        "CH-AR",
+        "CH-AI"
+      ],
+      "name": "Ticino–Graubünden–Thurgau–Sankt Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden",
+      "nameEn": "Ticino–Grisons–Thurgau–St. Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden"
+    },
+    {
       "id": "CPV-M026",
       "countryId": "CPV",
-      "members": ["CV-BR", "CV-CF", "CV-MO", "CV-SF"],
+      "members": [
+        "CV-BR",
+        "CV-CF",
+        "CV-MO",
+        "CV-SF"
+      ],
       "name": "Brava–Santa Catarina do Fogo–Mosteiros–São Filipe",
       "nameEn": "Brava–Santa Catarina do Fogo–Mosteiros–São Filipe"
     },
     {
       "id": "CPV-M027",
       "countryId": "CPV",
-      "members": ["CV-BV", "CV-SL"],
+      "members": [
+        "CV-BV",
+        "CV-SL"
+      ],
       "name": "Boa Vista–Sal",
       "nameEn": "Boa Vista–Sal"
     },
     {
       "id": "CPV-M028",
       "countryId": "CPV",
-      "members": ["CV-RB", "CV-TS", "CV-SV", "CV-RG", "CV-PN", "CV-PA"],
+      "members": [
+        "CV-RB",
+        "CV-TS",
+        "CV-SV",
+        "CV-RG",
+        "CV-PN",
+        "CV-PA"
+      ],
       "name": "Ribeira Brava–Tarrafal de São Nicolau–São Vicente–Ribeira Grande–Porto Novo–Paul",
       "nameEn": "Ribeira Brava–Tarrafal de São Nicolau–São Vicente–Ribeira Grande–Porto Novo–Paul"
     },
@@ -203,1386 +608,586 @@
     {
       "id": "DOM-M030",
       "countryId": "DOM",
-      "members": ["DO-15", "DO-05", "DO-18", "DO-27", "DO-26", "DO-25"],
+      "members": [
+        "DO-15",
+        "DO-05",
+        "DO-18",
+        "DO-27",
+        "DO-26",
+        "DO-25"
+      ],
       "name": "Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago",
       "nameEn": "Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago"
     },
     {
       "id": "DOM-M031",
       "countryId": "DOM",
-      "members": ["DO-11", "DO-08", "DO-30", "DO-23", "DO-12"],
+      "members": [
+        "DO-11",
+        "DO-08",
+        "DO-30",
+        "DO-23",
+        "DO-12"
+      ],
       "name": "La Altagracia–El Seybo–Hato Mayor–San Pedro de Macorís–La Romana",
       "nameEn": "La Altagracia–El Seibo–Hato Mayor–San Pedro de Macorís–La Romana"
     },
     {
       "id": "DOM-M032",
       "countryId": "DOM",
-      "members": ["DO-20", "DO-14", "DO-09", "DO-13", "DO-19", "DO-29"],
+      "members": [
+        "DO-20",
+        "DO-14",
+        "DO-09",
+        "DO-13",
+        "DO-19",
+        "DO-29"
+      ],
       "name": "Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas–Monte Plata",
       "nameEn": "Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas Mirabal–Monte Plata"
     },
     {
       "id": "DOM-M033",
       "countryId": "DOM",
-      "members": ["DO-07", "DO-10"],
+      "members": [
+        "DO-07",
+        "DO-10"
+      ],
       "name": "La Estrelleta–Independencia",
       "nameEn": "La Estrelleta–Independencia"
     },
     {
-      "id": "ESP-M034",
-      "countryId": "ESP",
-      "members": ["ES-NA", "ES-SS", "ES-S", "ES-BI", "ES-LO", "ES-VI"],
-      "name": "Navarra–Gipuzkoa–Cantabria–Bizkaia–La Rioja–Álava",
-      "nameEn": "Navarre–Gipuzkoa–Cantabria–Biscay–La Rioja–Araba / Álava"
+      "id": "EGY-CAIRO",
+      "countryId": "EGY",
+      "members": [
+        "EG-C",
+        "EG-GZ",
+        "EG-FYM",
+        "EG-BNS",
+        "EG-MN"
+      ],
+      "name": "Greater Cairo & Middle Nile",
+      "nameEn": "Greater Cairo & Middle Nile"
     },
     {
-      "id": "ESP-M035",
-      "countryId": "ESP",
-      "members": ["ES-OR", "ES-PO", "ES-C", "ES-LU", "ES-O"],
-      "name": "Orense–Pontevedra–La Coruña–Lugo–Asturias",
-      "nameEn": "Ourense–Pontevedra–A Coruña–Lugo–Asturias"
+      "id": "EGY-CANAL",
+      "countryId": "EGY",
+      "members": [
+        "EG-SUZ",
+        "EG-IS",
+        "EG-PTS"
+      ],
+      "name": "Suez Canal",
+      "nameEn": "Suez Canal"
     },
     {
-      "id": "ESP-M036",
+      "id": "EGY-DELTA",
+      "countryId": "EGY",
+      "members": [
+        "EG-DK",
+        "EG-SHR",
+        "EG-DT",
+        "EG-KFS",
+        "EG-BH",
+        "EG-MNF",
+        "EG-KB",
+        "EG-GH"
+      ],
+      "name": "Nile Delta",
+      "nameEn": "Nile Delta"
+    },
+    {
+      "id": "EGY-SINAI",
+      "countryId": "EGY",
+      "members": [
+        "EG-SIN",
+        "EG-JS"
+      ],
+      "name": "Sinai",
+      "nameEn": "Sinai"
+    },
+    {
+      "id": "EGY-UPPER",
+      "countryId": "EGY",
+      "members": [
+        "EG-AST",
+        "EG-SHG",
+        "EG-KN",
+        "EG-LX",
+        "EG-ASN"
+      ],
+      "name": "Upper Nile",
+      "nameEn": "Upper Nile"
+    },
+    {
+      "id": "ESP-Andalucía",
       "countryId": "ESP",
-      "members": ["ES-HU", "ES-Z", "ES-TE"],
-      "name": "Huesca–Zaragoza–Teruel",
-      "nameEn": "Huesca–Zaragoza–Teruel"
+      "members": [
+        "ES-AL",
+        "ES-CA",
+        "ES-CO",
+        "ES-GR",
+        "ES-H",
+        "ES-J",
+        "ES-MA",
+        "ES-SE"
+      ],
+      "name": "Andalucía",
+      "nameEn": "Andalucía"
+    },
+    {
+      "id": "ESP-Aragón",
+      "countryId": "ESP",
+      "members": [
+        "ES-HU",
+        "ES-TE",
+        "ES-Z"
+      ],
+      "name": "Aragón",
+      "nameEn": "Aragón"
+    },
+    {
+      "id": "ESP-Asturias",
+      "countryId": "ESP",
+      "members": [
+        "ES-O"
+      ],
+      "name": "Asturias",
+      "nameEn": "Asturias"
+    },
+    {
+      "id": "ESP-Canary-Is.",
+      "countryId": "ESP",
+      "members": [
+        "ES-GC",
+        "ES-TF"
+      ],
+      "name": "Canary Is.",
+      "nameEn": "Canary Is."
+    },
+    {
+      "id": "ESP-Cantabria",
+      "countryId": "ESP",
+      "members": [
+        "ES-S"
+      ],
+      "name": "Cantabria",
+      "nameEn": "Cantabria"
+    },
+    {
+      "id": "ESP-Castilla-La-Mancha",
+      "countryId": "ESP",
+      "members": [
+        "ES-AB",
+        "ES-CR",
+        "ES-CU",
+        "ES-GU",
+        "ES-TO"
+      ],
+      "name": "Castilla-La Mancha",
+      "nameEn": "Castilla-La Mancha"
+    },
+    {
+      "id": "ESP-Castilla-y-León",
+      "countryId": "ESP",
+      "members": [
+        "ES-AV",
+        "ES-BU",
+        "ES-LE",
+        "ES-P",
+        "ES-SA",
+        "ES-SG",
+        "ES-SO",
+        "ES-VA",
+        "ES-ZA"
+      ],
+      "name": "Castilla y León",
+      "nameEn": "Castilla y León"
+    },
+    {
+      "id": "ESP-Cataluña",
+      "countryId": "ESP",
+      "members": [
+        "ES-B",
+        "ES-GI",
+        "ES-L",
+        "ES-T"
+      ],
+      "name": "Cataluña",
+      "nameEn": "Cataluña"
+    },
+    {
+      "id": "ESP-Ceuta",
+      "countryId": "ESP",
+      "members": [
+        "ES-CE"
+      ],
+      "name": "Ceuta",
+      "nameEn": "Ceuta"
+    },
+    {
+      "id": "ESP-Extremadura",
+      "countryId": "ESP",
+      "members": [
+        "ES-BA",
+        "ES-CC"
+      ],
+      "name": "Extremadura",
+      "nameEn": "Extremadura"
+    },
+    {
+      "id": "ESP-Foral-de-Navarra",
+      "countryId": "ESP",
+      "members": [
+        "ES-NA"
+      ],
+      "name": "Foral de Navarra",
+      "nameEn": "Foral de Navarra"
+    },
+    {
+      "id": "ESP-Galicia",
+      "countryId": "ESP",
+      "members": [
+        "ES-C",
+        "ES-LU",
+        "ES-OR",
+        "ES-PO"
+      ],
+      "name": "Galicia",
+      "nameEn": "Galicia"
+    },
+    {
+      "id": "ESP-Islas-Baleares",
+      "countryId": "ESP",
+      "members": [
+        "ES-PM"
+      ],
+      "name": "Islas Baleares",
+      "nameEn": "Islas Baleares"
+    },
+    {
+      "id": "ESP-La-Rioja",
+      "countryId": "ESP",
+      "members": [
+        "ES-LO"
+      ],
+      "name": "La Rioja",
+      "nameEn": "La Rioja"
+    },
+    {
+      "id": "ESP-Madrid",
+      "countryId": "ESP",
+      "members": [
+        "ES-M"
+      ],
+      "name": "Madrid",
+      "nameEn": "Madrid"
+    },
+    {
+      "id": "ESP-Melilla",
+      "countryId": "ESP",
+      "members": [
+        "ES-ML"
+      ],
+      "name": "Melilla",
+      "nameEn": "Melilla"
+    },
+    {
+      "id": "ESP-Murcia",
+      "countryId": "ESP",
+      "members": [
+        "ES-MU"
+      ],
+      "name": "Murcia",
+      "nameEn": "Murcia"
+    },
+    {
+      "id": "ESP-País-Vasco",
+      "countryId": "ESP",
+      "members": [
+        "ES-BI",
+        "ES-SS",
+        "ES-VI"
+      ],
+      "name": "País Vasco",
+      "nameEn": "País Vasco"
+    },
+    {
+      "id": "ESP-Valenciana",
+      "countryId": "ESP",
+      "members": [
+        "ES-A",
+        "ES-CS",
+        "ES-V"
+      ],
+      "name": "Valenciana",
+      "nameEn": "Valenciana"
     },
     {
       "id": "FJI-M037",
       "countryId": "FJI",
-      "members": ["FJ-E"],
+      "members": [
+        "FJ-E"
+      ],
       "name": "Eastern",
       "nameEn": "Eastern"
     },
     {
       "id": "FJI-M038",
       "countryId": "FJI",
-      "members": ["FJ-W", "FJ-C", "FJ-N", "FJ-R"],
+      "members": [
+        "FJ-W",
+        "FJ-C",
+        "FJ-N",
+        "FJ-R"
+      ],
       "name": "Western–Central–Northern–Rotuma",
       "nameEn": "Western–Central–Northern–Rotuma"
     },
     {
-      "id": "FRA-M039",
+      "id": "FRA-Auvergne-Rhône-Alpes",
       "countryId": "FRA",
-      "members": ["FR-64", "FR-40", "FR-33", "FR-47"],
-      "name": "Pyrénées-Atlantiques–Landes–Gironde–Lot-et-Garonne",
-      "nameEn": "Pyrenees-Atlantics–Landes–Gironde–Lot-et-Garonne"
+      "members": [
+        "FR-01",
+        "FR-03",
+        "FR-07",
+        "FR-15",
+        "FR-26",
+        "FR-38",
+        "FR-42",
+        "FR-43",
+        "FR-63",
+        "FR-69",
+        "FR-73",
+        "FR-74"
+      ],
+      "name": "Auvergne-Rhône-Alpes",
+      "nameEn": "Auvergne-Rhône-Alpes"
     },
     {
-      "id": "FRA-M040",
+      "id": "FRA-Bourgogne-Franche-Comté",
       "countryId": "FRA",
-      "members": ["FR-56", "FR-29", "FR-22", "FR-35"],
-      "name": "Morbihan–Finistère–Côtes-d'Armor–Ille-et-Vilaine",
-      "nameEn": "Morbihan–Finistère–Côtes-d'Armor–Ille-et-Vilaine"
+      "members": [
+        "FR-21",
+        "FR-25",
+        "FR-39",
+        "FR-58",
+        "FR-70",
+        "FR-71",
+        "FR-89",
+        "FR-90"
+      ],
+      "name": "Bourgogne-Franche-Comté",
+      "nameEn": "Bourgogne-Franche-Comté"
     },
     {
-      "id": "FRA-M041",
+      "id": "FRA-Bretagne",
       "countryId": "FRA",
-      "members": ["FR-87", "FR-19", "FR-23", "FR-24", "FR-16"],
-      "name": "Haute-Vienne–Corrèze–Creuse–Dordogne–Charente",
-      "nameEn": "Haute-Vienne–Corrèze–Creuse–Dordogne–Charente"
+      "members": [
+        "FR-22",
+        "FR-29",
+        "FR-35",
+        "FR-56"
+      ],
+      "name": "Bretagne",
+      "nameEn": "Bretagne"
     },
     {
-      "id": "FRA-M042",
+      "id": "FRA-Centre-Val-de-Loire",
       "countryId": "FRA",
-      "members": ["FR-17", "FR-85", "FR-44", "FR-53", "FR-72", "FR-49", "FR-79", "FR-86"],
-      "name": "Charente-Maritime–Vendée–Loire-Atlantique–Mayenne–Sarthe–Maine-et-Loire–Deux-Sèvres–Vienne",
-      "nameEn": "Charente-Maritime–Vendée–Loire-Atlantique–Mayenne–Sarthe–Maine-et-Loire–Deux-Sèvres–Vienne"
+      "members": [
+        "FR-18",
+        "FR-28",
+        "FR-36",
+        "FR-37",
+        "FR-41",
+        "FR-45"
+      ],
+      "name": "Centre-Val de Loire",
+      "nameEn": "Centre-Val de Loire"
     },
     {
-      "id": "FRA-M043",
+      "id": "FRA-Corse",
       "countryId": "FRA",
-      "members": ["FR-59", "FR-02", "FR-80", "FR-62"],
-      "name": "Nord–Aisne–Somme–Pas-de-Calais",
-      "nameEn": "Nord–Aisne–Somme–Pas-de-Calais"
+      "members": [
+        "FR-2A",
+        "FR-2B"
+      ],
+      "name": "Corse",
+      "nameEn": "Corse"
     },
     {
-      "id": "FRA-M044",
+      "id": "FRA-Grand-Est",
       "countryId": "FRA",
-      "members": ["FR-54", "FR-57", "FR-67", "FR-68", "FR-88"],
-      "name": "Meurthe-et-Moselle–Moselle–Bas-Rhin–Haute-Rhin–Vosges",
-      "nameEn": "Meurthe-et-Moselle–Moselle–Bas-Rhin–Haut-Rhin–Vosges"
+      "members": [
+        "FR-08",
+        "FR-10",
+        "FR-51",
+        "FR-52",
+        "FR-54",
+        "FR-55",
+        "FR-57",
+        "FR-67",
+        "FR-68",
+        "FR-88"
+      ],
+      "name": "Grand Est",
+      "nameEn": "Grand Est"
     },
     {
-      "id": "FRA-M045",
+      "id": "FRA-Guadeloupe",
       "countryId": "FRA",
-      "members": ["FR-08", "FR-55", "FR-52", "FR-51", "FR-10"],
-      "name": "Ardennes–Meuse–Haute-Marne–Marne–Aube",
-      "nameEn": "Ardennes–Meuse–Haute-Marne–Marne–Aube"
+      "members": [
+        "FR-GP"
+      ],
+      "name": "Guadeloupe",
+      "nameEn": "Guadeloupe"
     },
     {
-      "id": "FRA-M046",
+      "id": "FRA-Guyane-française",
       "countryId": "FRA",
-      "members": ["FR-75", "FR-92", "FR-93", "FR-95", "FR-78", "FR-60", "FR-91", "FR-77", "FR-94"],
-      "name": "Paris–Hauts-de-Seine–Seine-Saint-Denis–Val-d'Oise–Yvelines–Oise–Essonne–Seien-et-Marne–Val-de-Marne",
-      "nameEn": "Paris–Hauts-de-Seine–Seine-Saint-Denis–Val-d'Oise–Yvelines–Oise–Essonne–Seine-et-Marne–Val-de-Marne"
-    },
-    {
-      "id": "HKG-M081",
-      "countryId": "HKG",
-      "members": ["HK-X16~", "HK-X17~", "HK-X15~"],
-      "name": "North–Tai Po–Yuen Long",
-      "nameEn": "North District–Tai Po–Yuen Long"
-    },
-    {
-      "id": "HKG-M082",
-      "countryId": "HKG",
-      "members": ["HK-X18~", "HK-X14~"],
-      "name": "Islands–Tuen Mun",
-      "nameEn": "Lantau Island–Tuen Mun"
-    },
-    {
-      "id": "HKG-M083",
-      "countryId": "HKG",
       "members": [
-        "HK-X13~",
-        "HK-X11~",
-        "HK-X10~",
-        "HK-X09~",
-        "HK-X06~",
-        "HK-X05~",
-        "HK-X07~",
-        "HK-X12~",
-        "HK-X08~"
+        "FR-GF"
       ],
-      "name": "Tsuen Wan–Sha Tin–Sai Kung–Kwun Tong–Kowloon City–Yau Tsim Mong–Sham Shui Po–Kwai Tsing–Wong Tai Sin",
-      "nameEn": "Tsuen Wan–Sha Tin–Sai Kung–Kwun Tong–Kowloon City–Yau Tsim Mong–Sham Shui Po–Kwai Tsing–Wong Tai Sin District"
+      "name": "Guyane française",
+      "nameEn": "Guyane française"
     },
     {
-      "id": "IDN-M086",
-      "countryId": "IDN",
-      "members": ["ID-MA"],
-      "name": "Maluku",
-      "nameEn": "Maluku"
-    },
-    {
-      "id": "IDN-M087",
-      "countryId": "IDN",
-      "members": ["ID-MU", "ID-GO", "ID-SA"],
-      "name": "Maluku Utara–Gorontalo–Sulawesi Utara",
-      "nameEn": "North Maluku–Gorontalo–North Sulawesi"
-    },
-    {
-      "id": "IDN-M088",
-      "countryId": "IDN",
-      "members": ["ID-SN", "ID-SG", "ID-ST", "ID-SR"],
-      "name": "Sulawesi Selatan–Sulawesi Tenggara–Sulawesi Tengah–Sulawesi Barat",
-      "nameEn": "South Sulawesi–Southeast Sulawesi–Central Sulawesi–West Sulawesi"
-    },
-    {
-      "id": "IDN-M089",
-      "countryId": "IDN",
-      "members": ["ID-JI", "ID-NB", "ID-JT", "ID-YO", "ID-BA"],
-      "name": "Jawa Timur–Nusa Tenggara Barat–Jawa Tengah–Yogyakarta–Bali",
-      "nameEn": "East Java–West Nusa Tenggara–Central Java–Yogyakarta–Bali"
-    },
-    {
-      "id": "IDN-M090",
-      "countryId": "IDN",
-      "members": ["ID-KR"],
-      "name": "Kepulauan Riau",
-      "nameEn": "Riau Islands"
-    },
-    {
-      "id": "IDN-M091",
-      "countryId": "IDN",
-      "members": ["ID-JB", "ID-JK", "ID-BT", "ID-BB"],
-      "name": "Jawa Barat–Jakarta Raya–Banten–Bangka-Belitung",
-      "nameEn": "West Java–Jakarta–Banten–Bangka Belitung Islands"
-    },
-    {
-      "id": "IRL-M092",
-      "countryId": "IRL",
-      "members": ["IE-WX", "IE-KK", "IE-WD", "IE-CW", "ne-1159317303", "ne-1159317301"],
-      "name": "Wexford–Kilkenny–Waterford–Carlow–South Tipperary–Waterford",
-      "nameEn": "Wexford–Kilkenny–Waterford–Carlow–Tipperary–Waterford"
-    },
-    {
-      "id": "IRL-M093",
-      "countryId": "IRL",
-      "members": ["IE-G", "ne-1159317293", "IE-MO"],
-      "name": "Galway–Galway–Mayo",
-      "nameEn": "Galway–Galway–Mayo"
-    },
-    {
-      "id": "IRL-M094",
-      "countryId": "IRL",
-      "members": ["IE-LS", "IE-OY", "IE-WH", "IE-LD", "IE-RN"],
-      "name": "Laoighis–Offaly–Westmeath–Longford–Roscommon",
-      "nameEn": "Laois–Offaly–Westmeath–Longford–Roscommon"
-    },
-    {
-      "id": "IRL-M095",
-      "countryId": "IRL",
-      "members": ["IE-DL"],
-      "name": "Donegal",
-      "nameEn": "Donegal"
-    },
-    {
-      "id": "IRL-M096",
-      "countryId": "IRL",
+      "id": "FRA-Hauts-de-France",
+      "countryId": "FRA",
       "members": [
-        "IE-D",
-        "ne-1159317309",
-        "IE-WW",
-        "IE-MH",
-        "ne-1159317305",
-        "IE-KE",
-        "ne-1159311003"
+        "FR-02",
+        "FR-59",
+        "FR-60",
+        "FR-62",
+        "FR-80"
       ],
-      "name": "Dublin–Dún Laoghaire–Rathdown–Wicklow–Meath–Fingal–Kildare–South Dublin",
-      "nameEn": "Dublin–Dún Laoghaire–Rathdown–Wicklow–Meath–Fingal–Kildare–South Dublin"
+      "name": "Hauts-de-France",
+      "nameEn": "Hauts-de-France"
     },
     {
-      "id": "IRL-M097",
-      "countryId": "IRL",
-      "members": ["IE-LM", "IE-CN", "IE-MN", "IE-LH", "IE-SO"],
-      "name": "Leitrim–Cavan–Monaghan–Louth–Sligo",
-      "nameEn": "Leitrim–Cavan–Monaghan–Louth–Sligo"
-    },
-    {
-      "id": "ITA-M098",
-      "countryId": "ITA",
-      "members": ["IT-AO", "IT-VB", "IT-VA", "IT-TO", "IT-VC", "IT-NO", "IT-BI"],
-      "name": "Aoste–Verbano-Cusio-Ossola–Varese–Turin–Vercelli–Novara–Biella",
-      "nameEn": "Aosta–Verbano-Cusio-Ossola–Varese–Turin–Vercelli–Novara–Biella"
-    },
-    {
-      "id": "ITA-M099",
-      "countryId": "ITA",
-      "members": ["IT-BZ", "IT-TN"],
-      "name": "Bozen–Trento",
-      "nameEn": "Trentino-South Tyrol–Trentino"
-    },
-    {
-      "id": "ITA-M100",
-      "countryId": "ITA",
-      "members": ["IT-SP", "IT-GE", "IT-AL"],
-      "name": "La Spezia–Genova–Alessandria",
-      "nameEn": "La Spezia–Liguria–Alessandria"
-    },
-    {
-      "id": "ITA-M101",
-      "countryId": "ITA",
+      "id": "FRA-Martinique",
+      "countryId": "FRA",
       "members": [
-        "IT-CO",
-        "IT-SO",
-        "IT-BG",
-        "IT-BS",
-        "IT-CR",
-        "IT-MN",
-        "IT-MI",
-        "IT-LC",
-        "IT-MB",
-        "IT-LO",
-        "IT-PV"
+        "FR-MQ"
       ],
-      "name": "Como–Sondrio–Bergamo–Brescia–Cremona–Mantova–Milano–Lecco–Monza e Brianza–Lodi–Pavia",
-      "nameEn": "Como–Sondrio–Bergamo–Brescia–Cremona–Mantua–Milan–Lecco–Monza and Brianza–Lodi–Pavia"
+      "name": "Martinique",
+      "nameEn": "Martinique"
     },
     {
-      "id": "ITA-M102",
-      "countryId": "ITA",
-      "members": ["IT-IM", "IT-CN", "IT-SV", "IT-AT"],
-      "name": "Imperia–Cuneo–Savona–Asti",
-      "nameEn": "Imperia–Cuneo–Savona–Asti"
-    },
-    {
-      "id": "ITA-M103",
-      "countryId": "ITA",
-      "members": ["IT-RN", "IT-RO", "IT-FE", "IT-RA", "IT-FC", "IT-BO"],
-      "name": "Rimini–Rovigo–Ferrara–Ravenna–Forlì-Cesena–Bologna",
-      "nameEn": "Rimini–Rovigo–Ferrara–Ravenna–Forlì-Cesena–Bologna"
-    },
-    {
-      "id": "ITA-M104",
-      "countryId": "ITA",
-      "members": ["IT-BL", "IT-VE", "IT-PD", "IT-VI", "IT-VR", "IT-TV"],
-      "name": "Belluno–Venezia–Padova–Vicenza–Verona–Treviso",
-      "nameEn": "Belluno–Venice–Padua–Vicenza–Verona–Treviso"
-    },
-    {
-      "id": "ITA-M105",
-      "countryId": "ITA",
-      "members": ["IT-PC", "IT-PR", "IT-RE", "IT-MO"],
-      "name": "Piacenza–Parma–Reggio Emilia–Modena",
-      "nameEn": "Piacenza–Parma–Reggio Emilia–Modena"
-    },
-    {
-      "id": "ITA-M106",
-      "countryId": "ITA",
-      "members": ["IT-UD", "IT-GO", "IT-TS", "IT-PN"],
-      "name": "Udine–Gorizia–Trieste–Pordenone",
-      "nameEn": "Udine–Gorizia–Trieste–Pordenone"
-    },
-    {
-      "id": "ITA-M107",
-      "countryId": "ITA",
-      "members": ["IT-PU", "IT-AN", "IT-MC", "IT-FM", "IT-AP", "IT-TR", "IT-PG"],
-      "name": "Pesaro e Urbino–Ancona–Macerata–Fermo–Ascoli Piceno–Terni–Perugia",
-      "nameEn": "Pesaro and Urbino–Ancona–Macerata–Fermo–Ascoli Piceno–Terni–Perugia"
-    },
-    {
-      "id": "ITA-M108",
-      "countryId": "ITA",
-      "members": ["IT-SA", "IT-NA", "IT-CE", "IT-BN", "IT-AV"],
-      "name": "Salerno–Napoli–Caserta–Benevento–Avellino",
-      "nameEn": "Salerno–Naples–Caserta–Benevento–Avellino"
-    },
-    {
-      "id": "ITA-M109",
-      "countryId": "ITA",
-      "members": ["IT-PI", "IT-LU", "IT-MS", "IT-FI", "IT-PT", "IT-PO"],
-      "name": "Pisa–Lucca–Massa-Carrara–Firenze–Pistoia–Prato",
-      "nameEn": "Pisa–Lucca–Massa-Carrara–Florence–Pistoia–Prato"
-    },
-    {
-      "id": "ITA-M110",
-      "countryId": "ITA",
-      "members": ["IT-LT", "IT-RM", "IT-RI", "IT-FR"],
-      "name": "Latina–Roma–Rieti–Frosinone",
-      "nameEn": "Latina–Rome–Rieti–Frosinone"
-    },
-    {
-      "id": "ITA-M111",
-      "countryId": "ITA",
-      "members": ["IT-VT", "IT-GR", "IT-LI", "IT-SI", "IT-AR"],
-      "name": "Viterbo–Grosseto–Livorno–Siena–Arezzo",
-      "nameEn": "Viterbo–Grosseto–Livorno–Siena–Arezzo"
-    },
-    {
-      "id": "JPN-M112",
-      "countryId": "JPN",
-      "members": ["JP-46", "JP-44", "JP-40", "JP-41", "JP-42", "JP-43", "JP-45"],
-      "name": "Kagoshima–Ōita–Fukuoka–Saga–Nagasaki–Kumamoto–Miyazaki",
-      "nameEn": "Kagoshima Prefecture–Ōita Prefecture–Fukuoka Prefecture–Saga Prefecture–Nagasaki Prefecture–Kumamoto Prefecture–Miyazaki Prefecture"
-    },
-    {
-      "id": "JPN-M113",
-      "countryId": "JPN",
-      "members": ["JP-47"],
-      "name": "Okinawa",
-      "nameEn": "Okinawa Prefecture"
-    },
-    {
-      "id": "JPN-M114",
-      "countryId": "JPN",
-      "members": ["JP-36", "JP-37", "JP-38", "JP-39"],
-      "name": "Tokushima–Kagawa–Ehime–Kōchi",
-      "nameEn": "Tokushima Prefecture–Kagawa Prefecture–Ehime Prefecture–Kōchi Prefecture"
-    },
-    {
-      "id": "JPN-M115",
-      "countryId": "JPN",
-      "members": ["JP-26", "JP-18", "JP-17", "JP-16", "JP-23", "JP-24", "JP-21", "JP-25"],
-      "name": "Kyōto–Fukui–Ishikawa–Toyama–Aichi–Mie–Gifu–Shiga",
-      "nameEn": "Kyōto Prefecture–Fukui Prefecture–Ishikawa Prefecture–Toyama Prefecture–Aichi Prefecture–Mie Prefecture–Gifu Prefecture–Shiga Prefecture"
-    },
-    {
-      "id": "JPN-M116",
-      "countryId": "JPN",
-      "members": ["JP-14", "JP-22"],
-      "name": "Kanagawa–Shizuoka",
-      "nameEn": "Kanagawa Prefecture–Shizuoka Prefecture"
-    },
-    {
-      "id": "KOR-M117",
-      "countryId": "KOR",
-      "members": ["KR-45", "KR-46", "KR-29"],
-      "name": "North Jeolla–South Jeolla–Gwangju",
-      "nameEn": "North Jeolla–South Jeolla–Gwangju"
-    },
-    {
-      "id": "KOR-M118",
-      "countryId": "KOR",
-      "members": ["KR-48", "KR-26"],
-      "name": "South Gyeongsang–Busan",
-      "nameEn": "South Gyeongsang–Busan"
-    },
-    {
-      "id": "KOR-M119",
-      "countryId": "KOR",
-      "members": ["KR-30", "KR-50", "KR-43"],
-      "name": "Daejeon–Sejong–North Chungcheong",
-      "nameEn": "Daejeon–Sejong–North Chungcheong"
-    },
-    {
-      "id": "MDV-M146",
-      "countryId": "MDV",
-      "members": ["MV-01", "MV-29", "MV-28", "MV-27"],
-      "name": "Addu–Gnaviyani–Gaafu Dhaalu–Gaafu Alifu",
-      "nameEn": "Addu Atoll–Gnaviyani Atoll–Gaafu Dhaalu Atoll–Gaafu Alif Atoll"
-    },
-    {
-      "id": "MDV-M147",
-      "countryId": "MDV",
-      "members": ["MV-13", "MV-24", "MV-25", "MV-23", "MV-07"],
-      "name": "Raa–Shaviyani–Noonu–Haa Dhaalu–Haa Alifu",
-      "nameEn": "Raa Atoll–Shaviyani Atoll–Noonu Atoll–Haa Dhaalu Atoll–Haa Alif Atoll"
-    },
-    {
-      "id": "MDV-M148",
-      "countryId": "MDV",
-      "members": ["MV-05", "MV-08", "MV-17", "MV-12", "MV-14", "MV-04"],
-      "name": "Laamu–Thaa–Dhaalu–Meemu–Faafu–Vaavu",
-      "nameEn": "Laamu Atoll–Thaa Atoll–Dhaalu Atoll–Meemu Atoll–Faafu Atoll–Vaavu Atoll"
-    },
-    {
-      "id": "MDV-M149",
-      "countryId": "MDV",
-      "members": ["MV-00", "MV-26", "MV-02", "MV-20", "MV-03", "ne-1159316681"],
-      "name": "Alifu Dhaalu–Kaafu–Alifu Alifu–Baa–Lhaviyani–Malé",
-      "nameEn": "Alif Dhaal Atoll–Kaafu Atoll–Alif Alif Atoll–Baa Atoll–Lhaviyani Atoll–Malé"
-    },
-    {
-      "id": "MLT-M158",
-      "countryId": "MLT",
+      "id": "FRA-Mayotte",
+      "countryId": "FRA",
       "members": [
-        "MT-21",
-        "MT-60",
-        "MT-28",
-        "MT-27",
-        "MT-64",
-        "MT-63",
-        "MT-26",
-        "MT-67",
-        "MT-08",
-        "MT-59",
-        "MT-39",
-        "MT-09",
-        "MT-20",
-        "MT-06",
-        "MT-03"
+        "FR-YT"
       ],
-      "name": "Kalkara–Valletta–Marsaxlokk–Marsaskala–Żabbar–Xgħajra–Marsa–Żejtun–Fgura–Tarxien–Paola–Floriana–Isla–Cospicua–Birgu",
-      "nameEn": "Kalkara–Valletta–Marsaxlokk–Marsaskala–Żabbar–Xgħajra–Marsa–Żejtun–Fgura–Tarxien–Paola–Floriana–Senglea–Cospicua–Birgu"
+      "name": "Mayotte",
+      "nameEn": "Mayotte"
     },
     {
-      "id": "MLT-M159",
-      "countryId": "MLT",
-      "members": ["MT-50", "MT-22", "MT-65", "MT-16", "MT-14"],
-      "name": "San Lawrenz–Kerċem–Żebbuġ–Għasri–Għarb",
-      "nameEn": "Saint Lawrence–Kerċem–Żebbuġ–Għasri–Għarb"
-    },
-    {
-      "id": "MLT-M160",
-      "countryId": "MLT",
-      "members": ["MT-51", "MT-30", "MT-31"],
-      "name": "San Pawl il-Bahar–Mellieħa–Mġarr",
-      "nameEn": "St. Paul's Bay–Mellieħa–Mġarr"
-    },
-    {
-      "id": "MLT-M161",
-      "countryId": "MLT",
-      "members": ["MT-46", "MT-07", "MT-55", "MT-32", "MT-01", "MT-35", "MT-29", "MT-66"],
-      "name": "Rabat–Dingli–Siġġiewi–Mosta–Attard–Mtarfa–Mdina–Żebbuġ",
-      "nameEn": "Rabat–Dingli–Siġġiewi–Mosta–Attard–Mtarfa–Mdina–Żebbuġ Gozo"
-    },
-    {
-      "id": "MLT-M162",
-      "countryId": "MLT",
-      "members": ["MT-13", "MT-42", "MT-37"],
-      "name": "Għajnsielem–Qala–Nadur",
-      "nameEn": "Għajnsielem–Qala–Nadur"
-    },
-    {
-      "id": "MLT-M163",
-      "countryId": "MLT",
+      "id": "FRA-Normandie",
+      "countryId": "FRA",
       "members": [
-        "MT-44",
-        "MT-68",
-        "MT-05",
-        "MT-25",
-        "MT-33",
-        "MT-23",
-        "MT-47",
-        "MT-17",
-        "MT-53",
-        "MT-11"
+        "FR-14",
+        "FR-27",
+        "FR-50",
+        "FR-61",
+        "FR-76"
       ],
-      "name": "Qrendi–Żurrieq–Birżebbuġa–Luqa–Mqabba–Kirkop–Safi–Għaxaq–Santa Luċija–Gudja",
-      "nameEn": "Qrendi–Żurrieq–Birżebbuġa–Luqa–Mqabba–Kirkop–Safi–Għaxaq–Santa Luċija–Gudja"
+      "name": "Normandie",
+      "nameEn": "Normandie"
     },
     {
-      "id": "MLT-M164",
-      "countryId": "MLT",
+      "id": "FRA-Nouvelle-Aquitaine",
+      "countryId": "FRA",
       "members": [
-        "MT-56",
-        "MT-48",
-        "MT-40",
-        "MT-38",
-        "MT-24",
-        "MT-43",
-        "MT-57",
-        "MT-15",
-        "MT-49",
-        "MT-19",
-        "MT-04",
-        "MT-02",
-        "MT-54",
-        "MT-18",
-        "MT-12",
-        "MT-58",
-        "MT-41",
-        "MT-34"
+        "FR-16",
+        "FR-17",
+        "FR-19",
+        "FR-23",
+        "FR-24",
+        "FR-33",
+        "FR-40",
+        "FR-47",
+        "FR-64",
+        "FR-79",
+        "FR-86",
+        "FR-87"
       ],
-      "name": "Sliema–San Giljan–Pembroke–Naxxar–Lija–Qormi–Swieqi–Għargħur–San Ġwann–Iklin–Birkirkara–Balzan–Santa Venera–Ħamrun–Gżira–Ta' Xbiex–Pietà–Msida",
-      "nameEn": "Sliema–St. Julian's–Pembroke–Naxxar–Lija–Qormi–Swieqi–Għargħur–San Ġwann–Iklin–Birkirkara–Balzan–Santa Venera–Ħamrun–Gżira–Ta' Xbiex–Pietà–Msida"
+      "name": "Nouvelle-Aquitaine",
+      "nameEn": "Nouvelle-Aquitaine"
     },
     {
-      "id": "MLT-M165",
-      "countryId": "MLT",
-      "members": ["MT-36", "MT-52", "MT-61", "MT-45", "MT-10", "MT-62"],
-      "name": "Munxar–Sannat–Xagħra–Victoria–Fontana, Gozo–Xewkija",
-      "nameEn": "Munxar–Sannat–Xagħra–Victoria–Fontana–Xewkija"
-    },
-    {
-      "id": "NOR-M170",
-      "countryId": "NOR",
-      "members": ["NO-17", "NO-16"],
-      "name": "Nord-Trøndelag–Sør-Trøndelag",
-      "nameEn": "Nord-Trøndelag–Sør-Trøndelag"
-    },
-    {
-      "id": "NOR-M171",
-      "countryId": "NOR",
-      "members": ["NO-04", "NO-02", "NO-01"],
-      "name": "Hedmark–Akershus–Østfold",
-      "nameEn": "Hedmark–Akershus–Østfold"
-    },
-    {
-      "id": "NOR-M172",
-      "countryId": "NOR",
-      "members": ["NO-03", "NO-06"],
-      "name": "Oslo–Buskerud",
-      "nameEn": "Oslo–Buskerud"
-    },
-    {
-      "id": "NOR-M173",
-      "countryId": "NOR",
-      "members": ["NO-14", "NO-15", "NO-05"],
-      "name": "Sogn og Fjordane–Møre og Romsdal–Oppland",
-      "nameEn": "Sogn og Fjordane–Møre og Romsdal–Oppland"
-    },
-    {
-      "id": "NOR-M174",
-      "countryId": "NOR",
-      "members": ["NO-07", "NO-08"],
-      "name": "Vestfold–Telemark",
-      "nameEn": "Vestfold–Telemark"
-    },
-    {
-      "id": "NOR-M175",
-      "countryId": "NOR",
-      "members": ["NO-09", "NO-10", "NO-11", "NO-12"],
-      "name": "Aust-Agder–Vest-Agder–Rogaland–Hordaland",
-      "nameEn": "Aust-Agder–Vest-Agder–Rogaland–Hordaland"
-    },
-    {
-      "id": "PHL-M176",
-      "countryId": "PHL",
-      "members": ["PH-SLU", "PH-TAW", "PH-BAS"],
-      "name": "Sulu–Tawi-Tawi–Basilan",
-      "nameEn": "Sulu–Tawi-Tawi–Basilan"
-    },
-    {
-      "id": "PHL-M177",
-      "countryId": "PHL",
-      "members": ["PH-ROM", "PH-MAS", "PH-MAD", "PH-CAT"],
-      "name": "Romblon–Masbate–Marinduque–Catanduanes",
-      "nameEn": "Romblon–Masbate–Marinduque–Catanduanes"
-    },
-    {
-      "id": "PHL-M178",
-      "countryId": "PHL",
-      "members": ["PH-PLW", "ne-1159317221"],
-      "name": "Palawan–Puerto Princesa",
-      "nameEn": "Palawan–Puerto Princesa"
-    },
-    {
-      "id": "PHL-M179",
-      "countryId": "PHL",
+      "id": "FRA-Occitanie",
+      "countryId": "FRA",
       "members": [
-        "PH-SLE",
-        "PH-LEY",
-        "PH-BIL",
-        "PH-CAM",
-        "PH-SIG",
-        "PH-BOH",
-        "PH-GUI",
-        "PH-CEB",
-        "PH-MDE",
-        "ne-1159313431",
-        "ne-1159317227",
-        "ne-1159317223",
-        "PH-LAP"
+        "FR-09",
+        "FR-11",
+        "FR-12",
+        "FR-30",
+        "FR-31",
+        "FR-32",
+        "FR-34",
+        "FR-46",
+        "FR-48",
+        "FR-65",
+        "FR-66",
+        "FR-81",
+        "FR-82"
       ],
-      "name": "Southern Leyte–Leyte–Biliran–Camiguin–Siquijor–Bohol–Guimaras–Cebu–Mandaue–Cebu–Tacloban–Ormoc–Lapu-Lapu",
-      "nameEn": "Southern Leyte–Leyte–Biliran–Camiguin–Siquijor–Bohol–Guimaras–Cebu–Mandaue–Cebu–Tacloban–Ormoc–Lapu-Lapu"
+      "name": "Occitanie",
+      "nameEn": "Occitanie"
     },
     {
-      "id": "PHL-M180",
-      "countryId": "PHL",
-      "members": ["PH-AUR", "PH-PAN", "ne-1159317277", "PH-LUN", "PH-NUE"],
-      "name": "Aurora–Pangasinan–Dagupan–La Union–Nueva Ecija",
-      "nameEn": "Aurora–Pangasinan–Dagupan–La Union–Nueva Ecija"
-    },
-    {
-      "id": "PHL-M181",
-      "countryId": "PHL",
-      "members": ["PH-ALB", "PH-SOR"],
-      "name": "Albay–Sorsogon",
-      "nameEn": "Albay–Sorsogon"
-    },
-    {
-      "id": "PHL-M182",
-      "countryId": "PHL",
-      "members": ["PH-ILS", "PH-ILN"],
-      "name": "Ilocos Sur–Ilocos Norte",
-      "nameEn": "Ilocos Sur–Ilocos Norte"
-    },
-    {
-      "id": "PHL-M183",
-      "countryId": "PHL",
+      "id": "FRA-Pays-de-la-Loire",
+      "countryId": "FRA",
       "members": [
-        "ne-1159317271",
-        "PH-BTG",
-        "PH-CAV",
-        "PH-MNL",
-        "ne-1159317255",
-        "ne-1159317253",
-        "ne-1159317231",
-        "ne-1159317233",
-        "PH-BUL",
-        "ne-1159317259",
-        "ne-1159317235",
-        "ne-1159317237",
-        "ne-1159317239",
-        "ne-1159317241",
-        "PH-LAG",
-        "PH-RIZ",
-        "ne-1159317263",
-        "ne-1159317245",
-        "ne-1159317249",
-        "ne-1159317251",
-        "ne-1159317265",
-        "ne-1159311695",
-        "ne-1159317247"
+        "FR-44",
+        "FR-49",
+        "FR-53",
+        "FR-72",
+        "FR-85"
       ],
-      "name": "Lucena–Batangas–Cavite–Las Pinas–Paranaque–Pasay–Manila–Navotas–Bulacan–Muntinlupa–Caloocan–Malabon–Valenzuela–Quezon City–Laguna–Rizal–Taguig–Marikina–Pasig–Makati–Pateros–Mandaluyong City–San Juan",
-      "nameEn": "Lucena–Batangas–Cavite–Las Pinas–Parañaque–Pasay–Metro Manila–Navotas–Bulacan–Muntinlupa–Caloocan–Malabon–Valenzuela City–Quezon City–Laguna–Rizal–Taguig City–Marikina–Pasig–Makati–Pateros–Mandaluyong–San Juan"
+      "name": "Pays de la Loire",
+      "nameEn": "Pays de la Loire"
     },
     {
-      "id": "PHL-M184",
-      "countryId": "PHL",
-      "members": ["PH-QUE", "PH-CAN", "PH-CAS", "ne-1159317229"],
-      "name": "Quezon–Camarines Norte–Camarines Sur–Naga",
-      "nameEn": "Quezon–Camarines Norte–Camarines Sur–Naga"
-    },
-    {
-      "id": "PHL-M185",
-      "countryId": "PHL",
-      "members": ["PH-PAM", "PH-BAN", "PH-ZMB", "ne-1159313503", "PH-TAR", "ne-1159317267"],
-      "name": "Pampanga–Bataan–Olongapo–Zambales–Tarlac–Angeles",
-      "nameEn": "Pampanga–Bataan–Olongapo–Zambales–Tarlac–Angeles"
-    },
-    {
-      "id": "PHL-M186",
-      "countryId": "PHL",
-      "members": ["PH-EAS", "PH-WSA", "PH-NSA"],
-      "name": "Eastern Samar–Samar–Northern Samar",
-      "nameEn": "Eastern Samar–Samar–Northern Samar"
-    },
-    {
-      "id": "PHL-M187",
-      "countryId": "PHL",
-      "members": ["PH-AKL", "PH-ANT", "PH-MDR", "PH-MDC"],
-      "name": "Aklan–Antique–Mindoro Oriental–Mindoro Occidental",
-      "nameEn": "Aklan–Antique–Oriental Mindoro–Occidental Mindoro"
-    },
-    {
-      "id": "PHL-M188",
-      "countryId": "PHL",
-      "members": ["PH-BCD", "PH-NEC", "PH-NER", "PH-ILI", "ne-1159317203", "PH-CAP"],
-      "name": "Bacolod–Negros Occidental–Negros Oriental–Iloilo–Iloilo–Capiz",
-      "nameEn": "Bacolod–Negros Occidental–Negros Oriental–Iloilo–Iloilo–Capiz"
-    },
-    {
-      "id": "PHL-M189",
-      "countryId": "PHL",
-      "members": ["PH-DAV", "ne-1159317211", "PH-COM", "PH-DAO", "PH-BUK", "ne-1159313393"],
-      "name": "Davao del Norte–Davao–Compostela Valley–Davao Oriental–Bukidnon–Cotabato",
-      "nameEn": "Davao del Norte–Davao–Davao de Oro–Davao Oriental–Bukidnon–Cotabato"
-    },
-    {
-      "id": "PHL-M190",
-      "countryId": "PHL",
-      "members": ["ne-1159316095"],
-      "name": "Zamboanga",
-      "nameEn": "Zamboanga Peninsula"
-    },
-    {
-      "id": "PHL-M191",
-      "countryId": "PHL",
-      "members": ["PH-SUN", "PH-SUR", "PH-AGN", "ne-1159317219", "PH-MSR", "PH-AGS"],
-      "name": "Surigao del Norte–Surigao del Sur–Agusan del Norte–Butuan–Misamis Oriental–Agusan del Sur",
-      "nameEn": "Dinagat Islands–Surigao del Sur–Agusan del Norte–Butuan–Misamis Oriental–Agusan del Sur"
-    },
-    {
-      "id": "PHL-M192",
-      "countryId": "PHL",
+      "id": "FRA-Provence-Alpes-Côte-d'Azur",
+      "countryId": "FRA",
       "members": [
-        "PH-ZSI",
-        "ne-1159317217",
-        "PH-LAN",
-        "ne-1159313385",
-        "PH-ZAS",
-        "PH-MSC",
-        "PH-ZAN",
-        "PH-LAS"
+        "FR-04",
+        "FR-05",
+        "FR-06",
+        "FR-13",
+        "FR-83",
+        "FR-84"
       ],
-      "name": "Zamboanga Sibugay–Cagayan de Oro–Iligan–Lanao del Norte–Zamboanga del Sur–Misamis Occidental–Zamboanga del Norte–Lanao del Sur",
-      "nameEn": "Zamboanga Sibugay–Cagayan de Oro–Iligan–Lanao del Norte–Zamboanga del Sur–Misamis Occidental–Zamboanga del Norte–Lanao del Sur"
+      "name": "Provence-Alpes-Côte-d'Azur",
+      "nameEn": "Provence-Alpes-Côte-d'Azur"
     },
     {
-      "id": "PHL-M193",
-      "countryId": "PHL",
-      "members": ["PH-MAG", "PH-NCO", "PH-SUK", "PH-SAR", "PH-SCO", "PH-DAS", "ne-1159313415"],
-      "name": "Maguindanao–Cotabato–Sultan Kudarat–Sarangani–General Santos–Davao del Sur–South Cotabato",
-      "nameEn": "Maguindanao–Cotabato–Sultan Kudarat–Sarangani–General Santos–Davao del Sur–South Cotabato"
-    },
-    {
-      "id": "PLW-M194",
-      "countryId": "PLW",
-      "members": ["PW-350", "PW-150", "PW-010"],
-      "name": "Peleliu–Koror–Angaur",
-      "nameEn": "Peleliu–Koror–Angaur"
-    },
-    {
-      "id": "PLW-M195",
-      "countryId": "PLW",
-      "members": ["PW-050"],
-      "name": "Hatobohei",
-      "nameEn": "Hatohobei"
-    },
-    {
-      "id": "PLW-M196",
-      "countryId": "PLW",
-      "members": ["PW-370"],
-      "name": "Sonsorol",
-      "nameEn": "Sonsorol"
-    },
-    {
-      "id": "PLW-M197",
-      "countryId": "PLW",
+      "id": "FRA-Réunion",
+      "countryId": "FRA",
       "members": [
-        "PW-227",
-        "PW-224",
-        "PW-002",
-        "PW-004",
-        "PW-226",
-        "PW-212",
-        "PW-228",
-        "PW-214",
-        "PW-218",
-        "PW-222",
-        "PW-100"
+        "FR-RE"
       ],
-      "name": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel",
-      "nameEn": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel"
+      "name": "Réunion",
+      "nameEn": "Réunion"
     },
     {
-      "id": "PNG-M198",
-      "countryId": "PNG",
-      "members": ["PG-NSB", "PG-EBR"],
-      "name": "North Solomons–East New Britain",
-      "nameEn": "of Bougainville–East New Britain"
-    },
-    {
-      "id": "PNG-M199",
-      "countryId": "PNG",
-      "members": ["PG-WBK", "PG-NIK", "PG-MRL"],
-      "name": "West New Britain–New Ireland–Manus",
-      "nameEn": "West New Britain–New Ireland–Manus"
-    },
-    {
-      "id": "PYF-M200",
-      "countryId": "PYF",
-      "members": ["PF-X03~", "PF-X05~"],
-      "name": "Tuamotu-Gambier–Marquesas Islands",
-      "nameEn": "Tuamotu Archipelago–Marquesas Islands"
-    },
-    {
-      "id": "PYF-M201",
-      "countryId": "PYF",
-      "members": ["PF-X01~", "PF-X02~", "PF-X04~"],
-      "name": "Windward Islands–Leeward Islands–Austral Islands",
-      "nameEn": "Windward Islands–Leeward Islands–Austral Islands"
-    },
-    {
-      "id": "SLB-M202",
-      "countryId": "SLB",
-      "members": ["SB-RB", "SB-MK", "SB-CT", "SB-GU", "SB-CE", "ne-1159314981"],
-      "name": "Rennell and Bellona–Makira–Capital Territory (Honiara)–Guadalcanal–Central–Choiseul",
-      "nameEn": "Rennell and Bellona–Makira-Ulawa–Honiara–Guadalcanal–Central–Choiseul"
-    },
-    {
-      "id": "SLB-M203",
-      "countryId": "SLB",
-      "members": ["SB-TE"],
-      "name": "Temotu",
-      "nameEn": "Temotu"
-    },
-    {
-      "id": "SYC-M212",
-      "countryId": "SYC",
-      "members": ["SC-X02~"],
-      "name": "Outer Islands",
-      "nameEn": "Coralline Seychelles"
-    },
-    {
-      "id": "SYC-M213",
-      "countryId": "SYC",
-      "members": ["SC-15", "SC-07", "SC-14"],
-      "name": "La Digue and Inner Islands–Baie Sainte Anne–Grand'Anse Praslin",
-      "nameEn": "La Digue–Baie Sainte Anne–Grand'Anse Praslin"
-    },
-    {
-      "id": "SYC-M214",
-      "countryId": "SYC",
-      "members": ["SC-06", "SC-23", "SC-05"],
-      "name": "Baie Lazare–Takamaka–Anse Royale",
-      "nameEn": "Baie Lazare–Takamaka–Anse Royale"
-    },
-    {
-      "id": "SYC-M215",
-      "countryId": "SYC",
+      "id": "FRA-Île-de-France",
+      "countryId": "FRA",
       "members": [
-        "SC-18",
-        "SC-09",
-        "SC-16",
-        "SC-03",
-        "SC-12",
-        "SC-08",
-        "SC-10",
-        "SC-21",
-        "SC-17",
-        "SC-22"
+        "FR-75",
+        "FR-77",
+        "FR-78",
+        "FR-91",
+        "FR-92",
+        "FR-93",
+        "FR-94",
+        "FR-95"
       ],
-      "name": "Mont Fleuri–Bel Air–English River–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis",
-      "nameEn": "Mont Fleuri–Bel Air–La Rivière Anglaise–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis"
-    },
-    {
-      "id": "SYC-M216",
-      "countryId": "SYC",
-      "members": ["SC-13", "SC-02", "SC-04", "SC-01", "SC-20", "SC-11", "SC-25", "SC-19", "SC-24"],
-      "name": "Grand'Anse–Anse Boileau–Au Cap–Anse aux Pins–Pointe La Rue–Cascade–Roche Caïman–Plaisance–Les Mamelles",
-      "nameEn": "Grand'Anse Praslin–Anse Boileau–Au Cap–Anse-aux-Pins–Pointe La Rue–Cascade–Roche Caiman–Plaisance–Les Mamelles"
-    },
-    {
-      "id": "TCA-M217",
-      "countryId": "TCA",
-      "members": ["TC-X03~", "TC-X01~", "TC-X02~"],
-      "name": "Providenciales and West Caicos–Middle Caicos–North Caicos",
-      "nameEn": "Providenciales and West Caicos–Middle Caicos–North Caicos"
-    },
-    {
-      "id": "TCA-M218",
-      "countryId": "TCA",
-      "members": ["TC-X04~", "TC-X05~", "TC-X06~"],
-      "name": "South Caicos and East Caicos–Grand Turk–Salt Cay",
-      "nameEn": "South Caicos and East Caicos–Grand Turk–Salt Cay"
-    },
-    {
-      "id": "THA-M219",
-      "countryId": "THA",
-      "members": ["TH-32", "TH-33", "TH-34", "TH-31", "TH-30", "TH-44"],
-      "name": "Surin–Si Sa Ket–Ubon Ratchathani–Buri Ram–Nakhon Ratchasima–Maha Sarakham",
-      "nameEn": "Surin–Si Sa Ket–Ubon Ratchathani–Buri Ram–Nakhon Ratchasima–Maha Sarakham"
-    },
-    {
-      "id": "THA-M220",
-      "countryId": "THA",
-      "members": ["TH-38", "TH-43", "TH-47", "TH-41"],
-      "name": "Bueng Kan–Nong Khai–Sakon Nakhon–Udon Thani",
-      "nameEn": "Bueng Kan–Nong Khai–Sakon Nakhon–Udon Thani"
-    },
-    {
-      "id": "THA-M221",
-      "countryId": "THA",
-      "members": ["TH-42", "TH-40", "TH-39", "TH-36"],
-      "name": "Loei–Khon Kaen–Nong Bua Lam Phu–Chaiyaphum",
-      "nameEn": "Loei–Khon Kaen–Nong Bua Lam Phu–Chaiyaphum"
-    },
-    {
-      "id": "THA-M222",
-      "countryId": "THA",
-      "members": ["TH-48", "TH-49", "TH-37", "TH-46", "TH-45", "TH-35"],
-      "name": "Nakhon Phanom–Mukdahan–Amnat Charoen–Kalasin–Roi Et–Yasothon",
-      "nameEn": "Nakhon Phanom–Mukdahan–Amnat Charoen–Kalasin–Roi Et–Yasothon"
-    },
-    {
-      "id": "THA-M223",
-      "countryId": "THA",
-      "members": ["TH-91", "TH-90", "TH-95", "TH-96", "TH-92", "TH-94", "TH-93"],
-      "name": "Satun–Songkhla–Yala–Narathiwat–Trang–Pattani–Phatthalung",
-      "nameEn": "Satun–Songkhla–Yala–Narathiwat–Trang–Pattani–Phatthalung"
-    },
-    {
-      "id": "THA-M224",
-      "countryId": "THA",
-      "members": ["TH-63"],
-      "name": "Tak",
-      "nameEn": "Tak"
-    },
-    {
-      "id": "THA-M225",
-      "countryId": "THA",
-      "members": ["TH-71", "TH-77", "TH-76", "TH-70"],
-      "name": "Kanchanaburi–Prachuap Khiri Khan–Phetchaburi–Ratchaburi",
-      "nameEn": "Kanchanaburi–Prachuap Khiri Khan–Phetchaburi–Ratchaburi"
-    },
-    {
-      "id": "THA-M226",
-      "countryId": "THA",
-      "members": ["TH-86", "TH-85", "TH-82", "TH-81", "TH-80", "TH-84"],
-      "name": "Chumphon–Ranong–Phangnga–Krabi–Nakhon Si Thammarat–Surat Thani",
-      "nameEn": "Chumphon–Ranong–Phang Nga–Krabi–Nakhon Si Thammarat–Surat Thani"
-    },
-    {
-      "id": "THA-M227",
-      "countryId": "THA",
-      "members": ["TH-27", "TH-23", "TH-22", "TH-24", "TH-20", "TH-21", "TH-25"],
-      "name": "Sa Kaeo–Trat–Chanthaburi–Chachoengsao–Chon Buri–Rayong–Prachin Buri",
-      "nameEn": "Sa Kaeo–Trat–Chanthaburi–Chachoengsao–Chon Buri–Rayong–Prachin Buri"
-    },
-    {
-      "id": "THA-M228",
-      "countryId": "THA",
-      "members": ["TH-65", "TH-62", "TH-64"],
-      "name": "Phitsanulok–Kamphaeng Phet–Sukhothai",
-      "nameEn": "Phitsanulok–Kamphaeng Phet–Sukhothai"
-    },
-    {
-      "id": "THA-M229",
-      "countryId": "THA",
-      "members": [
-        "TH-75",
-        "TH-74",
-        "TH-10",
-        "TH-11",
-        "TH-19",
-        "TH-26",
-        "TH-13",
-        "TH-14",
-        "TH-12",
-        "TH-73"
-      ],
-      "name": "Samut Songkhram–Samut Sakhon–Bangkok Metropolis–Samut Prakan–Saraburi–Nakhon Nayok–Pathum Thani–Phra Nakhon Si Ayutthaya–Nonthaburi–Nakhon Pathom",
-      "nameEn": "Samut Songkhram–Samut Sakhon–Bangkok–Samut Prakan–Saraburi–Nakhon Nayok–Pathum Thani–Phra Nakhon Si Ayutthaya–Nonthaburi–Nakhon Pathom"
-    },
-    {
-      "id": "THA-M230",
-      "countryId": "THA",
-      "members": ["TH-72", "TH-17", "TH-18", "TH-15", "TH-61"],
-      "name": "Suphan Buri–Sing Buri–Chai Nat–Ang Thong–Uthai Thani",
-      "nameEn": "Suphan Buri–Sing Buri–Chai Nat–Ang Thong–Uthai Thani"
-    },
-    {
-      "id": "THA-M231",
-      "countryId": "THA",
-      "members": ["TH-16", "TH-60", "TH-67", "TH-66"],
-      "name": "Lop Buri–Nakhon Sawan–Phetchabun–Phichit",
-      "nameEn": "Lopburi–Nakhon Sawan–Phetchabun–Phichit"
-    },
-    {
-      "id": "TUR-M232",
-      "countryId": "TUR",
-      "members": ["TR-39", "TR-22", "TR-59", "TR-17", "TR-10"],
-      "name": "Kirklareli–Edirne–Tekirdag–Çanakkale–Balikesir",
-      "nameEn": "Kırklareli–Edirne–Tekirdağ–Çanakkale–Balıkesir"
-    },
-    {
-      "id": "TUR-M233",
-      "countryId": "TUR",
-      "members": ["TR-35", "TR-09", "TR-45"],
-      "name": "Izmir–Aydin–Manisa",
-      "nameEn": "İzmir–Aydın–Manisa"
-    },
-    {
-      "id": "TUR-M234",
-      "countryId": "TUR",
-      "members": ["TR-34", "TR-54", "TR-41", "TR-77", "TR-16", "TR-11", "TR-43"],
-      "name": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya",
-      "nameEn": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya"
-    },
-    {
-      "id": "TWN-M235",
-      "countryId": "TWN",
-      "members": [
-        "TW-TAO",
-        "TW-HSQ",
-        "TW-HSZ",
-        "TW-MIA",
-        "TW-TXG",
-        "TW-ILA",
-        "TW-TPQ",
-        "TW-KEE",
-        "TW-TPE"
-      ],
-      "name": "Taoyuan–Hsinchu–Hsinchu City–Miaoli–Taichung City–Yilan–New Taipei City–Keelung City–Taipei City",
-      "nameEn": "Taoyuan–Hsinchu–Hsinchu–Miaoli–Taichung City–Yilan–New Taipei–Keelung–Taipei"
-    },
-    {
-      "id": "TWN-M236",
-      "countryId": "TWN",
-      "members": ["TW-PIF", "TW-TTT"],
-      "name": "Pingtung–Taitung",
-      "nameEn": "Pingtung–Taitung"
-    },
-    {
-      "id": "TWN-M237",
-      "countryId": "TWN",
-      "members": ["TW-KIN"],
-      "name": "Kinmen",
-      "nameEn": "Kinmen"
-    },
-    {
-      "id": "TWN-M238",
-      "countryId": "TWN",
-      "members": [
-        "TW-CHA",
-        "TW-YUN",
-        "TW-CYQ",
-        "TW-TNN",
-        "TW-KHH",
-        "TW-HUA",
-        "TW-PEN",
-        "TW-NAN",
-        "TW-CYI"
-      ],
-      "name": "Changhua–Yunlin–Chiayi–Tainan City–Kaohsiung City–Hualien–Penghu–Nantou–Chiayi City",
-      "nameEn": "Changhua–Yunlin–Chiayi–Tainan–Kaohsiung–Hualien–Penghu–Nantou–Chiayi"
-    },
-    {
-      "id": "UGA-M239",
-      "countryId": "UGA",
-      "members": ["UG-214", "UG-230", "UG-229", "UG-204", "UG-203", "UG-201"],
-      "name": "Mayuge–Namayingo–Luuka–Jinja–Iganga–Bugiri",
-      "nameEn": "Mayuge–Namayingo–Luuka–Jinja–Iganga–Bugiri"
-    },
-    {
-      "id": "UGA-M240",
-      "countryId": "UGA",
-      "members": ["UG-216", "UG-207", "UG-211"],
-      "name": "Amuria–Katakwi–Soroti",
-      "nameEn": "Amuria–Katakwi–Soroti"
-    },
-    {
-      "id": "UGA-M241",
-      "countryId": "UGA",
-      "members": ["UG-206", "UG-218", "UG-223", "UG-228", "UG-225", "UG-215"],
-      "name": "Kapchorwa–Bukwa–Bududa–Kween–Bulambuli–Sironko",
-      "nameEn": "Kapchorwa–Bukwo–Bududa–Kween–Bulambuli–Sironko"
-    },
-    {
-      "id": "UGA-M242",
-      "countryId": "UGA",
-      "members": ["UG-205", "UG-226", "UG-213", "UG-220", "UG-232"],
-      "name": "Kamuli–Buyende–Kaberamaido–Kaliro–Serere",
-      "nameEn": "Kamuli–Buyende–Kaberamaido–Kaliro–Serere"
-    },
-    {
-      "id": "UGA-M243",
-      "countryId": "UGA",
-      "members": ["UG-210", "UG-217", "UG-208", "UG-231", "UG-224"],
-      "name": "Pallisa–Budaka–Kumi–Ngora–Bukedea",
-      "nameEn": "Pallisa–Budaka–Kumi–Ngora–Bukedea"
-    },
-    {
-      "id": "UGA-M244",
-      "countryId": "UGA",
-      "members": ["UG-202", "UG-212", "UG-221", "UG-209", "UG-219", "UG-227", "UG-222"],
-      "name": "Busia–Tororo–Manafwa–Mbale–Butaleja–Kibuku–Namutumba",
-      "nameEn": "Busia–Tororo–Manafwa–Mbale–Butaleja–Kibuku–Namutumba"
-    },
-    {
-      "id": "UGA-M245",
-      "countryId": "UGA",
-      "members": ["UG-411", "UG-404", "UG-408", "UG-412", "UG-414", "UG-425", "UG-422", "UG-402"],
-      "name": "Ntungamo–Kabale–Kisoro–Rukungiri–Kanungu–Sheema–Mitooma–Bushenyi",
-      "nameEn": "Ntungamo–Kabale–Kisoro–Rukungiri–Kanungu–Sheema–Mitooma–Bushenyi"
-    },
-    {
-      "id": "UGA-M246",
-      "countryId": "UGA",
-      "members": ["UG-419", "UG-409", "UG-420"],
-      "name": "Buliisa–Masindi–Kiryandongo",
-      "nameEn": "Buliisa–Masindi–Kiryandongo"
-    },
-    {
-      "id": "UGA-M247",
-      "countryId": "UGA",
-      "members": ["UG-403", "UG-423", "UG-401", "UG-405", "UG-415", "UG-421", "UG-407"],
-      "name": "Hoima–Ntoroko–Bundibugyo–Kabarole–Kyenjojo–Kyegegwa–Kibale",
-      "nameEn": "Hoima–Ntoroko–Bundibugyo–Kabarole–Kyenjojo–Kyegegwa–Kibaale"
-    },
-    {
-      "id": "UGA-M248",
-      "countryId": "UGA",
-      "members": ["UG-406", "UG-424"],
-      "name": "Kasese–Rubirizi",
-      "nameEn": "Kasese–Rubirizi"
-    },
-    {
-      "id": "UGA-M249",
-      "countryId": "UGA",
-      "members": ["UG-417", "UG-413", "UG-416", "UG-410", "ne-1159315077", "UG-325"],
-      "name": "Isingiro–Kamwenge–Ibanda–Mbarara–Mbarara–Buhweju",
-      "nameEn": "Isingiro–Kamwenge–Ibanda–Mbarara–Mbarara–Buhweju"
-    },
-    {
-      "id": "UGA-M250",
-      "countryId": "UGA",
-      "members": ["UG-110", "UG-101", "UG-111", "UG-124", "UG-118", "UG-122", "UG-116", "UG-105"],
-      "name": "Rakai–Kalangala–Sembabule–Lwengo–Bukomansimbi–Kalungu–Lyantonde–Masaka",
-      "nameEn": "Rakai–Kalangala–Sembabule–Lwengo–Bukomansimbi–Kalungu–Lyantonde–Masaka"
-    },
-    {
-      "id": "UGA-M251",
-      "countryId": "UGA",
-      "members": ["UG-109", "UG-112", "UG-104", "UG-115"],
-      "name": "Nakasongola–Kayunga–Luweero–Nakaseke",
-      "nameEn": "Nakasongola–Kayunga–Luwero–Nakaseke"
-    },
-    {
-      "id": "UGA-M252",
-      "countryId": "UGA",
-      "members": ["UG-113", "UG-102", "UG-108", "UG-117"],
-      "name": "Wakiso–Kampala–Mukono–Buikwe",
-      "nameEn": "Wakiso–Kampala–Mukono–Buikwe"
-    },
-    {
-      "id": "UGA-M253",
-      "countryId": "UGA",
-      "members": ["UG-114", "UG-103", "UG-106", "UG-119", "UG-121", "UG-123", "UG-107"],
-      "name": "Mityana–Kiboga–Mpigi–Butambala–Gomba–Kyankwanzi–Mubende",
-      "nameEn": "Mityana–Kiboga–Mpigi–Butambala–Gomba–Kyankwanzi–Mubende"
-    },
-    {
-      "id": "UGA-M254",
-      "countryId": "UGA",
-      "members": ["UG-315", "UG-305", "UG-322", "UG-306", "UG-317"],
-      "name": "Kaabong–Kitgum–Agago–Kotido–Abim",
-      "nameEn": "Kaabong–Kitgum–Agago–Kotido–Abim"
-    },
-    {
-      "id": "UGA-M255",
-      "countryId": "UGA",
-      "members": ["UG-313", "UG-316", "UG-320", "UG-303", "UG-331", "UG-310"],
-      "name": "Yumbe–Koboko–Maracha–Arua–Zombo–Nebbi",
-      "nameEn": "Yumbe–Koboko–Maracha–Arua–Zombo–Nebbi"
-    },
-    {
-      "id": "UGA-M256",
-      "countryId": "UGA",
-      "members": ["UG-308", "UG-324", "UG-311", "UG-328"],
-      "name": "Moroto–Amudat–Nakapiripirit–Napak",
-      "nameEn": "Moroto–Amudat–Nakapiripirit–Napak"
-    },
-    {
-      "id": "UGA-M257",
-      "countryId": "UGA",
-      "members": [
-        "UG-302",
-        "UG-314",
-        "UG-318",
-        "UG-321",
-        "UG-307",
-        "UG-326",
-        "UG-312",
-        "UG-330",
-        "UG-323"
-      ],
-      "name": "Apac–Amolatar–Dokolo–Oyam–Lira–Kole–Pader–Otuke–Alebtong",
-      "nameEn": "Apac–Amolatar–Dokolo–Oyam–Lira–Kole–Pader–Otuke–Alebtong"
-    },
-    {
-      "id": "UGA-M258",
-      "countryId": "UGA",
-      "members": ["UG-327", "UG-319", "UG-301", "UG-309", "UG-304", "UG-329"],
-      "name": "Lamwo–Amuru–Adjumani–Moyo–Gulu–Nwoya",
-      "nameEn": "Lamwo–Amuru–Adjumani–Moyo–Gulu–Nwoya"
-    },
-    {
-      "id": "VNM-M259",
-      "countryId": "VNM",
-      "members": ["VN-58", "VN-37"],
-      "name": "Bình Phước–Tây Ninh",
-      "nameEn": "Bình Phước–Tây Ninh"
-    },
-    {
-      "id": "VNM-M260",
-      "countryId": "VNM",
-      "members": ["VN-47", "VN-52", "VN-59", "VN-55", "VN-73"],
-      "name": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hau Giang",
-      "nameEn": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hậu Giang"
-    },
-    {
-      "id": "VNM-M261",
-      "countryId": "VNM",
-      "members": ["VN-41", "VN-45", "VN-44", "VN-46", "VN-49", "VN-51", "VN-50", "VN-CT"],
-      "name": "Long An–Ðong Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Can Tho",
-      "nameEn": "Long An–Đồng Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Cần Thơ"
-    },
-    {
-      "id": "VNM-M262",
-      "countryId": "VNM",
-      "members": ["VN-21", "VN-22", "VN-13", "VN-18", "VN-67", "VN-20", "VN-HP", "VN-61"],
-      "name": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Hải Phòng–Hải Dương",
-      "nameEn": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Haiphong–Hải Dương"
-    },
-    {
-      "id": "VNM-M263",
-      "countryId": "VNM",
-      "members": ["VN-23", "VN-24"],
-      "name": "Ha Tinh–Quảng Bình",
-      "nameEn": "Hà Tĩnh–Quảng Bình"
-    },
-    {
-      "id": "VUT-M264",
-      "countryId": "VUT",
-      "members": ["VU-TAE"],
-      "name": "Tafea",
-      "nameEn": "Tafea"
-    },
-    {
-      "id": "VUT-M265",
-      "countryId": "VUT",
-      "members": ["VU-SEE", "VU-MAP", "VU-SAM", "VU-PAM", "VU-TOB"],
-      "name": "Shefa–Malampa–Sanma–Penama–Torba",
-      "nameEn": "Shefa–Malampa–Sanma–Penama–Torba"
-    },
-    {
-      "id": "BMU-M266",
-      "countryId": "BMU",
-      "members": ["BM-HAM", "BM-SMI", "BM-SGE", "BM-SG"],
-      "name": "Hamilton–Smith's–Saint George's–City of Saint George",
-      "nameEn": "Hamilton–Smith's Parish–Saint George–St. George"
-    },
-    {
-      "id": "BMU-M267",
-      "countryId": "BMU",
-      "members": ["BM-SOU", "BM-SAN"],
-      "name": "Southampton–Sandys",
-      "nameEn": "Southampton–Sandys Parish"
-    },
-    {
-      "id": "BMU-M268",
-      "countryId": "BMU",
-      "members": ["BM-DEV", "BM-PEM", "BM-HA", "BM-PAG", "BM-WAR"],
-      "name": "Devonshire–Pembroke–City of Hamilton–Paget–Warwick",
-      "nameEn": "Devonshire–Pembroke Parish–Hamilton–Paget Parish–Warwick"
-    },
-    {
-      "id": "CHE-M269",
-      "countryId": "CHE",
-      "members": ["CH-VS", "CH-GE", "CH-VD"],
-      "name": "Valais–Genève–Vaud",
-      "nameEn": "Valais–Geneva–Vaud"
-    },
-    {
-      "id": "CHE-M270",
-      "countryId": "CHE",
-      "members": ["CH-TI", "CH-GR", "CH-TG", "CH-SG", "CH-GL", "CH-AR", "CH-AI"],
-      "name": "Ticino–Graubünden–Thurgau–Sankt Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden",
-      "nameEn": "Ticino–Grisons–Thurgau–St. Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden"
-    },
-    {
-      "id": "LKA-M271",
-      "countryId": "LKA",
-      "members": ["LK-45", "LK-41", "LK-42", "LK-43", "LK-71", "LK-44"],
-      "name": "Mulativ–Yāpanaya–Kilinŏchchi–Mannārama–Anurādhapura–Vavuniyāva",
-      "nameEn": "Mullaitivu–Jaffna–Kilinochchi–Mannar–Anuradhapura–Vavuniya"
-    },
-    {
-      "id": "LKA-M272",
-      "countryId": "LKA",
-      "members": ["LK-22", "LK-72", "LK-23", "LK-21"],
-      "name": "Mātale–Pŏḷŏnnaruva–Nuvara Ĕliya–Mahanuvara",
-      "nameEn": "Matale–Polonnaruwa–Nuwara Eliya–Kandy"
-    },
-    {
-      "id": "NLD-M273",
-      "countryId": "NLD",
-      "members": ["NL-GR", "NL-DR", "NL-OV", "NL-NH", "NL-FR", "NL-FL"],
-      "name": "Groningen–Drenthe–Overijssel–Noord-Holland–Friesland–Flevoland",
-      "nameEn": "Groningen–Drenthe–Overijssel–North Holland–Friesland–Flevoland"
-    },
-    {
-      "id": "NLD-M274",
-      "countryId": "NLD",
-      "members": ["NL-ZE", "NL-ZH"],
-      "name": "Zeeland–Zuid-Holland",
-      "nameEn": "Zeeland–South Holland"
-    },
-    {
-      "id": "NLD-M275",
-      "countryId": "NLD",
-      "members": ["NL-GE", "NL-LI", "NL-NB", "NL-UT"],
-      "name": "Gelderland–Limburg–Noord-Brabant–Utrecht",
-      "nameEn": "Gelderland–Limburg–North Brabant–Utrecht"
-    },
-    {
-      "id": "VNM-M276",
-      "countryId": "VNM",
-      "members": ["VN-43", "VN-SG", "VN-39", "VN-40", "VN-36", "VN-57", "VN-35"],
-      "name": "Bà Rịa - Vũng Tàu–Hồ Chí Minh city–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng",
-      "nameEn": "Bà Rịa-Vũng Tàu–Ho Chi Minh–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng"
-    },
-    {
-      "id": "VNM-M277",
-      "countryId": "VNM",
-      "members": ["VN-34", "VN-32", "VN-31"],
-      "name": "Khánh Hòa–Phú Yên–Bình Định",
-      "nameEn": "Khánh Hòa–Phú Yên–Bình Định"
-    },
-    {
-      "id": "SRB-WEST",
-      "countryId": "SRB",
-      "members": ["RS-08", "RS-09", "RS-16", "RS-17", "RS-18", "RS-12"],
-      "name": "West Serbia",
-      "nameEn": "West Serbia"
-    },
-    {
-      "id": "SRB-EAST",
-      "countryId": "SRB",
-      "members": ["RS-10", "RS-11", "RS-14", "RS-15", "RS-13"],
-      "name": "East Serbia",
-      "nameEn": "East Serbia"
-    },
-    {
-      "id": "SRB-SOUTH",
-      "countryId": "SRB",
-      "members": ["RS-19", "RS-20", "RS-21", "RS-22", "RS-23", "RS-24"],
-      "name": "South Serbia",
-      "nameEn": "South Serbia"
-    },
-    {
-      "id": "BGR-NORTH",
-      "countryId": "BGR",
-      "members": ["BG-15", "BG-04", "BG-07", "BG-24"],
-      "name": "North Central Bulgaria",
-      "nameEn": "North Central Bulgaria"
-    },
-    {
-      "id": "BGR-SOUTH",
-      "countryId": "BGR",
-      "members": ["BG-01", "BG-09", "BG-16", "BG-21", "BG-26", "BG-28"],
-      "name": "South Bulgaria",
-      "nameEn": "South Bulgaria"
+      "name": "Île-de-France",
+      "nameEn": "Île-de-France"
     },
     {
       "id": "GBR-EAST",
@@ -1621,36 +1226,6 @@
       "nameEn": "East Midlands"
     },
     {
-      "id": "GBR-WALES",
-      "countryId": "GBR",
-      "members": [
-        "GB-AGY",
-        "GB-BGE",
-        "GB-BGW",
-        "GB-CAY",
-        "GB-CGN",
-        "GB-CMN",
-        "GB-CWY",
-        "GB-DEN",
-        "GB-GWN",
-        "GB-MTY",
-        "GB-NTL",
-        "GB-PEM",
-        "GB-RCT",
-        "GB-SWA",
-        "GB-TOF",
-        "GB-CRF",
-        "GB-FLN",
-        "GB-MON",
-        "GB-NWP",
-        "GB-POW",
-        "GB-VGL",
-        "GB-WRX"
-      ],
-      "name": "Wales",
-      "nameEn": "Wales"
-    },
-    {
       "id": "GBR-EASTERN",
       "countryId": "GBR",
       "members": [
@@ -1669,6 +1244,20 @@
       ],
       "name": "Eastern",
       "nameEn": "Eastern"
+    },
+    {
+      "id": "GBR-HIGHLANDS",
+      "countryId": "GBR",
+      "members": [
+        "GB-AGB",
+        "GB-ELS",
+        "GB-HLD",
+        "GB-MRY",
+        "GB-ORK",
+        "GB-ZET"
+      ],
+      "name": "Highlands and Islands",
+      "nameEn": "Highlands and Islands"
     },
     {
       "id": "GBR-LONDON",
@@ -1712,11 +1301,38 @@
       "nameEn": "Greater London"
     },
     {
-      "id": "GBR-HIGHLANDS",
+      "id": "GBR-NIR",
       "countryId": "GBR",
-      "members": ["GB-AGB", "GB-ELS", "GB-HLD", "GB-MRY", "GB-ORK", "GB-ZET"],
-      "name": "Highlands and Islands",
-      "nameEn": "Highlands and Islands"
+      "members": [
+        "GB-ANT",
+        "GB-ARD",
+        "GB-ARM",
+        "GB-BFS",
+        "GB-BLA",
+        "GB-BLY",
+        "GB-BNB",
+        "GB-CGV",
+        "GB-CKF",
+        "GB-CKT",
+        "GB-CLR",
+        "GB-CSR",
+        "GB-DGN",
+        "GB-DOW",
+        "GB-DRY",
+        "GB-FER",
+        "GB-LMV",
+        "GB-LRN",
+        "GB-LSB",
+        "GB-MFT",
+        "GB-MYL",
+        "GB-NDN",
+        "GB-NTA",
+        "GB-NYM",
+        "GB-OMH",
+        "GB-STB"
+      ],
+      "name": "Northern Ireland",
+      "nameEn": "Northern Ireland"
     },
     {
       "id": "GBR-NORTH-EAST",
@@ -1741,7 +1357,10 @@
     {
       "id": "GBR-NORTH-EASTERN",
       "countryId": "GBR",
-      "members": ["GB-ABD", "GB-ABE"],
+      "members": [
+        "GB-ABD",
+        "GB-ABE"
+      ],
       "name": "North Eastern",
       "nameEn": "North Eastern"
     },
@@ -1775,40 +1394,6 @@
       ],
       "name": "North West",
       "nameEn": "North West"
-    },
-    {
-      "id": "GBR-NIR",
-      "countryId": "GBR",
-      "members": [
-        "GB-ANT",
-        "GB-ARD",
-        "GB-ARM",
-        "GB-BFS",
-        "GB-BLA",
-        "GB-BLY",
-        "GB-BNB",
-        "GB-CGV",
-        "GB-CKF",
-        "GB-CKT",
-        "GB-CLR",
-        "GB-CSR",
-        "GB-DGN",
-        "GB-DOW",
-        "GB-DRY",
-        "GB-FER",
-        "GB-LMV",
-        "GB-LRN",
-        "GB-LSB",
-        "GB-MFT",
-        "GB-MYL",
-        "GB-NDN",
-        "GB-NTA",
-        "GB-NYM",
-        "GB-OMH",
-        "GB-STB"
-      ],
-      "name": "Northern Ireland",
-      "nameEn": "Northern Ireland"
     },
     {
       "id": "GBR-SOUTH-EAST",
@@ -1882,6 +1467,36 @@
       "nameEn": "South Western"
     },
     {
+      "id": "GBR-WALES",
+      "countryId": "GBR",
+      "members": [
+        "GB-AGY",
+        "GB-BGE",
+        "GB-BGW",
+        "GB-CAY",
+        "GB-CGN",
+        "GB-CMN",
+        "GB-CWY",
+        "GB-DEN",
+        "GB-GWN",
+        "GB-MTY",
+        "GB-NTL",
+        "GB-PEM",
+        "GB-RCT",
+        "GB-SWA",
+        "GB-TOF",
+        "GB-CRF",
+        "GB-FLN",
+        "GB-MON",
+        "GB-NWP",
+        "GB-POW",
+        "GB-VGL",
+        "GB-WRX"
+      ],
+      "name": "Wales",
+      "nameEn": "Wales"
+    },
+    {
       "id": "GBR-WEST-MID",
       "countryId": "GBR",
       "members": [
@@ -1903,7 +1518,6 @@
       "name": "West Midlands",
       "nameEn": "West Midlands"
     },
-
     {
       "id": "GBR-YORKSHIRE",
       "countryId": "GBR",
@@ -1926,6 +1540,2340 @@
       ],
       "name": "Yorkshire and the Humber",
       "nameEn": "Yorkshire and the Humber"
+    },
+    {
+      "id": "GIN-Boke",
+      "countryId": "GIN",
+      "members": [
+        "GN-BF",
+        "GN-BK",
+        "GN-FR",
+        "GN-GA",
+        "GN-KN"
+      ],
+      "name": "Boke",
+      "nameEn": "Boke"
+    },
+    {
+      "id": "GIN-Conakry",
+      "countryId": "GIN",
+      "members": [
+        "GN-C"
+      ],
+      "name": "Conakry",
+      "nameEn": "Conakry"
+    },
+    {
+      "id": "GIN-Faranah",
+      "countryId": "GIN",
+      "members": [
+        "GN-DB",
+        "GN-DI",
+        "GN-FA",
+        "GN-KS"
+      ],
+      "name": "Faranah",
+      "nameEn": "Faranah"
+    },
+    {
+      "id": "GIN-Kankan",
+      "countryId": "GIN",
+      "members": [
+        "GN-K",
+        "GN-KE",
+        "GN-KO",
+        "GN-MD",
+        "GN-SI"
+      ],
+      "name": "Kankan",
+      "nameEn": "Kankan"
+    },
+    {
+      "id": "GIN-Kindia",
+      "countryId": "GIN",
+      "members": [
+        "GN-CO",
+        "GN-DU",
+        "GN-FO",
+        "GN-KD",
+        "GN-TE"
+      ],
+      "name": "Kindia",
+      "nameEn": "Kindia"
+    },
+    {
+      "id": "GIN-Labé",
+      "countryId": "GIN",
+      "members": [
+        "GN-KB",
+        "GN-LA",
+        "GN-LE",
+        "GN-ML",
+        "GN-TO"
+      ],
+      "name": "Labé",
+      "nameEn": "Labé"
+    },
+    {
+      "id": "GIN-Mamou",
+      "countryId": "GIN",
+      "members": [
+        "GN-DL",
+        "GN-MM",
+        "GN-PI"
+      ],
+      "name": "Mamou",
+      "nameEn": "Mamou"
+    },
+    {
+      "id": "GIN-Nzérékoré",
+      "countryId": "GIN",
+      "members": [
+        "GN-BE",
+        "GN-GU",
+        "GN-LO",
+        "GN-MC",
+        "GN-NZ",
+        "GN-YO"
+      ],
+      "name": "Nzérékoré",
+      "nameEn": "Nzérékoré"
+    },
+    {
+      "id": "GNB-Bissau",
+      "countryId": "GNB",
+      "members": [
+        "GW-BS"
+      ],
+      "name": "Bissau",
+      "nameEn": "Bissau"
+    },
+    {
+      "id": "GNB-Leste",
+      "countryId": "GNB",
+      "members": [
+        "GW-BA",
+        "GW-GA"
+      ],
+      "name": "Leste",
+      "nameEn": "Leste"
+    },
+    {
+      "id": "GNB-Norte",
+      "countryId": "GNB",
+      "members": [
+        "GW-BM",
+        "GW-CA",
+        "GW-OI"
+      ],
+      "name": "Norte",
+      "nameEn": "Norte"
+    },
+    {
+      "id": "GNB-Sul",
+      "countryId": "GNB",
+      "members": [
+        "GW-BL",
+        "GW-QU",
+        "GW-TO"
+      ],
+      "name": "Sul",
+      "nameEn": "Sul"
+    },
+    {
+      "id": "HKG-Hong-Kong-Island",
+      "countryId": "HKG",
+      "members": [
+        "HK-X01~",
+        "HK-X02~",
+        "HK-X03~",
+        "HK-X04~"
+      ],
+      "name": "Hong Kong Island",
+      "nameEn": "Hong Kong Island"
+    },
+    {
+      "id": "HKG-Kowloon",
+      "countryId": "HKG",
+      "members": [
+        "HK-X05~",
+        "HK-X06~",
+        "HK-X07~",
+        "HK-X08~",
+        "HK-X09~"
+      ],
+      "name": "Kowloon",
+      "nameEn": "Kowloon"
+    },
+    {
+      "id": "HKG-The-New-Territories",
+      "countryId": "HKG",
+      "members": [
+        "HK-X10~",
+        "HK-X11~",
+        "HK-X12~",
+        "HK-X13~",
+        "HK-X14~",
+        "HK-X15~",
+        "HK-X16~",
+        "HK-X17~",
+        "HK-X18~"
+      ],
+      "name": "The New Territories",
+      "nameEn": "The New Territories"
+    },
+    {
+      "id": "HUN-Central-Hungary",
+      "countryId": "HUN",
+      "members": [
+        "HU-BU",
+        "HU-ED",
+        "HU-PE"
+      ],
+      "name": "Central Hungary",
+      "nameEn": "Central Hungary"
+    },
+    {
+      "id": "HUN-Central-Transdanubia",
+      "countryId": "HUN",
+      "members": [
+        "HU-DU",
+        "HU-FE",
+        "HU-KE",
+        "HU-SF",
+        "HU-TB",
+        "HU-VE",
+        "HU-VM"
+      ],
+      "name": "Central Transdanubia",
+      "nameEn": "Central Transdanubia"
+    },
+    {
+      "id": "HUN-Great-Southern-Plain",
+      "countryId": "HUN",
+      "members": [
+        "HU-BC",
+        "HU-BE",
+        "HU-BK",
+        "HU-CS",
+        "HU-HV",
+        "HU-KM",
+        "HU-SD"
+      ],
+      "name": "Great Southern Plain",
+      "nameEn": "Great Southern Plain"
+    },
+    {
+      "id": "HUN-Northern-Great-Plain",
+      "countryId": "HUN",
+      "members": [
+        "HU-DE",
+        "HU-HB",
+        "HU-JN",
+        "HU-NY",
+        "HU-SK",
+        "HU-SZ"
+      ],
+      "name": "Northern Great Plain",
+      "nameEn": "Northern Great Plain"
+    },
+    {
+      "id": "HUN-Northern-Hungary",
+      "countryId": "HUN",
+      "members": [
+        "HU-BZ",
+        "HU-EG",
+        "HU-HE",
+        "HU-MI",
+        "HU-NO",
+        "HU-ST"
+      ],
+      "name": "Northern Hungary",
+      "nameEn": "Northern Hungary"
+    },
+    {
+      "id": "HUN-Southern-Transdanubia",
+      "countryId": "HUN",
+      "members": [
+        "HU-BA",
+        "HU-KV",
+        "HU-PS",
+        "HU-SO",
+        "HU-SS",
+        "HU-TO"
+      ],
+      "name": "Southern Transdanubia",
+      "nameEn": "Southern Transdanubia"
+    },
+    {
+      "id": "HUN-Western-Transdanubia",
+      "countryId": "HUN",
+      "members": [
+        "HU-GS",
+        "HU-GY",
+        "HU-NK",
+        "HU-SH",
+        "HU-SN",
+        "HU-VA",
+        "HU-ZA",
+        "HU-ZE"
+      ],
+      "name": "Western Transdanubia",
+      "nameEn": "Western Transdanubia"
+    },
+    {
+      "id": "IDN-M086",
+      "countryId": "IDN",
+      "members": [
+        "ID-MA"
+      ],
+      "name": "Maluku",
+      "nameEn": "Maluku"
+    },
+    {
+      "id": "IDN-M087",
+      "countryId": "IDN",
+      "members": [
+        "ID-MU",
+        "ID-GO",
+        "ID-SA"
+      ],
+      "name": "Maluku Utara–Gorontalo–Sulawesi Utara",
+      "nameEn": "North Maluku–Gorontalo–North Sulawesi"
+    },
+    {
+      "id": "IDN-M088",
+      "countryId": "IDN",
+      "members": [
+        "ID-SN",
+        "ID-SG",
+        "ID-ST",
+        "ID-SR"
+      ],
+      "name": "Sulawesi Selatan–Sulawesi Tenggara–Sulawesi Tengah–Sulawesi Barat",
+      "nameEn": "South Sulawesi–Southeast Sulawesi–Central Sulawesi–West Sulawesi"
+    },
+    {
+      "id": "IDN-M089",
+      "countryId": "IDN",
+      "members": [
+        "ID-JI",
+        "ID-NB",
+        "ID-JT",
+        "ID-YO",
+        "ID-BA"
+      ],
+      "name": "Jawa Timur–Nusa Tenggara Barat–Jawa Tengah–Yogyakarta–Bali",
+      "nameEn": "East Java–West Nusa Tenggara–Central Java–Yogyakarta–Bali"
+    },
+    {
+      "id": "IDN-M090",
+      "countryId": "IDN",
+      "members": [
+        "ID-KR"
+      ],
+      "name": "Kepulauan Riau",
+      "nameEn": "Riau Islands"
+    },
+    {
+      "id": "IDN-M091",
+      "countryId": "IDN",
+      "members": [
+        "ID-JB",
+        "ID-JK",
+        "ID-BT",
+        "ID-BB"
+      ],
+      "name": "Jawa Barat–Jakarta Raya–Banten–Bangka-Belitung",
+      "nameEn": "West Java–Jakarta–Banten–Bangka Belitung Islands"
+    },
+    {
+      "id": "IRL-Border",
+      "countryId": "IRL",
+      "members": [
+        "IE-CN",
+        "IE-DL",
+        "IE-LH",
+        "IE-LM",
+        "IE-MN",
+        "IE-SO"
+      ],
+      "name": "Border",
+      "nameEn": "Border"
+    },
+    {
+      "id": "IRL-Dublin",
+      "countryId": "IRL",
+      "members": [
+        "IE-D",
+        "IE-D",
+        "IE-D",
+        "IE-D"
+      ],
+      "name": "Dublin",
+      "nameEn": "Dublin"
+    },
+    {
+      "id": "IRL-Mid-East",
+      "countryId": "IRL",
+      "members": [
+        "IE-KE",
+        "IE-MH",
+        "IE-WW"
+      ],
+      "name": "Mid-East",
+      "nameEn": "Mid-East"
+    },
+    {
+      "id": "IRL-Mid-West",
+      "countryId": "IRL",
+      "members": [
+        "IE-CE",
+        "IE-LK",
+        "IE-LK",
+        "IE-TA"
+      ],
+      "name": "Mid-West",
+      "nameEn": "Mid-West"
+    },
+    {
+      "id": "IRL-Midlands",
+      "countryId": "IRL",
+      "members": [
+        "IE-LD",
+        "IE-LS",
+        "IE-OY",
+        "IE-WH"
+      ],
+      "name": "Midlands",
+      "nameEn": "Midlands"
+    },
+    {
+      "id": "IRL-South-East",
+      "countryId": "IRL",
+      "members": [
+        "IE-CW",
+        "IE-KK",
+        "IE-TA",
+        "IE-WD",
+        "IE-WD",
+        "IE-WX"
+      ],
+      "name": "South-East",
+      "nameEn": "South-East"
+    },
+    {
+      "id": "IRL-South-West",
+      "countryId": "IRL",
+      "members": [
+        "IE-CO",
+        "IE-CO",
+        "IE-KY"
+      ],
+      "name": "South-West",
+      "nameEn": "South-West"
+    },
+    {
+      "id": "IRL-West",
+      "countryId": "IRL",
+      "members": [
+        "IE-G",
+        "IE-G",
+        "IE-MO",
+        "IE-RN"
+      ],
+      "name": "West",
+      "nameEn": "West"
+    },
+    {
+      "id": "ITA-Abruzzo",
+      "countryId": "ITA",
+      "members": [
+        "IT-AQ",
+        "IT-CH",
+        "IT-PE",
+        "IT-TE"
+      ],
+      "name": "Abruzzo",
+      "nameEn": "Abruzzo"
+    },
+    {
+      "id": "ITA-Apulia",
+      "countryId": "ITA",
+      "members": [
+        "IT-BA",
+        "IT-BR",
+        "IT-BT",
+        "IT-FG",
+        "IT-LE",
+        "IT-TA"
+      ],
+      "name": "Apulia",
+      "nameEn": "Apulia"
+    },
+    {
+      "id": "ITA-Basilicata",
+      "countryId": "ITA",
+      "members": [
+        "IT-MT",
+        "IT-PZ"
+      ],
+      "name": "Basilicata",
+      "nameEn": "Basilicata"
+    },
+    {
+      "id": "ITA-Calabria",
+      "countryId": "ITA",
+      "members": [
+        "IT-CS",
+        "IT-CZ",
+        "IT-KR",
+        "IT-RC",
+        "IT-VV"
+      ],
+      "name": "Calabria",
+      "nameEn": "Calabria"
+    },
+    {
+      "id": "ITA-Campania",
+      "countryId": "ITA",
+      "members": [
+        "IT-AV",
+        "IT-BN",
+        "IT-CE",
+        "IT-NA",
+        "IT-SA"
+      ],
+      "name": "Campania",
+      "nameEn": "Campania"
+    },
+    {
+      "id": "ITA-Emilia-Romagna",
+      "countryId": "ITA",
+      "members": [
+        "IT-BO",
+        "IT-FC",
+        "IT-FE",
+        "IT-MO",
+        "IT-PC",
+        "IT-PR",
+        "IT-RA",
+        "IT-RE",
+        "IT-RN"
+      ],
+      "name": "Emilia-Romagna",
+      "nameEn": "Emilia-Romagna"
+    },
+    {
+      "id": "ITA-Friuli-Venezia-Giulia",
+      "countryId": "ITA",
+      "members": [
+        "IT-GO",
+        "IT-PN",
+        "IT-TS",
+        "IT-UD"
+      ],
+      "name": "Friuli-Venezia Giulia",
+      "nameEn": "Friuli-Venezia Giulia"
+    },
+    {
+      "id": "ITA-Lazio",
+      "countryId": "ITA",
+      "members": [
+        "IT-FR",
+        "IT-LT",
+        "IT-RI",
+        "IT-RM",
+        "IT-VT"
+      ],
+      "name": "Lazio",
+      "nameEn": "Lazio"
+    },
+    {
+      "id": "ITA-Liguria",
+      "countryId": "ITA",
+      "members": [
+        "IT-GE",
+        "IT-IM",
+        "IT-SP",
+        "IT-SV"
+      ],
+      "name": "Liguria",
+      "nameEn": "Liguria"
+    },
+    {
+      "id": "ITA-Lombardia",
+      "countryId": "ITA",
+      "members": [
+        "IT-BG",
+        "IT-BS",
+        "IT-CO",
+        "IT-CR",
+        "IT-LC",
+        "IT-LO",
+        "IT-MB",
+        "IT-MI",
+        "IT-MN",
+        "IT-PV",
+        "IT-SO",
+        "IT-VA"
+      ],
+      "name": "Lombardia",
+      "nameEn": "Lombardia"
+    },
+    {
+      "id": "ITA-Marche",
+      "countryId": "ITA",
+      "members": [
+        "IT-AN",
+        "IT-AP",
+        "IT-FM",
+        "IT-MC",
+        "IT-PU"
+      ],
+      "name": "Marche",
+      "nameEn": "Marche"
+    },
+    {
+      "id": "ITA-Molise",
+      "countryId": "ITA",
+      "members": [
+        "IT-CB",
+        "IT-IS"
+      ],
+      "name": "Molise",
+      "nameEn": "Molise"
+    },
+    {
+      "id": "ITA-Piemonte",
+      "countryId": "ITA",
+      "members": [
+        "IT-AL",
+        "IT-AT",
+        "IT-BI",
+        "IT-CN",
+        "IT-NO",
+        "IT-TO",
+        "IT-VB",
+        "IT-VC"
+      ],
+      "name": "Piemonte",
+      "nameEn": "Piemonte"
+    },
+    {
+      "id": "ITA-Sardegna",
+      "countryId": "ITA",
+      "members": [
+        "IT-CA",
+        "IT-CI",
+        "IT-NU",
+        "IT-OG",
+        "IT-OR",
+        "IT-OT",
+        "IT-SS",
+        "IT-VS"
+      ],
+      "name": "Sardegna",
+      "nameEn": "Sardegna"
+    },
+    {
+      "id": "ITA-Sicily",
+      "countryId": "ITA",
+      "members": [
+        "IT-AG",
+        "IT-CL",
+        "IT-CT",
+        "IT-EN",
+        "IT-ME",
+        "IT-PA",
+        "IT-RG",
+        "IT-SR",
+        "IT-TP"
+      ],
+      "name": "Sicily",
+      "nameEn": "Sicily"
+    },
+    {
+      "id": "ITA-Toscana",
+      "countryId": "ITA",
+      "members": [
+        "IT-AR",
+        "IT-FI",
+        "IT-GR",
+        "IT-LI",
+        "IT-LU",
+        "IT-MS",
+        "IT-PI",
+        "IT-PO",
+        "IT-PT",
+        "IT-SI"
+      ],
+      "name": "Toscana",
+      "nameEn": "Toscana"
+    },
+    {
+      "id": "ITA-Trentino-Alto-Adige",
+      "countryId": "ITA",
+      "members": [
+        "IT-BZ",
+        "IT-TN"
+      ],
+      "name": "Trentino-Alto Adige",
+      "nameEn": "Trentino-Alto Adige"
+    },
+    {
+      "id": "ITA-Umbria",
+      "countryId": "ITA",
+      "members": [
+        "IT-PG",
+        "IT-TR"
+      ],
+      "name": "Umbria",
+      "nameEn": "Umbria"
+    },
+    {
+      "id": "ITA-Valle-d'Aosta",
+      "countryId": "ITA",
+      "members": [
+        "IT-AO"
+      ],
+      "name": "Valle d'Aosta",
+      "nameEn": "Valle d'Aosta"
+    },
+    {
+      "id": "ITA-Veneto",
+      "countryId": "ITA",
+      "members": [
+        "IT-BL",
+        "IT-PD",
+        "IT-RO",
+        "IT-TV",
+        "IT-VE",
+        "IT-VI",
+        "IT-VR"
+      ],
+      "name": "Veneto",
+      "nameEn": "Veneto"
+    },
+    {
+      "id": "JPN-M112",
+      "countryId": "JPN",
+      "members": [
+        "JP-46",
+        "JP-44",
+        "JP-40",
+        "JP-41",
+        "JP-42",
+        "JP-43",
+        "JP-45"
+      ],
+      "name": "Kagoshima–Ōita–Fukuoka–Saga–Nagasaki–Kumamoto–Miyazaki",
+      "nameEn": "Kagoshima Prefecture–Ōita Prefecture–Fukuoka Prefecture–Saga Prefecture–Nagasaki Prefecture–Kumamoto Prefecture–Miyazaki Prefecture"
+    },
+    {
+      "id": "JPN-M113",
+      "countryId": "JPN",
+      "members": [
+        "JP-47"
+      ],
+      "name": "Okinawa",
+      "nameEn": "Okinawa Prefecture"
+    },
+    {
+      "id": "JPN-M114",
+      "countryId": "JPN",
+      "members": [
+        "JP-36",
+        "JP-37",
+        "JP-38",
+        "JP-39"
+      ],
+      "name": "Tokushima–Kagawa–Ehime–Kōchi",
+      "nameEn": "Tokushima Prefecture–Kagawa Prefecture–Ehime Prefecture–Kōchi Prefecture"
+    },
+    {
+      "id": "JPN-M115",
+      "countryId": "JPN",
+      "members": [
+        "JP-26",
+        "JP-18",
+        "JP-17",
+        "JP-16",
+        "JP-23",
+        "JP-24",
+        "JP-21",
+        "JP-25"
+      ],
+      "name": "Kyōto–Fukui–Ishikawa–Toyama–Aichi–Mie–Gifu–Shiga",
+      "nameEn": "Kyōto Prefecture–Fukui Prefecture–Ishikawa Prefecture–Toyama Prefecture–Aichi Prefecture–Mie Prefecture–Gifu Prefecture–Shiga Prefecture"
+    },
+    {
+      "id": "JPN-M116",
+      "countryId": "JPN",
+      "members": [
+        "JP-14",
+        "JP-22"
+      ],
+      "name": "Kanagawa–Shizuoka",
+      "nameEn": "Kanagawa Prefecture–Shizuoka Prefecture"
+    },
+    {
+      "id": "KOR-M117",
+      "countryId": "KOR",
+      "members": [
+        "KR-45",
+        "KR-46",
+        "KR-29"
+      ],
+      "name": "North Jeolla–South Jeolla–Gwangju",
+      "nameEn": "North Jeolla–South Jeolla–Gwangju"
+    },
+    {
+      "id": "KOR-M118",
+      "countryId": "KOR",
+      "members": [
+        "KR-48",
+        "KR-26"
+      ],
+      "name": "South Gyeongsang–Busan",
+      "nameEn": "South Gyeongsang–Busan"
+    },
+    {
+      "id": "KOR-M119",
+      "countryId": "KOR",
+      "members": [
+        "KR-30",
+        "KR-50",
+        "KR-43"
+      ],
+      "name": "Daejeon–Sejong–North Chungcheong",
+      "nameEn": "Daejeon–Sejong–North Chungcheong"
+    },
+    {
+      "id": "LKA-Basnāhira-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-11",
+        "LK-12",
+        "LK-13"
+      ],
+      "name": "Basnāhira paḷāta",
+      "nameEn": "Basnāhira paḷāta"
+    },
+    {
+      "id": "LKA-Dakuṇu-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-31",
+        "LK-32",
+        "LK-33"
+      ],
+      "name": "Dakuṇu paḷāta",
+      "nameEn": "Dakuṇu paḷāta"
+    },
+    {
+      "id": "LKA-Madhyama-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-21",
+        "LK-22",
+        "LK-23"
+      ],
+      "name": "Madhyama paḷāta",
+      "nameEn": "Madhyama paḷāta"
+    },
+    {
+      "id": "LKA-Næ̆gĕnahira-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-51",
+        "LK-52",
+        "LK-53"
+      ],
+      "name": "Næ̆gĕnahira paḷāta",
+      "nameEn": "Næ̆gĕnahira paḷāta"
+    },
+    {
+      "id": "LKA-Sabaragamuva-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-91",
+        "LK-92"
+      ],
+      "name": "Sabaragamuva paḷāta",
+      "nameEn": "Sabaragamuva paḷāta"
+    },
+    {
+      "id": "LKA-Uturu-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-41",
+        "LK-42",
+        "LK-43",
+        "LK-44",
+        "LK-45"
+      ],
+      "name": "Uturu paḷāta",
+      "nameEn": "Uturu paḷāta"
+    },
+    {
+      "id": "LKA-Uturumæ̆da-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-71",
+        "LK-72"
+      ],
+      "name": "Uturumæ̆da paḷāta",
+      "nameEn": "Uturumæ̆da paḷāta"
+    },
+    {
+      "id": "LKA-Vayamba-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-61",
+        "LK-62"
+      ],
+      "name": "Vayamba paḷāta",
+      "nameEn": "Vayamba paḷāta"
+    },
+    {
+      "id": "LKA-Ūva-paḷāta",
+      "countryId": "LKA",
+      "members": [
+        "LK-81",
+        "LK-82"
+      ],
+      "name": "Ūva paḷāta",
+      "nameEn": "Ūva paḷāta"
+    },
+    {
+      "id": "MDV-Central",
+      "countryId": "MDV",
+      "members": [
+        "MV-12",
+        "MV-14",
+        "MV-17"
+      ],
+      "name": "Central",
+      "nameEn": "Central"
+    },
+    {
+      "id": "MDV-Malé",
+      "countryId": "MDV",
+      "members": [
+        "MV-12"
+      ],
+      "name": "Malé",
+      "nameEn": "Malé"
+    },
+    {
+      "id": "MDV-North",
+      "countryId": "MDV",
+      "members": [
+        "MV-03",
+        "MV-13",
+        "MV-20",
+        "MV-25"
+      ],
+      "name": "North",
+      "nameEn": "North"
+    },
+    {
+      "id": "MDV-North-Central",
+      "countryId": "MDV",
+      "members": [
+        "MV-00",
+        "MV-02",
+        "MV-04",
+        "MV-26"
+      ],
+      "name": "North Central",
+      "nameEn": "North Central"
+    },
+    {
+      "id": "MDV-South",
+      "countryId": "MDV",
+      "members": [
+        "MV-01",
+        "MV-29"
+      ],
+      "name": "South",
+      "nameEn": "South"
+    },
+    {
+      "id": "MDV-South-Central",
+      "countryId": "MDV",
+      "members": [
+        "MV-27",
+        "MV-28"
+      ],
+      "name": "South Central",
+      "nameEn": "South Central"
+    },
+    {
+      "id": "MDV-Upper-North",
+      "countryId": "MDV",
+      "members": [
+        "MV-07",
+        "MV-23",
+        "MV-24"
+      ],
+      "name": "Upper North",
+      "nameEn": "Upper North"
+    },
+    {
+      "id": "MDV-Upper-South",
+      "countryId": "MDV",
+      "members": [
+        "MV-05",
+        "MV-08"
+      ],
+      "name": "Upper South",
+      "nameEn": "Upper South"
+    },
+    {
+      "id": "MLT-Gozo",
+      "countryId": "MLT",
+      "members": [
+        "MT-10",
+        "MT-13",
+        "MT-14",
+        "MT-16",
+        "MT-22",
+        "MT-36",
+        "MT-37",
+        "MT-42",
+        "MT-45",
+        "MT-50",
+        "MT-52",
+        "MT-61",
+        "MT-62",
+        "MT-65"
+      ],
+      "name": "Gozo",
+      "nameEn": "Gozo"
+    },
+    {
+      "id": "MLT-Malta-Majjistral",
+      "countryId": "MLT",
+      "members": [
+        "MT-01",
+        "MT-02",
+        "MT-04",
+        "MT-07",
+        "MT-12",
+        "MT-15",
+        "MT-18",
+        "MT-19",
+        "MT-24",
+        "MT-29",
+        "MT-30",
+        "MT-31",
+        "MT-32",
+        "MT-34",
+        "MT-35",
+        "MT-38",
+        "MT-40",
+        "MT-41",
+        "MT-43",
+        "MT-46",
+        "MT-48",
+        "MT-49",
+        "MT-51",
+        "MT-54",
+        "MT-55",
+        "MT-56",
+        "MT-57",
+        "MT-58",
+        "MT-66"
+      ],
+      "name": "Malta Majjistral",
+      "nameEn": "Malta Majjistral"
+    },
+    {
+      "id": "MLT-Malta-Xlokk",
+      "countryId": "MLT",
+      "members": [
+        "MT-03",
+        "MT-05",
+        "MT-06",
+        "MT-08",
+        "MT-09",
+        "MT-11",
+        "MT-17",
+        "MT-20",
+        "MT-21",
+        "MT-23",
+        "MT-25",
+        "MT-26",
+        "MT-27",
+        "MT-28",
+        "MT-33",
+        "MT-39",
+        "MT-44",
+        "MT-47",
+        "MT-53",
+        "MT-59",
+        "MT-60",
+        "MT-63",
+        "MT-64",
+        "MT-67",
+        "MT-68"
+      ],
+      "name": "Malta Xlokk",
+      "nameEn": "Malta Xlokk"
+    },
+    {
+      "id": "NLD-M273",
+      "countryId": "NLD",
+      "members": [
+        "NL-GR",
+        "NL-DR",
+        "NL-OV",
+        "NL-NH",
+        "NL-FR",
+        "NL-FL"
+      ],
+      "name": "Groningen–Drenthe–Overijssel–Noord-Holland–Friesland–Flevoland",
+      "nameEn": "Groningen–Drenthe–Overijssel–North Holland–Friesland–Flevoland"
+    },
+    {
+      "id": "NLD-M274",
+      "countryId": "NLD",
+      "members": [
+        "NL-ZE",
+        "NL-ZH"
+      ],
+      "name": "Zeeland–Zuid-Holland",
+      "nameEn": "Zeeland–South Holland"
+    },
+    {
+      "id": "NLD-M275",
+      "countryId": "NLD",
+      "members": [
+        "NL-GE",
+        "NL-LI",
+        "NL-NB",
+        "NL-UT"
+      ],
+      "name": "Gelderland–Limburg–Noord-Brabant–Utrecht",
+      "nameEn": "Gelderland–Limburg–North Brabant–Utrecht"
+    },
+    {
+      "id": "NOR-M170",
+      "countryId": "NOR",
+      "members": [
+        "NO-17",
+        "NO-16"
+      ],
+      "name": "Nord-Trøndelag–Sør-Trøndelag",
+      "nameEn": "Nord-Trøndelag–Sør-Trøndelag"
+    },
+    {
+      "id": "NOR-M171",
+      "countryId": "NOR",
+      "members": [
+        "NO-04",
+        "NO-02",
+        "NO-01"
+      ],
+      "name": "Hedmark–Akershus–Østfold",
+      "nameEn": "Hedmark–Akershus–Østfold"
+    },
+    {
+      "id": "NOR-M172",
+      "countryId": "NOR",
+      "members": [
+        "NO-03",
+        "NO-06"
+      ],
+      "name": "Oslo–Buskerud",
+      "nameEn": "Oslo–Buskerud"
+    },
+    {
+      "id": "NOR-M173",
+      "countryId": "NOR",
+      "members": [
+        "NO-14",
+        "NO-15",
+        "NO-05"
+      ],
+      "name": "Sogn og Fjordane–Møre og Romsdal–Oppland",
+      "nameEn": "Sogn og Fjordane–Møre og Romsdal–Oppland"
+    },
+    {
+      "id": "NOR-M174",
+      "countryId": "NOR",
+      "members": [
+        "NO-07",
+        "NO-08"
+      ],
+      "name": "Vestfold–Telemark",
+      "nameEn": "Vestfold–Telemark"
+    },
+    {
+      "id": "NOR-M175",
+      "countryId": "NOR",
+      "members": [
+        "NO-09",
+        "NO-10",
+        "NO-11",
+        "NO-12"
+      ],
+      "name": "Aust-Agder–Vest-Agder–Rogaland–Hordaland",
+      "nameEn": "Aust-Agder–Vest-Agder–Rogaland–Hordaland"
+    },
+    {
+      "id": "NPL-Central",
+      "countryId": "NPL",
+      "members": [
+        "NP-BA",
+        "NP-JA",
+        "NP-NA"
+      ],
+      "name": "Central",
+      "nameEn": "Central"
+    },
+    {
+      "id": "NPL-East",
+      "countryId": "NPL",
+      "members": [
+        "NP-KO",
+        "NP-ME",
+        "NP-SA"
+      ],
+      "name": "East",
+      "nameEn": "East"
+    },
+    {
+      "id": "NPL-Far-Western",
+      "countryId": "NPL",
+      "members": [
+        "NP-MA",
+        "NP-SE"
+      ],
+      "name": "Far-Western",
+      "nameEn": "Far-Western"
+    },
+    {
+      "id": "NPL-Mid-Western",
+      "countryId": "NPL",
+      "members": [
+        "NP-BH",
+        "NP-KA",
+        "NP-RA"
+      ],
+      "name": "Mid-Western",
+      "nameEn": "Mid-Western"
+    },
+    {
+      "id": "NPL-West",
+      "countryId": "NPL",
+      "members": [
+        "NP-DH",
+        "NP-GA",
+        "NP-LU"
+      ],
+      "name": "West",
+      "nameEn": "West"
+    },
+    {
+      "id": "PHL-Autonomous-Region-in-Muslim-Mi",
+      "countryId": "PHL",
+      "members": [
+        "PH-BAS",
+        "PH-LAS",
+        "PH-MAG",
+        "PH-NCO",
+        "PH-SLU",
+        "PH-TAW"
+      ],
+      "name": "Autonomous Region in Muslim Mindanao (ARMM)",
+      "nameEn": "Autonomous Region in Muslim Mindanao (ARMM)"
+    },
+    {
+      "id": "PHL-Bicol-(Region-V)",
+      "countryId": "PHL",
+      "members": [
+        "PH-ALB",
+        "PH-CAN",
+        "PH-CAS",
+        "PH-CAS",
+        "PH-CAT",
+        "PH-MAS",
+        "PH-SOR"
+      ],
+      "name": "Bicol (Region V)",
+      "nameEn": "Bicol (Region V)"
+    },
+    {
+      "id": "PHL-CALABARZON-(Region-IV-A)",
+      "countryId": "PHL",
+      "members": [
+        "PH-BTG",
+        "PH-CAV",
+        "PH-LAG",
+        "PH-QUE",
+        "PH-QUE",
+        "PH-RIZ"
+      ],
+      "name": "CALABARZON (Region IV-A)",
+      "nameEn": "CALABARZON (Region IV-A)"
+    },
+    {
+      "id": "PHL-Cagayan-Valley-(Region-II)",
+      "countryId": "PHL",
+      "members": [
+        "PH-BTN",
+        "PH-CAG",
+        "PH-ISA",
+        "PH-ISA",
+        "PH-NUV",
+        "PH-QUI"
+      ],
+      "name": "Cagayan Valley (Region II)",
+      "nameEn": "Cagayan Valley (Region II)"
+    },
+    {
+      "id": "PHL-Central-Luzon-(Region-III)",
+      "countryId": "PHL",
+      "members": [
+        "PH-AUR",
+        "PH-BAN",
+        "PH-BUL",
+        "PH-NUE",
+        "PH-PAM",
+        "PH-PAM",
+        "PH-TAR",
+        "PH-ZMB",
+        "PH-ZMB"
+      ],
+      "name": "Central Luzon (Region III)",
+      "nameEn": "Central Luzon (Region III)"
+    },
+    {
+      "id": "PHL-Central-Visayas-(Region-VII)",
+      "countryId": "PHL",
+      "members": [
+        "PH-BOH",
+        "PH-CEB",
+        "PH-CEB",
+        "PH-LAP",
+        "PH-MDE",
+        "PH-NER",
+        "PH-SIG"
+      ],
+      "name": "Central Visayas (Region VII)",
+      "nameEn": "Central Visayas (Region VII)"
+    },
+    {
+      "id": "PHL-Cordillera-Administrative-Regi",
+      "countryId": "PHL",
+      "members": [
+        "PH-ABR",
+        "PH-APA",
+        "PH-BEN",
+        "PH-BEN",
+        "PH-IFU",
+        "PH-KAL",
+        "PH-MOU"
+      ],
+      "name": "Cordillera Administrative Region (CAR)",
+      "nameEn": "Cordillera Administrative Region (CAR)"
+    },
+    {
+      "id": "PHL-Davao-(Region-XI)",
+      "countryId": "PHL",
+      "members": [
+        "PH-COM",
+        "PH-DAO",
+        "PH-DAS",
+        "PH-DAV",
+        "PH-DAV"
+      ],
+      "name": "Davao (Region XI)",
+      "nameEn": "Davao (Region XI)"
+    },
+    {
+      "id": "PHL-Dinagat-Islands-(Region-XIII)",
+      "countryId": "PHL",
+      "members": [
+        "PH-AGN",
+        "PH-AGN",
+        "PH-AGS",
+        "PH-SUN",
+        "PH-SUR"
+      ],
+      "name": "Dinagat Islands (Region XIII)",
+      "nameEn": "Dinagat Islands (Region XIII)"
+    },
+    {
+      "id": "PHL-Eastern-Visayas-(Region-VIII)",
+      "countryId": "PHL",
+      "members": [
+        "PH-BIL",
+        "PH-EAS",
+        "PH-LEY",
+        "PH-LEY",
+        "PH-LEY",
+        "PH-NSA",
+        "PH-SLE",
+        "PH-WSA"
+      ],
+      "name": "Eastern Visayas (Region VIII)",
+      "nameEn": "Eastern Visayas (Region VIII)"
+    },
+    {
+      "id": "PHL-Ilocos-(Region-I)",
+      "countryId": "PHL",
+      "members": [
+        "PH-ILN",
+        "PH-ILS",
+        "PH-LUN",
+        "PH-PAN",
+        "PH-PAN"
+      ],
+      "name": "Ilocos (Region I)",
+      "nameEn": "Ilocos (Region I)"
+    },
+    {
+      "id": "PHL-MIMAROPA-(Region-IV-B)",
+      "countryId": "PHL",
+      "members": [
+        "PH-MAD",
+        "PH-MDC",
+        "PH-MDR",
+        "PH-PLW",
+        "PH-PLW",
+        "PH-ROM"
+      ],
+      "name": "MIMAROPA (Region IV-B)",
+      "nameEn": "MIMAROPA (Region IV-B)"
+    },
+    {
+      "id": "PHL-National-Capital-Region",
+      "countryId": "PHL",
+      "members": [
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL",
+        "PH-MNL"
+      ],
+      "name": "National Capital Region",
+      "nameEn": "National Capital Region"
+    },
+    {
+      "id": "PHL-Northern-Mindanao-(Region-X)",
+      "countryId": "PHL",
+      "members": [
+        "PH-BUK",
+        "PH-CAM",
+        "PH-LAN",
+        "PH-LAN",
+        "PH-MSC",
+        "PH-MSR",
+        "PH-MSR"
+      ],
+      "name": "Northern Mindanao (Region X)",
+      "nameEn": "Northern Mindanao (Region X)"
+    },
+    {
+      "id": "PHL-SOCCSKSARGEN-(Region-XII)",
+      "countryId": "PHL",
+      "members": [
+        "PH-NCO",
+        "PH-SAR",
+        "PH-SCO",
+        "PH-SCO",
+        "PH-SUK"
+      ],
+      "name": "SOCCSKSARGEN (Region XII)",
+      "nameEn": "SOCCSKSARGEN (Region XII)"
+    },
+    {
+      "id": "PHL-Western-Visayas-(Region-VI)",
+      "countryId": "PHL",
+      "members": [
+        "PH-AKL",
+        "PH-ANT",
+        "PH-BCD",
+        "PH-CAP",
+        "PH-GUI",
+        "PH-ILI",
+        "PH-ILI",
+        "PH-NEC"
+      ],
+      "name": "Western Visayas (Region VI)",
+      "nameEn": "Western Visayas (Region VI)"
+    },
+    {
+      "id": "PHL-Zamboanga-Peninsula-(Region-IX",
+      "countryId": "PHL",
+      "members": [
+        "PH-ZAN",
+        "PH-ZAN",
+        "PH-ZAS",
+        "PH-ZSI"
+      ],
+      "name": "Zamboanga Peninsula (Region IX)",
+      "nameEn": "Zamboanga Peninsula (Region IX)"
+    },
+    {
+      "id": "PLW-M194",
+      "countryId": "PLW",
+      "members": [
+        "PW-350",
+        "PW-150",
+        "PW-010"
+      ],
+      "name": "Peleliu–Koror–Angaur",
+      "nameEn": "Peleliu–Koror–Angaur"
+    },
+    {
+      "id": "PLW-M195",
+      "countryId": "PLW",
+      "members": [
+        "PW-050"
+      ],
+      "name": "Hatobohei",
+      "nameEn": "Hatohobei"
+    },
+    {
+      "id": "PLW-M196",
+      "countryId": "PLW",
+      "members": [
+        "PW-370"
+      ],
+      "name": "Sonsorol",
+      "nameEn": "Sonsorol"
+    },
+    {
+      "id": "PLW-M197",
+      "countryId": "PLW",
+      "members": [
+        "PW-227",
+        "PW-224",
+        "PW-002",
+        "PW-004",
+        "PW-226",
+        "PW-212",
+        "PW-228",
+        "PW-214",
+        "PW-218",
+        "PW-222",
+        "PW-100"
+      ],
+      "name": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel",
+      "nameEn": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel"
+    },
+    {
+      "id": "PNG-M198",
+      "countryId": "PNG",
+      "members": [
+        "PG-NSB",
+        "PG-EBR"
+      ],
+      "name": "North Solomons–East New Britain",
+      "nameEn": "of Bougainville–East New Britain"
+    },
+    {
+      "id": "PNG-M199",
+      "countryId": "PNG",
+      "members": [
+        "PG-WBK",
+        "PG-NIK",
+        "PG-MRL"
+      ],
+      "name": "West New Britain–New Ireland–Manus",
+      "nameEn": "West New Britain–New Ireland–Manus"
+    },
+    {
+      "id": "PYF-M200",
+      "countryId": "PYF",
+      "members": [
+        "PF-X03~",
+        "PF-X05~"
+      ],
+      "name": "Tuamotu-Gambier–Marquesas Islands",
+      "nameEn": "Tuamotu Archipelago–Marquesas Islands"
+    },
+    {
+      "id": "PYF-M201",
+      "countryId": "PYF",
+      "members": [
+        "PF-X01~",
+        "PF-X02~",
+        "PF-X04~"
+      ],
+      "name": "Windward Islands–Leeward Islands–Austral Islands",
+      "nameEn": "Windward Islands–Leeward Islands–Austral Islands"
+    },
+    {
+      "id": "SDN-Blue-Nile",
+      "countryId": "SDN",
+      "members": [
+        "SD-GZ",
+        "SD-NB",
+        "SD-NW",
+        "SD-SI"
+      ],
+      "name": "Blue Nile",
+      "nameEn": "Blue Nile"
+    },
+    {
+      "id": "SDN-Darfur",
+      "countryId": "SDN",
+      "members": [
+        "SD-DE",
+        "SD-DN",
+        "SD-DS",
+        "SD-DS",
+        "SD-DW"
+      ],
+      "name": "Darfur",
+      "nameEn": "Darfur"
+    },
+    {
+      "id": "SDN-Kassala",
+      "countryId": "SDN",
+      "members": [
+        "SD-GD",
+        "SD-KA",
+        "SD-RS"
+      ],
+      "name": "Kassala",
+      "nameEn": "Kassala"
+    },
+    {
+      "id": "SDN-Khartum",
+      "countryId": "SDN",
+      "members": [
+        "SD-KH"
+      ],
+      "name": "Khartum",
+      "nameEn": "Khartum"
+    },
+    {
+      "id": "SDN-Kordofan",
+      "countryId": "SDN",
+      "members": [
+        "SD-KN",
+        "SD-KS"
+      ],
+      "name": "Kordofan",
+      "nameEn": "Kordofan"
+    },
+    {
+      "id": "SDN-Northern",
+      "countryId": "SDN",
+      "members": [
+        "SD-NO",
+        "SD-NR"
+      ],
+      "name": "Northern",
+      "nameEn": "Northern"
+    },
+    {
+      "id": "SDS-Bahr-al-Ghazal",
+      "countryId": "SDS",
+      "members": [
+        "SS-BN",
+        "SS-BW",
+        "SS-LK",
+        "SS-WR"
+      ],
+      "name": "Bahr al Ghazal",
+      "nameEn": "Bahr al Ghazal"
+    },
+    {
+      "id": "SDS-Equatoria",
+      "countryId": "SDS",
+      "members": [
+        "SS-EC",
+        "SS-EE",
+        "SS-EW"
+      ],
+      "name": "Equatoria",
+      "nameEn": "Equatoria"
+    },
+    {
+      "id": "SDS-Upper-Nile",
+      "countryId": "SDS",
+      "members": [
+        "SS-JG",
+        "SS-NU",
+        "SS-UY"
+      ],
+      "name": "Upper Nile",
+      "nameEn": "Upper Nile"
+    },
+    {
+      "id": "SLB-M202",
+      "countryId": "SLB",
+      "members": [
+        "SB-RB",
+        "SB-MK",
+        "SB-CT",
+        "SB-GU",
+        "SB-CE",
+        "ne-1159314981"
+      ],
+      "name": "Rennell and Bellona–Makira–Capital Territory (Honiara)–Guadalcanal–Central–Choiseul",
+      "nameEn": "Rennell and Bellona–Makira-Ulawa–Honiara–Guadalcanal–Central–Choiseul"
+    },
+    {
+      "id": "SLB-M203",
+      "countryId": "SLB",
+      "members": [
+        "SB-TE"
+      ],
+      "name": "Temotu",
+      "nameEn": "Temotu"
+    },
+    {
+      "id": "SRB-EAST",
+      "countryId": "SRB",
+      "members": [
+        "RS-10",
+        "RS-11",
+        "RS-14",
+        "RS-15",
+        "RS-13"
+      ],
+      "name": "East Serbia",
+      "nameEn": "East Serbia"
+    },
+    {
+      "id": "SRB-SOUTH",
+      "countryId": "SRB",
+      "members": [
+        "RS-19",
+        "RS-20",
+        "RS-21",
+        "RS-22",
+        "RS-23",
+        "RS-24"
+      ],
+      "name": "South Serbia",
+      "nameEn": "South Serbia"
+    },
+    {
+      "id": "SRB-WEST",
+      "countryId": "SRB",
+      "members": [
+        "RS-08",
+        "RS-09",
+        "RS-16",
+        "RS-17",
+        "RS-18",
+        "RS-12"
+      ],
+      "name": "West Serbia",
+      "nameEn": "West Serbia"
+    },
+    {
+      "id": "SYC-M212",
+      "countryId": "SYC",
+      "members": [
+        "SC-X02~"
+      ],
+      "name": "Outer Islands",
+      "nameEn": "Coralline Seychelles"
+    },
+    {
+      "id": "SYC-M213",
+      "countryId": "SYC",
+      "members": [
+        "SC-15",
+        "SC-07",
+        "SC-14"
+      ],
+      "name": "La Digue and Inner Islands–Baie Sainte Anne–Grand'Anse Praslin",
+      "nameEn": "La Digue–Baie Sainte Anne–Grand'Anse Praslin"
+    },
+    {
+      "id": "SYC-M214",
+      "countryId": "SYC",
+      "members": [
+        "SC-06",
+        "SC-23",
+        "SC-05"
+      ],
+      "name": "Baie Lazare–Takamaka–Anse Royale",
+      "nameEn": "Baie Lazare–Takamaka–Anse Royale"
+    },
+    {
+      "id": "SYC-M215",
+      "countryId": "SYC",
+      "members": [
+        "SC-18",
+        "SC-09",
+        "SC-16",
+        "SC-03",
+        "SC-12",
+        "SC-08",
+        "SC-10",
+        "SC-21",
+        "SC-17",
+        "SC-22"
+      ],
+      "name": "Mont Fleuri–Bel Air–English River–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis",
+      "nameEn": "Mont Fleuri–Bel Air–La Rivière Anglaise–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis"
+    },
+    {
+      "id": "SYC-M216",
+      "countryId": "SYC",
+      "members": [
+        "SC-13",
+        "SC-02",
+        "SC-04",
+        "SC-01",
+        "SC-20",
+        "SC-11",
+        "SC-25",
+        "SC-19",
+        "SC-24"
+      ],
+      "name": "Grand'Anse–Anse Boileau–Au Cap–Anse aux Pins–Pointe La Rue–Cascade–Roche Caïman–Plaisance–Les Mamelles",
+      "nameEn": "Grand'Anse Praslin–Anse Boileau–Au Cap–Anse-aux-Pins–Pointe La Rue–Cascade–Roche Caiman–Plaisance–Les Mamelles"
+    },
+    {
+      "id": "TCA-M217",
+      "countryId": "TCA",
+      "members": [
+        "TC-X03~",
+        "TC-X01~",
+        "TC-X02~"
+      ],
+      "name": "Providenciales and West Caicos–Middle Caicos–North Caicos",
+      "nameEn": "Providenciales and West Caicos–Middle Caicos–North Caicos"
+    },
+    {
+      "id": "TCA-M218",
+      "countryId": "TCA",
+      "members": [
+        "TC-X04~",
+        "TC-X05~",
+        "TC-X06~"
+      ],
+      "name": "South Caicos and East Caicos–Grand Turk–Salt Cay",
+      "nameEn": "South Caicos and East Caicos–Grand Turk–Salt Cay"
+    },
+    {
+      "id": "THA-Central",
+      "countryId": "THA",
+      "members": [
+        "TH-10",
+        "TH-11",
+        "TH-12",
+        "TH-13",
+        "TH-14",
+        "TH-15",
+        "TH-16",
+        "TH-17",
+        "TH-18",
+        "TH-19",
+        "TH-60",
+        "TH-61",
+        "TH-62",
+        "TH-64",
+        "TH-65",
+        "TH-66",
+        "TH-67",
+        "TH-72",
+        "TH-73",
+        "TH-74",
+        "TH-75"
+      ],
+      "name": "Central",
+      "nameEn": "Central"
+    },
+    {
+      "id": "THA-Eastern",
+      "countryId": "THA",
+      "members": [
+        "TH-20",
+        "TH-21",
+        "TH-22",
+        "TH-23",
+        "TH-24",
+        "TH-25",
+        "TH-26",
+        "TH-27"
+      ],
+      "name": "Eastern",
+      "nameEn": "Eastern"
+    },
+    {
+      "id": "THA-Northeastern",
+      "countryId": "THA",
+      "members": [
+        "TH-30",
+        "TH-31",
+        "TH-32",
+        "TH-33",
+        "TH-34",
+        "TH-35",
+        "TH-36",
+        "TH-37",
+        "TH-38",
+        "TH-39",
+        "TH-40",
+        "TH-41",
+        "TH-42",
+        "TH-43",
+        "TH-44",
+        "TH-45",
+        "TH-46",
+        "TH-47",
+        "TH-48",
+        "TH-49"
+      ],
+      "name": "Northeastern",
+      "nameEn": "Northeastern"
+    },
+    {
+      "id": "THA-Northern",
+      "countryId": "THA",
+      "members": [
+        "TH-50",
+        "TH-51",
+        "TH-52",
+        "TH-53",
+        "TH-54",
+        "TH-55",
+        "TH-56",
+        "TH-57",
+        "TH-58"
+      ],
+      "name": "Northern",
+      "nameEn": "Northern"
+    },
+    {
+      "id": "THA-Southern",
+      "countryId": "THA",
+      "members": [
+        "TH-80",
+        "TH-81",
+        "TH-82",
+        "TH-83",
+        "TH-84",
+        "TH-85",
+        "TH-86",
+        "TH-90",
+        "TH-91",
+        "TH-92",
+        "TH-93",
+        "TH-94",
+        "TH-95",
+        "TH-96"
+      ],
+      "name": "Southern",
+      "nameEn": "Southern"
+    },
+    {
+      "id": "THA-Western",
+      "countryId": "THA",
+      "members": [
+        "TH-63",
+        "TH-70",
+        "TH-71",
+        "TH-76",
+        "TH-77"
+      ],
+      "name": "Western",
+      "nameEn": "Western"
+    },
+    {
+      "id": "TJK-Dushanbe",
+      "countryId": "TJK",
+      "members": [
+        "TJ-GB"
+      ],
+      "name": "Dushanbe",
+      "nameEn": "Dushanbe"
+    },
+    {
+      "id": "TJK-Khudzhand",
+      "countryId": "TJK",
+      "members": [
+        "TJ-SU"
+      ],
+      "name": "Khudzhand",
+      "nameEn": "Khudzhand"
+    },
+    {
+      "id": "TJK-Kulyab",
+      "countryId": "TJK",
+      "members": [
+        "TJ-KT"
+      ],
+      "name": "Kulyab",
+      "nameEn": "Kulyab"
+    },
+    {
+      "id": "TJK-Kurgan-Tyube",
+      "countryId": "TJK",
+      "members": [
+        "TJ-DU",
+        "TJ-X01~"
+      ],
+      "name": "Kurgan Tyube",
+      "nameEn": "Kurgan Tyube"
+    },
+    {
+      "id": "TUR-M232",
+      "countryId": "TUR",
+      "members": [
+        "TR-39",
+        "TR-22",
+        "TR-59",
+        "TR-17",
+        "TR-10"
+      ],
+      "name": "Kirklareli–Edirne–Tekirdag–Çanakkale–Balikesir",
+      "nameEn": "Kırklareli–Edirne–Tekirdağ–Çanakkale–Balıkesir"
+    },
+    {
+      "id": "TUR-M233",
+      "countryId": "TUR",
+      "members": [
+        "TR-35",
+        "TR-09",
+        "TR-45"
+      ],
+      "name": "Izmir–Aydin–Manisa",
+      "nameEn": "İzmir–Aydın–Manisa"
+    },
+    {
+      "id": "TUR-M234",
+      "countryId": "TUR",
+      "members": [
+        "TR-34",
+        "TR-54",
+        "TR-41",
+        "TR-77",
+        "TR-16",
+        "TR-11",
+        "TR-43"
+      ],
+      "name": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya",
+      "nameEn": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya"
+    },
+    {
+      "id": "TWN-Fujian-Province",
+      "countryId": "TWN",
+      "members": [
+        "TW-KIN"
+      ],
+      "name": "Fujian Province",
+      "nameEn": "Fujian Province"
+    },
+    {
+      "id": "TWN-Special-Municipalities",
+      "countryId": "TWN",
+      "members": [
+        "TW-KHH",
+        "TW-TNN",
+        "TW-TPE",
+        "TW-TPQ",
+        "TW-TXG"
+      ],
+      "name": "Special Municipalities",
+      "nameEn": "Special Municipalities"
+    },
+    {
+      "id": "TWN-Taiwan-Province",
+      "countryId": "TWN",
+      "members": [
+        "TW-CHA",
+        "TW-CYI",
+        "TW-CYQ",
+        "TW-HSQ",
+        "TW-HSZ",
+        "TW-HUA",
+        "TW-ILA",
+        "TW-KEE",
+        "TW-MIA",
+        "TW-NAN",
+        "TW-PEN",
+        "TW-PIF",
+        "TW-TAO",
+        "TW-TTT",
+        "TW-YUN"
+      ],
+      "name": "Taiwan Province",
+      "nameEn": "Taiwan Province"
+    },
+    {
+      "id": "UGA-Central",
+      "countryId": "UGA",
+      "members": [
+        "UG-101",
+        "UG-102",
+        "UG-103",
+        "UG-104",
+        "UG-105",
+        "UG-106",
+        "UG-107",
+        "UG-108",
+        "UG-109",
+        "UG-110",
+        "UG-111",
+        "UG-112",
+        "UG-113",
+        "UG-114",
+        "UG-115",
+        "UG-116",
+        "UG-117",
+        "UG-118",
+        "UG-119",
+        "UG-120",
+        "UG-121",
+        "UG-122",
+        "UG-123",
+        "UG-124"
+      ],
+      "name": "Central",
+      "nameEn": "Central"
+    },
+    {
+      "id": "UGA-Eastern",
+      "countryId": "UGA",
+      "members": [
+        "UG-201",
+        "UG-202",
+        "UG-203",
+        "UG-204",
+        "UG-205",
+        "UG-206",
+        "UG-207",
+        "UG-208",
+        "UG-209",
+        "UG-210",
+        "UG-211",
+        "UG-212",
+        "UG-213",
+        "UG-214",
+        "UG-215",
+        "UG-216",
+        "UG-217",
+        "UG-218",
+        "UG-219",
+        "UG-220",
+        "UG-221",
+        "UG-222",
+        "UG-223",
+        "UG-224",
+        "UG-225",
+        "UG-226",
+        "UG-227",
+        "UG-228",
+        "UG-229",
+        "UG-230",
+        "UG-231",
+        "UG-232"
+      ],
+      "name": "Eastern",
+      "nameEn": "Eastern"
+    },
+    {
+      "id": "UGA-Northern",
+      "countryId": "UGA",
+      "members": [
+        "UG-301",
+        "UG-302",
+        "UG-303",
+        "UG-304",
+        "UG-305",
+        "UG-306",
+        "UG-307",
+        "UG-308",
+        "UG-309",
+        "UG-310",
+        "UG-311",
+        "UG-312",
+        "UG-313",
+        "UG-314",
+        "UG-315",
+        "UG-316",
+        "UG-317",
+        "UG-318",
+        "UG-319",
+        "UG-320",
+        "UG-321",
+        "UG-322",
+        "UG-323",
+        "UG-324",
+        "UG-326",
+        "UG-327",
+        "UG-328",
+        "UG-329",
+        "UG-330",
+        "UG-331"
+      ],
+      "name": "Northern",
+      "nameEn": "Northern"
+    },
+    {
+      "id": "UGA-Western",
+      "countryId": "UGA",
+      "members": [
+        "UG-325",
+        "UG-401",
+        "UG-402",
+        "UG-403",
+        "UG-404",
+        "UG-405",
+        "UG-406",
+        "UG-407",
+        "UG-408",
+        "UG-409",
+        "UG-410",
+        "UG-410",
+        "UG-411",
+        "UG-412",
+        "UG-413",
+        "UG-414",
+        "UG-415",
+        "UG-416",
+        "UG-417",
+        "UG-419",
+        "UG-420",
+        "UG-421",
+        "UG-422",
+        "UG-423",
+        "UG-424",
+        "UG-425"
+      ],
+      "name": "Western",
+      "nameEn": "Western"
+    },
+    {
+      "id": "VNM-M259",
+      "countryId": "VNM",
+      "members": [
+        "VN-58",
+        "VN-37"
+      ],
+      "name": "Bình Phước–Tây Ninh",
+      "nameEn": "Bình Phước–Tây Ninh"
+    },
+    {
+      "id": "VNM-M260",
+      "countryId": "VNM",
+      "members": [
+        "VN-47",
+        "VN-52",
+        "VN-59",
+        "VN-55",
+        "VN-73"
+      ],
+      "name": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hau Giang",
+      "nameEn": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hậu Giang"
+    },
+    {
+      "id": "VNM-M261",
+      "countryId": "VNM",
+      "members": [
+        "VN-41",
+        "VN-45",
+        "VN-44",
+        "VN-46",
+        "VN-49",
+        "VN-51",
+        "VN-50",
+        "VN-CT"
+      ],
+      "name": "Long An–Ðong Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Can Tho",
+      "nameEn": "Long An–Đồng Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Cần Thơ"
+    },
+    {
+      "id": "VNM-M262",
+      "countryId": "VNM",
+      "members": [
+        "VN-21",
+        "VN-22",
+        "VN-13",
+        "VN-18",
+        "VN-67",
+        "VN-20",
+        "VN-HP",
+        "VN-61"
+      ],
+      "name": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Hải Phòng–Hải Dương",
+      "nameEn": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Haiphong–Hải Dương"
+    },
+    {
+      "id": "VNM-M263",
+      "countryId": "VNM",
+      "members": [
+        "VN-23",
+        "VN-24"
+      ],
+      "name": "Ha Tinh–Quảng Bình",
+      "nameEn": "Hà Tĩnh–Quảng Bình"
+    },
+    {
+      "id": "VNM-M276",
+      "countryId": "VNM",
+      "members": [
+        "VN-43",
+        "VN-SG",
+        "VN-39",
+        "VN-40",
+        "VN-36",
+        "VN-57",
+        "VN-35"
+      ],
+      "name": "Bà Rịa - Vũng Tàu–Hồ Chí Minh city–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng",
+      "nameEn": "Bà Rịa-Vũng Tàu–Ho Chi Minh–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng"
+    },
+    {
+      "id": "VNM-M277",
+      "countryId": "VNM",
+      "members": [
+        "VN-34",
+        "VN-32",
+        "VN-31"
+      ],
+      "name": "Khánh Hòa–Phú Yên–Bình Định",
+      "nameEn": "Khánh Hòa–Phú Yên–Bình Định"
+    },
+    {
+      "id": "VUT-M264",
+      "countryId": "VUT",
+      "members": [
+        "VU-TAE"
+      ],
+      "name": "Tafea",
+      "nameEn": "Tafea"
+    },
+    {
+      "id": "VUT-M265",
+      "countryId": "VUT",
+      "members": [
+        "VU-SEE",
+        "VU-MAP",
+        "VU-SAM",
+        "VU-PAM",
+        "VU-TOB"
+      ],
+      "name": "Shefa–Malampa–Sanma–Penama–Torba",
+      "nameEn": "Shefa–Malampa–Sanma–Penama–Torba"
     }
   ]
 }

@@ -20,20 +20,26 @@ import {
   MAP_WRAP,
   MapPanZoomController
 } from "./map-controls.js";
+import { buildCountryLabelAnchors, buildProvinceLabels, MapLabelLayer } from "./map-labels.js";
 
-const OCEAN = 0x0b1c2c;
-const COAST = 0x7eb6c9;
-const PROVINCE_BORDER = 0xffffff;
-const COUNTRY_BORDER = 0xd7e6f2;
-const CAPITAL = 0xd7e8f5;
-const HOVER_FILL = new THREE.Color("#3a6f88");
-const SELECT_FILL = new THREE.Color("#4f8fad");
+const CLEAR = 0xc8b898;
+const OCEAN = 0x9eb5b0;
+const COAST = 0x3a2a1a;
+const PROVINCE_BORDER = 0x2a1810;
+const COUNTRY_BORDER = 0x1a1008;
+const CAPITAL = 0x2a1810;
+const HOVER_FILL = new THREE.Color("#c4a060");
+const SELECT_FILL = new THREE.Color("#a07840");
 const LAND_Z = 0.02;
 const LINE_Z = 0.04;
-const CAPITAL_Z = 0.05;
+const CAPITAL_Z = 0.06;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
 const PROVINCE_DETAIL_HALF_HEIGHT = 40;
 const TILE_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
+const PROVINCE_BORDER_WIDTH = 1.25;
+const PROVINCE_BORDER_OPACITY = 0.72;
+const COUNTRY_BORDER_WIDTH = 2.0;
+const COAST_BORDER_WIDTH = 1.35;
 
 export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
@@ -46,15 +52,15 @@ export function showProvinceBorders(halfHeight: number): boolean {
 }
 
 function countryFill(adm0A3: string | undefined): THREE.Color {
-  if (adm0A3 === undefined || adm0A3.length === 0) return new THREE.Color("#1a3348");
+  if (adm0A3 === undefined || adm0A3.length === 0) return new THREE.Color("#d4cbb8");
   let hash = 0;
   for (let index = 0; index < adm0A3.length; index += 1) {
     hash = (hash * 33 + adm0A3.charCodeAt(index)) >>> 0;
   }
   return new THREE.Color().setHSL(
     (hash % 360) / 360,
-    (28 + (hash % 18)) / 100,
-    (28 + (hash % 10)) / 100,
+    (18 + (hash % 15)) / 100,
+    (58 + (hash % 15)) / 100,
     THREE.SRGBColorSpace
   );
 }
@@ -169,13 +175,16 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
       hoveredSlot: { value: -1 },
       selectedSlot: { value: -1 },
       hoverColor: { value: HOVER_FILL },
-      selectedColor: { value: SELECT_FILL }
+      selectedColor: { value: SELECT_FILL },
+      paperStrength: { value: 1 }
     },
     vertexShader: `
       attribute float provinceSlot;
       varying float vProvinceSlot;
+      varying vec2 vMapPos;
       void main() {
         vProvinceSlot = provinceSlot;
+        vMapPos = position.xy;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
@@ -186,7 +195,26 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
       uniform float selectedSlot;
       uniform vec3 hoverColor;
       uniform vec3 selectedColor;
+      uniform float paperStrength;
       varying float vProvinceSlot;
+      varying vec2 vMapPos;
+
+      float hash21(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+
+      // Continuous value noise so zoom never reveals blocky floor() cells.
+      float valueNoise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        float a = hash21(i);
+        float b = hash21(i + vec2(1.0, 0.0));
+        float c = hash21(i + vec2(0.0, 1.0));
+        float d = hash21(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+      }
+
       void main() {
         vec2 uv = vec2((vProvinceSlot + 0.5) / paletteSize, 0.5);
         vec3 color = texture2D(palette, uv).rgb;
@@ -195,7 +223,16 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
         } else if (abs(vProvinceSlot - hoveredSlot) < 0.25) {
           color = hoverColor;
         }
-        gl_FragColor = vec4(color * 1.08, 1.0);
+        vec3 paper = vec3(0.82, 0.76, 0.65);
+        color = mix(color, paper, 0.08 * paperStrength);
+        // Screen-space grain stays ~1px at every zoom; soft map-space wash avoids mosaics.
+        float screenGrain = hash21(gl_FragCoord.xy) * 0.035 - 0.0175;
+        float wash = (valueNoise(vMapPos * 0.55) - 0.5) * 0.028;
+        float fiber = (valueNoise(vMapPos * vec2(0.35, 4.5)) - 0.5) * 0.016;
+        color += (screenGrain + wash + fiber) * paperStrength;
+        float vignette = smoothstep(78.0, 95.0, abs(vMapPos.y));
+        color *= mix(1.0, 0.94, vignette * paperStrength);
+        gl_FragColor = vec4(color, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
@@ -206,34 +243,58 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
   });
 }
 
-/** Kept for the unused globe path; the planar map does not attach this material. */
-export function createAtmosphereMaterial(): THREE.ShaderMaterial {
+function createOceanMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
-    transparent: true,
-    depthWrite: false,
-    depthTest: true,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending,
+    uniforms: {
+      oceanColor: { value: new THREE.Color(OCEAN) },
+      inkColor: { value: new THREE.Color("#3a2a1a") }
+    },
     vertexShader: `
-      varying vec3 vWorldNormal;
-      varying vec3 vWorldPosition;
+      varying vec2 vMapPos;
       void main() {
-        vWorldNormal = normalize(mat3(modelMatrix) * normal);
-        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-        vWorldPosition = worldPosition.xyz;
-        gl_Position = projectionMatrix * viewMatrix * worldPosition;
+        vMapPos = position.xy;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
     fragmentShader: `
-      varying vec3 vWorldNormal;
-      varying vec3 vWorldPosition;
-      void main() {
-        vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
-        float horizon = max(0.0, 0.62 - dot(vWorldNormal, viewDirection));
-        float glow = min(pow(horizon, 4.0) * 0.16, 0.14);
-        gl_FragColor = vec4(0.24, 0.58, 0.76, glow);
+      uniform vec3 oceanColor;
+      uniform vec3 inkColor;
+      varying vec2 vMapPos;
+
+      float hash21(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
       }
-    `
+
+      float valueNoise(vec2 p) {
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        float a = hash21(i);
+        float b = hash21(i + vec2(1.0, 0.0));
+        float c = hash21(i + vec2(0.0, 1.0));
+        float d = hash21(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+      }
+
+      void main() {
+        vec3 color = oceanColor;
+        float grain = hash21(gl_FragCoord.xy) * 0.028 - 0.014;
+        float wash = (valueNoise(vMapPos * 0.4) - 0.5) * 0.02;
+        color += grain + wash;
+        float gx = abs(fract(vMapPos.x / 15.0) - 0.5);
+        float gy = abs(fract(vMapPos.y / 15.0) - 0.5);
+        float line = 1.0 - smoothstep(0.0, 0.018, min(gx, gy));
+        color = mix(color, inkColor, line * 0.06);
+        float edgeWash = smoothstep(70.0, 88.0, abs(vMapPos.y)) * 0.06;
+        color = mix(color, vec3(0.8, 0.74, 0.62), edgeWash);
+        gl_FragColor = vec4(color, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }
+    `,
+    side: THREE.FrontSide,
+    depthTest: true,
+    depthWrite: true
   });
 }
 
@@ -250,10 +311,12 @@ export class GlobeRenderer {
   private readonly paletteBytes: Uint8Array;
   private readonly palette: THREE.DataTexture;
   private readonly material: THREE.ShaderMaterial;
+  private readonly oceanMaterial: THREE.ShaderMaterial;
   private readonly landMesh: THREE.Mesh;
   private readonly slotByProvinceId = new Map<string, number>();
   private readonly capitalPoints: THREE.Points;
   private readonly ocean: THREE.Mesh;
+  private readonly labels: MapLabelLayer;
   private coastLines: LineSegments2;
   private provinceLines: LineSegments2;
   private countryLines: LineSegments2;
@@ -275,7 +338,7 @@ export class GlobeRenderer {
       powerPreference: "high-performance"
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.setClearColor(0x071018, 1);
+    this.renderer.setClearColor(CLEAR, 1);
 
     this.panZoom = new MapPanZoomController(
       this.camera,
@@ -285,11 +348,12 @@ export class GlobeRenderer {
       INITIAL_HALF_HEIGHT
     );
 
-    this.scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-    this.ocean = new THREE.Mesh(
-      new THREE.PlaneGeometry(MAP_WRAP * 3, 180),
-      new THREE.MeshBasicMaterial({ color: OCEAN })
-    );
+    const labelHost = canvas.parentElement ?? canvas;
+    this.labels = new MapLabelLayer(labelHost);
+    this.scene.add(this.labels.sceneRoot);
+
+    this.oceanMaterial = createOceanMaterial();
+    this.ocean = new THREE.Mesh(new THREE.PlaneGeometry(MAP_WRAP * 3, 180), this.oceanMaterial);
     this.ocean.position.z = -0.05;
     this.scene.add(this.ocean);
     this.scene.add(this.mapRoot);
@@ -327,9 +391,15 @@ export class GlobeRenderer {
     for (const feature of model.coastlines) {
       addGeometryLines(coastPositions, feature.geometry, LINE_Z);
     }
-    this.coastLines = makeWideLines(coastPositions, COAST, 0.9);
-    this.provinceLines = makeWideLines([], PROVINCE_BORDER, 0.9, 0.55, 1);
-    this.countryLines = makeWideLines([], COUNTRY_BORDER, 1.45, 1, 2);
+    this.coastLines = makeWideLines(coastPositions, COAST, COAST_BORDER_WIDTH);
+    this.provinceLines = makeWideLines(
+      [],
+      PROVINCE_BORDER,
+      PROVINCE_BORDER_WIDTH,
+      PROVINCE_BORDER_OPACITY,
+      1
+    );
+    this.countryLines = makeWideLines([], COUNTRY_BORDER, COUNTRY_BORDER_WIDTH, 1, 2);
     this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
 
@@ -347,14 +417,18 @@ export class GlobeRenderer {
       capitalGeometry,
       new THREE.PointsMaterial({
         color: CAPITAL,
-        size: 3.2,
+        size: 4.5,
         sizeAttenuation: false,
-        depthTest: true,
-        depthWrite: false
+        depthTest: false,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.95
       })
     );
+    this.capitalPoints.renderOrder = 3;
     this.tileTemplate.add(this.capitalPoints);
     this.refreshTiles();
+    this.rebuildLabels();
     this.updateDetailVisibility();
     this.resize();
   }
@@ -382,6 +456,24 @@ export class GlobeRenderer {
         object.visible = showProvinceBorders(this.panZoom.halfHeight);
       }
     });
+    this.updateLabels();
+  }
+
+  private rebuildLabels(): void {
+    const countryLabels = buildCountryLabelAnchors(this.model.provinces, this.ownerLookup);
+    const provinceLabels = buildProvinceLabels(this.model.provinces);
+    this.labels.setLabels([...countryLabels, ...provinceLabels]);
+    this.updateLabels();
+  }
+
+  private updateLabels(): void {
+    const halfWidth = (this.camera.right - this.camera.left) / 2;
+    this.labels.update(
+      this.panZoom.halfHeight,
+      this.camera.position.x,
+      this.camera.position.y,
+      halfWidth
+    );
   }
 
   private rebuildPalette(changedProvinceIds?: readonly string[]): void {
@@ -424,9 +516,15 @@ export class GlobeRenderer {
     this.tileTemplate.remove(this.provinceLines, this.countryLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
-    this.provinceLines = makeWideLines(provincePositions, PROVINCE_BORDER, 0.9, 0.55, 1);
+    this.provinceLines = makeWideLines(
+      provincePositions,
+      PROVINCE_BORDER,
+      PROVINCE_BORDER_WIDTH,
+      PROVINCE_BORDER_OPACITY,
+      1
+    );
     this.provinceLineHasGeometry = provincePositions.length > 0;
-    this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, 1.45, 1, 2);
+    this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, COUNTRY_BORDER_WIDTH, 1, 2);
     this.applyLineResolutions();
     this.tileTemplate.add(this.provinceLines, this.countryLines);
     this.refreshTiles();
@@ -451,6 +549,7 @@ export class GlobeRenderer {
     this.ownerLookup = ownerLookup;
     this.rebuildPalette(changedProvinceIds);
     this.rebuildBoundaries();
+    this.rebuildLabels();
     this.updateDetailVisibility();
     this.requestRender();
   }
@@ -472,7 +571,10 @@ export class GlobeRenderer {
   }
 
   drag(x: number, y: number): void {
-    if (this.panZoom.drag(x, y)) this.requestRender();
+    if (this.panZoom.drag(x, y)) {
+      this.updateLabels();
+      this.requestRender();
+    }
   }
 
   endDrag(): void {
@@ -487,6 +589,7 @@ export class GlobeRenderer {
 
   update(): boolean {
     this.panZoom.applyView();
+    this.updateLabels();
     return this.panZoom.needsAnimation();
   }
 
@@ -522,17 +625,21 @@ export class GlobeRenderer {
     }
     this.renderer.setPixelRatio(1);
     this.renderer.setSize(width, height, false);
+    this.labels.resize(cssWidth, cssHeight);
     this.panZoom.applyView();
     this.applyLineResolutions();
+    this.updateLabels();
     this.requestRender();
   }
 
   render(): void {
     this.renderer.render(this.scene, this.camera);
+    this.labels.render(this.scene, this.camera);
   }
 
   dispose(): void {
     this.mapRoot.clear();
+    this.labels.dispose();
     this.landMesh.geometry.dispose();
     this.material.dispose();
     this.palette.dispose();
@@ -542,7 +649,7 @@ export class GlobeRenderer {
     this.capitalPoints.geometry.dispose();
     (this.capitalPoints.material as THREE.Material).dispose();
     this.ocean.geometry.dispose();
-    (this.ocean.material as THREE.Material).dispose();
+    this.oceanMaterial.dispose();
     this.renderer.dispose();
   }
 }
