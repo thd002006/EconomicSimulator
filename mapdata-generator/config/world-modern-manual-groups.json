@@ -33,8 +33,8 @@
         "AZ-SR",
         "AZ-UCA",
         "AZ-YEV",
-        "AZ-YEV",
-        "AZ-ZAR"
+        "AZ-ZAR",
+        "ne-1159316489"
       ],
       "name": "Aran Economic Region",
       "nameEn": "Aran Economic Region"
@@ -102,10 +102,10 @@
         "AZ-AST",
         "AZ-CAL",
         "AZ-LA",
-        "AZ-LA",
         "AZ-LER",
         "AZ-MAS",
-        "AZ-YAR"
+        "AZ-YAR",
+        "ne-1159317287"
       ],
       "name": "Lankaran Economic Region",
       "nameEn": "Lankaran Economic Region"
@@ -135,8 +135,8 @@
         "AZ-QAB",
         "AZ-QAX",
         "AZ-SA",
-        "AZ-SA",
-        "AZ-ZAQ"
+        "AZ-ZAQ",
+        "ne-1159317281"
       ],
       "name": "Shaki-Zaqatala Economic Region",
       "nameEn": "Shaki-Zaqatala Economic Region"
@@ -1906,9 +1906,9 @@
       "countryId": "IRL",
       "members": [
         "IE-D",
-        "IE-D",
-        "IE-D",
-        "IE-D"
+        "ne-1159311003",
+        "ne-1159317305",
+        "ne-1159317309"
       ],
       "name": "Dublin",
       "nameEn": "Dublin"
@@ -1930,8 +1930,8 @@
       "members": [
         "IE-CE",
         "IE-LK",
-        "IE-LK",
-        "IE-TA"
+        "IE-TA",
+        "ne-1159317295"
       ],
       "name": "Mid-West",
       "nameEn": "Mid-West"
@@ -1954,10 +1954,10 @@
       "members": [
         "IE-CW",
         "IE-KK",
-        "IE-TA",
         "IE-WD",
-        "IE-WD",
-        "IE-WX"
+        "IE-WX",
+        "ne-1159317301",
+        "ne-1159317303"
       ],
       "name": "South-East",
       "nameEn": "South-East"
@@ -1967,8 +1967,8 @@
       "countryId": "IRL",
       "members": [
         "IE-CO",
-        "IE-CO",
-        "IE-KY"
+        "IE-KY",
+        "ne-1159317299"
       ],
       "name": "South-West",
       "nameEn": "South-West"
@@ -1978,9 +1978,9 @@
       "countryId": "IRL",
       "members": [
         "IE-G",
-        "IE-G",
         "IE-MO",
-        "IE-RN"
+        "IE-RN",
+        "ne-1159317293"
       ],
       "name": "West",
       "nameEn": "West"
@@ -2461,7 +2461,7 @@
       "id": "MDV-Malé",
       "countryId": "MDV",
       "members": [
-        "MV-12"
+        "ne-1159316681"
       ],
       "name": "Malé",
       "nameEn": "Malé"
@@ -2798,10 +2798,10 @@
         "PH-ALB",
         "PH-CAN",
         "PH-CAS",
-        "PH-CAS",
         "PH-CAT",
         "PH-MAS",
-        "PH-SOR"
+        "PH-SOR",
+        "ne-1159317229"
       ],
       "name": "Bicol (Region V)",
       "nameEn": "Bicol (Region V)"
@@ -2814,8 +2814,8 @@
         "PH-CAV",
         "PH-LAG",
         "PH-QUE",
-        "PH-QUE",
-        "PH-RIZ"
+        "PH-RIZ",
+        "ne-1159317271"
       ],
       "name": "CALABARZON (Region IV-A)",
       "nameEn": "CALABARZON (Region IV-A)"
@@ -2827,9 +2827,9 @@
         "PH-BTN",
         "PH-CAG",
         "PH-ISA",
-        "PH-ISA",
         "PH-NUV",
-        "PH-QUI"
+        "PH-QUI",
+        "ne-1159317273"
       ],
       "name": "Cagayan Valley (Region II)",
       "nameEn": "Cagayan Valley (Region II)"
@@ -2843,10 +2843,10 @@
         "PH-BUL",
         "PH-NUE",
         "PH-PAM",
-        "PH-PAM",
         "PH-TAR",
         "PH-ZMB",
-        "PH-ZMB"
+        "ne-1159313503",
+        "ne-1159317267"
       ],
       "name": "Central Luzon (Region III)",
       "nameEn": "Central Luzon (Region III)"
@@ -2857,11 +2857,11 @@
       "members": [
         "PH-BOH",
         "PH-CEB",
-        "PH-CEB",
         "PH-LAP",
         "PH-MDE",
         "PH-NER",
-        "PH-SIG"
+        "PH-SIG",
+        "ne-1159313431"
       ],
       "name": "Central Visayas (Region VII)",
       "nameEn": "Central Visayas (Region VII)"
@@ -2873,10 +2873,10 @@
         "PH-ABR",
         "PH-APA",
         "PH-BEN",
-        "PH-BEN",
         "PH-IFU",
         "PH-KAL",
-        "PH-MOU"
+        "PH-MOU",
+        "ne-1159317275"
       ],
       "name": "Cordillera Administrative Region (CAR)",
       "nameEn": "Cordillera Administrative Region (CAR)"
@@ -2889,7 +2889,7 @@
         "PH-DAO",
         "PH-DAS",
         "PH-DAV",
-        "PH-DAV"
+        "ne-1159317211"
       ],
       "name": "Davao (Region XI)",
       "nameEn": "Davao (Region XI)"
@@ -2899,10 +2899,10 @@
       "countryId": "PHL",
       "members": [
         "PH-AGN",
-        "PH-AGN",
         "PH-AGS",
         "PH-SUN",
-        "PH-SUR"
+        "PH-SUR",
+        "ne-1159317219"
       ],
       "name": "Dinagat Islands (Region XIII)",
       "nameEn": "Dinagat Islands (Region XIII)"
@@ -2914,11 +2914,11 @@
         "PH-BIL",
         "PH-EAS",
         "PH-LEY",
-        "PH-LEY",
-        "PH-LEY",
         "PH-NSA",
         "PH-SLE",
-        "PH-WSA"
+        "PH-WSA",
+        "ne-1159317223",
+        "ne-1159317227"
       ],
       "name": "Eastern Visayas (Region VIII)",
       "nameEn": "Eastern Visayas (Region VIII)"
@@ -2931,7 +2931,7 @@
         "PH-ILS",
         "PH-LUN",
         "PH-PAN",
-        "PH-PAN"
+        "ne-1159317277"
       ],
       "name": "Ilocos (Region I)",
       "nameEn": "Ilocos (Region I)"
@@ -2944,8 +2944,8 @@
         "PH-MDC",
         "PH-MDR",
         "PH-PLW",
-        "PH-PLW",
-        "PH-ROM"
+        "PH-ROM",
+        "ne-1159317221"
       ],
       "name": "MIMAROPA (Region IV-B)",
       "nameEn": "MIMAROPA (Region IV-B)"
@@ -2955,22 +2955,22 @@
       "countryId": "PHL",
       "members": [
         "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL",
-        "PH-MNL"
+        "ne-1159311695",
+        "ne-1159317231",
+        "ne-1159317233",
+        "ne-1159317235",
+        "ne-1159317237",
+        "ne-1159317239",
+        "ne-1159317241",
+        "ne-1159317245",
+        "ne-1159317247",
+        "ne-1159317249",
+        "ne-1159317251",
+        "ne-1159317253",
+        "ne-1159317255",
+        "ne-1159317259",
+        "ne-1159317263",
+        "ne-1159317265"
       ],
       "name": "National Capital Region",
       "nameEn": "National Capital Region"
@@ -2982,10 +2982,10 @@
         "PH-BUK",
         "PH-CAM",
         "PH-LAN",
-        "PH-LAN",
         "PH-MSC",
         "PH-MSR",
-        "PH-MSR"
+        "ne-1159313385",
+        "ne-1159317217"
       ],
       "name": "Northern Mindanao (Region X)",
       "nameEn": "Northern Mindanao (Region X)"
@@ -2994,11 +2994,11 @@
       "id": "PHL-SOCCSKSARGEN-(Region-XII)",
       "countryId": "PHL",
       "members": [
-        "PH-NCO",
         "PH-SAR",
         "PH-SCO",
-        "PH-SCO",
-        "PH-SUK"
+        "PH-SUK",
+        "ne-1159313393",
+        "ne-1159313415"
       ],
       "name": "SOCCSKSARGEN (Region XII)",
       "nameEn": "SOCCSKSARGEN (Region XII)"
@@ -3013,8 +3013,8 @@
         "PH-CAP",
         "PH-GUI",
         "PH-ILI",
-        "PH-ILI",
-        "PH-NEC"
+        "PH-NEC",
+        "ne-1159317203"
       ],
       "name": "Western Visayas (Region VI)",
       "nameEn": "Western Visayas (Region VI)"
@@ -3024,9 +3024,9 @@
       "countryId": "PHL",
       "members": [
         "PH-ZAN",
-        "PH-ZAN",
         "PH-ZAS",
-        "PH-ZSI"
+        "PH-ZSI",
+        "ne-1159316095"
       ],
       "name": "Zamboanga Peninsula (Region IX)",
       "nameEn": "Zamboanga Peninsula (Region IX)"
@@ -3140,8 +3140,8 @@
         "SD-DE",
         "SD-DN",
         "SD-DS",
-        "SD-DS",
-        "SD-DW"
+        "SD-DW",
+        "ne-1159317841"
       ],
       "name": "Darfur",
       "nameEn": "Darfur"
@@ -3743,7 +3743,6 @@
         "UG-408",
         "UG-409",
         "UG-410",
-        "UG-410",
         "UG-411",
         "UG-412",
         "UG-413",
@@ -3757,7 +3756,8 @@
         "UG-422",
         "UG-423",
         "UG-424",
-        "UG-425"
+        "UG-425",
+        "ne-1159315077"
       ],
       "name": "Western",
       "nameEn": "Western"
