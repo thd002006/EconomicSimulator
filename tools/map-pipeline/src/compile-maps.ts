@@ -106,9 +106,14 @@ export function simplifyGeometry(geometry: PolygonGeometry, tolerance: number): 
   return relativeAreaError <= 0.1 ? candidate : cloneGeometry(geometry);
 }
 
-function buildTriangulatableLods(id: string, geometry: PolygonGeometry): PolygonGeometry[] {
-  const candidates = LOD_TOLERANCES.map((tolerance) => simplifyGeometry(geometry, tolerance));
-  return candidates.map((candidate, lodIndex) => {
+export function resolveTriangulatableLods(
+  id: string,
+  candidates: readonly PolygonGeometry[]
+): PolygonGeometry[] {
+  if (candidates.length === 0) {
+    throw new Error(`No triangulatable geometry LOD for ${id}.`);
+  }
+  return candidates.map((_, lodIndex) => {
     for (let fallbackIndex = lodIndex; fallbackIndex < candidates.length; fallbackIndex += 1) {
       const fallback = candidates[fallbackIndex]!;
       try {
@@ -120,6 +125,13 @@ function buildTriangulatableLods(id: string, geometry: PolygonGeometry): Polygon
     }
     throw new Error(`No triangulatable geometry LOD for ${id}.`);
   });
+}
+
+function buildTriangulatableLods(id: string, geometry: PolygonGeometry): PolygonGeometry[] {
+  return resolveTriangulatableLods(
+    id,
+    LOD_TOLERANCES.map((tolerance) => simplifyGeometry(geometry, tolerance))
+  );
 }
 
 function pickProperties(properties: RecordValue | null | undefined): RecordValue {

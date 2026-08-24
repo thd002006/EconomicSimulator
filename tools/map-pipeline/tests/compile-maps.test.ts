@@ -6,6 +6,7 @@ import {
   compilePack,
   LOD_TOLERANCES,
   polygonGeometryArea,
+  resolveTriangulatableLods,
   simplifyGeometry
 } from "../src/compile-maps.js";
 import { signedRingArea } from "../src/simplify.js";
@@ -137,6 +138,43 @@ describe("map compiler", () => {
     );
     expect(simplifyGeometry(source, 0)).toEqual(source);
     expect(LOD_TOLERANCES.at(-1)).toBe(0);
+  });
+
+  it("falls back to a later LOD when coarser triangulation exceeds deviation", () => {
+    const invalid = {
+      type: "Polygon" as const,
+      coordinates: [
+        [
+          [0, 0],
+          [10, 0],
+          [10, 10],
+          [0, 10],
+          [0, 0]
+        ],
+        [
+          [12, 0],
+          [20, 0],
+          [20, 10],
+          [12, 10],
+          [12, 0]
+        ]
+      ]
+    };
+    const valid = polygon([
+      [0, 0],
+      [8, 0],
+      [8, 8],
+      [0, 8],
+      [0, 0]
+    ]);
+    expect(resolveTriangulatableLods("fallback", [invalid, invalid, valid])).toEqual([
+      valid,
+      valid,
+      valid
+    ]);
+    expect(() => resolveTriangulatableLods("fallback", [invalid, invalid, invalid])).toThrow(
+      /deviation/
+    );
   });
 
   it("produces byte-identical output for identical input", async () => {

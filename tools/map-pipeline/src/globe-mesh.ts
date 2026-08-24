@@ -3,20 +3,16 @@ import {
   GLOBE_MESH_BINARY_MAGIC,
   GLOBE_MESH_BINARY_VERSION,
   GLOBE_MESH_HEADER_BYTES,
-  lonLatToUnitVector,
   type GeoJsonGeometry,
   type LonLat
 } from "@economic-simulator/map-runtime";
 
-const LAND_RADIUS = 1.006;
-const MAX_TRIANGLE_EDGE_RADIANS = (6 * Math.PI) / 180;
-const MAX_SUBDIVISION_DEPTH = 8;
 const MAX_DEVIATION = 0.02;
-const MIN_PROJECTED_AREA = 1e-8;
-const MAX_SKIPPABLE_INVALID_AREA = 2e-6;
+const MIN_AREA = 1e-8;
+const MAX_SKIPPABLE_INVALID_AREA = 0.002;
+const DATELINE_JUMP = 180;
 
 type PolygonGeometry = Extract<GeoJsonGeometry, { type: "Polygon" | "MultiPolygon" }>;
-type Vec3 = [number, number, number];
 
 export interface CompiledGlobeMesh {
   readonly positions: Float32Array;
@@ -24,31 +20,14 @@ export interface CompiledGlobeMesh {
   readonly indices: Uint32Array;
 }
 
-function dot(a: Vec3, b: Vec3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function cross(a: Vec3, b: Vec3): Vec3 {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-}
-
-function normalize(vector: Vec3, radius = 1): Vec3 {
-  const length = Math.hypot(vector[0], vector[1], vector[2]);
-  if (!Number.isFinite(length) || length < 1e-12) {
-    throw new Error("Cannot normalize a zero-length globe mesh vector.");
-  }
-  const scale = radius / length;
-  return [vector[0] * scale, vector[1] * scale, vector[2] * scale];
-}
-
-function withoutClosingPoint(ring: readonly LonLat[]): readonly LonLat[] {
-  if (ring.length < 2) return ring;
+function withoutClosingPoint(ring: readonly LonLat[]): LonLat[] {
+  if (ring.length < 2) return [...ring];
   const first = ring[0]!;
   const last = ring[ring.length - 1]!;
-  return first[0] === last[0] && first[1] === last[1] ? ring.slice(0, -1) : ring;
+  return first[0] === last[0] && first[1] === last[1] ? ring.slice(0, -1) : [...ring];
 }
 
-function cleanRing(ring: readonly LonLat[]): readonly LonLat[] {
+function cleanRing(ring: readonly LonLat[]): LonLat[] {
   const cleaned: LonLat[] = [];
   for (const point of withoutClosingPoint(ring)) {
     const previous = cleaned[cleaned.length - 1];
@@ -56,60 +35,102 @@ function cleanRing(ring: readonly LonLat[]): readonly LonLat[] {
       cleaned.push(point);
     }
   }
-  if (cleaned.length > 1) {
-    const first = cleaned[0]!;
-    const last = cleaned[cleaned.length - 1]!;
-    if (first[0] === last[0] && first[1] === last[1]) cleaned.pop();
-  }
   return cleaned;
 }
 
-function polygonCenter(rings: readonly (readonly LonLat[])[]): Vec3 {
-  const outer = cleanRing(rings[0] ?? []);
-  const sum: Vec3 = [0, 0, 0];
-  for (const [lon, lat] of outer) {
-    const point = lonLatToUnitVector(lon, lat) as Vec3;
-    sum[0] += point[0];
-    sum[1] += point[1];
-    sum[2] += point[2];
-  }
-  if (Math.hypot(...sum) < 1e-8 && outer[0] !== undefined) {
-    return lonLatToUnitVector(outer[0][0], outer[0][1]) as Vec3;
-  }
-  return normalize(sum);
+function closeRing(ring: readonly LonLat[]): LonLat[] {
+  if (ring.length === 0) return [];
+  const first = ring[0]!;
+  const last = ring[ring.length - 1]!;
+  return first[0] === last[0] && first[1] === last[1] ? [...ring] : [...ring, first];
 }
 
-function projectPolygon(rings: readonly (readonly LonLat[])[]): {
-  vertices2d: number[];
-  vertices3d: Vec3[];
+function unwrapRing(ring: readonly LonLat[]): LonLat[] {
+  const cleaned = cleanRing(ring);
+  if (cleaned.length === 0) return [];
+  const unwrapped: LonLat[] = [cleaned[0]!];
+  for (let index = 1; index < cleaned.length; index += 1) {
+    const previous = unwrapped[index - 1]!;
+    const current = cleaned[index]!;
+    let lon = current[0];
+    const bothOnDateline =
+      Math.abs(Math.abs(previous[0]) - 180) < 1e-9 && Math.abs(Math.abs(current[0]) - 180) < 1e-9;
+    if (!bothOnDateline) {
+      while (lon - previous[0] > DATELINE_JUMP) lon -= 360;
+      while (previous[0] - lon > DATELINE_JUMP) lon += 360;
+    }
+    unwrapped.push([lon, current[1]]);
+  }
+  return unwrapped;
+}
+
+function ringCentroid(ring: readonly LonLat[]): LonLat {
+  const closed = closeRing(ring);
+  let x = 0;
+  let y = 0;
+  let count = 0;
+  for (const point of closed.slice(0, -1)) {
+    x += point[0];
+    y += point[1];
+    count += 1;
+  }
+  return count === 0 ? [0, 0] : [x / count, y / count];
+}
+
+function shiftRing(ring: readonly LonLat[], deltaLon: number): LonLat[] {
+  return ring.map(([lon, lat]) => [lon + deltaLon, lat]);
+}
+
+function alignRingCycle(ring: readonly LonLat[], referenceLon: number): LonLat[] {
+  const centroidLon = ringCentroid(ring)[0];
+  const cycleOffset = Math.round((referenceLon - centroidLon) / 360) * 360;
+  return shiftRing(ring, cycleOffset);
+}
+
+function splitPolygonAtDateline(rings: readonly (readonly LonLat[])[]): LonLat[][][] {
+  // Planar mesh 使用 earcut 进行三角化时，真正的关键是让每个 ring 的经度在局部
+  // 保持连续（unwrap）。比起对 ±180 做“切块+裁剪”（容易引入环/洞归属错误），
+  // 我们这里先不拆成多份，只返回原始 rings，交由 flattenPolygon 里统一 unwrap。
+  return rings.length === 0 ? [] : [rings as unknown as LonLat[][]];
+}
+
+function flattenPolygon(rings: readonly (readonly LonLat[])[]): {
+  vertices: number[];
   holes: number[];
 } {
-  const center = polygonCenter(rings);
-  const reference: Vec3 = Math.abs(center[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
-  const east = normalize(cross(reference, center));
-  const north = normalize(cross(center, east));
-  const vertices2d: number[] = [];
-  const vertices3d: Vec3[] = [];
-  const holes: number[] = [];
-
-  for (const [ringIndex, rawRing] of rings.entries()) {
-    const ring = cleanRing(rawRing);
-    if (ring.length < 3) continue;
-    if (ringIndex > 0) holes.push(vertices3d.length);
-    for (const [lon, lat] of ring) {
-      const point = lonLatToUnitVector(lon, lat) as Vec3;
-      const cosine = Math.max(-1, Math.min(1, dot(center, point)));
-      const angle = Math.acos(cosine);
-      const sine = Math.sin(angle);
-      const scale = Math.abs(sine) < 1e-12 ? 1 : angle / sine;
-      vertices2d.push(dot(point, east) * scale, dot(point, north) * scale);
-      vertices3d.push(normalize(point, LAND_RADIUS));
+  const vertices: number[] = [];
+  const holeIndices: number[] = [];
+  let referenceLon: number | undefined;
+  for (const [ringIndex, ring] of rings.entries()) {
+    const unwrapped = unwrapRing(ring);
+    const aligned =
+      ringIndex === 0 || referenceLon === undefined
+        ? unwrapped
+        : alignRingCycle(unwrapped, referenceLon);
+    if (ringIndex === 0) referenceLon = ringCentroid(aligned)[0];
+    // Polar caps (rings that cover almost the whole longitude range) can become
+    // degenerate for planar earcut when we avoid dateline splitting.
+    // If the unwrapped longitude span is near 360°, augment the ring with two
+    // pole points so earcut has a stable triangulation.
+    if (aligned.length >= 3) {
+      const lons = aligned.map((point) => point[0]!);
+      const span = Math.max(...lons) - Math.min(...lons);
+      if (span >= 359) {
+        const avgLat = aligned.reduce((sum, point) => sum + point[1]!, 0) / aligned.length;
+        const poleLat = avgLat < 0 ? -90 : 90;
+        aligned.push([180, poleLat], [-180, poleLat]);
+      }
+    }
+    if (aligned.length < 3) continue;
+    if (ringIndex > 0) holeIndices.push(vertices.length / 2);
+    for (const [lon, lat] of aligned) {
+      vertices.push(lon, lat);
     }
   }
-  return { vertices2d, vertices3d, holes };
+  return { vertices, holes: holeIndices };
 }
 
-function projectedArea(vertices: readonly number[], holes: readonly number[]): number {
+function polygonArea(vertices: readonly number[], holes: readonly number[]): number {
   const starts = [0, ...holes];
   let area = 0;
   for (const [ringIndex, startVertex] of starts.entries()) {
@@ -126,57 +147,6 @@ function projectedArea(vertices: readonly number[], holes: readonly number[]): n
   return Math.max(0, area);
 }
 
-function angularDistance(a: Vec3, b: Vec3): number {
-  const normalizedDot = dot(a, b) / (LAND_RADIUS * LAND_RADIUS);
-  return Math.acos(Math.max(-1, Math.min(1, normalizedDot)));
-}
-
-function midpoint(a: Vec3, b: Vec3): Vec3 {
-  return normalize([a[0] + b[0], a[1] + b[1], a[2] + b[2]], LAND_RADIUS);
-}
-
-function appendTriangle(
-  positions: number[],
-  slots: number[],
-  indices: number[],
-  provinceSlot: number,
-  a: Vec3,
-  b: Vec3,
-  c: Vec3,
-  depth = 0
-): void {
-  const edges = [angularDistance(a, b), angularDistance(b, c), angularDistance(c, a)];
-  const longest = Math.max(...edges);
-  if (longest > MAX_TRIANGLE_EDGE_RADIANS && depth < MAX_SUBDIVISION_DEPTH) {
-    if (longest === edges[0]) {
-      const mid = midpoint(a, b);
-      appendTriangle(positions, slots, indices, provinceSlot, a, mid, c, depth + 1);
-      appendTriangle(positions, slots, indices, provinceSlot, mid, b, c, depth + 1);
-    } else if (longest === edges[1]) {
-      const mid = midpoint(b, c);
-      appendTriangle(positions, slots, indices, provinceSlot, a, b, mid, depth + 1);
-      appendTriangle(positions, slots, indices, provinceSlot, a, mid, c, depth + 1);
-    } else {
-      const mid = midpoint(c, a);
-      appendTriangle(positions, slots, indices, provinceSlot, a, b, mid, depth + 1);
-      appendTriangle(positions, slots, indices, provinceSlot, mid, b, c, depth + 1);
-    }
-    return;
-  }
-
-  const normal = cross(
-    [b[0] - a[0], b[1] - a[1], b[2] - a[2]],
-    [c[0] - a[0], c[1] - a[1], c[2] - a[2]]
-  );
-  if (Math.hypot(normal[0], normal[1], normal[2]) < 1e-12) return;
-  const center: Vec3 = [a[0] + b[0] + c[0], a[1] + b[1] + c[1], a[2] + b[2] + c[2]];
-  const ordered = dot(normal, center) >= 0 ? [a, b, c] : [a, c, b];
-  const base = slots.length;
-  for (const point of ordered) positions.push(point[0], point[1], point[2]);
-  slots.push(provinceSlot, provinceSlot, provinceSlot);
-  indices.push(base, base + 1, base + 2);
-}
-
 function appendPolygon(
   positions: number[],
   slots: number[],
@@ -185,24 +155,55 @@ function appendPolygon(
   rings: readonly (readonly LonLat[])[],
   featureId: string
 ): void {
-  const projected = projectPolygon(rings);
-  if (projected.vertices3d.length < 3) return;
-  const area = projectedArea(projected.vertices2d, projected.holes);
-  if (area < MIN_PROJECTED_AREA) return;
-  const triangles = earcut(projected.vertices2d, projected.holes, 2);
-  const areaDeviation = deviation(projected.vertices2d, projected.holes, 2, triangles);
-  if (!Number.isFinite(areaDeviation) || areaDeviation > MAX_DEVIATION) {
-    if (area < MAX_SKIPPABLE_INVALID_AREA) return;
-    throw new Error(`Globe triangulation deviation ${areaDeviation} for ${featureId}.`);
-  }
-  for (let index = 0; index < triangles.length; index += 3) {
-    const a = projected.vertices3d[triangles[index] ?? -1];
-    const b = projected.vertices3d[triangles[index + 1] ?? -1];
-    const c = projected.vertices3d[triangles[index + 2] ?? -1];
-    if (a === undefined || b === undefined || c === undefined) {
-      throw new Error(`Globe triangulation emitted an invalid index for ${featureId}.`);
+  for (const polygon of splitPolygonAtDateline(rings)) {
+    const flattened = flattenPolygon(polygon);
+    if (flattened.vertices.length < 6) continue;
+    const area = polygonArea(flattened.vertices, flattened.holes);
+    if (area < MIN_AREA) continue;
+    const triangles = earcut(flattened.vertices, flattened.holes, 2);
+    const areaDeviation = deviation(flattened.vertices, flattened.holes, 2, triangles);
+    const invalid = !Number.isFinite(areaDeviation) || areaDeviation > MAX_DEVIATION;
+    if (invalid) {
+      // Degenerate islets (a few thousandths of a square degree) can be dropped.
+      // Larger polygons must throw so compile-maps can fall back to a finer LOD.
+      if (area < MAX_SKIPPABLE_INVALID_AREA) continue;
+      throw new Error(
+        `Planar triangulation deviation ${String(areaDeviation)} exceeds ${MAX_DEVIATION} for ${featureId}.`
+      );
     }
-    appendTriangle(positions, slots, indices, provinceSlot, a, b, c);
+    for (let index = 0; index < triangles.length; index += 3) {
+      const ia = triangles[index];
+      const ib = triangles[index + 1];
+      const ic = triangles[index + 2];
+      if (ia === undefined || ib === undefined || ic === undefined) {
+        throw new Error(`Planar triangulation emitted an invalid index for ${featureId}.`);
+      }
+      const ax = flattened.vertices[ia * 2]!;
+      const ay = flattened.vertices[ia * 2 + 1]!;
+      const bx = flattened.vertices[ib * 2]!;
+      const by = flattened.vertices[ib * 2 + 1]!;
+      const cx = flattened.vertices[ic * 2]!;
+      const cy = flattened.vertices[ic * 2 + 1]!;
+      const cross = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+      const ordered: readonly (readonly [number, number])[] =
+        cross >= 0
+          ? [
+              [ax, ay],
+              [bx, by],
+              [cx, cy]
+            ]
+          : [
+              [ax, ay],
+              [cx, cy],
+              [bx, by]
+            ];
+      const base = slots.length;
+      for (const [x, y] of ordered) {
+        positions.push(x, y, 0);
+        slots.push(provinceSlot);
+      }
+      indices.push(base, base + 1, base + 2);
+    }
   }
 }
 

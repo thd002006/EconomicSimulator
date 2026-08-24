@@ -1,6 +1,7 @@
 import {
-  lonLatToUnitVector,
-  unitVectorToLonLat,
+  lonLatToMapXY,
+  mapXYToLonLat,
+  wrapLongitude,
   type GeoJsonGeometry,
   type LonLat,
   type MapBoundary,
@@ -9,10 +10,16 @@ import {
   type ProvinceFeature
 } from "@economic-simulator/map-runtime";
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
+import {
+  INITIAL_HALF_HEIGHT,
+  INITIAL_LAT,
+  INITIAL_LON,
+  MAP_WRAP,
+  MapPanZoomController
+} from "./map-controls.js";
 
 const OCEAN = 0x0b1c2c;
 const COAST = 0x7eb6c9;
@@ -21,13 +28,12 @@ const COUNTRY_BORDER = 0xd7e6f2;
 const CAPITAL = 0xd7e8f5;
 const HOVER_FILL = new THREE.Color("#3a6f88");
 const SELECT_FILL = new THREE.Color("#4f8fad");
-const LAND_RADIUS = 1.006;
-const LINE_RADIUS = LAND_RADIUS + 0.00035;
-const CAPITAL_RADIUS = LAND_RADIUS + 0.0005;
-const ATMOSPHERE_RADIUS = 1.016;
-const INITIAL_CAMERA_DISTANCE = 3.6;
+const LAND_Z = 0.02;
+const LINE_Z = 0.04;
+const CAPITAL_Z = 0.05;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
-const PROVINCE_DETAIL_DISTANCE = 2.0;
+const PROVINCE_DETAIL_HALF_HEIGHT = 40;
+const TILE_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
 
 export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
@@ -35,8 +41,8 @@ export interface GlobeRuntimeModel extends MapViewModel {
   getProvinceOwner(provinceId: string): string | undefined;
 }
 
-export function showProvinceBorders(distance: number): boolean {
-  return distance <= PROVINCE_DETAIL_DISTANCE;
+export function showProvinceBorders(halfHeight: number): boolean {
+  return halfHeight <= PROVINCE_DETAIL_HALF_HEIGHT;
 }
 
 function countryFill(adm0A3: string | undefined): THREE.Color {
@@ -53,23 +59,69 @@ function countryFill(adm0A3: string | undefined): THREE.Color {
   );
 }
 
-function pushLineSegments(target: number[], coordinates: readonly LonLat[], radius: number): void {
+function clipSegmentToWorld(
+  lon0: number,
+  lat0: number,
+  lon1: number,
+  lat1: number
+): Array<readonly [number, number, number, number]> {
+  let x1 = lon1;
+  if (x1 - lon0 > 180) x1 -= 360;
+  if (lon0 - x1 > 180) x1 += 360;
+  const segments: Array<readonly [number, number, number, number]> = [];
+  const emitClipped = (a0: number, b0: number, a1: number, b1: number): void => {
+    let xStart = a0;
+    let yStart = b0;
+    let xEnd = a1;
+    let yEnd = b1;
+    if (xStart > 180 && xEnd > 180) return;
+    if (xStart < -180 && xEnd < -180) return;
+    if (xStart > 180 || xEnd > 180) {
+      const t = (180 - xStart) / (xEnd - xStart);
+      if (xStart > 180) {
+        yStart = yStart + t * (yEnd - yStart);
+        xStart = 180;
+      } else {
+        yEnd = yStart + t * (yEnd - yStart);
+        xEnd = 180;
+      }
+    }
+    if (xStart < -180 || xEnd < -180) {
+      const t = (-180 - xStart) / (xEnd - xStart);
+      if (xStart < -180) {
+        yStart = yStart + t * (yEnd - yStart);
+        xStart = -180;
+      } else {
+        yEnd = yStart + t * (yEnd - yStart);
+        xEnd = -180;
+      }
+    }
+    segments.push([xStart, yStart, xEnd, yEnd]);
+  };
+  emitClipped(lon0, lat0, x1, lat1);
+  return segments;
+}
+
+function pushLineSegments(target: number[], coordinates: readonly LonLat[], z: number): void {
   for (let index = 1; index < coordinates.length; index += 1) {
-    const previous = lonLatToUnitVector(
-      coordinates[index - 1]![0],
-      coordinates[index - 1]![1],
-      radius
-    );
-    const current = lonLatToUnitVector(coordinates[index]![0], coordinates[index]![1], radius);
-    target.push(...previous, ...current);
+    const previous = coordinates[index - 1]!;
+    const current = coordinates[index]!;
+    for (const [x0, y0, x1, y1] of clipSegmentToWorld(
+      previous[0],
+      previous[1],
+      current[0],
+      current[1]
+    )) {
+      target.push(x0, y0, z, x1, y1, z);
+    }
   }
 }
 
-function addGeometryLines(target: number[], geometry: GeoJsonGeometry, radius: number): void {
+function addGeometryLines(target: number[], geometry: GeoJsonGeometry, z: number): void {
   if (geometry.type === "LineString") {
-    pushLineSegments(target, geometry.coordinates, radius);
+    pushLineSegments(target, geometry.coordinates, z);
   } else if (geometry.type === "MultiLineString") {
-    for (const line of geometry.coordinates) pushLineSegments(target, line, radius);
+    for (const line of geometry.coordinates) pushLineSegments(target, line, z);
   }
 }
 
@@ -122,10 +174,8 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
     vertexShader: `
       attribute float provinceSlot;
       varying float vProvinceSlot;
-      varying vec3 vNormal;
       void main() {
         vProvinceSlot = provinceSlot;
-        vNormal = normalize(normalMatrix * normal);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
@@ -137,7 +187,6 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
       uniform vec3 hoverColor;
       uniform vec3 selectedColor;
       varying float vProvinceSlot;
-      varying vec3 vNormal;
       void main() {
         vec2 uv = vec2((vProvinceSlot + 0.5) / paletteSize, 0.5);
         vec3 color = texture2D(palette, uv).rgb;
@@ -146,8 +195,7 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
         } else if (abs(vProvinceSlot - hoveredSlot) < 0.25) {
           color = hoverColor;
         }
-        float light = 0.62 + 0.38 * max(dot(normalize(vNormal), normalize(vec3(-0.25, 0.4, 1.0))), 0.0);
-        gl_FragColor = vec4(color * light, 1.0);
+        gl_FragColor = vec4(color * 1.08, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }
@@ -158,7 +206,8 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
   });
 }
 
-function createAtmosphereMaterial(): THREE.ShaderMaterial {
+/** Kept for the unused globe path; the planar map does not attach this material. */
+export function createAtmosphereMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -191,23 +240,26 @@ function createAtmosphereMaterial(): THREE.ShaderMaterial {
 export class GlobeRenderer {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
-  private readonly camera = new THREE.PerspectiveCamera(40, 1, 0.01, 20);
-  private readonly controls: OrbitControls;
+  private readonly mapRoot = new THREE.Group();
+  private readonly tileTemplate = new THREE.Group();
+  private readonly camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
+  private readonly panZoom: MapPanZoomController;
   private readonly raycaster = new THREE.Raycaster();
-  private readonly pickSphere = new THREE.Sphere(new THREE.Vector3(), LAND_RADIUS);
+  private readonly pickPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  private readonly pickPoint = new THREE.Vector3();
   private readonly paletteBytes: Uint8Array;
   private readonly palette: THREE.DataTexture;
   private readonly material: THREE.ShaderMaterial;
-  private readonly landMeshes: THREE.Mesh[] = [];
+  private readonly landMesh: THREE.Mesh;
   private readonly slotByProvinceId = new Map<string, number>();
   private readonly capitalPoints: THREE.Points;
   private readonly ocean: THREE.Mesh;
-  private readonly atmosphere: THREE.Mesh;
   private coastLines: LineSegments2;
   private provinceLines: LineSegments2;
   private countryLines: LineSegments2;
   private provinceLineHasGeometry = false;
   private ownerLookup: (provinceId: string) => string | undefined;
+  private readonly lineResolution = new THREE.Vector2();
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -225,28 +277,22 @@ export class GlobeRenderer {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setClearColor(0x071018, 1);
 
-    const initial = lonLatToUnitVector(10, 20, INITIAL_CAMERA_DISTANCE);
-    this.camera.position.set(...initial);
-    this.camera.lookAt(0, 0, 0);
-    this.controls = new OrbitControls(this.camera, canvas);
-    this.controls.enablePan = false;
-    this.controls.enableDamping = false;
-    this.controls.minDistance = 1.15;
-    this.controls.maxDistance = 6;
-    this.controls.target.set(0, 0, 0);
-    this.controls.addEventListener("change", this.onControlsChange);
-
-    this.scene.add(new THREE.AmbientLight(0xffffff, 1.35));
-    const light = new THREE.DirectionalLight(0xbfe4ff, 1.25);
-    light.position.set(-2, 3, 4);
-    this.camera.add(light);
-    this.scene.add(this.camera);
-
-    this.ocean = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 128, 96),
-      new THREE.MeshPhongMaterial({ color: OCEAN, shininess: 18, specular: 0x31546b })
+    this.panZoom = new MapPanZoomController(
+      this.camera,
+      canvas,
+      INITIAL_LON,
+      INITIAL_LAT,
+      INITIAL_HALF_HEIGHT
     );
+
+    this.scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    this.ocean = new THREE.Mesh(
+      new THREE.PlaneGeometry(MAP_WRAP * 3, 180),
+      new THREE.MeshBasicMaterial({ color: OCEAN })
+    );
+    this.ocean.position.z = -0.05;
     this.scene.add(this.ocean);
+    this.scene.add(this.mapRoot);
 
     this.paletteBytes = new Uint8Array(model.globeMesh.provinceIds.length * 4);
     this.palette = new THREE.DataTexture(
@@ -264,51 +310,36 @@ export class GlobeRenderer {
     this.rebuildPalette();
 
     const authoredLod = model.globeMesh.lods.at(-1);
-    if (authoredLod === undefined) throw new Error("地球仪缺少原始精度网格。");
-    for (const lod of [authoredLod]) {
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position", new THREE.BufferAttribute(lod.positions, 3));
-      geometry.setAttribute("provinceSlot", new THREE.BufferAttribute(lod.provinceSlots, 1));
-      const normals = new Float32Array(lod.positions.length);
-      for (let index = 0; index < lod.positions.length; index += 3) {
-        const length = Math.hypot(
-          lod.positions[index]!,
-          lod.positions[index + 1]!,
-          lod.positions[index + 2]!
-        );
-        normals[index] = lod.positions[index]! / length;
-        normals[index + 1] = lod.positions[index + 1]! / length;
-        normals[index + 2] = lod.positions[index + 2]! / length;
-      }
-      geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
-      geometry.setIndex(new THREE.BufferAttribute(lod.indices, 1));
-      geometry.computeBoundingSphere();
-      const mesh = new THREE.Mesh(geometry, this.material);
-      mesh.visible = false;
-      this.landMeshes.push(mesh);
-      this.scene.add(mesh);
-    }
+    if (authoredLod === undefined) throw new Error("地图缺少原始精度网格。");
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(authoredLod.positions, 3));
+    geometry.setAttribute("provinceSlot", new THREE.BufferAttribute(authoredLod.provinceSlots, 1));
+    const normals = new Float32Array(authoredLod.positions.length);
+    for (let index = 2; index < normals.length; index += 3) normals[index] = 1;
+    geometry.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
+    geometry.setIndex(new THREE.BufferAttribute(authoredLod.indices, 1));
+    geometry.computeBoundingBox();
+    this.landMesh = new THREE.Mesh(geometry, this.material);
+    this.landMesh.position.z = LAND_Z;
+    this.tileTemplate.add(this.landMesh);
 
     const coastPositions: number[] = [];
     for (const feature of model.coastlines) {
-      addGeometryLines(coastPositions, feature.geometry, LINE_RADIUS);
+      addGeometryLines(coastPositions, feature.geometry, LINE_Z);
     }
     this.coastLines = makeWideLines(coastPositions, COAST, 0.9);
     this.provinceLines = makeWideLines([], PROVINCE_BORDER, 0.9, 0.55, 1);
     this.countryLines = makeWideLines([], COUNTRY_BORDER, 1.45, 1, 2);
-    this.scene.add(this.coastLines, this.provinceLines, this.countryLines);
+    this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
 
     const capitalPositions = new Float32Array(model.provinces.length * 3);
     for (const [index, feature] of model.provinces.entries()) {
-      capitalPositions.set(
-        lonLatToUnitVector(
-          feature.properties.capital.coordinates[0],
-          feature.properties.capital.coordinates[1],
-          CAPITAL_RADIUS
-        ),
-        index * 3
+      const [x, y] = lonLatToMapXY(
+        feature.properties.capital.coordinates[0],
+        feature.properties.capital.coordinates[1]
       );
+      capitalPositions.set([x, y, CAPITAL_Z], index * 3);
     }
     const capitalGeometry = new THREE.BufferGeometry();
     capitalGeometry.setAttribute("position", new THREE.BufferAttribute(capitalPositions, 3));
@@ -322,30 +353,35 @@ export class GlobeRenderer {
         depthWrite: false
       })
     );
-    this.scene.add(this.capitalPoints);
-
-    this.atmosphere = new THREE.Mesh(
-      new THREE.SphereGeometry(ATMOSPHERE_RADIUS, 96, 64),
-      createAtmosphereMaterial()
-    );
-    this.scene.add(this.atmosphere);
+    this.tileTemplate.add(this.capitalPoints);
+    this.refreshTiles();
     this.updateDetailVisibility();
     this.resize();
   }
 
-  private readonly onControlsChange = (): void => {
-    this.updateDetailVisibility();
-    this.requestRender();
-  };
+  private refreshTiles(): void {
+    this.mapRoot.clear();
+    for (const offset of TILE_OFFSETS) {
+      const tile = this.tileTemplate.clone(true);
+      tile.position.x = offset;
+      this.mapRoot.add(tile);
+    }
+  }
 
   private updateDetailVisibility(): void {
-    const distance = this.camera.position.length();
-    this.landMeshes.forEach((mesh, index) => {
-      mesh.visible = index === this.landMeshes.length - 1;
-    });
-    const showProvinces = this.provinceLineHasGeometry && showProvinceBorders(distance);
+    const showProvinces =
+      this.provinceLineHasGeometry && showProvinceBorders(this.panZoom.halfHeight);
     this.provinceLines.visible = showProvinces;
-    this.capitalPoints.visible = showProvinceBorders(distance);
+    this.capitalPoints.visible = showProvinceBorders(this.panZoom.halfHeight);
+    this.mapRoot.traverse((object) => {
+      if (object === this.provinceLines || object === this.capitalPoints) return;
+      if (object instanceof LineSegments2 && object.material === this.provinceLines.material) {
+        object.visible = showProvinces;
+      }
+      if (object instanceof THREE.Points && object.material === this.capitalPoints.material) {
+        object.visible = showProvinceBorders(this.panZoom.halfHeight);
+      }
+    });
   }
 
   private rebuildPalette(changedProvinceIds?: readonly string[]): void {
@@ -382,16 +418,30 @@ export class GlobeRenderer {
       pushLineSegments(
         isCountry ? countryPositions : provincePositions,
         boundary.coordinates,
-        LINE_RADIUS
+        LINE_Z
       );
     }
-    this.scene.remove(this.provinceLines, this.countryLines);
+    this.tileTemplate.remove(this.provinceLines, this.countryLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
     this.provinceLines = makeWideLines(provincePositions, PROVINCE_BORDER, 0.9, 0.55, 1);
     this.provinceLineHasGeometry = provincePositions.length > 0;
     this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, 1.45, 1, 2);
-    this.scene.add(this.provinceLines, this.countryLines);
+    this.applyLineResolutions();
+    this.tileTemplate.add(this.provinceLines, this.countryLines);
+    this.refreshTiles();
+  }
+
+  private applyLineResolutions(): void {
+    this.renderer.getDrawingBufferSize(this.lineResolution);
+    const width = Math.max(1, Math.floor(this.lineResolution.x));
+    const height = Math.max(1, Math.floor(this.lineResolution.y));
+    for (const lines of [this.coastLines, this.provinceLines, this.countryLines]) {
+      const material = lines.material;
+      if (!Array.isArray(material) && material instanceof LineMaterial) {
+        material.resolution.set(width, height);
+      }
+    }
   }
 
   updateOwners(
@@ -417,6 +467,33 @@ export class GlobeRenderer {
     this.requestRender();
   }
 
+  beginDrag(x: number, y: number): void {
+    this.panZoom.beginDrag(x, y);
+  }
+
+  drag(x: number, y: number): void {
+    if (this.panZoom.drag(x, y)) this.requestRender();
+  }
+
+  endDrag(): void {
+    this.panZoom.endDrag();
+  }
+
+  zoomAt(x: number, y: number, factor: number): void {
+    this.panZoom.zoomAt(x, y, factor);
+    this.updateDetailVisibility();
+    this.requestRender();
+  }
+
+  update(): boolean {
+    this.panZoom.applyView();
+    return this.panZoom.needsAnimation();
+  }
+
+  needsAnimation(): boolean {
+    return this.panZoom.needsAnimation();
+  }
+
   pick(x: number, y: number): ProvinceFeature | undefined {
     const width = Math.max(1, this.canvas.clientWidth);
     const height = Math.max(1, this.canvas.clientHeight);
@@ -424,10 +501,11 @@ export class GlobeRenderer {
       new THREE.Vector2((x / width) * 2 - 1, 1 - (y / height) * 2),
       this.camera
     );
-    const intersection = this.raycaster.ray.intersectSphere(this.pickSphere, new THREE.Vector3());
+    const intersection = this.raycaster.ray.intersectPlane(this.pickPlane, this.pickPoint);
     if (intersection === null) return undefined;
-    const [lon, lat] = unitVectorToLonLat([intersection.x, intersection.y, intersection.z]);
-    return this.model.hitTest(lon, lat);
+    if (intersection.y < -90 || intersection.y > 90) return undefined;
+    const [lon, lat] = mapXYToLonLat(intersection.x, intersection.y);
+    return this.model.hitTest(wrapLongitude(lon), lat);
   }
 
   resize(): void {
@@ -444,14 +522,8 @@ export class GlobeRenderer {
     }
     this.renderer.setPixelRatio(1);
     this.renderer.setSize(width, height, false);
-    this.camera.aspect = cssWidth / cssHeight;
-    this.camera.updateProjectionMatrix();
-    for (const lines of [this.coastLines, this.provinceLines, this.countryLines]) {
-      const material = lines.material;
-      if (!Array.isArray(material) && material instanceof LineMaterial) {
-        material.resolution.set(width, height);
-      }
-    }
+    this.panZoom.applyView();
+    this.applyLineResolutions();
     this.requestRender();
   }
 
@@ -460,9 +532,8 @@ export class GlobeRenderer {
   }
 
   dispose(): void {
-    this.controls.removeEventListener("change", this.onControlsChange);
-    this.controls.dispose();
-    for (const mesh of this.landMeshes) mesh.geometry.dispose();
+    this.mapRoot.clear();
+    this.landMesh.geometry.dispose();
     this.material.dispose();
     this.palette.dispose();
     disposeWideLines(this.coastLines);
@@ -472,8 +543,6 @@ export class GlobeRenderer {
     (this.capitalPoints.material as THREE.Material).dispose();
     this.ocean.geometry.dispose();
     (this.ocean.material as THREE.Material).dispose();
-    this.atmosphere.geometry.dispose();
-    (this.atmosphere.material as THREE.Material).dispose();
     this.renderer.dispose();
   }
 }

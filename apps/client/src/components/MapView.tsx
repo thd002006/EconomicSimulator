@@ -53,6 +53,8 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     undefined
   );
   const rafRef = useRef<number | undefined>(undefined);
+  const loopingRef = useRef(false);
+  const lastFrameTimeRef = useRef<number | undefined>(undefined);
   const ownersRef = useRef<Readonly<Record<string, string>> | undefined>(props.provinceOwners);
   const previousOwnersRef = useRef<Readonly<Record<string, string>> | undefined>(undefined);
   ownersRef.current = props.provinceOwners;
@@ -64,11 +66,54 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   const [contextEpoch, setContextEpoch] = useState(0);
 
   const scheduleDraw = (): void => {
-    if (rafRef.current !== undefined) return;
+    if (loopingRef.current || rafRef.current !== undefined) return;
     rafRef.current = window.requestAnimationFrame(() => {
       rafRef.current = undefined;
       globeRef.current?.render();
     });
+  };
+
+  const stopAnimationLoop = (): void => {
+    if (rafRef.current !== undefined) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = undefined;
+    }
+    loopingRef.current = false;
+    lastFrameTimeRef.current = undefined;
+  };
+
+  const startAnimationLoop = (): void => {
+    if (loopingRef.current) return;
+    if (rafRef.current !== undefined) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = undefined;
+    }
+    loopingRef.current = true;
+    lastFrameTimeRef.current = undefined;
+    const loop = (time: number): void => {
+      const globe = globeRef.current;
+      if (globe === undefined) {
+        rafRef.current = undefined;
+        loopingRef.current = false;
+        lastFrameTimeRef.current = undefined;
+        return;
+      }
+      const lastTime = lastFrameTimeRef.current ?? time;
+      lastFrameTimeRef.current = time;
+      // Planar map lines don't need a time step; advance view and let the controller decide.
+      // Keeping the clamp logic locally avoids changing the frame loop structure.
+      void Math.min((time - lastTime) / 1000, 0.05);
+      const animating = globe.update();
+      globe.render();
+      if (animating || dragRef.current !== undefined) {
+        rafRef.current = window.requestAnimationFrame(loop);
+      } else {
+        rafRef.current = undefined;
+        loopingRef.current = false;
+        lastFrameTimeRef.current = undefined;
+      }
+    };
+    rafRef.current = window.requestAnimationFrame(loop);
   };
 
   useEffect(() => {
@@ -110,7 +155,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
       .catch((error: unknown) => {
         if (cancelled) return;
         setLoadState("error");
-        setErrorMessage(error instanceof Error ? error.message : "3D 地球仪加载失败。");
+        setErrorMessage(error instanceof Error ? error.message : "平面地图加载失败。");
       });
 
     return () => {
@@ -153,8 +198,21 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   }, [loadState]);
 
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas === null || loadState !== "ready") return;
+    const onWheel = (event: WheelEvent): void => {
+      event.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const factor = Math.exp(event.deltaY * 0.0015);
+      globeRef.current?.zoomAt(event.clientX - rect.left, event.clientY - rect.top, factor);
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, [loadState]);
+
+  useEffect(() => {
     return () => {
-      if (rafRef.current !== undefined) window.cancelAnimationFrame(rafRef.current);
+      stopAnimationLoop();
     };
   }, []);
 
@@ -198,6 +256,9 @@ export function MapView(props: MapViewProps): React.JSX.Element {
       y: event.clientY,
       moved: false
     };
+    const [x, y] = localPointer(event);
+    globeRef.current?.beginDrag(x, y);
+    startAnimationLoop();
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>): void => {
@@ -208,6 +269,8 @@ export function MapView(props: MapViewProps): React.JSX.Element {
       if (Math.abs(event.clientX - drag.x) + Math.abs(event.clientY - drag.y) > 2) {
         drag.moved = true;
       }
+      const [x, y] = localPointer(event);
+      globe.drag(x, y);
       return;
     }
     const [x, y] = localPointer(event);
@@ -229,7 +292,9 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    globe.endDrag();
     dragRef.current = undefined;
+    startAnimationLoop();
     if (drag.moved) return;
     const [x, y] = localPointer(event);
     const feature = globe.pick(x, y);
@@ -251,7 +316,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   return (
     <section
       className={props.fill === true ? "map-panel map-panel-fill" : "map-panel"}
-      aria-label="3D 世界地球仪"
+      aria-label="世界平面地图"
     >
       {props.fill === true ? null : (
         <div className="map-toolbar">
@@ -284,7 +349,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           onPointerLeave={onPointerLeave}
           onContextMenu={(event) => event.preventDefault()}
         />
-        {loadState === "loading" ? <p className="map-overlay">正在加载 3D 世界地球仪…</p> : null}
+        {loadState === "loading" ? <p className="map-overlay">正在加载世界平面地图…</p> : null}
         {loadState === "error" ? (
           <p className="map-overlay map-overlay-error">{errorMessage}</p>
         ) : null}
@@ -295,7 +360,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           </div>
         ) : null}
       </div>
-      {props.fill === true ? null : <p className="map-hint">拖拽旋转 · 滚轮缩放 · 点击选择省份</p>}
+      {props.fill === true ? null : <p className="map-hint">拖拽平移 · 滚轮缩放 · 点击选择省份</p>}
     </section>
   );
 }

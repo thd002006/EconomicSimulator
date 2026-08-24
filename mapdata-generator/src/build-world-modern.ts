@@ -17,6 +17,7 @@ import {
   prop,
   validCode
 } from "./geo.js";
+import { applyManualOverrides, loadManualOverrides } from "./manual-overrides.js";
 import {
   dynamicMinimumProvinceAreaKm2,
   loadMergePolicy,
@@ -783,7 +784,16 @@ async function main(args: readonly string[]): Promise<void> {
   const sourceTopology = buildTopology("source", normalizedCollection(sourceProvinces));
   const sourceGeometries = topologyGeometries(sourceTopology, "source");
   const adjacency = buildAdjacency(sourceTopology, "source");
-  const groups = buildMergeGroups(sourceProvinces, adjacency, policy);
+  const autoGroups = buildMergeGroups(sourceProvinces, adjacency, policy);
+  const manualOverrides = await loadManualOverrides(
+    join(projectRoot, "config/world-modern-manual-groups.json")
+  );
+  const groups = applyManualOverrides(autoGroups, sourceProvinces, manualOverrides);
+  if (manualOverrides !== undefined && manualOverrides.manualGroups.length > 0) {
+    console.log(
+      `Manual overrides: ${manualOverrides.manualGroups.length} manual groups applied, ${autoGroups.length} -> ${groups.length} provinces.`
+    );
+  }
   const countryAreas = new Map<string, number>();
   for (const province of sourceProvinces) {
     countryAreas.set(

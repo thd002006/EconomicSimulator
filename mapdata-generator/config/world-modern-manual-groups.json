@@ -1,0 +1,1931 @@
+{
+  "manualGroups": [
+    {
+      "id": "EGY-SINAI",
+      "countryId": "EGY",
+      "members": ["EG-SIN", "EG-JS"],
+      "name": "Sinai",
+      "nameEn": "Sinai"
+    },
+    {
+      "id": "EGY-CANAL",
+      "countryId": "EGY",
+      "members": ["EG-SUZ", "EG-IS", "EG-PTS"],
+      "name": "Suez Canal",
+      "nameEn": "Suez Canal"
+    },
+    {
+      "id": "EGY-DELTA",
+      "countryId": "EGY",
+      "members": ["EG-DK", "EG-SHR", "EG-DT", "EG-KFS", "EG-BH", "EG-MNF", "EG-KB", "EG-GH"],
+      "name": "Nile Delta",
+      "nameEn": "Nile Delta"
+    },
+    {
+      "id": "EGY-CAIRO",
+      "countryId": "EGY",
+      "members": ["EG-C", "EG-GZ", "EG-FYM", "EG-BNS", "EG-MN"],
+      "name": "Greater Cairo & Middle Nile",
+      "nameEn": "Greater Cairo & Middle Nile"
+    },
+    {
+      "id": "EGY-UPPER",
+      "countryId": "EGY",
+      "members": ["EG-AST", "EG-SHG", "EG-KN", "EG-LX", "EG-ASN"],
+      "name": "Upper Nile",
+      "nameEn": "Upper Nile"
+    },
+    {
+      "id": "AZE-M008",
+      "countryId": "AZE",
+      "members": ["AZ-QAZ", "AZ-AGA", "AZ-TOV", "AZ-GAD", "AZ-SKR"],
+      "name": "Qazax–Ağstafa–Tovuz–Gədəbəy–Şəmkir",
+      "nameEn": "Qazax–Agstafa–Tovuz–Gadabay–Shamkir"
+    },
+    {
+      "id": "AZE-M009",
+      "countryId": "AZE",
+      "members": ["AZ-QBI", "AZ-ZAN", "AZ-CAB", "AZ-FUZ", "AZ-XVD"],
+      "name": "Qubadli–Zəngilan–Cəbrayıl–Füzuli–Xocavənd",
+      "nameEn": "Qubadli–Zangilan–Jabrayil–Fuzuli–Khojavend"
+    },
+    {
+      "id": "AZE-M010",
+      "countryId": "AZE",
+      "members": ["AZ-DAS", "AZ-SMX", "AZ-TAR", "AZ-GOR", "AZ-GYG", "AZ-GA", "AZ-NA"],
+      "name": "Daşkəsən–Samux–Tərtər–Goranboy–Xanlar–Gəncə–Naftalan",
+      "nameEn": "Dashkasan–Samukh–Tartar–Goranboy–Goygol–Ganja–Naftalan"
+    },
+    {
+      "id": "AZE-M011",
+      "countryId": "AZE",
+      "members": ["AZ-KAL", "AZ-LAN", "AZ-SUS", "AZ-XCI", "AZ-X01~", "AZ-AGM", "AZ-XA"],
+      "name": "Kəlbəcər–Lankaran–Şuşa–Xocalı–Şuşa–Ağdam–Stepanakert",
+      "nameEn": "Kalbajar–Lankaran–Susa–Khojali–Shusha–Agdam–Stepanakert"
+    },
+    {
+      "id": "AZE-M012",
+      "countryId": "AZE",
+      "members": ["AZ-BAL", "AZ-ZAQ", "AZ-SA", "AZ-QAX", "ne-1159317281"],
+      "name": "Balakən–Zaqatala–Şəki–Qax–Şəki",
+      "nameEn": "Balakan–Zaqatala–Sheki–Qakh–Shaki"
+    },
+    {
+      "id": "AZE-M013",
+      "countryId": "AZE",
+      "members": ["AZ-XIZ", "AZ-SM", "AZ-BA", "AZ-ABS", "AZ-QOB"],
+      "name": "Xizı–Sumqayıt–Bakı–Abşeron–Qobustan",
+      "nameEn": "Khizi–Sumqayit–Baku–Absheron–Gobustan"
+    },
+    {
+      "id": "AZE-M014",
+      "countryId": "AZE",
+      "members": ["AZ-OGU", "AZ-QAB", "AZ-AGU", "AZ-SMI", "AZ-ISM"],
+      "name": "Oğuz–Qəbələ–Ağsu–Şamaxı–İsmayıllı",
+      "nameEn": "Oghuz–Qabala–Agsu–Shamakhi–Ismayilli"
+    },
+    {
+      "id": "AZE-M015",
+      "countryId": "AZE",
+      "members": ["AZ-XAC", "AZ-QUS", "AZ-SBN", "AZ-SIY", "AZ-QBA"],
+      "name": "Xaçmaz–Qusar–Dəvəçi–Siyəzən–Quba",
+      "nameEn": "Khachmaz–Qusar–Shabran–Siyazan–Quba"
+    },
+    {
+      "id": "AZE-M016",
+      "countryId": "AZE",
+      "members": ["AZ-IMI", "AZ-BEY", "AZ-KUR"],
+      "name": "İmişli–Beyləqan–Kürdəmir",
+      "nameEn": "Imishli–Beylagan–Kurdamir"
+    },
+    {
+      "id": "AZE-M017",
+      "countryId": "AZE",
+      "members": ["AZ-CAL", "AZ-YAR", "AZ-LER", "AZ-AST", "AZ-LA", "AZ-MAS", "ne-1159317287"],
+      "name": "Cəlilabad–Yardımlı–Lerik–Astara–Lankaran–Masallı–Lankaran",
+      "nameEn": "Jalilabad–Yardimli–Lerik–Astara–Lankaran–Masally–Lankaran"
+    },
+    {
+      "id": "AZE-M018",
+      "countryId": "AZE",
+      "members": ["AZ-YEV", "AZ-MI", "AZ-AGS", "ne-1159316489"],
+      "name": "Yevlakh Rayon–Mingəçevir–Ağdaş–Yevlakh",
+      "nameEn": "Yevlakh–Mingachevir–Agdash–Yevlakh"
+    },
+    {
+      "id": "AZE-M019",
+      "countryId": "AZE",
+      "members": ["AZ-BIL", "AZ-SAL", "AZ-NEF", "AZ-HAC", "AZ-SAB", "AZ-SR", "AZ-SAT"],
+      "name": "Biləsuvar–Salyan–Neftçala–Hajigabul–Sabirabad–Shirvan–Saatlı",
+      "nameEn": "Bilasuvar–Salyan–Neftchala–Hajigabul–Sabirabad–Şirvan–Saatly"
+    },
+    {
+      "id": "AZE-M020",
+      "countryId": "AZE",
+      "members": ["AZ-ZAR", "AZ-BAR", "AZ-UCA", "AZ-GOY", "AZ-AGC"],
+      "name": "Zərdab–Bərdə–Ucar–Göyçay–Ağcabədi",
+      "nameEn": "Zardab–Barda–Ujar–Goychay–Aghjabadi"
+    },
+    {
+      "id": "BHS-M021",
+      "countryId": "BHS",
+      "members": ["BS-IN", "BS-MG", "BS-AK"],
+      "name": "Inagua–Mayaguana–Acklins",
+      "nameEn": "Inagua–Mayaguana–Acklins"
+    },
+    {
+      "id": "BHS-M022",
+      "countryId": "BHS",
+      "members": ["BS-BY", "BS-MI", "BS-FP", "BS-WG", "BS-EG", "BS-CO", "BS-SO", "BS-NO", "BS-BI"],
+      "name": "Berry Islands–Moore's Island–City of Freeport–West Grand Bahama–East Grand Bahama–Central Abaco–South Abaco–North Abaco–Bimini",
+      "nameEn": "Berry Islands–Moore's Island–Freeport–West Grand Bahama–East Grand Bahama–Central Abaco–South Abaco–North Abaco–Bimini"
+    },
+    {
+      "id": "BHS-M023",
+      "countryId": "BHS",
+      "members": ["BS-EX", "BS-RC", "BS-BP", "BS-SS", "BS-CI", "BS-CE", "BS-SE"],
+      "name": "Exuma–Rum Cay–Black Point–San Salvador–Cat Island–Central Eleuthera–South Eleuthera",
+      "nameEn": "Exuma–Rum Cay–Black Point–San Salvador Island–Cat Island–Central Eleuthera–South Eleuthera"
+    },
+    {
+      "id": "BHS-M024",
+      "countryId": "BHS",
+      "members": ["BS-CS", "BS-MC", "BS-SA", "BS-X01~", "BS-NS", "BS-NE", "BS-HI", "BS-SW"],
+      "name": "Central Andros–Mangrove Cay–South Andros–New Providence–North Andros–North Eleuthera–Harbour Island–Spanish Wells",
+      "nameEn": "Central Andros–Mangrove Cay–South Andros–New Providence–North Andros–North Eleuthera–Harbour Island–Spanish Wells"
+    },
+    {
+      "id": "BHS-M025",
+      "countryId": "BHS",
+      "members": ["BS-CK", "BS-LI", "BS-RI"],
+      "name": "Crooked Island and Long Cay–Long Island–Ragged Island",
+      "nameEn": "Crooked Island–Long Island–Ragged Island"
+    },
+    {
+      "id": "CPV-M026",
+      "countryId": "CPV",
+      "members": ["CV-BR", "CV-CF", "CV-MO", "CV-SF"],
+      "name": "Brava–Santa Catarina do Fogo–Mosteiros–São Filipe",
+      "nameEn": "Brava–Santa Catarina do Fogo–Mosteiros–São Filipe"
+    },
+    {
+      "id": "CPV-M027",
+      "countryId": "CPV",
+      "members": ["CV-BV", "CV-SL"],
+      "name": "Boa Vista–Sal",
+      "nameEn": "Boa Vista–Sal"
+    },
+    {
+      "id": "CPV-M028",
+      "countryId": "CPV",
+      "members": ["CV-RB", "CV-TS", "CV-SV", "CV-RG", "CV-PN", "CV-PA"],
+      "name": "Ribeira Brava–Tarrafal de São Nicolau–São Vicente–Ribeira Grande–Porto Novo–Paul",
+      "nameEn": "Ribeira Brava–Tarrafal de São Nicolau–São Vicente–Ribeira Grande–Porto Novo–Paul"
+    },
+    {
+      "id": "CPV-M029",
+      "countryId": "CPV",
+      "members": [
+        "CV-TA",
+        "CV-CA",
+        "CV-RS",
+        "CV-PR",
+        "CV-SD",
+        "CV-CR",
+        "CV-SM",
+        "CV-MA",
+        "CV-SS",
+        "CV-SO"
+      ],
+      "name": "Tarrafal–Santa Catarina–Ribeira Grande de Santiago–Praia–São Domingos–Santa Cruz–São Miguel–Maio–São Salvador do Mundo–São Lourenço dos Órgãos",
+      "nameEn": "Tarrafal–Santa Catarina–Ribeira Grande de Santiago–Praia–São Domingos–Santa Cruz–São Miguel–Maio–São Salvador do Mundo–São Lourenço dos Órgãos"
+    },
+    {
+      "id": "DOM-M030",
+      "countryId": "DOM",
+      "members": ["DO-15", "DO-05", "DO-18", "DO-27", "DO-26", "DO-25"],
+      "name": "Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago",
+      "nameEn": "Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago"
+    },
+    {
+      "id": "DOM-M031",
+      "countryId": "DOM",
+      "members": ["DO-11", "DO-08", "DO-30", "DO-23", "DO-12"],
+      "name": "La Altagracia–El Seybo–Hato Mayor–San Pedro de Macorís–La Romana",
+      "nameEn": "La Altagracia–El Seibo–Hato Mayor–San Pedro de Macorís–La Romana"
+    },
+    {
+      "id": "DOM-M032",
+      "countryId": "DOM",
+      "members": ["DO-20", "DO-14", "DO-09", "DO-13", "DO-19", "DO-29"],
+      "name": "Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas–Monte Plata",
+      "nameEn": "Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas Mirabal–Monte Plata"
+    },
+    {
+      "id": "DOM-M033",
+      "countryId": "DOM",
+      "members": ["DO-07", "DO-10"],
+      "name": "La Estrelleta–Independencia",
+      "nameEn": "La Estrelleta–Independencia"
+    },
+    {
+      "id": "ESP-M034",
+      "countryId": "ESP",
+      "members": ["ES-NA", "ES-SS", "ES-S", "ES-BI", "ES-LO", "ES-VI"],
+      "name": "Navarra–Gipuzkoa–Cantabria–Bizkaia–La Rioja–Álava",
+      "nameEn": "Navarre–Gipuzkoa–Cantabria–Biscay–La Rioja–Araba / Álava"
+    },
+    {
+      "id": "ESP-M035",
+      "countryId": "ESP",
+      "members": ["ES-OR", "ES-PO", "ES-C", "ES-LU", "ES-O"],
+      "name": "Orense–Pontevedra–La Coruña–Lugo–Asturias",
+      "nameEn": "Ourense–Pontevedra–A Coruña–Lugo–Asturias"
+    },
+    {
+      "id": "ESP-M036",
+      "countryId": "ESP",
+      "members": ["ES-HU", "ES-Z", "ES-TE"],
+      "name": "Huesca–Zaragoza–Teruel",
+      "nameEn": "Huesca–Zaragoza–Teruel"
+    },
+    {
+      "id": "FJI-M037",
+      "countryId": "FJI",
+      "members": ["FJ-E"],
+      "name": "Eastern",
+      "nameEn": "Eastern"
+    },
+    {
+      "id": "FJI-M038",
+      "countryId": "FJI",
+      "members": ["FJ-W", "FJ-C", "FJ-N", "FJ-R"],
+      "name": "Western–Central–Northern–Rotuma",
+      "nameEn": "Western–Central–Northern–Rotuma"
+    },
+    {
+      "id": "FRA-M039",
+      "countryId": "FRA",
+      "members": ["FR-64", "FR-40", "FR-33", "FR-47"],
+      "name": "Pyrénées-Atlantiques–Landes–Gironde–Lot-et-Garonne",
+      "nameEn": "Pyrenees-Atlantics–Landes–Gironde–Lot-et-Garonne"
+    },
+    {
+      "id": "FRA-M040",
+      "countryId": "FRA",
+      "members": ["FR-56", "FR-29", "FR-22", "FR-35"],
+      "name": "Morbihan–Finistère–Côtes-d'Armor–Ille-et-Vilaine",
+      "nameEn": "Morbihan–Finistère–Côtes-d'Armor–Ille-et-Vilaine"
+    },
+    {
+      "id": "FRA-M041",
+      "countryId": "FRA",
+      "members": ["FR-87", "FR-19", "FR-23", "FR-24", "FR-16"],
+      "name": "Haute-Vienne–Corrèze–Creuse–Dordogne–Charente",
+      "nameEn": "Haute-Vienne–Corrèze–Creuse–Dordogne–Charente"
+    },
+    {
+      "id": "FRA-M042",
+      "countryId": "FRA",
+      "members": ["FR-17", "FR-85", "FR-44", "FR-53", "FR-72", "FR-49", "FR-79", "FR-86"],
+      "name": "Charente-Maritime–Vendée–Loire-Atlantique–Mayenne–Sarthe–Maine-et-Loire–Deux-Sèvres–Vienne",
+      "nameEn": "Charente-Maritime–Vendée–Loire-Atlantique–Mayenne–Sarthe–Maine-et-Loire–Deux-Sèvres–Vienne"
+    },
+    {
+      "id": "FRA-M043",
+      "countryId": "FRA",
+      "members": ["FR-59", "FR-02", "FR-80", "FR-62"],
+      "name": "Nord–Aisne–Somme–Pas-de-Calais",
+      "nameEn": "Nord–Aisne–Somme–Pas-de-Calais"
+    },
+    {
+      "id": "FRA-M044",
+      "countryId": "FRA",
+      "members": ["FR-54", "FR-57", "FR-67", "FR-68", "FR-88"],
+      "name": "Meurthe-et-Moselle–Moselle–Bas-Rhin–Haute-Rhin–Vosges",
+      "nameEn": "Meurthe-et-Moselle–Moselle–Bas-Rhin–Haut-Rhin–Vosges"
+    },
+    {
+      "id": "FRA-M045",
+      "countryId": "FRA",
+      "members": ["FR-08", "FR-55", "FR-52", "FR-51", "FR-10"],
+      "name": "Ardennes–Meuse–Haute-Marne–Marne–Aube",
+      "nameEn": "Ardennes–Meuse–Haute-Marne–Marne–Aube"
+    },
+    {
+      "id": "FRA-M046",
+      "countryId": "FRA",
+      "members": ["FR-75", "FR-92", "FR-93", "FR-95", "FR-78", "FR-60", "FR-91", "FR-77", "FR-94"],
+      "name": "Paris–Hauts-de-Seine–Seine-Saint-Denis–Val-d'Oise–Yvelines–Oise–Essonne–Seien-et-Marne–Val-de-Marne",
+      "nameEn": "Paris–Hauts-de-Seine–Seine-Saint-Denis–Val-d'Oise–Yvelines–Oise–Essonne–Seine-et-Marne–Val-de-Marne"
+    },
+    {
+      "id": "HKG-M081",
+      "countryId": "HKG",
+      "members": ["HK-X16~", "HK-X17~", "HK-X15~"],
+      "name": "North–Tai Po–Yuen Long",
+      "nameEn": "North District–Tai Po–Yuen Long"
+    },
+    {
+      "id": "HKG-M082",
+      "countryId": "HKG",
+      "members": ["HK-X18~", "HK-X14~"],
+      "name": "Islands–Tuen Mun",
+      "nameEn": "Lantau Island–Tuen Mun"
+    },
+    {
+      "id": "HKG-M083",
+      "countryId": "HKG",
+      "members": [
+        "HK-X13~",
+        "HK-X11~",
+        "HK-X10~",
+        "HK-X09~",
+        "HK-X06~",
+        "HK-X05~",
+        "HK-X07~",
+        "HK-X12~",
+        "HK-X08~"
+      ],
+      "name": "Tsuen Wan–Sha Tin–Sai Kung–Kwun Tong–Kowloon City–Yau Tsim Mong–Sham Shui Po–Kwai Tsing–Wong Tai Sin",
+      "nameEn": "Tsuen Wan–Sha Tin–Sai Kung–Kwun Tong–Kowloon City–Yau Tsim Mong–Sham Shui Po–Kwai Tsing–Wong Tai Sin District"
+    },
+    {
+      "id": "IDN-M086",
+      "countryId": "IDN",
+      "members": ["ID-MA"],
+      "name": "Maluku",
+      "nameEn": "Maluku"
+    },
+    {
+      "id": "IDN-M087",
+      "countryId": "IDN",
+      "members": ["ID-MU", "ID-GO", "ID-SA"],
+      "name": "Maluku Utara–Gorontalo–Sulawesi Utara",
+      "nameEn": "North Maluku–Gorontalo–North Sulawesi"
+    },
+    {
+      "id": "IDN-M088",
+      "countryId": "IDN",
+      "members": ["ID-SN", "ID-SG", "ID-ST", "ID-SR"],
+      "name": "Sulawesi Selatan–Sulawesi Tenggara–Sulawesi Tengah–Sulawesi Barat",
+      "nameEn": "South Sulawesi–Southeast Sulawesi–Central Sulawesi–West Sulawesi"
+    },
+    {
+      "id": "IDN-M089",
+      "countryId": "IDN",
+      "members": ["ID-JI", "ID-NB", "ID-JT", "ID-YO", "ID-BA"],
+      "name": "Jawa Timur–Nusa Tenggara Barat–Jawa Tengah–Yogyakarta–Bali",
+      "nameEn": "East Java–West Nusa Tenggara–Central Java–Yogyakarta–Bali"
+    },
+    {
+      "id": "IDN-M090",
+      "countryId": "IDN",
+      "members": ["ID-KR"],
+      "name": "Kepulauan Riau",
+      "nameEn": "Riau Islands"
+    },
+    {
+      "id": "IDN-M091",
+      "countryId": "IDN",
+      "members": ["ID-JB", "ID-JK", "ID-BT", "ID-BB"],
+      "name": "Jawa Barat–Jakarta Raya–Banten–Bangka-Belitung",
+      "nameEn": "West Java–Jakarta–Banten–Bangka Belitung Islands"
+    },
+    {
+      "id": "IRL-M092",
+      "countryId": "IRL",
+      "members": ["IE-WX", "IE-KK", "IE-WD", "IE-CW", "ne-1159317303", "ne-1159317301"],
+      "name": "Wexford–Kilkenny–Waterford–Carlow–South Tipperary–Waterford",
+      "nameEn": "Wexford–Kilkenny–Waterford–Carlow–Tipperary–Waterford"
+    },
+    {
+      "id": "IRL-M093",
+      "countryId": "IRL",
+      "members": ["IE-G", "ne-1159317293", "IE-MO"],
+      "name": "Galway–Galway–Mayo",
+      "nameEn": "Galway–Galway–Mayo"
+    },
+    {
+      "id": "IRL-M094",
+      "countryId": "IRL",
+      "members": ["IE-LS", "IE-OY", "IE-WH", "IE-LD", "IE-RN"],
+      "name": "Laoighis–Offaly–Westmeath–Longford–Roscommon",
+      "nameEn": "Laois–Offaly–Westmeath–Longford–Roscommon"
+    },
+    {
+      "id": "IRL-M095",
+      "countryId": "IRL",
+      "members": ["IE-DL"],
+      "name": "Donegal",
+      "nameEn": "Donegal"
+    },
+    {
+      "id": "IRL-M096",
+      "countryId": "IRL",
+      "members": [
+        "IE-D",
+        "ne-1159317309",
+        "IE-WW",
+        "IE-MH",
+        "ne-1159317305",
+        "IE-KE",
+        "ne-1159311003"
+      ],
+      "name": "Dublin–Dún Laoghaire–Rathdown–Wicklow–Meath–Fingal–Kildare–South Dublin",
+      "nameEn": "Dublin–Dún Laoghaire–Rathdown–Wicklow–Meath–Fingal–Kildare–South Dublin"
+    },
+    {
+      "id": "IRL-M097",
+      "countryId": "IRL",
+      "members": ["IE-LM", "IE-CN", "IE-MN", "IE-LH", "IE-SO"],
+      "name": "Leitrim–Cavan–Monaghan–Louth–Sligo",
+      "nameEn": "Leitrim–Cavan–Monaghan–Louth–Sligo"
+    },
+    {
+      "id": "ITA-M098",
+      "countryId": "ITA",
+      "members": ["IT-AO", "IT-VB", "IT-VA", "IT-TO", "IT-VC", "IT-NO", "IT-BI"],
+      "name": "Aoste–Verbano-Cusio-Ossola–Varese–Turin–Vercelli–Novara–Biella",
+      "nameEn": "Aosta–Verbano-Cusio-Ossola–Varese–Turin–Vercelli–Novara–Biella"
+    },
+    {
+      "id": "ITA-M099",
+      "countryId": "ITA",
+      "members": ["IT-BZ", "IT-TN"],
+      "name": "Bozen–Trento",
+      "nameEn": "Trentino-South Tyrol–Trentino"
+    },
+    {
+      "id": "ITA-M100",
+      "countryId": "ITA",
+      "members": ["IT-SP", "IT-GE", "IT-AL"],
+      "name": "La Spezia–Genova–Alessandria",
+      "nameEn": "La Spezia–Liguria–Alessandria"
+    },
+    {
+      "id": "ITA-M101",
+      "countryId": "ITA",
+      "members": [
+        "IT-CO",
+        "IT-SO",
+        "IT-BG",
+        "IT-BS",
+        "IT-CR",
+        "IT-MN",
+        "IT-MI",
+        "IT-LC",
+        "IT-MB",
+        "IT-LO",
+        "IT-PV"
+      ],
+      "name": "Como–Sondrio–Bergamo–Brescia–Cremona–Mantova–Milano–Lecco–Monza e Brianza–Lodi–Pavia",
+      "nameEn": "Como–Sondrio–Bergamo–Brescia–Cremona–Mantua–Milan–Lecco–Monza and Brianza–Lodi–Pavia"
+    },
+    {
+      "id": "ITA-M102",
+      "countryId": "ITA",
+      "members": ["IT-IM", "IT-CN", "IT-SV", "IT-AT"],
+      "name": "Imperia–Cuneo–Savona–Asti",
+      "nameEn": "Imperia–Cuneo–Savona–Asti"
+    },
+    {
+      "id": "ITA-M103",
+      "countryId": "ITA",
+      "members": ["IT-RN", "IT-RO", "IT-FE", "IT-RA", "IT-FC", "IT-BO"],
+      "name": "Rimini–Rovigo–Ferrara–Ravenna–Forlì-Cesena–Bologna",
+      "nameEn": "Rimini–Rovigo–Ferrara–Ravenna–Forlì-Cesena–Bologna"
+    },
+    {
+      "id": "ITA-M104",
+      "countryId": "ITA",
+      "members": ["IT-BL", "IT-VE", "IT-PD", "IT-VI", "IT-VR", "IT-TV"],
+      "name": "Belluno–Venezia–Padova–Vicenza–Verona–Treviso",
+      "nameEn": "Belluno–Venice–Padua–Vicenza–Verona–Treviso"
+    },
+    {
+      "id": "ITA-M105",
+      "countryId": "ITA",
+      "members": ["IT-PC", "IT-PR", "IT-RE", "IT-MO"],
+      "name": "Piacenza–Parma–Reggio Emilia–Modena",
+      "nameEn": "Piacenza–Parma–Reggio Emilia–Modena"
+    },
+    {
+      "id": "ITA-M106",
+      "countryId": "ITA",
+      "members": ["IT-UD", "IT-GO", "IT-TS", "IT-PN"],
+      "name": "Udine–Gorizia–Trieste–Pordenone",
+      "nameEn": "Udine–Gorizia–Trieste–Pordenone"
+    },
+    {
+      "id": "ITA-M107",
+      "countryId": "ITA",
+      "members": ["IT-PU", "IT-AN", "IT-MC", "IT-FM", "IT-AP", "IT-TR", "IT-PG"],
+      "name": "Pesaro e Urbino–Ancona–Macerata–Fermo–Ascoli Piceno–Terni–Perugia",
+      "nameEn": "Pesaro and Urbino–Ancona–Macerata–Fermo–Ascoli Piceno–Terni–Perugia"
+    },
+    {
+      "id": "ITA-M108",
+      "countryId": "ITA",
+      "members": ["IT-SA", "IT-NA", "IT-CE", "IT-BN", "IT-AV"],
+      "name": "Salerno–Napoli–Caserta–Benevento–Avellino",
+      "nameEn": "Salerno–Naples–Caserta–Benevento–Avellino"
+    },
+    {
+      "id": "ITA-M109",
+      "countryId": "ITA",
+      "members": ["IT-PI", "IT-LU", "IT-MS", "IT-FI", "IT-PT", "IT-PO"],
+      "name": "Pisa–Lucca–Massa-Carrara–Firenze–Pistoia–Prato",
+      "nameEn": "Pisa–Lucca–Massa-Carrara–Florence–Pistoia–Prato"
+    },
+    {
+      "id": "ITA-M110",
+      "countryId": "ITA",
+      "members": ["IT-LT", "IT-RM", "IT-RI", "IT-FR"],
+      "name": "Latina–Roma–Rieti–Frosinone",
+      "nameEn": "Latina–Rome–Rieti–Frosinone"
+    },
+    {
+      "id": "ITA-M111",
+      "countryId": "ITA",
+      "members": ["IT-VT", "IT-GR", "IT-LI", "IT-SI", "IT-AR"],
+      "name": "Viterbo–Grosseto–Livorno–Siena–Arezzo",
+      "nameEn": "Viterbo–Grosseto–Livorno–Siena–Arezzo"
+    },
+    {
+      "id": "JPN-M112",
+      "countryId": "JPN",
+      "members": ["JP-46", "JP-44", "JP-40", "JP-41", "JP-42", "JP-43", "JP-45"],
+      "name": "Kagoshima–Ōita–Fukuoka–Saga–Nagasaki–Kumamoto–Miyazaki",
+      "nameEn": "Kagoshima Prefecture–Ōita Prefecture–Fukuoka Prefecture–Saga Prefecture–Nagasaki Prefecture–Kumamoto Prefecture–Miyazaki Prefecture"
+    },
+    {
+      "id": "JPN-M113",
+      "countryId": "JPN",
+      "members": ["JP-47"],
+      "name": "Okinawa",
+      "nameEn": "Okinawa Prefecture"
+    },
+    {
+      "id": "JPN-M114",
+      "countryId": "JPN",
+      "members": ["JP-36", "JP-37", "JP-38", "JP-39"],
+      "name": "Tokushima–Kagawa–Ehime–Kōchi",
+      "nameEn": "Tokushima Prefecture–Kagawa Prefecture–Ehime Prefecture–Kōchi Prefecture"
+    },
+    {
+      "id": "JPN-M115",
+      "countryId": "JPN",
+      "members": ["JP-26", "JP-18", "JP-17", "JP-16", "JP-23", "JP-24", "JP-21", "JP-25"],
+      "name": "Kyōto–Fukui–Ishikawa–Toyama–Aichi–Mie–Gifu–Shiga",
+      "nameEn": "Kyōto Prefecture–Fukui Prefecture–Ishikawa Prefecture–Toyama Prefecture–Aichi Prefecture–Mie Prefecture–Gifu Prefecture–Shiga Prefecture"
+    },
+    {
+      "id": "JPN-M116",
+      "countryId": "JPN",
+      "members": ["JP-14", "JP-22"],
+      "name": "Kanagawa–Shizuoka",
+      "nameEn": "Kanagawa Prefecture–Shizuoka Prefecture"
+    },
+    {
+      "id": "KOR-M117",
+      "countryId": "KOR",
+      "members": ["KR-45", "KR-46", "KR-29"],
+      "name": "North Jeolla–South Jeolla–Gwangju",
+      "nameEn": "North Jeolla–South Jeolla–Gwangju"
+    },
+    {
+      "id": "KOR-M118",
+      "countryId": "KOR",
+      "members": ["KR-48", "KR-26"],
+      "name": "South Gyeongsang–Busan",
+      "nameEn": "South Gyeongsang–Busan"
+    },
+    {
+      "id": "KOR-M119",
+      "countryId": "KOR",
+      "members": ["KR-30", "KR-50", "KR-43"],
+      "name": "Daejeon–Sejong–North Chungcheong",
+      "nameEn": "Daejeon–Sejong–North Chungcheong"
+    },
+    {
+      "id": "MDV-M146",
+      "countryId": "MDV",
+      "members": ["MV-01", "MV-29", "MV-28", "MV-27"],
+      "name": "Addu–Gnaviyani–Gaafu Dhaalu–Gaafu Alifu",
+      "nameEn": "Addu Atoll–Gnaviyani Atoll–Gaafu Dhaalu Atoll–Gaafu Alif Atoll"
+    },
+    {
+      "id": "MDV-M147",
+      "countryId": "MDV",
+      "members": ["MV-13", "MV-24", "MV-25", "MV-23", "MV-07"],
+      "name": "Raa–Shaviyani–Noonu–Haa Dhaalu–Haa Alifu",
+      "nameEn": "Raa Atoll–Shaviyani Atoll–Noonu Atoll–Haa Dhaalu Atoll–Haa Alif Atoll"
+    },
+    {
+      "id": "MDV-M148",
+      "countryId": "MDV",
+      "members": ["MV-05", "MV-08", "MV-17", "MV-12", "MV-14", "MV-04"],
+      "name": "Laamu–Thaa–Dhaalu–Meemu–Faafu–Vaavu",
+      "nameEn": "Laamu Atoll–Thaa Atoll–Dhaalu Atoll–Meemu Atoll–Faafu Atoll–Vaavu Atoll"
+    },
+    {
+      "id": "MDV-M149",
+      "countryId": "MDV",
+      "members": ["MV-00", "MV-26", "MV-02", "MV-20", "MV-03", "ne-1159316681"],
+      "name": "Alifu Dhaalu–Kaafu–Alifu Alifu–Baa–Lhaviyani–Malé",
+      "nameEn": "Alif Dhaal Atoll–Kaafu Atoll–Alif Alif Atoll–Baa Atoll–Lhaviyani Atoll–Malé"
+    },
+    {
+      "id": "MLT-M158",
+      "countryId": "MLT",
+      "members": [
+        "MT-21",
+        "MT-60",
+        "MT-28",
+        "MT-27",
+        "MT-64",
+        "MT-63",
+        "MT-26",
+        "MT-67",
+        "MT-08",
+        "MT-59",
+        "MT-39",
+        "MT-09",
+        "MT-20",
+        "MT-06",
+        "MT-03"
+      ],
+      "name": "Kalkara–Valletta–Marsaxlokk–Marsaskala–Żabbar–Xgħajra–Marsa–Żejtun–Fgura–Tarxien–Paola–Floriana–Isla–Cospicua–Birgu",
+      "nameEn": "Kalkara–Valletta–Marsaxlokk–Marsaskala–Żabbar–Xgħajra–Marsa–Żejtun–Fgura–Tarxien–Paola–Floriana–Senglea–Cospicua–Birgu"
+    },
+    {
+      "id": "MLT-M159",
+      "countryId": "MLT",
+      "members": ["MT-50", "MT-22", "MT-65", "MT-16", "MT-14"],
+      "name": "San Lawrenz–Kerċem–Żebbuġ–Għasri–Għarb",
+      "nameEn": "Saint Lawrence–Kerċem–Żebbuġ–Għasri–Għarb"
+    },
+    {
+      "id": "MLT-M160",
+      "countryId": "MLT",
+      "members": ["MT-51", "MT-30", "MT-31"],
+      "name": "San Pawl il-Bahar–Mellieħa–Mġarr",
+      "nameEn": "St. Paul's Bay–Mellieħa–Mġarr"
+    },
+    {
+      "id": "MLT-M161",
+      "countryId": "MLT",
+      "members": ["MT-46", "MT-07", "MT-55", "MT-32", "MT-01", "MT-35", "MT-29", "MT-66"],
+      "name": "Rabat–Dingli–Siġġiewi–Mosta–Attard–Mtarfa–Mdina–Żebbuġ",
+      "nameEn": "Rabat–Dingli–Siġġiewi–Mosta–Attard–Mtarfa–Mdina–Żebbuġ Gozo"
+    },
+    {
+      "id": "MLT-M162",
+      "countryId": "MLT",
+      "members": ["MT-13", "MT-42", "MT-37"],
+      "name": "Għajnsielem–Qala–Nadur",
+      "nameEn": "Għajnsielem–Qala–Nadur"
+    },
+    {
+      "id": "MLT-M163",
+      "countryId": "MLT",
+      "members": [
+        "MT-44",
+        "MT-68",
+        "MT-05",
+        "MT-25",
+        "MT-33",
+        "MT-23",
+        "MT-47",
+        "MT-17",
+        "MT-53",
+        "MT-11"
+      ],
+      "name": "Qrendi–Żurrieq–Birżebbuġa–Luqa–Mqabba–Kirkop–Safi–Għaxaq–Santa Luċija–Gudja",
+      "nameEn": "Qrendi–Żurrieq–Birżebbuġa–Luqa–Mqabba–Kirkop–Safi–Għaxaq–Santa Luċija–Gudja"
+    },
+    {
+      "id": "MLT-M164",
+      "countryId": "MLT",
+      "members": [
+        "MT-56",
+        "MT-48",
+        "MT-40",
+        "MT-38",
+        "MT-24",
+        "MT-43",
+        "MT-57",
+        "MT-15",
+        "MT-49",
+        "MT-19",
+        "MT-04",
+        "MT-02",
+        "MT-54",
+        "MT-18",
+        "MT-12",
+        "MT-58",
+        "MT-41",
+        "MT-34"
+      ],
+      "name": "Sliema–San Giljan–Pembroke–Naxxar–Lija–Qormi–Swieqi–Għargħur–San Ġwann–Iklin–Birkirkara–Balzan–Santa Venera–Ħamrun–Gżira–Ta' Xbiex–Pietà–Msida",
+      "nameEn": "Sliema–St. Julian's–Pembroke–Naxxar–Lija–Qormi–Swieqi–Għargħur–San Ġwann–Iklin–Birkirkara–Balzan–Santa Venera–Ħamrun–Gżira–Ta' Xbiex–Pietà–Msida"
+    },
+    {
+      "id": "MLT-M165",
+      "countryId": "MLT",
+      "members": ["MT-36", "MT-52", "MT-61", "MT-45", "MT-10", "MT-62"],
+      "name": "Munxar–Sannat–Xagħra–Victoria–Fontana, Gozo–Xewkija",
+      "nameEn": "Munxar–Sannat–Xagħra–Victoria–Fontana–Xewkija"
+    },
+    {
+      "id": "NOR-M170",
+      "countryId": "NOR",
+      "members": ["NO-17", "NO-16"],
+      "name": "Nord-Trøndelag–Sør-Trøndelag",
+      "nameEn": "Nord-Trøndelag–Sør-Trøndelag"
+    },
+    {
+      "id": "NOR-M171",
+      "countryId": "NOR",
+      "members": ["NO-04", "NO-02", "NO-01"],
+      "name": "Hedmark–Akershus–Østfold",
+      "nameEn": "Hedmark–Akershus–Østfold"
+    },
+    {
+      "id": "NOR-M172",
+      "countryId": "NOR",
+      "members": ["NO-03", "NO-06"],
+      "name": "Oslo–Buskerud",
+      "nameEn": "Oslo–Buskerud"
+    },
+    {
+      "id": "NOR-M173",
+      "countryId": "NOR",
+      "members": ["NO-14", "NO-15", "NO-05"],
+      "name": "Sogn og Fjordane–Møre og Romsdal–Oppland",
+      "nameEn": "Sogn og Fjordane–Møre og Romsdal–Oppland"
+    },
+    {
+      "id": "NOR-M174",
+      "countryId": "NOR",
+      "members": ["NO-07", "NO-08"],
+      "name": "Vestfold–Telemark",
+      "nameEn": "Vestfold–Telemark"
+    },
+    {
+      "id": "NOR-M175",
+      "countryId": "NOR",
+      "members": ["NO-09", "NO-10", "NO-11", "NO-12"],
+      "name": "Aust-Agder–Vest-Agder–Rogaland–Hordaland",
+      "nameEn": "Aust-Agder–Vest-Agder–Rogaland–Hordaland"
+    },
+    {
+      "id": "PHL-M176",
+      "countryId": "PHL",
+      "members": ["PH-SLU", "PH-TAW", "PH-BAS"],
+      "name": "Sulu–Tawi-Tawi–Basilan",
+      "nameEn": "Sulu–Tawi-Tawi–Basilan"
+    },
+    {
+      "id": "PHL-M177",
+      "countryId": "PHL",
+      "members": ["PH-ROM", "PH-MAS", "PH-MAD", "PH-CAT"],
+      "name": "Romblon–Masbate–Marinduque–Catanduanes",
+      "nameEn": "Romblon–Masbate–Marinduque–Catanduanes"
+    },
+    {
+      "id": "PHL-M178",
+      "countryId": "PHL",
+      "members": ["PH-PLW", "ne-1159317221"],
+      "name": "Palawan–Puerto Princesa",
+      "nameEn": "Palawan–Puerto Princesa"
+    },
+    {
+      "id": "PHL-M179",
+      "countryId": "PHL",
+      "members": [
+        "PH-SLE",
+        "PH-LEY",
+        "PH-BIL",
+        "PH-CAM",
+        "PH-SIG",
+        "PH-BOH",
+        "PH-GUI",
+        "PH-CEB",
+        "PH-MDE",
+        "ne-1159313431",
+        "ne-1159317227",
+        "ne-1159317223",
+        "PH-LAP"
+      ],
+      "name": "Southern Leyte–Leyte–Biliran–Camiguin–Siquijor–Bohol–Guimaras–Cebu–Mandaue–Cebu–Tacloban–Ormoc–Lapu-Lapu",
+      "nameEn": "Southern Leyte–Leyte–Biliran–Camiguin–Siquijor–Bohol–Guimaras–Cebu–Mandaue–Cebu–Tacloban–Ormoc–Lapu-Lapu"
+    },
+    {
+      "id": "PHL-M180",
+      "countryId": "PHL",
+      "members": ["PH-AUR", "PH-PAN", "ne-1159317277", "PH-LUN", "PH-NUE"],
+      "name": "Aurora–Pangasinan–Dagupan–La Union–Nueva Ecija",
+      "nameEn": "Aurora–Pangasinan–Dagupan–La Union–Nueva Ecija"
+    },
+    {
+      "id": "PHL-M181",
+      "countryId": "PHL",
+      "members": ["PH-ALB", "PH-SOR"],
+      "name": "Albay–Sorsogon",
+      "nameEn": "Albay–Sorsogon"
+    },
+    {
+      "id": "PHL-M182",
+      "countryId": "PHL",
+      "members": ["PH-ILS", "PH-ILN"],
+      "name": "Ilocos Sur–Ilocos Norte",
+      "nameEn": "Ilocos Sur–Ilocos Norte"
+    },
+    {
+      "id": "PHL-M183",
+      "countryId": "PHL",
+      "members": [
+        "ne-1159317271",
+        "PH-BTG",
+        "PH-CAV",
+        "PH-MNL",
+        "ne-1159317255",
+        "ne-1159317253",
+        "ne-1159317231",
+        "ne-1159317233",
+        "PH-BUL",
+        "ne-1159317259",
+        "ne-1159317235",
+        "ne-1159317237",
+        "ne-1159317239",
+        "ne-1159317241",
+        "PH-LAG",
+        "PH-RIZ",
+        "ne-1159317263",
+        "ne-1159317245",
+        "ne-1159317249",
+        "ne-1159317251",
+        "ne-1159317265",
+        "ne-1159311695",
+        "ne-1159317247"
+      ],
+      "name": "Lucena–Batangas–Cavite–Las Pinas–Paranaque–Pasay–Manila–Navotas–Bulacan–Muntinlupa–Caloocan–Malabon–Valenzuela–Quezon City–Laguna–Rizal–Taguig–Marikina–Pasig–Makati–Pateros–Mandaluyong City–San Juan",
+      "nameEn": "Lucena–Batangas–Cavite–Las Pinas–Parañaque–Pasay–Metro Manila–Navotas–Bulacan–Muntinlupa–Caloocan–Malabon–Valenzuela City–Quezon City–Laguna–Rizal–Taguig City–Marikina–Pasig–Makati–Pateros–Mandaluyong–San Juan"
+    },
+    {
+      "id": "PHL-M184",
+      "countryId": "PHL",
+      "members": ["PH-QUE", "PH-CAN", "PH-CAS", "ne-1159317229"],
+      "name": "Quezon–Camarines Norte–Camarines Sur–Naga",
+      "nameEn": "Quezon–Camarines Norte–Camarines Sur–Naga"
+    },
+    {
+      "id": "PHL-M185",
+      "countryId": "PHL",
+      "members": ["PH-PAM", "PH-BAN", "PH-ZMB", "ne-1159313503", "PH-TAR", "ne-1159317267"],
+      "name": "Pampanga–Bataan–Olongapo–Zambales–Tarlac–Angeles",
+      "nameEn": "Pampanga–Bataan–Olongapo–Zambales–Tarlac–Angeles"
+    },
+    {
+      "id": "PHL-M186",
+      "countryId": "PHL",
+      "members": ["PH-EAS", "PH-WSA", "PH-NSA"],
+      "name": "Eastern Samar–Samar–Northern Samar",
+      "nameEn": "Eastern Samar–Samar–Northern Samar"
+    },
+    {
+      "id": "PHL-M187",
+      "countryId": "PHL",
+      "members": ["PH-AKL", "PH-ANT", "PH-MDR", "PH-MDC"],
+      "name": "Aklan–Antique–Mindoro Oriental–Mindoro Occidental",
+      "nameEn": "Aklan–Antique–Oriental Mindoro–Occidental Mindoro"
+    },
+    {
+      "id": "PHL-M188",
+      "countryId": "PHL",
+      "members": ["PH-BCD", "PH-NEC", "PH-NER", "PH-ILI", "ne-1159317203", "PH-CAP"],
+      "name": "Bacolod–Negros Occidental–Negros Oriental–Iloilo–Iloilo–Capiz",
+      "nameEn": "Bacolod–Negros Occidental–Negros Oriental–Iloilo–Iloilo–Capiz"
+    },
+    {
+      "id": "PHL-M189",
+      "countryId": "PHL",
+      "members": ["PH-DAV", "ne-1159317211", "PH-COM", "PH-DAO", "PH-BUK", "ne-1159313393"],
+      "name": "Davao del Norte–Davao–Compostela Valley–Davao Oriental–Bukidnon–Cotabato",
+      "nameEn": "Davao del Norte–Davao–Davao de Oro–Davao Oriental–Bukidnon–Cotabato"
+    },
+    {
+      "id": "PHL-M190",
+      "countryId": "PHL",
+      "members": ["ne-1159316095"],
+      "name": "Zamboanga",
+      "nameEn": "Zamboanga Peninsula"
+    },
+    {
+      "id": "PHL-M191",
+      "countryId": "PHL",
+      "members": ["PH-SUN", "PH-SUR", "PH-AGN", "ne-1159317219", "PH-MSR", "PH-AGS"],
+      "name": "Surigao del Norte–Surigao del Sur–Agusan del Norte–Butuan–Misamis Oriental–Agusan del Sur",
+      "nameEn": "Dinagat Islands–Surigao del Sur–Agusan del Norte–Butuan–Misamis Oriental–Agusan del Sur"
+    },
+    {
+      "id": "PHL-M192",
+      "countryId": "PHL",
+      "members": [
+        "PH-ZSI",
+        "ne-1159317217",
+        "PH-LAN",
+        "ne-1159313385",
+        "PH-ZAS",
+        "PH-MSC",
+        "PH-ZAN",
+        "PH-LAS"
+      ],
+      "name": "Zamboanga Sibugay–Cagayan de Oro–Iligan–Lanao del Norte–Zamboanga del Sur–Misamis Occidental–Zamboanga del Norte–Lanao del Sur",
+      "nameEn": "Zamboanga Sibugay–Cagayan de Oro–Iligan–Lanao del Norte–Zamboanga del Sur–Misamis Occidental–Zamboanga del Norte–Lanao del Sur"
+    },
+    {
+      "id": "PHL-M193",
+      "countryId": "PHL",
+      "members": ["PH-MAG", "PH-NCO", "PH-SUK", "PH-SAR", "PH-SCO", "PH-DAS", "ne-1159313415"],
+      "name": "Maguindanao–Cotabato–Sultan Kudarat–Sarangani–General Santos–Davao del Sur–South Cotabato",
+      "nameEn": "Maguindanao–Cotabato–Sultan Kudarat–Sarangani–General Santos–Davao del Sur–South Cotabato"
+    },
+    {
+      "id": "PLW-M194",
+      "countryId": "PLW",
+      "members": ["PW-350", "PW-150", "PW-010"],
+      "name": "Peleliu–Koror–Angaur",
+      "nameEn": "Peleliu–Koror–Angaur"
+    },
+    {
+      "id": "PLW-M195",
+      "countryId": "PLW",
+      "members": ["PW-050"],
+      "name": "Hatobohei",
+      "nameEn": "Hatohobei"
+    },
+    {
+      "id": "PLW-M196",
+      "countryId": "PLW",
+      "members": ["PW-370"],
+      "name": "Sonsorol",
+      "nameEn": "Sonsorol"
+    },
+    {
+      "id": "PLW-M197",
+      "countryId": "PLW",
+      "members": [
+        "PW-227",
+        "PW-224",
+        "PW-002",
+        "PW-004",
+        "PW-226",
+        "PW-212",
+        "PW-228",
+        "PW-214",
+        "PW-218",
+        "PW-222",
+        "PW-100"
+      ],
+      "name": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel",
+      "nameEn": "Ngeremlengui–Ngatpang–Aimeliik–Airai–Ngchesar–Melekeok–Ngiwal–Ngaraard–Ngarchelong–Ngardmau–Kayangel"
+    },
+    {
+      "id": "PNG-M198",
+      "countryId": "PNG",
+      "members": ["PG-NSB", "PG-EBR"],
+      "name": "North Solomons–East New Britain",
+      "nameEn": "of Bougainville–East New Britain"
+    },
+    {
+      "id": "PNG-M199",
+      "countryId": "PNG",
+      "members": ["PG-WBK", "PG-NIK", "PG-MRL"],
+      "name": "West New Britain–New Ireland–Manus",
+      "nameEn": "West New Britain–New Ireland–Manus"
+    },
+    {
+      "id": "PYF-M200",
+      "countryId": "PYF",
+      "members": ["PF-X03~", "PF-X05~"],
+      "name": "Tuamotu-Gambier–Marquesas Islands",
+      "nameEn": "Tuamotu Archipelago–Marquesas Islands"
+    },
+    {
+      "id": "PYF-M201",
+      "countryId": "PYF",
+      "members": ["PF-X01~", "PF-X02~", "PF-X04~"],
+      "name": "Windward Islands–Leeward Islands–Austral Islands",
+      "nameEn": "Windward Islands–Leeward Islands–Austral Islands"
+    },
+    {
+      "id": "SLB-M202",
+      "countryId": "SLB",
+      "members": ["SB-RB", "SB-MK", "SB-CT", "SB-GU", "SB-CE", "ne-1159314981"],
+      "name": "Rennell and Bellona–Makira–Capital Territory (Honiara)–Guadalcanal–Central–Choiseul",
+      "nameEn": "Rennell and Bellona–Makira-Ulawa–Honiara–Guadalcanal–Central–Choiseul"
+    },
+    {
+      "id": "SLB-M203",
+      "countryId": "SLB",
+      "members": ["SB-TE"],
+      "name": "Temotu",
+      "nameEn": "Temotu"
+    },
+    {
+      "id": "SYC-M212",
+      "countryId": "SYC",
+      "members": ["SC-X02~"],
+      "name": "Outer Islands",
+      "nameEn": "Coralline Seychelles"
+    },
+    {
+      "id": "SYC-M213",
+      "countryId": "SYC",
+      "members": ["SC-15", "SC-07", "SC-14"],
+      "name": "La Digue and Inner Islands–Baie Sainte Anne–Grand'Anse Praslin",
+      "nameEn": "La Digue–Baie Sainte Anne–Grand'Anse Praslin"
+    },
+    {
+      "id": "SYC-M214",
+      "countryId": "SYC",
+      "members": ["SC-06", "SC-23", "SC-05"],
+      "name": "Baie Lazare–Takamaka–Anse Royale",
+      "nameEn": "Baie Lazare–Takamaka–Anse Royale"
+    },
+    {
+      "id": "SYC-M215",
+      "countryId": "SYC",
+      "members": [
+        "SC-18",
+        "SC-09",
+        "SC-16",
+        "SC-03",
+        "SC-12",
+        "SC-08",
+        "SC-10",
+        "SC-21",
+        "SC-17",
+        "SC-22"
+      ],
+      "name": "Mont Fleuri–Bel Air–English River–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis",
+      "nameEn": "Mont Fleuri–Bel Air–La Rivière Anglaise–Anse Etoile–Glacis–Beau Vallon–Bel Ombre–Port Glaud–Mont Buxton–Saint Louis"
+    },
+    {
+      "id": "SYC-M216",
+      "countryId": "SYC",
+      "members": ["SC-13", "SC-02", "SC-04", "SC-01", "SC-20", "SC-11", "SC-25", "SC-19", "SC-24"],
+      "name": "Grand'Anse–Anse Boileau–Au Cap–Anse aux Pins–Pointe La Rue–Cascade–Roche Caïman–Plaisance–Les Mamelles",
+      "nameEn": "Grand'Anse Praslin–Anse Boileau–Au Cap–Anse-aux-Pins–Pointe La Rue–Cascade–Roche Caiman–Plaisance–Les Mamelles"
+    },
+    {
+      "id": "TCA-M217",
+      "countryId": "TCA",
+      "members": ["TC-X03~", "TC-X01~", "TC-X02~"],
+      "name": "Providenciales and West Caicos–Middle Caicos–North Caicos",
+      "nameEn": "Providenciales and West Caicos–Middle Caicos–North Caicos"
+    },
+    {
+      "id": "TCA-M218",
+      "countryId": "TCA",
+      "members": ["TC-X04~", "TC-X05~", "TC-X06~"],
+      "name": "South Caicos and East Caicos–Grand Turk–Salt Cay",
+      "nameEn": "South Caicos and East Caicos–Grand Turk–Salt Cay"
+    },
+    {
+      "id": "THA-M219",
+      "countryId": "THA",
+      "members": ["TH-32", "TH-33", "TH-34", "TH-31", "TH-30", "TH-44"],
+      "name": "Surin–Si Sa Ket–Ubon Ratchathani–Buri Ram–Nakhon Ratchasima–Maha Sarakham",
+      "nameEn": "Surin–Si Sa Ket–Ubon Ratchathani–Buri Ram–Nakhon Ratchasima–Maha Sarakham"
+    },
+    {
+      "id": "THA-M220",
+      "countryId": "THA",
+      "members": ["TH-38", "TH-43", "TH-47", "TH-41"],
+      "name": "Bueng Kan–Nong Khai–Sakon Nakhon–Udon Thani",
+      "nameEn": "Bueng Kan–Nong Khai–Sakon Nakhon–Udon Thani"
+    },
+    {
+      "id": "THA-M221",
+      "countryId": "THA",
+      "members": ["TH-42", "TH-40", "TH-39", "TH-36"],
+      "name": "Loei–Khon Kaen–Nong Bua Lam Phu–Chaiyaphum",
+      "nameEn": "Loei–Khon Kaen–Nong Bua Lam Phu–Chaiyaphum"
+    },
+    {
+      "id": "THA-M222",
+      "countryId": "THA",
+      "members": ["TH-48", "TH-49", "TH-37", "TH-46", "TH-45", "TH-35"],
+      "name": "Nakhon Phanom–Mukdahan–Amnat Charoen–Kalasin–Roi Et–Yasothon",
+      "nameEn": "Nakhon Phanom–Mukdahan–Amnat Charoen–Kalasin–Roi Et–Yasothon"
+    },
+    {
+      "id": "THA-M223",
+      "countryId": "THA",
+      "members": ["TH-91", "TH-90", "TH-95", "TH-96", "TH-92", "TH-94", "TH-93"],
+      "name": "Satun–Songkhla–Yala–Narathiwat–Trang–Pattani–Phatthalung",
+      "nameEn": "Satun–Songkhla–Yala–Narathiwat–Trang–Pattani–Phatthalung"
+    },
+    {
+      "id": "THA-M224",
+      "countryId": "THA",
+      "members": ["TH-63"],
+      "name": "Tak",
+      "nameEn": "Tak"
+    },
+    {
+      "id": "THA-M225",
+      "countryId": "THA",
+      "members": ["TH-71", "TH-77", "TH-76", "TH-70"],
+      "name": "Kanchanaburi–Prachuap Khiri Khan–Phetchaburi–Ratchaburi",
+      "nameEn": "Kanchanaburi–Prachuap Khiri Khan–Phetchaburi–Ratchaburi"
+    },
+    {
+      "id": "THA-M226",
+      "countryId": "THA",
+      "members": ["TH-86", "TH-85", "TH-82", "TH-81", "TH-80", "TH-84"],
+      "name": "Chumphon–Ranong–Phangnga–Krabi–Nakhon Si Thammarat–Surat Thani",
+      "nameEn": "Chumphon–Ranong–Phang Nga–Krabi–Nakhon Si Thammarat–Surat Thani"
+    },
+    {
+      "id": "THA-M227",
+      "countryId": "THA",
+      "members": ["TH-27", "TH-23", "TH-22", "TH-24", "TH-20", "TH-21", "TH-25"],
+      "name": "Sa Kaeo–Trat–Chanthaburi–Chachoengsao–Chon Buri–Rayong–Prachin Buri",
+      "nameEn": "Sa Kaeo–Trat–Chanthaburi–Chachoengsao–Chon Buri–Rayong–Prachin Buri"
+    },
+    {
+      "id": "THA-M228",
+      "countryId": "THA",
+      "members": ["TH-65", "TH-62", "TH-64"],
+      "name": "Phitsanulok–Kamphaeng Phet–Sukhothai",
+      "nameEn": "Phitsanulok–Kamphaeng Phet–Sukhothai"
+    },
+    {
+      "id": "THA-M229",
+      "countryId": "THA",
+      "members": [
+        "TH-75",
+        "TH-74",
+        "TH-10",
+        "TH-11",
+        "TH-19",
+        "TH-26",
+        "TH-13",
+        "TH-14",
+        "TH-12",
+        "TH-73"
+      ],
+      "name": "Samut Songkhram–Samut Sakhon–Bangkok Metropolis–Samut Prakan–Saraburi–Nakhon Nayok–Pathum Thani–Phra Nakhon Si Ayutthaya–Nonthaburi–Nakhon Pathom",
+      "nameEn": "Samut Songkhram–Samut Sakhon–Bangkok–Samut Prakan–Saraburi–Nakhon Nayok–Pathum Thani–Phra Nakhon Si Ayutthaya–Nonthaburi–Nakhon Pathom"
+    },
+    {
+      "id": "THA-M230",
+      "countryId": "THA",
+      "members": ["TH-72", "TH-17", "TH-18", "TH-15", "TH-61"],
+      "name": "Suphan Buri–Sing Buri–Chai Nat–Ang Thong–Uthai Thani",
+      "nameEn": "Suphan Buri–Sing Buri–Chai Nat–Ang Thong–Uthai Thani"
+    },
+    {
+      "id": "THA-M231",
+      "countryId": "THA",
+      "members": ["TH-16", "TH-60", "TH-67", "TH-66"],
+      "name": "Lop Buri–Nakhon Sawan–Phetchabun–Phichit",
+      "nameEn": "Lopburi–Nakhon Sawan–Phetchabun–Phichit"
+    },
+    {
+      "id": "TUR-M232",
+      "countryId": "TUR",
+      "members": ["TR-39", "TR-22", "TR-59", "TR-17", "TR-10"],
+      "name": "Kirklareli–Edirne–Tekirdag–Çanakkale–Balikesir",
+      "nameEn": "Kırklareli–Edirne–Tekirdağ–Çanakkale–Balıkesir"
+    },
+    {
+      "id": "TUR-M233",
+      "countryId": "TUR",
+      "members": ["TR-35", "TR-09", "TR-45"],
+      "name": "Izmir–Aydin–Manisa",
+      "nameEn": "İzmir–Aydın–Manisa"
+    },
+    {
+      "id": "TUR-M234",
+      "countryId": "TUR",
+      "members": ["TR-34", "TR-54", "TR-41", "TR-77", "TR-16", "TR-11", "TR-43"],
+      "name": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya",
+      "nameEn": "Istanbul–Sakarya–Kocaeli–Yalova–Bursa–Bilecik–Kütahya"
+    },
+    {
+      "id": "TWN-M235",
+      "countryId": "TWN",
+      "members": [
+        "TW-TAO",
+        "TW-HSQ",
+        "TW-HSZ",
+        "TW-MIA",
+        "TW-TXG",
+        "TW-ILA",
+        "TW-TPQ",
+        "TW-KEE",
+        "TW-TPE"
+      ],
+      "name": "Taoyuan–Hsinchu–Hsinchu City–Miaoli–Taichung City–Yilan–New Taipei City–Keelung City–Taipei City",
+      "nameEn": "Taoyuan–Hsinchu–Hsinchu–Miaoli–Taichung City–Yilan–New Taipei–Keelung–Taipei"
+    },
+    {
+      "id": "TWN-M236",
+      "countryId": "TWN",
+      "members": ["TW-PIF", "TW-TTT"],
+      "name": "Pingtung–Taitung",
+      "nameEn": "Pingtung–Taitung"
+    },
+    {
+      "id": "TWN-M237",
+      "countryId": "TWN",
+      "members": ["TW-KIN"],
+      "name": "Kinmen",
+      "nameEn": "Kinmen"
+    },
+    {
+      "id": "TWN-M238",
+      "countryId": "TWN",
+      "members": [
+        "TW-CHA",
+        "TW-YUN",
+        "TW-CYQ",
+        "TW-TNN",
+        "TW-KHH",
+        "TW-HUA",
+        "TW-PEN",
+        "TW-NAN",
+        "TW-CYI"
+      ],
+      "name": "Changhua–Yunlin–Chiayi–Tainan City–Kaohsiung City–Hualien–Penghu–Nantou–Chiayi City",
+      "nameEn": "Changhua–Yunlin–Chiayi–Tainan–Kaohsiung–Hualien–Penghu–Nantou–Chiayi"
+    },
+    {
+      "id": "UGA-M239",
+      "countryId": "UGA",
+      "members": ["UG-214", "UG-230", "UG-229", "UG-204", "UG-203", "UG-201"],
+      "name": "Mayuge–Namayingo–Luuka–Jinja–Iganga–Bugiri",
+      "nameEn": "Mayuge–Namayingo–Luuka–Jinja–Iganga–Bugiri"
+    },
+    {
+      "id": "UGA-M240",
+      "countryId": "UGA",
+      "members": ["UG-216", "UG-207", "UG-211"],
+      "name": "Amuria–Katakwi–Soroti",
+      "nameEn": "Amuria–Katakwi–Soroti"
+    },
+    {
+      "id": "UGA-M241",
+      "countryId": "UGA",
+      "members": ["UG-206", "UG-218", "UG-223", "UG-228", "UG-225", "UG-215"],
+      "name": "Kapchorwa–Bukwa–Bududa–Kween–Bulambuli–Sironko",
+      "nameEn": "Kapchorwa–Bukwo–Bududa–Kween–Bulambuli–Sironko"
+    },
+    {
+      "id": "UGA-M242",
+      "countryId": "UGA",
+      "members": ["UG-205", "UG-226", "UG-213", "UG-220", "UG-232"],
+      "name": "Kamuli–Buyende–Kaberamaido–Kaliro–Serere",
+      "nameEn": "Kamuli–Buyende–Kaberamaido–Kaliro–Serere"
+    },
+    {
+      "id": "UGA-M243",
+      "countryId": "UGA",
+      "members": ["UG-210", "UG-217", "UG-208", "UG-231", "UG-224"],
+      "name": "Pallisa–Budaka–Kumi–Ngora–Bukedea",
+      "nameEn": "Pallisa–Budaka–Kumi–Ngora–Bukedea"
+    },
+    {
+      "id": "UGA-M244",
+      "countryId": "UGA",
+      "members": ["UG-202", "UG-212", "UG-221", "UG-209", "UG-219", "UG-227", "UG-222"],
+      "name": "Busia–Tororo–Manafwa–Mbale–Butaleja–Kibuku–Namutumba",
+      "nameEn": "Busia–Tororo–Manafwa–Mbale–Butaleja–Kibuku–Namutumba"
+    },
+    {
+      "id": "UGA-M245",
+      "countryId": "UGA",
+      "members": ["UG-411", "UG-404", "UG-408", "UG-412", "UG-414", "UG-425", "UG-422", "UG-402"],
+      "name": "Ntungamo–Kabale–Kisoro–Rukungiri–Kanungu–Sheema–Mitooma–Bushenyi",
+      "nameEn": "Ntungamo–Kabale–Kisoro–Rukungiri–Kanungu–Sheema–Mitooma–Bushenyi"
+    },
+    {
+      "id": "UGA-M246",
+      "countryId": "UGA",
+      "members": ["UG-419", "UG-409", "UG-420"],
+      "name": "Buliisa–Masindi–Kiryandongo",
+      "nameEn": "Buliisa–Masindi–Kiryandongo"
+    },
+    {
+      "id": "UGA-M247",
+      "countryId": "UGA",
+      "members": ["UG-403", "UG-423", "UG-401", "UG-405", "UG-415", "UG-421", "UG-407"],
+      "name": "Hoima–Ntoroko–Bundibugyo–Kabarole–Kyenjojo–Kyegegwa–Kibale",
+      "nameEn": "Hoima–Ntoroko–Bundibugyo–Kabarole–Kyenjojo–Kyegegwa–Kibaale"
+    },
+    {
+      "id": "UGA-M248",
+      "countryId": "UGA",
+      "members": ["UG-406", "UG-424"],
+      "name": "Kasese–Rubirizi",
+      "nameEn": "Kasese–Rubirizi"
+    },
+    {
+      "id": "UGA-M249",
+      "countryId": "UGA",
+      "members": ["UG-417", "UG-413", "UG-416", "UG-410", "ne-1159315077", "UG-325"],
+      "name": "Isingiro–Kamwenge–Ibanda–Mbarara–Mbarara–Buhweju",
+      "nameEn": "Isingiro–Kamwenge–Ibanda–Mbarara–Mbarara–Buhweju"
+    },
+    {
+      "id": "UGA-M250",
+      "countryId": "UGA",
+      "members": ["UG-110", "UG-101", "UG-111", "UG-124", "UG-118", "UG-122", "UG-116", "UG-105"],
+      "name": "Rakai–Kalangala–Sembabule–Lwengo–Bukomansimbi–Kalungu–Lyantonde–Masaka",
+      "nameEn": "Rakai–Kalangala–Sembabule–Lwengo–Bukomansimbi–Kalungu–Lyantonde–Masaka"
+    },
+    {
+      "id": "UGA-M251",
+      "countryId": "UGA",
+      "members": ["UG-109", "UG-112", "UG-104", "UG-115"],
+      "name": "Nakasongola–Kayunga–Luweero–Nakaseke",
+      "nameEn": "Nakasongola–Kayunga–Luwero–Nakaseke"
+    },
+    {
+      "id": "UGA-M252",
+      "countryId": "UGA",
+      "members": ["UG-113", "UG-102", "UG-108", "UG-117"],
+      "name": "Wakiso–Kampala–Mukono–Buikwe",
+      "nameEn": "Wakiso–Kampala–Mukono–Buikwe"
+    },
+    {
+      "id": "UGA-M253",
+      "countryId": "UGA",
+      "members": ["UG-114", "UG-103", "UG-106", "UG-119", "UG-121", "UG-123", "UG-107"],
+      "name": "Mityana–Kiboga–Mpigi–Butambala–Gomba–Kyankwanzi–Mubende",
+      "nameEn": "Mityana–Kiboga–Mpigi–Butambala–Gomba–Kyankwanzi–Mubende"
+    },
+    {
+      "id": "UGA-M254",
+      "countryId": "UGA",
+      "members": ["UG-315", "UG-305", "UG-322", "UG-306", "UG-317"],
+      "name": "Kaabong–Kitgum–Agago–Kotido–Abim",
+      "nameEn": "Kaabong–Kitgum–Agago–Kotido–Abim"
+    },
+    {
+      "id": "UGA-M255",
+      "countryId": "UGA",
+      "members": ["UG-313", "UG-316", "UG-320", "UG-303", "UG-331", "UG-310"],
+      "name": "Yumbe–Koboko–Maracha–Arua–Zombo–Nebbi",
+      "nameEn": "Yumbe–Koboko–Maracha–Arua–Zombo–Nebbi"
+    },
+    {
+      "id": "UGA-M256",
+      "countryId": "UGA",
+      "members": ["UG-308", "UG-324", "UG-311", "UG-328"],
+      "name": "Moroto–Amudat–Nakapiripirit–Napak",
+      "nameEn": "Moroto–Amudat–Nakapiripirit–Napak"
+    },
+    {
+      "id": "UGA-M257",
+      "countryId": "UGA",
+      "members": [
+        "UG-302",
+        "UG-314",
+        "UG-318",
+        "UG-321",
+        "UG-307",
+        "UG-326",
+        "UG-312",
+        "UG-330",
+        "UG-323"
+      ],
+      "name": "Apac–Amolatar–Dokolo–Oyam–Lira–Kole–Pader–Otuke–Alebtong",
+      "nameEn": "Apac–Amolatar–Dokolo–Oyam–Lira–Kole–Pader–Otuke–Alebtong"
+    },
+    {
+      "id": "UGA-M258",
+      "countryId": "UGA",
+      "members": ["UG-327", "UG-319", "UG-301", "UG-309", "UG-304", "UG-329"],
+      "name": "Lamwo–Amuru–Adjumani–Moyo–Gulu–Nwoya",
+      "nameEn": "Lamwo–Amuru–Adjumani–Moyo–Gulu–Nwoya"
+    },
+    {
+      "id": "VNM-M259",
+      "countryId": "VNM",
+      "members": ["VN-58", "VN-37"],
+      "name": "Bình Phước–Tây Ninh",
+      "nameEn": "Bình Phước–Tây Ninh"
+    },
+    {
+      "id": "VNM-M260",
+      "countryId": "VNM",
+      "members": ["VN-47", "VN-52", "VN-59", "VN-55", "VN-73"],
+      "name": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hau Giang",
+      "nameEn": "Kiên Giang–Sóc Trăng–Cà Mau–Bạc Liêu–Hậu Giang"
+    },
+    {
+      "id": "VNM-M261",
+      "countryId": "VNM",
+      "members": ["VN-41", "VN-45", "VN-44", "VN-46", "VN-49", "VN-51", "VN-50", "VN-CT"],
+      "name": "Long An–Ðong Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Can Tho",
+      "nameEn": "Long An–Đồng Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Cần Thơ"
+    },
+    {
+      "id": "VNM-M262",
+      "countryId": "VNM",
+      "members": ["VN-21", "VN-22", "VN-13", "VN-18", "VN-67", "VN-20", "VN-HP", "VN-61"],
+      "name": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Hải Phòng–Hải Dương",
+      "nameEn": "Thanh Hóa–Nghệ An–Quảng Ninh–Ninh Bình–Nam Định–Thái Bình–Haiphong–Hải Dương"
+    },
+    {
+      "id": "VNM-M263",
+      "countryId": "VNM",
+      "members": ["VN-23", "VN-24"],
+      "name": "Ha Tinh–Quảng Bình",
+      "nameEn": "Hà Tĩnh–Quảng Bình"
+    },
+    {
+      "id": "VUT-M264",
+      "countryId": "VUT",
+      "members": ["VU-TAE"],
+      "name": "Tafea",
+      "nameEn": "Tafea"
+    },
+    {
+      "id": "VUT-M265",
+      "countryId": "VUT",
+      "members": ["VU-SEE", "VU-MAP", "VU-SAM", "VU-PAM", "VU-TOB"],
+      "name": "Shefa–Malampa–Sanma–Penama–Torba",
+      "nameEn": "Shefa–Malampa–Sanma–Penama–Torba"
+    },
+    {
+      "id": "BMU-M266",
+      "countryId": "BMU",
+      "members": ["BM-HAM", "BM-SMI", "BM-SGE", "BM-SG"],
+      "name": "Hamilton–Smith's–Saint George's–City of Saint George",
+      "nameEn": "Hamilton–Smith's Parish–Saint George–St. George"
+    },
+    {
+      "id": "BMU-M267",
+      "countryId": "BMU",
+      "members": ["BM-SOU", "BM-SAN"],
+      "name": "Southampton–Sandys",
+      "nameEn": "Southampton–Sandys Parish"
+    },
+    {
+      "id": "BMU-M268",
+      "countryId": "BMU",
+      "members": ["BM-DEV", "BM-PEM", "BM-HA", "BM-PAG", "BM-WAR"],
+      "name": "Devonshire–Pembroke–City of Hamilton–Paget–Warwick",
+      "nameEn": "Devonshire–Pembroke Parish–Hamilton–Paget Parish–Warwick"
+    },
+    {
+      "id": "CHE-M269",
+      "countryId": "CHE",
+      "members": ["CH-VS", "CH-GE", "CH-VD"],
+      "name": "Valais–Genève–Vaud",
+      "nameEn": "Valais–Geneva–Vaud"
+    },
+    {
+      "id": "CHE-M270",
+      "countryId": "CHE",
+      "members": ["CH-TI", "CH-GR", "CH-TG", "CH-SG", "CH-GL", "CH-AR", "CH-AI"],
+      "name": "Ticino–Graubünden–Thurgau–Sankt Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden",
+      "nameEn": "Ticino–Grisons–Thurgau–St. Gallen–Glarus–Appenzell Ausserrhoden–Appenzell Innerrhoden"
+    },
+    {
+      "id": "LKA-M271",
+      "countryId": "LKA",
+      "members": ["LK-45", "LK-41", "LK-42", "LK-43", "LK-71", "LK-44"],
+      "name": "Mulativ–Yāpanaya–Kilinŏchchi–Mannārama–Anurādhapura–Vavuniyāva",
+      "nameEn": "Mullaitivu–Jaffna–Kilinochchi–Mannar–Anuradhapura–Vavuniya"
+    },
+    {
+      "id": "LKA-M272",
+      "countryId": "LKA",
+      "members": ["LK-22", "LK-72", "LK-23", "LK-21"],
+      "name": "Mātale–Pŏḷŏnnaruva–Nuvara Ĕliya–Mahanuvara",
+      "nameEn": "Matale–Polonnaruwa–Nuwara Eliya–Kandy"
+    },
+    {
+      "id": "NLD-M273",
+      "countryId": "NLD",
+      "members": ["NL-GR", "NL-DR", "NL-OV", "NL-NH", "NL-FR", "NL-FL"],
+      "name": "Groningen–Drenthe–Overijssel–Noord-Holland–Friesland–Flevoland",
+      "nameEn": "Groningen–Drenthe–Overijssel–North Holland–Friesland–Flevoland"
+    },
+    {
+      "id": "NLD-M274",
+      "countryId": "NLD",
+      "members": ["NL-ZE", "NL-ZH"],
+      "name": "Zeeland–Zuid-Holland",
+      "nameEn": "Zeeland–South Holland"
+    },
+    {
+      "id": "NLD-M275",
+      "countryId": "NLD",
+      "members": ["NL-GE", "NL-LI", "NL-NB", "NL-UT"],
+      "name": "Gelderland–Limburg–Noord-Brabant–Utrecht",
+      "nameEn": "Gelderland–Limburg–North Brabant–Utrecht"
+    },
+    {
+      "id": "VNM-M276",
+      "countryId": "VNM",
+      "members": ["VN-43", "VN-SG", "VN-39", "VN-40", "VN-36", "VN-57", "VN-35"],
+      "name": "Bà Rịa - Vũng Tàu–Hồ Chí Minh city–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng",
+      "nameEn": "Bà Rịa-Vũng Tàu–Ho Chi Minh–Đông Nam Bộ–Bình Thuận–Ninh Thuận–Bình Dương–Lâm Đồng"
+    },
+    {
+      "id": "VNM-M277",
+      "countryId": "VNM",
+      "members": ["VN-34", "VN-32", "VN-31"],
+      "name": "Khánh Hòa–Phú Yên–Bình Định",
+      "nameEn": "Khánh Hòa–Phú Yên–Bình Định"
+    },
+    {
+      "id": "SRB-WEST",
+      "countryId": "SRB",
+      "members": ["RS-08", "RS-09", "RS-16", "RS-17", "RS-18", "RS-12"],
+      "name": "West Serbia",
+      "nameEn": "West Serbia"
+    },
+    {
+      "id": "SRB-EAST",
+      "countryId": "SRB",
+      "members": ["RS-10", "RS-11", "RS-14", "RS-15", "RS-13"],
+      "name": "East Serbia",
+      "nameEn": "East Serbia"
+    },
+    {
+      "id": "SRB-SOUTH",
+      "countryId": "SRB",
+      "members": ["RS-19", "RS-20", "RS-21", "RS-22", "RS-23", "RS-24"],
+      "name": "South Serbia",
+      "nameEn": "South Serbia"
+    },
+    {
+      "id": "BGR-NORTH",
+      "countryId": "BGR",
+      "members": ["BG-15", "BG-04", "BG-07", "BG-24"],
+      "name": "North Central Bulgaria",
+      "nameEn": "North Central Bulgaria"
+    },
+    {
+      "id": "BGR-SOUTH",
+      "countryId": "BGR",
+      "members": ["BG-01", "BG-09", "BG-16", "BG-21", "BG-26", "BG-28"],
+      "name": "South Bulgaria",
+      "nameEn": "South Bulgaria"
+    },
+    {
+      "id": "GBR-EAST",
+      "countryId": "GBR",
+      "members": [
+        "GB-BDF",
+        "GB-CAM",
+        "GB-CBF",
+        "GB-ESS",
+        "GB-HRT",
+        "GB-LUT",
+        "GB-NFK",
+        "GB-PTE",
+        "GB-SFK",
+        "GB-SOS",
+        "GB-THR"
+      ],
+      "name": "East",
+      "nameEn": "East"
+    },
+    {
+      "id": "GBR-EAST-MID",
+      "countryId": "GBR",
+      "members": [
+        "GB-DBY",
+        "GB-DER",
+        "GB-LCE",
+        "GB-LEC",
+        "GB-LIN",
+        "GB-NGM",
+        "GB-NTH",
+        "GB-NTT",
+        "GB-RUT"
+      ],
+      "name": "East Midlands",
+      "nameEn": "East Midlands"
+    },
+    {
+      "id": "GBR-WALES",
+      "countryId": "GBR",
+      "members": [
+        "GB-AGY",
+        "GB-BGE",
+        "GB-BGW",
+        "GB-CAY",
+        "GB-CGN",
+        "GB-CMN",
+        "GB-CWY",
+        "GB-DEN",
+        "GB-GWN",
+        "GB-MTY",
+        "GB-NTL",
+        "GB-PEM",
+        "GB-RCT",
+        "GB-SWA",
+        "GB-TOF",
+        "GB-CRF",
+        "GB-FLN",
+        "GB-MON",
+        "GB-NWP",
+        "GB-POW",
+        "GB-VGL",
+        "GB-WRX"
+      ],
+      "name": "Wales",
+      "nameEn": "Wales"
+    },
+    {
+      "id": "GBR-EASTERN",
+      "countryId": "GBR",
+      "members": [
+        "GB-ANS",
+        "GB-CLK",
+        "GB-DND",
+        "GB-EDH",
+        "GB-ELN",
+        "GB-FAL",
+        "GB-FIF",
+        "GB-MLN",
+        "GB-PKN",
+        "GB-SCB",
+        "GB-STG",
+        "GB-WLN"
+      ],
+      "name": "Eastern",
+      "nameEn": "Eastern"
+    },
+    {
+      "id": "GBR-LONDON",
+      "countryId": "GBR",
+      "members": [
+        "GB-BDG",
+        "GB-BEN",
+        "GB-BEX",
+        "GB-BNE",
+        "GB-BRY",
+        "GB-CMD",
+        "GB-CRY",
+        "GB-EAL",
+        "GB-ENF",
+        "GB-GRE",
+        "GB-HAV",
+        "GB-HCK",
+        "GB-HIL",
+        "GB-HMF",
+        "GB-HNS",
+        "GB-HRW",
+        "GB-HRY",
+        "GB-ISL",
+        "GB-KEC",
+        "GB-KTT",
+        "GB-LBH",
+        "GB-LEW",
+        "GB-LND",
+        "GB-MRT",
+        "GB-NWM",
+        "GB-RDB",
+        "GB-RIC",
+        "GB-STN",
+        "GB-SWK",
+        "GB-TWH",
+        "GB-WFT",
+        "GB-WND",
+        "GB-WSM"
+      ],
+      "name": "Greater London",
+      "nameEn": "Greater London"
+    },
+    {
+      "id": "GBR-HIGHLANDS",
+      "countryId": "GBR",
+      "members": ["GB-AGB", "GB-ELS", "GB-HLD", "GB-MRY", "GB-ORK", "GB-ZET"],
+      "name": "Highlands and Islands",
+      "nameEn": "Highlands and Islands"
+    },
+    {
+      "id": "GBR-NORTH-EAST",
+      "countryId": "GBR",
+      "members": [
+        "GB-DAL",
+        "GB-DUR",
+        "GB-GAT",
+        "GB-HPL",
+        "GB-MDB",
+        "GB-NBL",
+        "GB-NET",
+        "GB-NTY",
+        "GB-RCC",
+        "GB-SND",
+        "GB-STT",
+        "GB-STY"
+      ],
+      "name": "North East",
+      "nameEn": "North East"
+    },
+    {
+      "id": "GBR-NORTH-EASTERN",
+      "countryId": "GBR",
+      "members": ["GB-ABD", "GB-ABE"],
+      "name": "North Eastern",
+      "nameEn": "North Eastern"
+    },
+    {
+      "id": "GBR-NORTH-WEST",
+      "countryId": "GBR",
+      "members": [
+        "GB-BBD",
+        "GB-BOL",
+        "GB-BPL",
+        "GB-BUR",
+        "GB-CHE",
+        "GB-CHW",
+        "GB-CMA",
+        "GB-HAL",
+        "GB-KWL",
+        "GB-LAN",
+        "GB-LIV",
+        "GB-MAN",
+        "GB-OLD",
+        "GB-RCH",
+        "GB-SFT",
+        "GB-SHN",
+        "GB-SKP",
+        "GB-SLF",
+        "GB-TAM",
+        "GB-TRF",
+        "GB-WGN",
+        "GB-WRL",
+        "GB-WRT"
+      ],
+      "name": "North West",
+      "nameEn": "North West"
+    },
+    {
+      "id": "GBR-NIR",
+      "countryId": "GBR",
+      "members": [
+        "GB-ANT",
+        "GB-ARD",
+        "GB-ARM",
+        "GB-BFS",
+        "GB-BLA",
+        "GB-BLY",
+        "GB-BNB",
+        "GB-CGV",
+        "GB-CKF",
+        "GB-CKT",
+        "GB-CLR",
+        "GB-CSR",
+        "GB-DGN",
+        "GB-DOW",
+        "GB-DRY",
+        "GB-FER",
+        "GB-LMV",
+        "GB-LRN",
+        "GB-LSB",
+        "GB-MFT",
+        "GB-MYL",
+        "GB-NDN",
+        "GB-NTA",
+        "GB-NYM",
+        "GB-OMH",
+        "GB-STB"
+      ],
+      "name": "Northern Ireland",
+      "nameEn": "Northern Ireland"
+    },
+    {
+      "id": "GBR-SOUTH-EAST",
+      "countryId": "GBR",
+      "members": [
+        "GB-BKM",
+        "GB-BNH",
+        "GB-BRC",
+        "GB-ESX",
+        "GB-HAM",
+        "GB-IOW",
+        "GB-KEN",
+        "GB-MDW",
+        "GB-MIK",
+        "GB-OXF",
+        "GB-POR",
+        "GB-RDG",
+        "GB-SLG",
+        "GB-SRY",
+        "GB-STH",
+        "GB-WBK",
+        "GB-WNM",
+        "GB-WOK",
+        "GB-WSX"
+      ],
+      "name": "South East",
+      "nameEn": "South East"
+    },
+    {
+      "id": "GBR-SOUTH-WEST",
+      "countryId": "GBR",
+      "members": [
+        "GB-BAS",
+        "GB-BMH",
+        "GB-BST",
+        "GB-CON",
+        "GB-DEV",
+        "GB-DOR",
+        "GB-GLS",
+        "GB-IOS",
+        "GB-NSM",
+        "GB-PLY",
+        "GB-POL",
+        "GB-SGC",
+        "GB-SOM",
+        "GB-SWD",
+        "GB-TOB",
+        "GB-WIL"
+      ],
+      "name": "South West",
+      "nameEn": "South West"
+    },
+    {
+      "id": "GBR-SOUTH-WESTERN",
+      "countryId": "GBR",
+      "members": [
+        "GB-DGY",
+        "GB-EAY",
+        "GB-EDU",
+        "GB-ERW",
+        "GB-GLG",
+        "GB-IVC",
+        "GB-NAY",
+        "GB-NLK",
+        "GB-RFW",
+        "GB-SAY",
+        "GB-SLK",
+        "GB-WDU"
+      ],
+      "name": "South Western",
+      "nameEn": "South Western"
+    },
+    {
+      "id": "GBR-WEST-MID",
+      "countryId": "GBR",
+      "members": [
+        "GB-BIR",
+        "GB-COV",
+        "GB-DUD",
+        "GB-HEF",
+        "GB-SAW",
+        "GB-SHR",
+        "GB-SOL",
+        "GB-STE",
+        "GB-STS",
+        "GB-TFW",
+        "GB-WAR",
+        "GB-WLL",
+        "GB-WLV",
+        "GB-WOR"
+      ],
+      "name": "West Midlands",
+      "nameEn": "West Midlands"
+    },
+
+    {
+      "id": "GBR-YORKSHIRE",
+      "countryId": "GBR",
+      "members": [
+        "GB-BNS",
+        "GB-BRD",
+        "GB-CLD",
+        "GB-DNC",
+        "GB-ERY",
+        "GB-KHL",
+        "GB-KIR",
+        "GB-LDS",
+        "GB-NEL",
+        "GB-NLN",
+        "GB-NYK",
+        "GB-ROT",
+        "GB-SHF",
+        "GB-WKF",
+        "GB-YOR"
+      ],
+      "name": "Yorkshire and the Humber",
+      "nameEn": "Yorkshire and the Humber"
+    }
+  ]
+}

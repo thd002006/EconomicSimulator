@@ -2,24 +2,35 @@ export { inspectFeatureCollection } from "./types.js";
 export type {
   GeoJsonGeometry,
   GeoJsonInspection,
+  GlobeMeshData,
+  GlobeMeshLod,
   LonLat,
   MapBoundary,
   MapFeature,
   MapFeatureProperties,
-  ProvinceCapital,
-  ProvinceFeature,
-  ProvinceFeatureProperties,
   MapPackManifest,
   MapPackProvenance,
   MapViewModel,
   MapViewModelHooks,
-  GlobeMeshData,
-  GlobeMeshLod,
-  Vec3,
-  SpatialIndexData
+  ProvinceCapital,
+  ProvinceFeature,
+  ProvinceFeatureProperties,
+  SpatialIndexData,
+  Vec3
 } from "./types.js";
 
 export { lonLatToUnitVector, unitVectorToLonLat } from "./globe.js";
+export {
+  lonLatToMapXY,
+  mapXYToLonLat,
+  wrapLongitude,
+  MAP_HEIGHT_DEGREES,
+  MAP_MAX_LAT,
+  MAP_MAX_LON,
+  MAP_MIN_LAT,
+  MAP_MIN_LON,
+  MAP_WIDTH_DEGREES
+} from "./map-projection.js";
 
 export {
   createGlobeMeshData,
@@ -40,13 +51,14 @@ export {
 } from "./geometry.js";
 
 export { ProvinceGridIndex } from "./spatial-index.js";
-export { loadMapPack, MapSchemaError, parseMapPackBundle } from "./load-map-pack.js";
+export { loadMapPack, parseMapPackBundle } from "./load-map-pack.js";
 export type { LoadedMapPack, MapPackBundleInput } from "./load-map-pack.js";
 export {
+  MapSchemaError,
   parseBBox,
   parseLineGeometry,
   parsePointGeometry,
-  parseProvinceCapital,
-  parsePolygonGeometry
+  parsePolygonGeometry,
+  parseProvinceCapital
 } from "./schema.js";
 export { createMapViewModel } from "./view-model.js";

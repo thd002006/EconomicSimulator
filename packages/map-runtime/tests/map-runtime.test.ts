@@ -4,16 +4,39 @@ import {
   ProvinceGridIndex,
   createMapViewModel,
   inspectFeatureCollection,
+  lonLatToMapXY,
   lonLatToUnitVector,
+  mapXYToLonLat,
   parsePolygonGeometry,
   pointInPolygon,
   unitVectorToLonLat,
+  wrapLongitude,
   type LoadedMapPack,
   type LonLat,
   type ProvinceFeature
 } from "../src/index.js";
 
 describe("map runtime validation", () => {
+  it("wraps longitude into (-180, 180] and round-trips planar map coordinates", () => {
+    expect(wrapLongitude(180)).toBe(180);
+    expect(wrapLongitude(-180)).toBe(180);
+    expect(wrapLongitude(190)).toBeCloseTo(-170, 8);
+    expect(wrapLongitude(-190)).toBeCloseTo(170, 8);
+    expect(wrapLongitude(540)).toBeCloseTo(180, 8);
+
+    for (const [lon, lat] of [
+      [179.5, 12],
+      [-179.5, -12],
+      [30, 89.9],
+      [-45, -89.9]
+    ] as const) {
+      const [x, y] = lonLatToMapXY(lon, lat);
+      const actual = mapXYToLonLat(x, y);
+      expect(actual[0]).toBeCloseTo(wrapLongitude(lon), 8);
+      expect(actual[1]).toBeCloseTo(lat, 8);
+    }
+  });
+
   it("round-trips globe coordinates across the antimeridian and poles", () => {
     for (const [lon, lat] of [
       [179.5, 12],
