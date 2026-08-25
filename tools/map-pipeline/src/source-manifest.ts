@@ -8,6 +8,7 @@ export interface SourceMapManifest {
     readonly provinces: string;
     readonly boundaries: string;
     readonly coastlines?: string;
+    readonly countries?: string;
   };
   readonly attribution?: {
     readonly source: string;
@@ -56,6 +57,10 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     value.layers.coastlines === undefined
       ? undefined
       : requiredString(value.layers.coastlines, "layers.coastlines");
+  const countries =
+    value.layers.countries === undefined
+      ? undefined
+      : requiredString(value.layers.countries, "layers.countries");
   let attribution: SourceMapManifest["attribution"];
   if (value.attribution !== undefined) {
     if (!isRecord(value.attribution)) {
@@ -80,7 +85,8 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     layers: {
       provinces,
       boundaries,
-      ...(coastlines === undefined ? {} : { coastlines })
+      ...(coastlines === undefined ? {} : { coastlines }),
+      ...(countries === undefined ? {} : { countries })
     },
     ...(attribution === undefined ? {} : { attribution })
   };

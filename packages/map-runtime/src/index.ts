@@ -1,5 +1,7 @@
 export { inspectFeatureCollection } from "./types.js";
 export type {
+  CountryNameEntry,
+  CountryNameTable,
   GeoJsonGeometry,
   GeoJsonInspection,
   GlobeMeshData,

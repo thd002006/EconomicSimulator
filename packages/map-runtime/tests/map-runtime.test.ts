@@ -223,6 +223,10 @@ describe("map runtime validation", () => {
       },
       provinces: [left, right],
       coastlines: [],
+      countries: {
+        AAA: { nameEn: "Alpha" },
+        BBB: { nameEn: "Beta" }
+      },
       boundaries: [
         {
           id: "boundary-1",
@@ -254,6 +258,9 @@ describe("map runtime validation", () => {
     const model = createMapViewModel(pack);
     expect(model.getProvinceOwner("A")).toBe("AAA");
     expect(model.getProvinceOwner("B")).toBe("BBB");
+    expect(model.getCountryName("AAA")).toBe("Alpha");
+    expect(model.getCountryName("BBB")).toBe("Beta");
+    expect(model.getCountryName("ZZZ")).toBeUndefined();
 
     const annexed = createMapViewModel(pack, {
       getProvinceOwner: (id) =>

@@ -249,6 +249,28 @@ export async function compilePack(
     }
   }
 
+  const countries: Record<string, { nameEn: string; name?: string }> = {};
+  if (manifest.layers.countries !== undefined) {
+    const countriesPath = await resolveContainedFile(
+      sourceDir,
+      manifest.layers.countries,
+      "layers.countries"
+    );
+    const text = await readFile(countriesPath, "utf8");
+    sourceHashes.countries = sha256(text);
+    const raw = JSON.parse(text) as unknown;
+    if (!isRecord(raw)) throw new Error("countries must be an object keyed by country id.");
+    for (const [countryId, entry] of Object.entries(raw)) {
+      if (!isRecord(entry) || typeof entry.nameEn !== "string" || entry.nameEn.trim() === "") {
+        throw new Error(`countries.${countryId} requires a non-empty nameEn string.`);
+      }
+      countries[countryId] = {
+        nameEn: entry.nameEn,
+        ...(typeof entry.name === "string" && entry.name.trim() !== "" ? { name: entry.name } : {})
+      };
+    }
+  }
+
   const outDir = join(outputRoot, entry.path, "compiled");
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
@@ -266,6 +288,7 @@ export async function compilePack(
       features: coastlines
     })
   ).hash;
+  assetHashes.countries = (await writeJson(join(outDir, "countries.json"), countries)).hash;
   assetHashes.spatialIndex = (
     await writeJson(join(outDir, "spatial-index.json"), buildSpatialIndex(provinces))
   ).hash;
@@ -317,6 +340,7 @@ export async function compilePack(
       provinces: "provinces.json",
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
+      countries: "countries.json",
       spatialIndex: "spatial-index.json",
       globeMesh: "globe-mesh.json"
     },

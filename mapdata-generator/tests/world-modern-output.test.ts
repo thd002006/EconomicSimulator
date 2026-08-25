@@ -54,7 +54,7 @@ test("every source province is assigned exactly once", () => {
 
 test("dynamic thresholds and low-area exceptions are auditable", () => {
   for (const [countryId, summary] of Object.entries(report.countrySummary)) {
-    assert.ok(summary.minimumAreaKm2 >= 10_000 && summary.minimumAreaKm2 <= 100_000, countryId);
+    assert.ok(summary.minimumAreaKm2 >= 10_000 && summary.minimumAreaKm2 <= 50_000, countryId);
     assert.ok(summary.areaKm2 >= 0, countryId);
     assert.equal(summary.after, report.countryCounts[countryId]);
     assert.equal(

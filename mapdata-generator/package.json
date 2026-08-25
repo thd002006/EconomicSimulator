@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate:world-modern": "tsx src/build-world-modern.ts",
+    "generate:countries": "tsx src/build-world-modern.ts --countries-only",
     "test": "pnpm generate:world-modern && tsx --test tests/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json"
   },

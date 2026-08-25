@@ -27,12 +27,13 @@ const OCEAN = 0x9eb5b0;
 const COAST = 0x3a2a1a;
 const PROVINCE_BORDER = 0x2a1810;
 const COUNTRY_BORDER = 0x1a1008;
-const CAPITAL = 0x2a1810;
+const CAPITAL = 0x5a4030;
 const HOVER_FILL = new THREE.Color("#c4a060");
 const SELECT_FILL = new THREE.Color("#a07840");
 const LAND_Z = 0.02;
 const LINE_Z = 0.04;
 const CAPITAL_Z = 0.06;
+const CAPITAL_POINT_SIZE = 7;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
 const PROVINCE_DETAIL_HALF_HEIGHT = 40;
 const TILE_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
@@ -49,6 +50,29 @@ export interface GlobeRuntimeModel extends MapViewModel {
 
 export function showProvinceBorders(halfHeight: number): boolean {
   return halfHeight <= PROVINCE_DETAIL_HALF_HEIGHT;
+}
+
+function createCapitalRingTexture(): THREE.CanvasTexture {
+  const size = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+  if (context === null) {
+    throw new Error("Unable to create capital marker canvas.");
+  }
+  context.clearRect(0, 0, size, size);
+  const center = size / 2;
+  const radius = size * 0.32;
+  context.beginPath();
+  context.arc(center, center, radius, 0, Math.PI * 2);
+  context.strokeStyle = "#5a4030";
+  context.lineWidth = size * 0.08;
+  context.stroke();
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 function countryFill(adm0A3: string | undefined): THREE.Color {
@@ -417,12 +441,14 @@ export class GlobeRenderer {
       capitalGeometry,
       new THREE.PointsMaterial({
         color: CAPITAL,
-        size: 4.5,
+        map: createCapitalRingTexture(),
+        size: CAPITAL_POINT_SIZE,
         sizeAttenuation: false,
         depthTest: false,
         depthWrite: false,
         transparent: true,
-        opacity: 0.95
+        opacity: 0.62,
+        alphaTest: 0.05
       })
     );
     this.capitalPoints.renderOrder = 3;
@@ -460,7 +486,11 @@ export class GlobeRenderer {
   }
 
   private rebuildLabels(): void {
-    const countryLabels = buildCountryLabelAnchors(this.model.provinces, this.ownerLookup);
+    const countryLabels = buildCountryLabelAnchors(
+      this.model.provinces,
+      this.ownerLookup,
+      this.model.countries
+    );
     const provinceLabels = buildProvinceLabels(this.model.provinces);
     this.labels.setLabels([...countryLabels, ...provinceLabels]);
     this.updateLabels();
@@ -647,7 +677,15 @@ export class GlobeRenderer {
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
     this.capitalPoints.geometry.dispose();
-    (this.capitalPoints.material as THREE.Material).dispose();
+    const capitalMaterial = this.capitalPoints.material;
+    if (!Array.isArray(capitalMaterial) && capitalMaterial instanceof THREE.PointsMaterial) {
+      capitalMaterial.map?.dispose();
+      capitalMaterial.dispose();
+    } else if (Array.isArray(capitalMaterial)) {
+      for (const entry of capitalMaterial) entry.dispose();
+    } else {
+      capitalMaterial.dispose();
+    }
     this.ocean.geometry.dispose();
     this.oceanMaterial.dispose();
     this.renderer.dispose();

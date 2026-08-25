@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { access, copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -61,14 +61,19 @@ const SOURCES = {
   }
 } as const;
 
-export function parseRetainedFraction(
+export function parseGeneratorArgs(
   args: readonly string[],
   defaultRetainedFraction = 0.5
-): number {
+): { retainedFraction: number; countriesOnly: boolean } {
   let rawValue: string | undefined;
+  let countriesOnly = false;
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]!;
     if (argument === "--") continue;
+    if (argument === "--countries-only") {
+      countriesOnly = true;
+      continue;
+    }
     if (argument === "--retain" || argument === "--retained-fraction") {
       rawValue = args[index + 1];
       if (rawValue === undefined) throw new Error(`${argument} requires a value.`);
@@ -85,7 +90,9 @@ export function parseRetainedFraction(
     }
     throw new Error(`Unknown generator argument: ${argument}`);
   }
-  if (rawValue === undefined) return defaultRetainedFraction;
+  if (rawValue === undefined) {
+    return { retainedFraction: defaultRetainedFraction, countriesOnly };
+  }
   const percentage = rawValue.endsWith("%");
   const numericText = percentage ? rawValue.slice(0, -1) : rawValue;
   const numericValue = Number(numericText);
@@ -95,7 +102,15 @@ export function parseRetainedFraction(
       `Retained arc fraction must be in (0, 1] or written as (0%, 100%]: ${rawValue}`
     );
   }
-  return fraction;
+  return { retainedFraction: fraction, countriesOnly };
+}
+
+/** @deprecated Prefer parseGeneratorArgs. */
+export function parseRetainedFraction(
+  args: readonly string[],
+  defaultRetainedFraction = 0.5
+): number {
+  return parseGeneratorArgs(args, defaultRetainedFraction).retainedFraction;
 }
 
 async function downloadTo(url: string, destination: string): Promise<void> {
@@ -149,6 +164,30 @@ function uniqueId(preferred: string, used: Set<string>, fallback: string): strin
   const result = `${fallback}-${suffix}`;
   used.add(result);
   return result;
+}
+
+export interface CountryNameEntry {
+  readonly nameEn: string;
+}
+
+/** Build adm0A3 → display name from Natural Earth admin_1 properties (no geometry work). */
+export function collectCountryNames(
+  source: GeoJsonFeatureCollection,
+  countryIds?: ReadonlySet<string>
+): Record<string, CountryNameEntry> {
+  const names = new Map<string, CountryNameEntry>();
+  for (const feature of source.features) {
+    const properties = feature.properties;
+    const sourceCountryId = asString(prop(properties, "adm0_a3"));
+    if (!validCode(sourceCountryId)) continue;
+    const countryId = COUNTRY_ID_REASSIGNMENTS.get(sourceCountryId) ?? sourceCountryId;
+    if (countryIds !== undefined && !countryIds.has(countryId)) continue;
+    if (names.has(countryId)) continue;
+    const nameEn = asString(prop(properties, "admin", "name_en", "name"));
+    if (nameEn === undefined) continue;
+    names.set(countryId, { nameEn });
+  }
+  return Object.fromEntries([...names].sort(([a], [b]) => a.localeCompare(b)));
 }
 
 function normalizeProvinces(source: GeoJsonFeatureCollection): SourceProvince[] {
@@ -767,19 +806,141 @@ async function writeJson(path: string, value: unknown): Promise<number> {
   return Buffer.byteLength(text);
 }
 
+async function writeWorldModernManifest(outDir: string, version = "0.3.5"): Promise<number> {
+  return writeJson(join(outDir, "map.json"), {
+    schemaVersion: 2,
+    id: "world-modern",
+    version,
+    nameKey: "map.worldModern.name",
+    coordinateReferenceSystem: "EPSG:4326",
+    layers: {
+      provinces: "provinces.geojson",
+      boundaries: "boundaries.json",
+      coastlines: "coastlines.geojson",
+      countries: "countries.json"
+    },
+    attribution: {
+      source: "Natural Earth 1:10m",
+      license: "public domain",
+      naturalEarthCommit: NATURAL_EARTH_COMMIT
+    }
+  });
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * countries-only rewrites countries.json + map.json. The manifest always lists
+ * provinces/boundaries/coastlines, so those must already exist in outDir (or be
+ * copyable from the authored assets pack) before we write a publishable map.json.
+ */
+export async function ensureCountriesOnlyCompanionLayers(
+  outDir: string,
+  assetsDir: string
+): Promise<{ copied: string[] }> {
+  const required = ["provinces.geojson", "boundaries.json", "coastlines.geojson"] as const;
+  const copied: string[] = [];
+  const missing: string[] = [];
+  for (const layer of required) {
+    const dest = join(outDir, layer);
+    if (await pathExists(dest)) continue;
+    const source = join(assetsDir, layer);
+    if (await pathExists(source)) {
+      await mkdir(outDir, { recursive: true });
+      await copyFile(source, dest);
+      copied.push(layer);
+      continue;
+    }
+    missing.push(layer);
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `countries-only requires companion layers before writing map.json. Missing: ${missing.join(
+        ", "
+      )}. Run \`pnpm generate:world-modern\` first, or ensure they exist under ${assetsDir}.`
+    );
+  }
+  return { copied };
+}
+
+async function writeCountriesOnly(projectRoot: string, outDir: string): Promise<void> {
+  const vendorDir = join(projectRoot, "cache/natural-earth");
+  const assetsDir = join(projectRoot, "../assets/maps/world-modern");
+  await mkdir(outDir, { recursive: true });
+  const companions = await ensureCountriesOnlyCompanionLayers(outDir, assetsDir);
+  const provincesPath = await ensureSource(vendorDir, SOURCES.provinces);
+  const source = await readCollection(provincesPath);
+
+  const authoredCandidates = [
+    join(outDir, "provinces.geojson"),
+    join(assetsDir, "provinces.geojson")
+  ];
+  let countryIds: Set<string> | undefined;
+  let authoredFilterPath: string | undefined;
+  for (const candidate of authoredCandidates) {
+    try {
+      const authored = JSON.parse(await readFile(candidate, "utf8")) as {
+        features?: Array<{ properties?: { adm0A3?: string } }>;
+      };
+      countryIds = new Set(
+        (authored.features ?? [])
+          .map((feature) => feature.properties?.adm0A3)
+          .filter((id): id is string => typeof id === "string" && id.length > 0)
+      );
+      authoredFilterPath = candidate;
+      break;
+    } catch {
+      // try next authored provinces path
+    }
+  }
+
+  const countries = collectCountryNames(source, countryIds);
+  const bytes = await writeJson(join(outDir, "countries.json"), countries);
+  await writeWorldModernManifest(outDir);
+  console.log(
+    JSON.stringify(
+      {
+        mode: "countries-only",
+        outDir,
+        countryCount: Object.keys(countries).length,
+        authoredFilterPath: authoredFilterPath ?? null,
+        copiedCompanionLayers: companions.copied,
+        bytes: { countries: bytes }
+      },
+      null,
+      2
+    )
+  );
+}
+
 async function main(args: readonly string[]): Promise<void> {
   const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const policy = await loadMergePolicy(join(projectRoot, "config/world-modern-merges.json"));
-  const requestedRetainedFraction = parseRetainedFraction(args, policy.defaultRetainedArcFraction);
-  const vendorDir = join(projectRoot, "cache/natural-earth");
+  const { retainedFraction: requestedRetainedFraction, countriesOnly } = parseGeneratorArgs(
+    args,
+    policy.defaultRetainedArcFraction
+  );
   const outDir = join(projectRoot, "output/world-modern");
+  if (countriesOnly) {
+    await writeCountriesOnly(projectRoot, outDir);
+    return;
+  }
+  const vendorDir = join(projectRoot, "cache/natural-earth");
   await Promise.all([
     rm(join(outDir, "cities.geojson"), { force: true }),
     rm(join(outDir, "cities.json"), { force: true })
   ]);
   const provincesPath = await ensureSource(vendorDir, SOURCES.provinces);
   const placesPath = await ensureSource(vendorDir, SOURCES.places);
-  const sourceProvinces = normalizeProvinces(await readCollection(provincesPath));
+  const sourceCollection = await readCollection(provincesPath);
+  const sourceProvinces = normalizeProvinces(sourceCollection);
   const capitals = normalizeCapitals(await readCollection(placesPath));
   const sourceTopology = buildTopology("source", normalizedCollection(sourceProvinces));
   const sourceGeometries = topologyGeometries(sourceTopology, "source");
@@ -928,27 +1089,14 @@ async function main(args: readonly string[]): Promise<void> {
       );
     return results;
   });
+  const finalCountryIds = new Set(groups.map((group) => group.countryId));
+  const countries = collectCountryNames(sourceCollection, finalCountryIds);
   const bytes: Record<string, number> = {};
   bytes.provinces = await writeJson(join(outDir, "provinces.geojson"), provinces);
   bytes.boundaries = await writeJson(join(outDir, "boundaries.json"), boundaries);
   bytes.coastlines = await writeJson(join(outDir, "coastlines.geojson"), lines.coastlines);
-  bytes.manifest = await writeJson(join(outDir, "map.json"), {
-    schemaVersion: 2,
-    id: "world-modern",
-    version: "0.3.4",
-    nameKey: "map.worldModern.name",
-    coordinateReferenceSystem: "EPSG:4326",
-    layers: {
-      provinces: "provinces.geojson",
-      boundaries: "boundaries.json",
-      coastlines: "coastlines.geojson"
-    },
-    attribution: {
-      source: "Natural Earth 1:10m",
-      license: "public domain",
-      naturalEarthCommit: NATURAL_EARTH_COMMIT
-    }
-  });
+  bytes.countries = await writeJson(join(outDir, "countries.json"), countries);
+  bytes.manifest = await writeWorldModernManifest(outDir);
   await writeJson(join(outDir, "review-report.json"), {
     sourceProvinceCount: sourceProvinces.length,
     provinceCount: provinces.features.length,
@@ -987,6 +1135,7 @@ async function main(args: readonly string[]): Promise<void> {
         provinces: provinces.features.length,
         boundaries: lines.boundaries.length,
         coastlines: lines.coastlines.features.length,
+        countries: Object.keys(countries).length,
         requestedRetainedFraction,
         retainedFraction: simplified.retainedFraction,
         bytes,

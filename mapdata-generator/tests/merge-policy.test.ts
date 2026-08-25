@@ -8,8 +8,8 @@ import type { AdjacencyData } from "../src/topology.js";
 
 const parameters: MergeParameters = {
   baseMinimumProvinceAreaKm2: 10_000,
-  maximumMinimumProvinceAreaKm2: 100_000,
-  fullScaleCountryAreaKm2: 1_000_000,
+  maximumMinimumProvinceAreaKm2: 50_000,
+  fullScaleCountryAreaKm2: 500_000,
   macroRegionCountryAreaLimitKm2: 5_000_000,
   maximumArchipelagoGapKm: 700,
   defaultRetainedArcFraction: 0.5
@@ -60,12 +60,12 @@ function adjacency(
   return { neighbors, sharedBorder, exposedBoundary: exposed };
 }
 
-test("dynamic minimum province area scales linearly and caps at 100,000 km2", () => {
+test("dynamic minimum province area scales linearly and caps at 50,000 km2", () => {
   assert.equal(dynamicMinimumProvinceAreaKm2(0, parameters), 10_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(100_000, parameters), 19_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(500_000, parameters), 55_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(1_000_000, parameters), 100_000);
-  assert.equal(dynamicMinimumProvinceAreaKm2(2_000_000, parameters), 100_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(100_000, parameters), 18_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(500_000, parameters), 50_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(1_000_000, parameters), 50_000);
+  assert.equal(dynamicMinimumProvinceAreaKm2(2_000_000, parameters), 50_000);
 });
 
 test("simplification retention accepts fractions and percentages", () => {

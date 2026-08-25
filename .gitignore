@@ -5,6 +5,7 @@ coverage/
 .DS_Store
 .idea/
 .vscode/
+.opencode/
 assets/maps/*/compiled/
 mapdata-generator/node_modules/
 mapdata-generator/cache/

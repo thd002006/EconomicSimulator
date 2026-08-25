@@ -102,10 +102,33 @@ export async function validatePack(
       parseLineGeometry(feature.geometry, "coastlines", coastlineIds[index]!);
     }
   }
+
+  let countries = 0;
+  if (manifest.layers.countries !== undefined) {
+    const countriesPath = await resolveContainedFile(
+      packDir,
+      manifest.layers.countries,
+      "layers.countries"
+    );
+    const raw = await readJson(countriesPath);
+    if (!isRecord(raw)) throw new Error(`Map ${entry.id} countries must be an object.`);
+    for (const [countryId, entryValue] of Object.entries(raw)) {
+      if (
+        !isRecord(entryValue) ||
+        typeof entryValue.nameEn !== "string" ||
+        entryValue.nameEn.trim() === ""
+      ) {
+        throw new Error(`Map ${entry.id} countries.${countryId} requires nameEn.`);
+      }
+      countries += 1;
+    }
+  }
+
   return {
     provinces: provinces.features.length,
     boundaries: boundaryValue.features.length,
-    coastlines
+    coastlines,
+    countries
   };
 }
 

@@ -14,6 +14,13 @@ export interface MapPackProvenance {
   readonly outputHash: string;
 }
 
+export interface CountryNameEntry {
+  readonly nameEn: string;
+  readonly name?: string;
+}
+
+export type CountryNameTable = Readonly<Record<string, CountryNameEntry>>;
+
 export interface MapPackManifest {
   readonly schemaVersion: number;
   readonly format: string;
@@ -25,6 +32,7 @@ export interface MapPackManifest {
     provinces: string;
     boundaries: string;
     coastlines?: string;
+    countries?: string;
     spatialIndex: string;
     globeMesh: string;
   }>;
@@ -107,6 +115,7 @@ export interface MapViewModel {
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
+  readonly countries: CountryNameTable;
   hoveredProvinceId: string | undefined;
   selectedProvinceId: string | undefined;
   readonly globeMesh: GlobeMeshData;
