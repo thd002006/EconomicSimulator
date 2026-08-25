@@ -5,7 +5,8 @@ describe("map renderer decisions", () => {
   it("hides province borders when the map is zoomed out", () => {
     expect(showProvinceBorders(70)).toBe(false);
     expect(showProvinceBorders(45)).toBe(false);
-    expect(showProvinceBorders(40)).toBe(true);
+    expect(showProvinceBorders(40)).toBe(false);
+    expect(showProvinceBorders(32)).toBe(true);
     expect(showProvinceBorders(20)).toBe(true);
   });
 

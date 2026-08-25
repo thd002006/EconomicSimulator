@@ -13,9 +13,12 @@ import {
   normalizeReadingDirection,
   resolveCountryLabelText,
   selectPrimaryLandmass,
+  MIN_GLYPH_ADVANCE_EM,
+  visibleLabelCopies,
   wrapLabelX,
   wrapPathToCamera
 } from "./map-labels.js";
+import { MAP_WRAP } from "./map-controls.js";
 
 function province(id: string, owner: string, lon: number, lat: number, name = id): ProvinceFeature {
   return {
@@ -264,6 +267,62 @@ describe("curved label baselines", () => {
     );
     const span = Math.abs(layout.glyphs[layout.glyphs.length - 1]!.x - layout.glyphs[0]!.x);
     expect(span).toBeLessThan(layout.fontSizePx * 2.1 * 2 + 1);
+  });
+
+  it("keeps glyph centers far enough apart on a short path with a long name", () => {
+    const layout = layoutGlyphsAlongPath(
+      [
+        { x: 0, y: 0 },
+        { x: 280, y: 0 }
+      ],
+      "UNITED STATES OF AMERICA",
+      "country-major"
+    );
+    expect(layout.glyphs.length).toBeGreaterThan(1);
+    // Path is too short for the kind min font without overlap — font shrinks below 14.
+    expect(layout.fontSizePx).toBeLessThan(14);
+    for (let index = 1; index < layout.glyphs.length; index += 1) {
+      const previous = layout.glyphs[index - 1]!;
+      const current = layout.glyphs[index]!;
+      const gap = Math.hypot(current.x - previous.x, current.y - previous.y);
+      expect(gap).toBeGreaterThanOrEqual(layout.fontSizePx * MIN_GLYPH_ADVANCE_EM - 0.01);
+    }
+  });
+
+  it("hides glyphs when even the absolute min font cannot fit without overlap", () => {
+    const layout = layoutGlyphsAlongPath(
+      [
+        { x: 0, y: 0 },
+        { x: 12, y: 0 }
+      ],
+      "UNITED STATES OF AMERICA",
+      "country-major"
+    );
+    expect(layout.glyphs).toHaveLength(0);
+  });
+});
+
+describe("wrap label copies", () => {
+  it("returns two visible copies when a label sits near both wrap tiles", () => {
+    const path = [
+      { x: 170, y: 10 },
+      { x: 175, y: 10 },
+      { x: 180, y: 10 }
+    ];
+    const copies = visibleLabelCopies(path, { x: 175, y: 10 }, 0, 10, 190, 40);
+    expect(copies.length).toBeGreaterThanOrEqual(2);
+    const xs = copies.map((copy) => copy.anchor.x).sort((a, b) => a - b);
+    expect(xs[1]! - xs[0]!).toBeCloseTo(MAP_WRAP, 5);
+  });
+
+  it("returns a single copy when only one wrap is in view", () => {
+    const path = [
+      { x: 10, y: 20 },
+      { x: 20, y: 20 }
+    ];
+    const copies = visibleLabelCopies(path, { x: 15, y: 20 }, 0, 20, 40, 30);
+    expect(copies).toHaveLength(1);
+    expect(copies[0]?.offset).toBe(0);
   });
 });
 

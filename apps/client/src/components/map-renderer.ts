@@ -25,8 +25,8 @@ import { buildCountryLabelAnchors, buildProvinceLabels, MapLabelLayer } from "./
 const CLEAR = 0xc8b898;
 const OCEAN = 0x9eb5b0;
 const COAST = 0x3a2a1a;
-const PROVINCE_BORDER = 0x2a1810;
-const COUNTRY_BORDER = 0x1a1008;
+const PROVINCE_BORDER = 0x5a4030;
+const COUNTRY_BORDER = 0x2a1c12;
 const CAPITAL = 0x5a4030;
 const HOVER_FILL = new THREE.Color("#c4a060");
 const SELECT_FILL = new THREE.Color("#a07840");
@@ -35,12 +35,14 @@ const LINE_Z = 0.04;
 const CAPITAL_Z = 0.06;
 const CAPITAL_POINT_SIZE = 7;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
-const PROVINCE_DETAIL_HALF_HEIGHT = 40;
+const PROVINCE_DETAIL_HALF_HEIGHT = 32;
 const TILE_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
-const PROVINCE_BORDER_WIDTH = 1.25;
-const PROVINCE_BORDER_OPACITY = 0.72;
-const COUNTRY_BORDER_WIDTH = 2.0;
-const COAST_BORDER_WIDTH = 1.35;
+const PROVINCE_BORDER_WIDTH = 1.35;
+const PROVINCE_BORDER_OPACITY = 0.38;
+const COUNTRY_BORDER_WIDTH = 1.5;
+const COUNTRY_BORDER_OPACITY = 0.82;
+const COAST_BORDER_WIDTH = 1.1;
+const COAST_BORDER_OPACITY = 0.78;
 
 export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
@@ -164,13 +166,15 @@ function makeWideLines(
 ): LineSegments2 {
   const geometry = new LineSegmentsGeometry();
   geometry.setPositions(positions.length === 0 ? [0, 0, 0, 0, 0, 0] : positions);
+  const translucent = opacity < 1;
   const material = new LineMaterial({
     color,
     linewidth: width,
     worldUnits: false,
-    transparent: opacity < 1,
+    transparent: translucent,
     opacity,
-    alphaToCoverage: true,
+    // A2C + low opacity becomes a screen-door stipple that reads as dotted ink.
+    alphaToCoverage: !translucent,
     depthTest: true,
     depthWrite: false
   });
@@ -415,7 +419,12 @@ export class GlobeRenderer {
     for (const feature of model.coastlines) {
       addGeometryLines(coastPositions, feature.geometry, LINE_Z);
     }
-    this.coastLines = makeWideLines(coastPositions, COAST, COAST_BORDER_WIDTH);
+    this.coastLines = makeWideLines(
+      coastPositions,
+      COAST,
+      COAST_BORDER_WIDTH,
+      COAST_BORDER_OPACITY
+    );
     this.provinceLines = makeWideLines(
       [],
       PROVINCE_BORDER,
@@ -423,7 +432,13 @@ export class GlobeRenderer {
       PROVINCE_BORDER_OPACITY,
       1
     );
-    this.countryLines = makeWideLines([], COUNTRY_BORDER, COUNTRY_BORDER_WIDTH, 1, 2);
+    this.countryLines = makeWideLines(
+      [],
+      COUNTRY_BORDER,
+      COUNTRY_BORDER_WIDTH,
+      COUNTRY_BORDER_OPACITY,
+      2
+    );
     this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
 
@@ -554,7 +569,13 @@ export class GlobeRenderer {
       1
     );
     this.provinceLineHasGeometry = provincePositions.length > 0;
-    this.countryLines = makeWideLines(countryPositions, COUNTRY_BORDER, COUNTRY_BORDER_WIDTH, 1, 2);
+    this.countryLines = makeWideLines(
+      countryPositions,
+      COUNTRY_BORDER,
+      COUNTRY_BORDER_WIDTH,
+      COUNTRY_BORDER_OPACITY,
+      2
+    );
     this.applyLineResolutions();
     this.tileTemplate.add(this.provinceLines, this.countryLines);
     this.refreshTiles();

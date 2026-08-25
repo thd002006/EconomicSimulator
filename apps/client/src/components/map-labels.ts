@@ -42,6 +42,12 @@ const PATH_FILL_RATIO = 0.55;
 const PATH_BEND_STRENGTH = 0.22;
 /** Max letter tilt relative to the overall path direction. */
 const MAX_GLYPH_TILT_DEG = 18;
+/** Minimum center-to-center glyph spacing in em (uppercase serif advance). */
+export const MIN_GLYPH_ADVANCE_EM = 0.72;
+/** Absolute floor when shrinking to avoid overlap on short paths. */
+const ABSOLUTE_MIN_FONT_PX = 8;
+/** Match land tile offsets so labels appear on every visible wrap copy. */
+export const LABEL_WRAP_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
 
 export type MapLabelKind = "country-major" | "country" | "province";
 
@@ -704,7 +710,7 @@ export function layoutGlyphsAlongPath(
       fontSizePx: min,
       glyphs: chars.map((char, index) => ({
         char,
-        x: (index - (chars.length - 1) / 2) * min * 0.6,
+        x: (index - (chars.length - 1) / 2) * min * MIN_GLYPH_ADVANCE_EM,
         y: 0,
         rotationDeg: 0
       }))
@@ -717,10 +723,21 @@ export function layoutGlyphsAlongPath(
     (Math.atan2(last.y - first.y, last.x - first.x) * 180) / Math.PI
   );
   const length = Math.max(polylineLength(screenPath), 1);
-  const fontSizePx = Math.max(min, Math.min(max, (length * fillRatio) / Math.max(chars.length, 1)));
+  const budget = Math.min(length * fillRatio, length);
+  let fontSizePx = Math.max(min, Math.min(max, budget / Math.max(chars.length, 1)));
+  if (chars.length > 1) {
+    const minSpan = (chars.length - 1) * fontSizePx * MIN_GLYPH_ADVANCE_EM;
+    if (minSpan > budget) {
+      fontSizePx = budget / ((chars.length - 1) * MIN_GLYPH_ADVANCE_EM);
+      if (fontSizePx < ABSOLUTE_MIN_FONT_PX) {
+        return { fontSizePx: ABSOLUTE_MIN_FONT_PX, glyphs: [] };
+      }
+    }
+  }
   const gapEm = maxGlyphGapEm(kind);
   const maxUsed = chars.length <= 1 ? fontSizePx : (chars.length - 1) * fontSizePx * gapEm;
-  const used = Math.min(length * fillRatio, maxUsed, length);
+  const minUsed = chars.length <= 1 ? 0 : (chars.length - 1) * fontSizePx * MIN_GLYPH_ADVANCE_EM;
+  const used = Math.min(Math.max(minUsed, Math.min(budget, maxUsed)), length);
   const start = (length - used) / 2;
   const mid = pointAtArcLength(screenPath, length / 2).point;
   const step = chars.length === 1 ? 0 : used / (chars.length - 1);
@@ -737,6 +754,39 @@ export function layoutGlyphsAlongPath(
     };
   });
   return { fontSizePx, glyphs };
+}
+
+/** Rigid wrap copies of a path that fall inside the camera frustum (matches land tiles). */
+export function visibleLabelCopies(
+  path: readonly LabelPoint[],
+  fallback: LabelPoint,
+  cameraX: number,
+  cameraY: number,
+  marginX: number,
+  marginY: number
+): Array<{ offset: number; path: LabelPoint[]; anchor: LabelPoint }> {
+  const basePath = wrapPathToCamera(path, cameraX);
+  const baseFallback = { x: wrapLabelX(fallback.x, cameraX), y: fallback.y };
+  const copies: Array<{ offset: number; path: LabelPoint[]; anchor: LabelPoint }> = [];
+  for (const offset of LABEL_WRAP_OFFSETS) {
+    const shifted =
+      offset === 0
+        ? basePath
+        : basePath.map((point) => ({ x: point.x + offset, y: point.y }));
+    const anchor =
+      shifted.length === 0
+        ? { x: baseFallback.x + offset, y: baseFallback.y }
+        : pathAnchor(shifted, { x: baseFallback.x + offset, y: baseFallback.y });
+    if (Math.abs(anchor.x - cameraX) > marginX || Math.abs(anchor.y - cameraY) > marginY) {
+      continue;
+    }
+    copies.push({ offset, path: shifted, anchor });
+  }
+  return copies;
+}
+
+function labelInstanceKey(id: string, offset: number): string {
+  return `${id}@${offset}`;
 }
 
 function pathAnchor(path: readonly LabelPoint[], fallback: LabelPoint): LabelPoint {
@@ -918,67 +968,92 @@ export class MapLabelLayer {
 
   setLabels(specs: readonly MapLabelSpec[]): void {
     const nextIds = new Set(specs.map((spec) => spec.id));
-    for (const [id, object] of this.objects) {
-      if (nextIds.has(id)) continue;
+    for (const [key, object] of this.objects) {
+      const specId = key.slice(0, key.lastIndexOf("@"));
+      if (nextIds.has(specId)) continue;
       this.root.remove(object);
       object.element.remove();
-      this.objects.delete(id);
-      this.specs.delete(id);
+      this.objects.delete(key);
+    }
+    for (const id of this.specs.keys()) {
+      if (!nextIds.has(id)) this.specs.delete(id);
     }
     for (const spec of specs) {
       this.specs.set(spec.id, spec);
-      let object = this.objects.get(spec.id);
-      if (object === undefined) {
-        const element = document.createElement("div");
-        element.className = labelClassName(spec.kind);
-        object = new CSS2DObject(element);
-        object.center.set(0.5, 0.5);
-        this.objects.set(spec.id, object);
-        this.root.add(object);
-      } else {
-        object.element.className = labelClassName(spec.kind);
+      for (const offset of LABEL_WRAP_OFFSETS) {
+        const key = labelInstanceKey(spec.id, offset);
+        let object = this.objects.get(key);
+        if (object === undefined) {
+          const element = document.createElement("div");
+          element.className = labelClassName(spec.kind);
+          object = new CSS2DObject(element);
+          object.center.set(0.5, 0.5);
+          this.objects.set(key, object);
+          this.root.add(object);
+        } else {
+          object.element.className = labelClassName(spec.kind);
+        }
+        syncGlyphElements(object.element, spec.text);
+        object.position.set(spec.x + offset, spec.y, LABEL_Z);
+        object.visible = false;
       }
-      syncGlyphElements(object.element, spec.text);
-      object.position.set(spec.x, spec.y, LABEL_Z);
-      object.visible = false;
     }
   }
 
   update(halfHeight: number, cameraX: number, cameraY: number, halfWidth: number): void {
     const marginX = halfWidth + 8;
     const marginY = halfHeight + 6;
-    for (const [id, object] of this.objects) {
-      const spec = this.specs.get(id);
-      if (spec === undefined) continue;
-      if (!labelVisibility(halfHeight, spec.kind)) {
-        object.visible = false;
-        continue;
+    for (const [id, spec] of this.specs) {
+      const show = labelVisibility(halfHeight, spec.kind);
+      for (const offset of LABEL_WRAP_OFFSETS) {
+        const object = this.objects.get(labelInstanceKey(id, offset));
+        if (object === undefined) continue;
+        if (!show) {
+          object.visible = false;
+        }
       }
+      if (!show) continue;
 
-      const wrappedPath = wrapPathToCamera(spec.path, cameraX);
-      const anchor =
-        wrappedPath.length === 0
-          ? { x: wrapLabelX(spec.x, cameraX), y: spec.y }
-          : pathAnchor(wrappedPath, { x: wrapLabelX(spec.x, cameraX), y: spec.y });
-      object.position.set(anchor.x, anchor.y, LABEL_Z);
-      object.visible =
-        Math.abs(anchor.x - cameraX) <= marginX && Math.abs(anchor.y - cameraY) <= marginY;
-      if (!object.visible) continue;
-
-      const screenPath = wrappedPath.map((point) =>
-        mapToScreen(
-          point.x,
-          point.y,
-          cameraX,
-          cameraY,
-          halfWidth,
-          halfHeight,
-          this.viewWidth,
-          this.viewHeight
-        )
+      const copies = visibleLabelCopies(
+        spec.path,
+        { x: spec.x, y: spec.y },
+        cameraX,
+        cameraY,
+        marginX,
+        marginY
       );
-      const layout = layoutGlyphsAlongPath(screenPath, spec.text, spec.kind);
-      applyGlyphLayout(object.element, layout);
+      const visibleOffsets = new Set(copies.map((copy) => copy.offset));
+      for (const offset of LABEL_WRAP_OFFSETS) {
+        const object = this.objects.get(labelInstanceKey(id, offset));
+        if (object === undefined) continue;
+        if (!visibleOffsets.has(offset)) {
+          object.visible = false;
+        }
+      }
+      for (const copy of copies) {
+        const object = this.objects.get(labelInstanceKey(id, copy.offset));
+        if (object === undefined) continue;
+        object.position.set(copy.anchor.x, copy.anchor.y, LABEL_Z);
+        const screenPath = copy.path.map((point) =>
+          mapToScreen(
+            point.x,
+            point.y,
+            cameraX,
+            cameraY,
+            halfWidth,
+            halfHeight,
+            this.viewWidth,
+            this.viewHeight
+          )
+        );
+        const layout = layoutGlyphsAlongPath(screenPath, spec.text, spec.kind);
+        if (layout.glyphs.length === 0) {
+          object.visible = false;
+          continue;
+        }
+        object.visible = true;
+        applyGlyphLayout(object.element, layout);
+      }
     }
   }
 
