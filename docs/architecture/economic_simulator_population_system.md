@@ -3,7 +3,7 @@
 > 文档状态：可实施基线（Implementation Baseline）  
 > 适用版本：人口系统 V1  
 > 基础 Tick：1 日；劳动力、工资、人口和阶层按月更新  
-> 相关文档：`province_architecture.md`、`economic_unit_architecture.md`  
+> 相关文档：`province_architecture.md`、`operating_unit_architecture.md`、`company_architecture.md`、`equity_architecture.md`
 > 核心取舍：优先保证玩法可解释、状态可对账和性能稳定，不追求微观人口统计精度
 
 ---
@@ -18,7 +18,7 @@ V1 采用以下设计：
 4. 年龄、教育、技能、就业、财富、民族和信仰以 Class 内部的计数分布保存，不按属性组合拆分人口对象。
 5. 需要“大学学历且高技能且正在求职”的人数时，使用 Class 内边际分布乘法估算。
 6. 边际分布乘法表示 Class 内属性近似独立。这是明确接受的游戏简化，不是统计事实声明。
-7. 工厂、农场、商店、总部、道路和港口等真实 Economic Unit 都是一对一 Employer；Employer 发布岗位，不直接拥有人口。
+7. 工厂、农场、商店、总部、道路和港口等真实 Operating Unit 都是一对一 Employer；Employer 发布岗位，不直接拥有人口。
 8. 招聘结果记录在 EmploymentAllocationState；职业变化不创建新人口对象。
 9. 收入是交易产生的期间流量和派生统计；财富是需要存档和对账的资产负债存量。
 10. 人口、就业、岗位、资产和资金必须满足守恒检查；百分比只用于显示和计算，不作为唯一权威数据。
@@ -260,7 +260,7 @@ estimatedIntersection
 ### 5.1 统一 Employer
 
 ```ts
-type EmployerId = EconomicUnitId;
+type EmployerId = OperatingUnitId;
 
 interface EmployerState {
   readonly id: EmployerId;
@@ -268,7 +268,7 @@ interface EmployerState {
 }
 ```
 
-每个 Employer 必须满足 `id = EconomicUnitId`。其 Province 和 Kind 每次从对应 Economic Unit 解析，不作为第二份可独立修改的状态。V1 不创建没有账户和股东的合成 Employer。
+每个 Employer 必须满足 `id = OperatingUnitId`。其 Province 和 Kind 每次从对应 Operating Unit 解析，不作为第二份可独立修改的状态。V1 不创建没有账户和股东的合成 Employer。
 
 ### 5.2 Job Type Definition
 
@@ -283,7 +283,7 @@ interface JobTypeDefinition {
 }
 ```
 
-V1 的 Job Category 至少区分 agriculture、basic_industrial、skilled_technical、consumer_service、office_clerical、professional、middle_management 和 senior_management。是否属于政府岗位由对应 Economic Unit 的 `government_service` Kind 判断，不需要复制一套政府职业。管理岗位表示受雇管理工作；企业控制权来自权威 Share Position，不由 Job Category 推断。
+V1 的 Job Category 至少区分 agriculture、basic_industrial、skilled_technical、consumer_service、office_clerical、professional、middle_management 和 senior_management。是否属于政府岗位由对应 Operating Unit 的 `government_service` Kind 判断，不需要复制一套政府职业。管理岗位表示受雇管理工作；企业控制权来自权威 Share Position，不由 Job Category 推断。
 
 ### 5.3 Job Demand
 
@@ -303,7 +303,7 @@ interface JobDemandState {
 }
 ```
 
-V1 假设一名就业人员等于一个 FTE，不模拟兼职。V1 正式启用 permanent、fixed_term、temporary 和 self_employed；`self_employed` 也必须指向真实 Economic Unit，由该 Unit 的账户支付所有者劳动报酬，股息另行结算。gig_platform 与 informal 只保留数据定义，在实现 engagedPersons、工作利用率和多重就业前不得由游戏数据生成。保留 FTE 单位是为了以后扩展。
+V1 假设一名就业人员等于一个 FTE，不模拟兼职。V1 正式启用 permanent、fixed_term、temporary 和 self_employed；`self_employed` 也必须指向真实 Operating Unit，由该 Unit 的账户支付所有者劳动报酬，股息另行结算。gig_platform 与 informal 只保留数据定义，在实现 engagedPersons、工作利用率和多重就业前不得由游戏数据生成。保留 FTE 单位是为了以后扩展。
 
 Employment Arrangement 影响岗位稳定性、Employer 税费和福利、保留工资、裁员概率及收入波动，但不直接决定 Social Class。例如外卖骑手通常属于 service_worker，自由程序员通常属于 professional，临时建筑工仍属于 worker 或 skilled_worker。
 
@@ -486,7 +486,7 @@ nextOfferedWage
 = nextReferenceWage × employerWageMultiplier
 ```
 
-Employer 支付能力在 Economic Unit 生成岗位计划时处理。无法支付工资时必须减少岗位或进入欠薪/破产流程，不能凭空支付。
+Employer 支付能力在 Operating Unit 生成岗位计划时处理。无法支付工资时必须减少岗位或进入欠薪/破产流程，不能凭空支付。
 
 工资信号只影响下个月报价，避免招聘过程中即时改价造成顺序依赖。
 
@@ -662,7 +662,7 @@ Class 转移是重新分类，不是出生或死亡。按相同比例转移：
 - 对应就业分配；
 - 现金、存款、土地、住房、房产、其他资产、债务和当期收入。
 
-`securitiesCents`、`businessEquityCents` 和 Share Position 不走上述普通金额比例路径。月内所有 Class 流动确定后，以来源 Class 的转移比例计算各目标应承接的股份，用最大余数法把整数股份确定性分配给目标 Class；对应账面价值严格按实际转移股份比例移动。该操作属于持有人重分类，不发生现金支付，但必须写成同一原子 Ledger/Equity 批次。若来源 Class 人数归零，其剩余股份和账面价值必须全部分配完毕。
+`securitiesCents`、`businessEquityCents` 和 Share Position 不走上述普通金额比例路径。月内所有 Class 流动确定后，以来源 Class 的转移比例计算各目标应承接的股份，用最大余数法把整数股份确定性分配给目标 Class；对应账面价值严格按实际转移股份比例移动。Population 提交 `equity_architecture.md` 定义的持有人重分类命令，不发生现金支付，但必须写成同一原子 Ledger/Equity 批次。若来源 Class 人数归零，其剩余股份和账面价值必须全部分配完毕。
 
 由于没有联合分布，其他内容按来源 Class 的平均比例转移。目标 Class 已存在时直接合并；每省每种 Class 最多一个 State。
 
@@ -721,7 +721,7 @@ senior_65_plus 不自然流出，只通过死亡减少。儿童进入工作年�
 | 12             | 检查人口、就业、岗位、资金和资产不变量                                        |
 | 13～14         | 输出 Metrics、历史采样、Event 和 UI Delta                                     |
 
-新招聘人员从下个月开始生产和领取工资，不能参与刚结束月份的结算。工资报价使用一个月滞后，不在招聘循环中反复改价；下月生产开始前，Employment Allocation 必须已经确定。人口模块只接收 Ledger 结算结果，不自行结算 Economic Unit 利润或分红。
+新招聘人员从下个月开始生产和领取工资，不能参与刚结束月份的结算。工资报价使用一个月滞后，不在招聘循环中反复改价；下月生产开始前，Employment Allocation 必须已经确定。人口模块只接收 Ledger 结算结果，不自行结算 Operating Unit 利润或分红。
 
 ---
 
@@ -842,7 +842,8 @@ consumption-profiles.json
 | -------------- | ------------------------ | ------------------------ |
 | Population     | 人口、政策、结算结果     | 人口分布、消费计划、资产 |
 | Labor          | 人口供给、岗位需求       | 就业分配、参考工资       |
-| Economic Units | 价格、库存、工资、技术   | 岗位需求                 |
+| Equity         | Class 投资账户、重分类命令 | Share Position、股权事件 |
+| Operating Units | 价格、库存、工资、技术   | 岗位需求                 |
 | Accounting     | 就业分配、市场成交、税费 | 交易和账户余额           |
 | Statistics     | 所有只读状态             | 可重算 Metrics           |
 

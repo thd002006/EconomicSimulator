@@ -107,7 +107,7 @@
 | 省份                      |        2,000 |        5,000 |
 | 商品                      |           80 |          200 |
 | 人口 Class 聚合单元       |       22,000 |       55,000 |
-| Economic Unit             |       50,000 |      200,000 |
+| Operating Unit             |       50,000 |      200,000 |
 | 运输节点                  |       20,000 |      100,000 |
 | 运输边                    |       50,000 |      250,000 |
 | UI 同时显示的动态地图对象 |       10,000 |       50,000 |
@@ -181,7 +181,9 @@ project/
 │   │   ├── world/
 │   │   ├── scheduler/
 │   │   ├── population/
-│   │   ├── economic-units/
+│   │   ├── equity/
+│   │   ├── companies/
+│   │   ├── operating-units/
 │   │   ├── production/
 │   │   ├── markets/
 │   │   ├── trade/
@@ -271,7 +273,9 @@ interface SimulationEngine {
 Simulation
 ├── World & Calendar
 ├── Population & Households
-├── Economic Units & Industries
+├── Equity
+├── Companies
+├── Operating Units & Industries
 ├── Commodities & Inventory
 ├── Production
 ├── Labor Market
@@ -318,7 +322,7 @@ GDP 统计       每月或每季度
 ```text
 1. 应用已确认的玩家/AI 命令
 2. 更新政策和外生事件
-3. 生成人口、Economic Unit 和政府计划
+3. 生成人口、Company、Operating Unit 和政府计划
 4. 分配劳动力、资本和投入品
 5. 执行生产
 6. 提交市场供给和需求
@@ -327,12 +331,12 @@ GDP 统计       每月或每季度
 9. 执行消费与库存损耗
 10. 若为月末，执行不可中断结算批次
     10a. 结算工资、已交付采购、维护、租金、利息、税费、转移支付和到期债务，双方同时入账
-    10b. Economic Unit 关闭收入费用，确认利润并更新留存收益
-    10c. 判定偿付能力，冻结本月股东名册和分红预算
-    10d. 按冻结预算支付分红
+    10b. Operating Unit 与 Company 关闭收入费用，确认利润并更新留存收益
+    10c. 判定偿付能力；Equity 冻结本月股东名册，发行主体冻结分红预算
+    10d. Equity 按冻结预算和名册支付分红
     10e. 人口接收本月实际消费结果并更新资产负债表
 11. 处理生命周期并准备下月
-    11a. Economic Unit 进入、重组、清算和退出
+    11a. Company 与 Operating Unit 进入、重组、清算和退出
     11b. 人口教育、技能、Class、出生、死亡、年龄和外生迁移
     11c. 生成下月岗位，完成裁员、招聘、参考工资和报价
 12. 检查不变量
@@ -476,7 +480,7 @@ ProvinceMetrics
 └── tradeVolume
 ```
 
-人口、库存、产能和基础设施状态分别由 Population、Inventory、Economic Units 和 Transport 模块持有；Province 只保存行政与默认节点关系并提供派生 Metrics，不保存第二份经济容器状态。
+人口、库存、产能和基础设施状态分别由 Population、Inventory、Operating Units 和 Transport 模块持有；Province 只保存行政与默认节点关系并提供派生 Metrics，不保存第二份经济容器状态。
 
 ### 9.2 避免双重真相来源
 
@@ -516,7 +520,7 @@ PopulationClassState
 
 每省最多 11 个 `PopulationClassState`。需要多个属性联合人数时，在同一 Class 内使用边际分布乘法估算；职业由独立的就业分配表表示。完整机制、公式和升级条件以 `economic_simulator_population_system.md` 为准。
 
-经济活动使用独立 Economic Unit：工厂、商店、总部、道路和港口分别拥有 Employer、账户、股本与股东。总部通过持股控制其他 Unit，Enterprise Group 只从股权图派生，不建立并行集团所有权状态。完整经营、股权、分红和基础设施契约以 `economic_unit_architecture.md` 为准。
+经济活动分为 Company 与 Operating Unit 两层：Company 负责组织、融资、持股和资本配置；工厂、商店、总部、道路和港口等 Operating Unit 负责具体雇佣、采购、生产、服务和销售。每个 Company 有唯一 Headquarters Operating Unit，但总部本身不持股。Population Class、Government 和 Company 都可作为股东，股本与 Share Position 由独立 Equity 模块登记。完整契约分别以 `company_architecture.md`、`operating_unit_architecture.md` 和 `equity_architecture.md` 为准。
 
 ### 9.5 热点数据布局
 
@@ -607,7 +611,7 @@ Country 负责：
 
 Province 负责或承载：
 
-- 人口、Economic Unit、市场和运输节点的空间键；
+- 人口、Operating Unit、市场和运输节点的空间键；
 - 静态资源潜力；
 - 主要地方市场和主要运输节点引用；
 - 从各权威模块派生的省级 Metrics。
@@ -635,7 +639,7 @@ TransportEdgeDefinition
 └── baseTravelTime
 ```
 
-Transport Graph 保存拓扑和静态工程参数。道路、铁路和港口的当前经营者、condition 与经营状态保存在对应 Economic Unit 的 Transport 组件中，并通过可重建索引映射到 Node 或 Edge；Transport 模块从资产 Definition、condition、员工和可用性输入派生可售容量，不保存第二个容量上限。实际贸易路线是路径或流量结果，不应与永久基础设施资产或经营单位混为一体。
+Transport Graph 保存拓扑和静态工程参数。道路、铁路和港口的当前经营者、condition 与经营状态保存在对应 Operating Unit 的 Transport 组件中，并通过可重建索引映射到 Node 或 Edge；Transport 模块从资产 Definition、condition、员工和可用性输入派生可售容量，不保存第二个容量上限。实际贸易路线是路径或流量结果，不应与永久基础设施资产或经营单位混为一体。
 
 ---
 
@@ -790,7 +794,7 @@ Inspector 是架构能力，不只是 UI 页面。每类实体应提供稳定 Qu
 getProvinceSummary
 getCountrySummary
 getPopulationClassDetails
-getEconomicUnitDetails
+getOperatingUnitDetails
 getCommodityMarket
 getTransportPath
 getAccountTrace
@@ -918,7 +922,7 @@ Performance Tests
 - 失败 Tick 和随机种子；
 - 最近命令和事件；
 - 模块耗时；
-- 人口、GDP、物价、货币和 Economic Unit 数量趋势；
+- 人口、GDP、物价、货币和 Operating Unit 数量趋势；
 - 首次出现异常的实体；
 - 可供本地重放的最小测试包。
 
@@ -933,7 +937,9 @@ World
 Countries
 Provinces
 Population
-Economic Units
+Equity
+Companies
+Operating Units
 Markets
 Trade
 Transport
@@ -1180,7 +1186,7 @@ Windows 是第一优先平台，但启用 macOS/Linux 前必须各自建立真�
 使用极小场景跑通一个纵向闭环：
 
 ```text
-省份 → 人口 → Economic Unit/产能 → 生产 → 市场 → 消费 → 统计
+省份 → 人口 → Operating Unit/产能 → 生产 → 市场 → 消费 → 统计
 ```
 
 交付：
@@ -1213,7 +1219,7 @@ Windows 是第一优先平台，但启用 macOS/Linux 前必须各自建立真�
 
 - 多商品和行业链；
 - 劳动力和工资；
-- Economic Unit 进入、退出、股权和投资；
+- Company 与 Operating Unit 进入、退出，独立 Equity 登记和公司投资；
 - 跨省运输和贸易；
 - 政府、税收和财政；
 - 银行、信贷和货币；
@@ -1283,7 +1289,7 @@ Tauri 最小壳在 Phase 0 建立，Steam 接口在早期预留；Phase 5 完成
 1. Province 是主要地图和空间统计单位，但不是所有系统被强制使用的最低粒度。
 2. Country 是政治和国家级经济实体；省份归属只保留一个权威来源。
 3. 地图几何、静态定义、运行状态、派生指标和 UI View Model 严格分离。
-4. 道路、铁路、港口和航线的空间资产组成独立运输图；其经营者是有员工、账目和股东的 Economic Unit，贸易路线仍是路径或流量结果。
+4. 道路、铁路、港口和航线的空间资产组成独立运输图；其经营者是有员工、账目和股东的 Operating Unit，贸易路线仍是路径或流量结果。
 5. Simulation Core 是纯 TypeScript、平台无关、可在 Node 中独立测试的包。
 6. Web Worker 持有权威 World State，React 只持有显示所需 Read Model。
 7. Worker 使用版本化 Command / Query / Event / Snapshot / Delta 协议。

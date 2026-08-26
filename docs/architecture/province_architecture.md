@@ -3,8 +3,8 @@
 > 文档状态：可实施基线（Implementation Baseline）  
 > 适用版本：省份系统 V1  
 > 基础 Tick：1 日；省份统计按日更新，人口和主要经济统计按月结算  
-> 相关文档：`economic_simulation_web_architecture.md`、`economic_simulator_population_system.md`  
-> 核心取舍：省份是稳定的行政与空间聚合单位，但不是人口和经济单位的所有者容器
+> 相关文档：`economic_simulation_web_architecture.md`、`economic_simulator_population_system.md`、`operating_unit_architecture.md`、`company_architecture.md`、`equity_architecture.md`
+> 核心取舍：省份是稳定的行政与空间聚合单位，但不是人口和经营单元的所有者容器
 
 ---
 
@@ -20,10 +20,10 @@ V1 采用以下设计：
 6. V1 的 Province 几何和首府固定，不支持省份拆分、合并、创建、删除或运行时修改边界。
 7. 每个 Province 恰好引用一个主要地方市场；城市、港口和专业市场以后可以作为更细的独立市场节点存在。
 8. 每个 Province 最多关联 11 个 `PopulationClassState`。人口模块持有权威人口状态，Province 不复制 Class 人数或分布。
-9. 工厂、农场、商店、总部、仓库、道路和港口是独立 Economic Unit，通过 `provinceId` 定位；Province 不保存权威子对象数组。
-10. 总部 Economic Unit 可以跨省持有其他 Unit；Enterprise Group 从股权控制关系派生，不由 Province 保存成员列表。
+9. 工厂、农场、商店、总部、仓库、道路和港口是独立 Operating Unit，通过 `provinceId` 定位；Province 不保存权威子对象数组。
+10. Company 可以跨省控制多个 Operating Unit，也可以持有其他 Company；总部只是 Company 必需的附属经营单元，不负责持股。
 11. 省份反向索引和所有汇总指标必须可由权威状态重建；缓存不得成为业务规则的第二真相来源。
-12. 省份归属变更只改变行政归属，不自动迁移人口、不改变 Economic Unit 股权、不搬迁 Unit，也不改写过去的统计和事件。
+12. 省份归属变更只改变行政归属，不自动迁移人口、不改变 Operating Unit 股权、不搬迁 Unit，也不改写过去的统计和事件。
 
 V1 明确不做：
 
@@ -50,7 +50,7 @@ Authored Map Package                 Game Data
                               │
           ┌───────────────────┼────────────────────┐
           ▼                   ▼                    ▼
- Population Classes     Economic Units      Market / Transport
+ Population Classes     Operating Units      Market / Transport
           │                   │                    │
           └───────────────────┼────────────────────┘
                               ▼
@@ -94,8 +94,8 @@ View Model  为具体 Query 和 UI 裁剪的只读结果
 | ---------- | ----------------------------------------------------- | ---------------------------------- |
 | Definition | 地图要素引用、面积、地形、气候、资源潜力              | 记录数据包版本，不逐项复制         |
 | State      | 当前国家归属、已结束归属期间、主要市场和主要运输节点  | 是                                 |
-| Metrics    | 人口、GDP、就业率、平均工资、物价、产出、经济单位数量 | 默认否；历史采样按统计系统规则保存 |
-| View Model | `ProvinceSummaryView`、经济单位分页、Inspector 数据   | 否                                 |
+| Metrics    | 人口、GDP、就业率、平均工资、物价、产出、经营单元数量 | 默认否；历史采样按统计系统规则保存 |
+| View Model | `ProvinceSummaryView`、经营单元分页、Inspector 数据   | 否                                 |
 
 不得因为 UI 需要方便而把 Metrics 回写为新的权威字段。不得把反向索引序列化为业务状态；载入后必须从权威实体重建。
 
@@ -108,9 +108,10 @@ View Model  为具体 Query 和 UI 裁剪的只读结果
 ```ts
 type ProvinceId = string;
 type CountryId = string;
+type CompanyId = string;
 type MarketId = string;
 type TransportNodeId = string;
-type EconomicUnitId = string;
+type OperatingUnitId = string;
 type IndustryId = string;
 type ResourceId = string;
 type TerrainProfileId = string;
@@ -254,7 +255,7 @@ interface ProvinceLocalState {
 }
 ```
 
-道路、铁路、港口、公用事业和政府服务的 condition 与经营状态只由 Transport 等专门模块中、以 `economicUnitId` 为键的经营组件持有；可用 capacity 从资产 Definition 与当前经营输入派生。Province 基础设施概况只能从这些来源聚合，不保存可独立修改的 condition、capacity 或 coverage。
+道路、铁路、港口、公用事业和政府服务的 condition 与经营状态只由 Transport 等专门模块中、以 `operatingUnitId` 为键的经营组件持有；可用 capacity 从资产 Definition 与当前经营输入派生。Province 基础设施概况只能从这些来源聚合，不保存可独立修改的 condition、capacity 或 coverage。
 
 ---
 
@@ -286,46 +287,47 @@ interface PopulationClassState {
 
 ---
 
-## 9. Economic Unit 与企业集团
+## 9. Operating Unit 与 Company
 
 ### 9.1 统一空间契约
 
-所有真实 Economic Unit 都通过核心状态中的 `provinceId` 落在一个 Province：
+所有真实 Operating Unit 都通过核心状态中的 `provinceId` 落在一个 Province：
 
 ```ts
-interface ProvinceLocatedEconomicUnit {
-  readonly id: EconomicUnitId;
+interface ProvinceLocatedOperatingUnit {
+  readonly id: OperatingUnitId;
   provinceId: ProvinceId;
 }
 ```
 
-Economic Unit 的身份、经营、Employer、账户、股本、股东和专有组件以 `economic_unit_architecture.md` 为准。Province 只消费 Unit 的 ID、Kind、状态和 `provinceId`：
+Operating Unit 的身份、经营、Employer、账户和专有组件以 `operating_unit_architecture.md` 为准，股本和多数股东以 `equity_architecture.md` 为准，公司及集团以 `company_architecture.md` 为准。Province 只消费 Unit 的 ID、Kind、状态和 `provinceId`：
 
-- `economicUnitIdsByProvince` 从 Unit 状态建立；
+- `operatingUnitIdsByProvince` 从 Unit 状态建立；
 - Province Metrics 从 Unit 经营、就业、市场和账本结果聚合；
 - Province 不复制 Unit 的员工、库存、股东、现金、产量或利润；
 - 每个 Unit 恰好属于一个 Province；跨省道路和铁路在省界处分段为多个 Unit。
 
-### 9.2 总部与跨省集团
+### 9.2 总部、公司与跨省集团
 
-`headquarters` 是一种普通 Economic Unit。它通过持有其他 Unit 超过 50% 的普通股形成控制关系：
+`headquarters` 是 Company 必需的附属 Operating Unit，但不持有股份。Company 才是资本和组织主体：
 
-- Headquarters H 可以位于 Province A；
-- H 可以持有 Province B、C 的工厂、商店或港口股份；
-- 每个子 Unit 仍各自拥有 Province、Employer、账户和股东；
-- Enterprise Group 是股权图的派生 View，不保存到 Province 或总部成员数组。
+- Company C 的 Headquarters H 可以位于 Province A；
+- C 可以控制 Province B、C 的工厂、商店或港口；
+- C 可以持有另一个 Company，后者仍拥有自己的 Headquarters；
+- 每个 Unit 仍各自拥有 Province、Employer、账户和股东；
+- Company Group 从 Company 间控制关系派生，不保存到 Province、Company 或 Headquarters 的成员数组。
 
-因此“某集团在本省有多少工厂”必须先由 Equity 模块确定集团成员，再与 `economicUnitIdsByProvince` 求交，不能依赖手工维护的集团地点列表。
+因此“某集团在本省有多少工厂”必须先由 Company/Equity 模块派生集团 Company，再取得这些 Company 控制的 Unit，与 `operatingUnitIdsByProvince` 求交。
 
 ### 9.3 生命周期与迁址
 
-创建、启用、暂停、破产、关闭和迁址由 Economic Units 及专有经营模块发起，World API 负责统一验证和提交。
+创建、启用、暂停、破产、关闭和迁址由 Operating Units 及专有经营模块发起，World API 负责统一验证和提交。
 
 迁址在完整 Tick 边界原子修改 `provinceId`，并产生包含原省份、目标省份和生效 Tick 的事件。业务模块必须同时处理库存、运输中订单、劳动合同、地方许可或其他专有状态；Province 模块不得猜测这些规则。
 
 关闭的 Unit 保留 ID、最终位置和 `closedTick`，从活动索引移除但仍可供历史查询。零状态对象不得物理删除到使交易、股权、事件或历史统计失去引用。
 
-Unit 破产时，由 Bankruptcy 和 Economic Units 模块决定重组、出售股权、转让基础设施经营权或关闭。Province 只在提交后的权威状态上重建或增量更新索引。
+Unit 破产时，由 Bankruptcy、Operating Units、Company 与 Equity 模块共同决定重组、股权出售、基础设施经营权转让或关闭。Province 只在提交后的权威状态上重建或增量更新索引。
 
 ---
 
@@ -371,7 +373,7 @@ World State 可以维护以下性能索引：
 interface ProvinceIndexes {
   readonly provinceIdsByCountry: ReadonlyMap<CountryId, readonly ProvinceId[]>;
   readonly populationClassKeysByProvince: ReadonlyMap<ProvinceId, readonly string[]>;
-  readonly economicUnitIdsByProvince: ReadonlyMap<ProvinceId, readonly EconomicUnitId[]>;
+  readonly operatingUnitIdsByProvince: ReadonlyMap<ProvinceId, readonly OperatingUnitId[]>;
   readonly marketIdsByProvince: ReadonlyMap<ProvinceId, readonly MarketId[]>;
   readonly transportNodeIdsByProvince: ReadonlyMap<ProvinceId, readonly TransportNodeId[]>;
 }
@@ -449,7 +451,7 @@ interface ProvinceOwnershipChangedEvent {
 
 - 人口迁移或 Social Class 变化；
 - 企业控制权、现金、债务或总部迁移；
-- Economic Unit、Market、Inventory 或 Transport Node 的 `provinceId` 变化；
+- Operating Unit、Market、Inventory 或 Transport Node 的 `provinceId` 变化；
 - 已完成交易、历史统计或账本记录重写。
 
 归属相关税收、贸易、工资或政策规则从生效 Tick 之后按 Country 模块的阶段规则读取新归属。
@@ -466,7 +468,7 @@ interface ProvinceOwnershipChangedEvent {
 | 2～3           | 把 Country 政策映射到当前 Province；向计划模块提供市场、资源潜力和只读索引        |
 | 5～11          | 不主动修改其他模块，仅按 `provinceId` 接收阶段结果和索引失效标记                  |
 | 12             | 检查引用完整性、当前归属唯一性、主要节点和反向索引一致性                          |
-| 13～14         | 从 Population、Economic Units、Markets 和 Transport 聚合 Metrics、历史与 UI Delta |
+| 13～14         | 从 Population、Operating Units、Markets 和 Transport 聚合 Metrics、历史与 UI Delta |
 
 归属或 Unit 迁址在 Tick 中途不可见。Province 不得在月末批次中插入额外招聘、生产、人口转移或基础设施更新；存档只允许在完整 Tick 结束且不变量通过后生成。
 
@@ -477,7 +479,7 @@ interface ProvinceOwnershipChangedEvent {
 ### 14.1 Province Metrics
 
 ```ts
-interface ProvinceEconomicUnitCounts {
+interface ProvinceOperatingUnitCounts {
   readonly factory: number;
   readonly farm: number;
   readonly store: number;
@@ -494,7 +496,7 @@ interface ProvinceEconomicUnitCounts {
 interface ProvinceInfrastructureMetrics {
   readonly condition: number;
   readonly coverage: number;
-  readonly activeEconomicUnitCount: number;
+  readonly activeOperatingUnitCount: number;
 }
 
 interface ProvinceMetrics {
@@ -508,14 +510,14 @@ interface ProvinceMetrics {
   readonly gdpCentsThisMonth: number;
   readonly householdConsumptionCentsThisMonth: number;
   readonly tradeValueCentsThisMonth: number;
-  readonly economicUnitCounts: ProvinceEconomicUnitCounts;
+  readonly operatingUnitCounts: ProvinceOperatingUnitCounts;
   readonly infrastructureByKind: Readonly<
     Record<InfrastructureKindId, ProvinceInfrastructureMetrics>
   >;
 }
 ```
 
-`economicUnitCounts` 统计 Province 中所有尚未进入 `closed` 终态的 Unit，包括规划、建设、暂停、破产和清算中的 Unit；需要“当前营业数量”时必须按 `operatingStatus = active` 单独查询，不能混用两个口径。
+`operatingUnitCounts` 统计 Province 中所有尚未进入 `closed` 终态的 Unit，包括规划、建设、暂停、破产和清算中的 Unit；需要“当前营业数量”时必须按 `operatingStatus = active` 单独查询，不能混用两个口径。
 
 Metrics 的来源必须可解释：
 
@@ -526,9 +528,9 @@ Metrics 的来源必须可解释：
 | GDP            | Production、Markets、Accounting     |
 | 消费           | 市场实际成交和人口结算              |
 | 贸易           | Market、Transport、Accounting       |
-| 经济单位数量   | 非 `closed` 的 `EconomicUnitState`  |
+| 经营单元数量   | 非 `closed` 的 `OperatingUnitState`  |
 | 价格和生活成本 | 主要地方市场                        |
-| 基础设施概况   | Economic Unit 与 Transport 组件聚合 |
+| 基础设施概况   | Operating Unit 与 Transport 组件聚合 |
 
 不得把计划产量、挂单金额或期望消费误报为实际 GDP、贸易或消费。
 
@@ -557,7 +559,7 @@ interface ProvinceSummaryView {
   readonly employmentRate: number;
   readonly averageMonthlyWageCents: number;
   readonly gdpCentsThisMonth: number;
-  readonly economicUnitCounts: ProvinceEconomicUnitCounts;
+  readonly operatingUnitCounts: ProvinceOperatingUnitCounts;
   readonly infrastructure: Readonly<
     Record<InfrastructureKindId, Readonly<ProvinceInfrastructureMetrics>>
   >;
@@ -573,7 +575,7 @@ interface ProvinceSummaryView {
 getProvinceSummary
 getProvincePopulationSummary
 getProvinceLaborMarket
-getProvinceEconomicUnits
+getProvinceOperatingUnits
 getProvinceOwnershipHistory
 getProvinceHistory
 getProvinceInvariantReport
@@ -581,32 +583,32 @@ getProvinceInvariantReport
 
 `getProvincePopulationSummary` 和 `getProvinceLaborMarket` 复用人口系统定义的结果，不在 Province 模块维护第二套 DTO 语义。
 
-### 15.3 经济单位分页
+### 15.3 经营单元分页
 
 ```ts
-interface GetProvinceEconomicUnitsQuery {
-  readonly kind: "get-province-economic-units";
+interface GetProvinceOperatingUnitsQuery {
+  readonly kind: "get-province-operating-units";
   readonly provinceId: ProvinceId;
-  readonly unitKinds?: readonly EconomicUnitKind[];
+  readonly unitKinds?: readonly OperatingUnitKind[];
   readonly industryIds?: readonly IndustryId[];
-  readonly directController?: ShareholderRef;
-  readonly operatingStatuses?: readonly EconomicUnitOperatingStatus[];
-  readonly afterEconomicUnitId?: EconomicUnitId;
+  readonly controllingCompanyIds?: readonly CompanyId[];
+  readonly operatingStatuses?: readonly OperatingUnitOperatingStatus[];
+  readonly afterOperatingUnitId?: OperatingUnitId;
   readonly limit: number;
 }
 
-interface ProvinceEconomicUnitPage {
+interface ProvinceOperatingUnitPage {
   readonly provinceId: ProvinceId;
   readonly asOfTick: Tick;
-  readonly items: readonly EconomicUnitSummaryView[];
-  readonly nextAfterEconomicUnitId: EconomicUnitId | null;
+  readonly items: readonly OperatingUnitSummaryView[];
+  readonly nextAfterOperatingUnitId: OperatingUnitId | null;
 }
 ```
 
 分页规则：
 
 - `limit` 为 1～200；
-- 过滤后始终按 `EconomicUnitId` 升序；
+- 过滤后始终按 `OperatingUnitId` 升序；
 - Cursor 表示上一页最后一个 ID，而不是数组下标；
 - Worker Request 的 `expectedTick` 用于保证多页查询针对同一世界状态；
 - Tick 已变化时返回结构化 `STALE_QUERY_TICK`，UI 从第一页重新查询；
@@ -623,10 +625,9 @@ UI 和 Inspector 只能读取 View Model，不能持有或修改 Simulation Core
 ```text
 ProvinceOwnershipChanged
 ProvincePrimaryMarketChanged
-EconomicUnitActivated
-EconomicUnitClosed
-EconomicUnitRelocated
-EconomicUnitControllerChanged
+OperatingUnitActivated
+OperatingUnitClosed
+OperatingUnitRelocated
 ```
 
 结构化错误至少包括：
@@ -689,19 +690,19 @@ scenario_initialization 的 acquiredByCommandId 为 null
 
 场景初始化的第一段当前归属不要求存在一条伪造的已结束历史。
 
-### 17.4 人口和经济单位
+### 17.4 人口和经营单元
 
 ```text
 所有 PopulationClassState.provinceId 指向存在的 Province
 同一 provinceId + socialClassId 最多一条人口状态
 每省 PopulationClassState 数量 <= 11
-所有 EconomicUnitState.provinceId 指向存在的 Province
+所有 OperatingUnitState.provinceId 指向存在的 Province
 foundedTick <= currentTick
 已启用的 Unit 必须有 activatedTick，且 foundedTick <= activatedTick <= currentTick
 closed 状态必须有 closedTick，非 closed 状态不得有 closedTick
 closedTick 不得早于 foundedTick 或 activatedTick
 closed Unit 不得重新进入其他状态
-每个 Unit 的 Employer、股本、股东和经营组件满足经济单位规格
+每个 Unit 的 Employer、股本、股东和经营组件满足经营单元规格
 Market、TransportNode、Employer 的 provinceId 均有效
 ```
 
@@ -710,7 +711,7 @@ Market、TransportNode、Employer 的 provinceId 均有效
 ```text
 provinceIdsByCountry 与 Ownership 全量扫描结果一致
 populationClassKeysByProvince 与 Population 全量扫描结果一致
-economicUnitIdsByProvince 与 EconomicUnit 全量扫描结果一致
+operatingUnitIdsByProvince 与 OperatingUnit 全量扫描结果一致
 索引内无重复 ID 且严格升序
 所有人数、金额、数量和 Metrics 为有限数
 人数、地点数量和不允许为负的金额 >= 0
@@ -745,9 +746,9 @@ resource-definitions.json
 加载并校验地图包
 → 加载 Province Definitions
 → 建立 Province ID / Map Feature 映射
-→ 加载 Country、Market、Transport 和 Economic Unit 定义
+→ 加载 Country、Market、Transport 和 Operating Unit 定义
 → 加载 Province Initial State
-→ 加载人口、经济单位和股权初始状态
+→ 加载人口、Company、经营单元和 Equity 初始状态
 → 建立全部反向索引
 → 执行完整引用和不变量检查
 → 发布可运行 World State
@@ -800,7 +801,7 @@ ProvinceLocalState[]
 同一模拟版本、数据版本、地图版本、初始状态、种子和 Command 序列必须得到相同的：
 
 - Province Ownership 和历史；
-- 经济单位索引顺序；
+- 经营单元索引顺序；
 - Province Metrics；
 - Event 顺序；
 - 快照后续运行结果。
@@ -815,7 +816,9 @@ ProvinceLocalState[]
 | -------------- | ----------------------------------------- | ------------------------------------ |
 | Provinces      | Definition、Ownership、地方状态、阶段输出 | 归属、地方状态、索引缓存、Metrics    |
 | Population     | Province 存在性、地方市场、派生 Metrics   | Class 状态、迁移结果、消费计划       |
-| Economic Units | Province、市场、资源潜力                  | Unit、股权、经营计划与退出结果       |
+| Equity          | 发行主体、股东账户、Ledger、领域校验      | 股本、Share Position 与股权事件      |
+| Companies       | Country、Unit、Ledger、Equity             | 公司、总部关系与资本计划             |
+| Operating Units | Province、市场、资源潜力、Equity 读模型  | Unit、经营计划与退出结果             |
 | Markets        | 地点、人口需求、库存和运输                | 成交、价格、配给和市场状态           |
 | Transport      | Province 归属、边界、节点和基础设施       | 路径、流量、在途状态                 |
 | Country        | Province Ownership 和省级聚合             | 国家政策、财政、外交和国家级 Metrics |
@@ -832,7 +835,7 @@ Province 模块可以提供校验和索引服务，但不能反向依赖 React�
 - Definition 和地图 Feature 一对一校验；
 - Province Ownership 当前状态与历史期间更新；
 - 主要市场和运输节点同省校验；
-- Economic Unit 过滤、稳定排序和 Cursor 分页；
+- Operating Unit 过滤、稳定排序和 Cursor 分页；
 - 索引增量更新与全量重建结果一致；
 - Province Metrics 对零人口、零地点和零成交安全；
 - 所有除零路径返回显式零或结构化错误，不产生 NaN。
@@ -846,33 +849,33 @@ Province A
 ├── 11 个 Class 中 8 个非零
 ├── 2 个工厂
 ├── 1 个仓库
-├── Headquarters H
-│   ├── 持有 Factory F 100%
-│   └── 持有 Store S 80%
+├── Company Alpha 的 Headquarters H
+├── Company Alpha 控制 Factory F 100%
+├── Company Alpha 控制 Store S 80%
 └── Road R
 
 Province B
 ├── 11 个 Class 中 5 个非零
 ├── 1 个农场
-├── Headquarters H 控制的 2 个商店
+├── Company Alpha 控制的 2 个商店
 └── Port P
 ```
 
 验收：
 
 1. 两省人口、就业和 Unit 数量聚合正确，零人口 Class 在 Query 中补零。
-2. Headquarters H 正确显示位于 A，并通过股权控制跨省 Unit；Province 不保存集团成员数组。
+2. Headquarters H 正确显示位于 A；Company Alpha 通过股权控制跨省 Unit，Province 不保存公司或集团成员数组。
 3. B 新建商店、关闭农场、将一个商店迁到 A 后，索引、分页和 Metrics 在 Tick 边界一致更新。
-4. Port P 破产后，经营权按经济单位规格转让或关闭，不留下无运营者但仍提供容量的状态。
-5. A 从 Country 1 转属 Country 2 后，人口、Economic Unit、市场和运输节点保持原 Province；国家聚合和相邻国界更新。
+4. Port P 破产后，经营权按经营单元规格转让或关闭，不留下无运营者但仍提供容量的状态。
+5. A 从 Country 1 转属 Country 2 后，人口、Operating Unit、市场和运输节点保持原 Province；国家聚合和相邻国界更新。
 6. 保存再载入后继续运行，与未载入分支产生相同摘要、事件和索引顺序。
 
 ### 21.3 错误场景
 
-- 引用不存在 Province 的 Population、Economic Unit、Market 或 Transport Node 时拒绝加载或提交；
+- 引用不存在 Province 的 Population、Operating Unit、Market 或 Transport Node 时拒绝加载或提交；
 - 使用过期 `expectedCurrentCountryId` 转属时不修改任何状态；
 - 把主要市场或运输节点设置到其他 Province 时拒绝；
-- Economic Unit 的 Employer、股本或主经营组件缺失时拒绝加载；
+- Operating Unit 的 Employer、合法股东、股本或主经营组件缺失时拒绝加载；
 - 跨省道路没有在省界处分段时拒绝场景数据；
 - 分页第二页的 `expectedTick` 过期时返回 `STALE_QUERY_TICK`；
 - 人为破坏索引后，全量审计能够报告首个差异实体和可重放 Tick。
@@ -882,9 +885,9 @@ Province B
 - 固定种子和 Command Log 运行至少 100,000 日 Tick；
 - 周期性迁址、开店、关店、破产和归属变更后不变量持续成立；
 - 相同实体以不同输入顺序加载，最终快照指纹一致；
-- 5,000 Province、200,000 Economic Unit 压力场景通过；
+- 5,000 Province、200,000 Operating Unit 压力场景通过；
 - Tick 末聚合复杂度目标为 `O(P + C + E + M + T)`，不允许每省扫描全部经济实体；
-- 单 Province 经济单位分页只扫描该 Province 索引和匹配结果；
+- 单 Province 经营单元分页只扫描该 Province 索引和匹配结果；
 - 输出 Tick 耗时、索引内存、全量审计耗时、最大省份地点数和失败 Tick。
 
 具体毫秒和内存门槛由总体架构的标准测试机器基准确定；达到门槛前不得仅凭预期迁移到多 Worker、WASM 或二进制状态。
@@ -911,22 +914,22 @@ Province B
 
 - Population Class 省份索引和人口 Query 接入；
 - 主要地方市场与主要运输节点引用；
-- 从 Economic Unit 与 Transport 派生基础设施 Metrics；
+- 从 Operating Unit 与 Transport 派生基础设施 Metrics；
 - 第一版 Province Metrics。
 
 验收：省份 Inspector 可以查询人口、劳动力、市场和基础设施，不存在重复权威人口或价格状态。
 
-### Milestone 3：经济单位和跨省集团
+### Milestone 3：经营单元、公司和跨省集团
 
 交付：
 
-- `EconomicUnitState` 和专有经营组件引用规则；
+- `OperatingUnitState` 和专有经营组件引用规则；
 - Unit 创建、启用、关闭、迁址事件；
-- Employer、股本和股东约束；
+- Employer、股本和合法股东约束；
 - 按 Province 建立可重建 Unit 索引；
-- 带过滤和稳定 Cursor 的经济单位分页 Query。
+- 带过滤和稳定 Cursor 的经营单元分页 Query。
 
-验收：总部通过股权控制跨省 Unit；不同省份可拥有可变数量的工厂、商店、道路、港口和总部；生命周期操作后索引与全量扫描一致。
+验收：Company 通过股权控制跨省 Unit，且每个 Company 有唯一总部；不同省份可拥有可变数量的工厂、商店、道路、港口和总部；生命周期操作后索引与全量扫描一致。
 
 ### Milestone 4：完整读模型、快照和性能
 
