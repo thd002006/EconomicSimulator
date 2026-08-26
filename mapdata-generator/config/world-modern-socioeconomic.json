@@ -1,0 +1,38 @@
+{
+  "baseYear": 2000,
+  "population": {
+    "source": "GHS-POP R2023A E2000 1000m Mollweide (directly used for 2001-01-01 start)",
+    "epochYear": 2000,
+    "url": "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_GLOBE_R2023A/GHS_POP_E2000_GLOBE_R2023A_54009_1000/V1-0/GHS_POP_E2000_GLOBE_R2023A_54009_1000_V1_0.zip",
+    "fileName": "ghs_pop_e2000_1km.zip",
+    "license": "CC BY 4.0 (European Commission JRC)"
+  },
+  "ageSex": {
+    "source": "UN WPP 2024 single-age population estimates 2000 (PPgp/wpp2024 data-raw)",
+    "maleUrl": "https://raw.githubusercontent.com/PPgp/wpp2024/main/data-raw/popM.txt",
+    "femaleUrl": "https://raw.githubusercontent.com/PPgp/wpp2024/main/data-raw/popF.txt",
+    "countryTableUrl": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/9380cca83db5f9aef52d5e762765100745f84b27/geojson/ne_10m_admin_0_countries.geojson",
+    "fileNamePrefix": "wpp2024",
+    "license": "UN DESA open data; R package GPL-3"
+  },
+  "education": {
+    "source": "Barro-Lee Educational Attainment Dataset v2.2 (population by age group) - 2000 wave directly",
+    "url": "https://barrolee.github.io/BarroLeeDataSet/BLData/BL2013_MF_v2.2.csv",
+    "fileName": "barlee2013_mf_age_v22.csv",
+    "interpolationYears": [2000, 2005],
+    "license": "Open (Barro & Lee 2013, J. Dev. Econ.)"
+  },
+  "gdpPpp": {
+    "source": "Kummu et al. 2018 gridded GDP PPP 1990-2015 v2 (5 arcmin, Dryad doi:10.5061/dryad.dk1j0)",
+    "datasetUrl": "https://datadryad.org/dataset/doi:10.5061/dryad.dk1j0",
+    "url": "https://zenodo.org/records/4972425/files/GDP_PPP_1990_2015_5arcmin_v2.nc?download=1",
+    "fileName": "kummu_gdp_ppp.nc",
+    "convertedFileName": "kummu_gdp_ppp_2001.tif",
+    "unit": "constant 2011 PPP USD",
+    "license": "CC BY 4.0"
+  },
+  "educationAdjustment": {
+    "maxShiftSharePoints": 10,
+    "reference": "province gdpPerCapita relative to country mean shifts attainment along basic->advanced"
+  }
+}

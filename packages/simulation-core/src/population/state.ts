@@ -45,6 +45,20 @@ const DEFAULT_SKILL_SHARES: Readonly<Record<SkillLevelId, number>> = {
 export const DEFAULT_ETHNICITY_ID = "default";
 export const DEFAULT_RELIGION_ID = "default";
 
+export const DEFAULT_CLASS_POPULATION_SHARES: Readonly<Record<SocialClassId, number>> = {
+  farmer: 0.35,
+  worker: 0.2,
+  service_worker: 0.13,
+  office_worker: 0.08,
+  skilled_worker: 0.05,
+  professional: 0.05,
+  civil_servant: 0.05,
+  small_business_owner: 0.05,
+  managerial: 0.02,
+  capitalist: 0.01,
+  rentier: 0.01
+};
+
 export function createEmptyIncomeAccumulator(): PopulationIncomeAccumulator {
   return {
     laborIncomeCents: 0,
@@ -107,36 +121,94 @@ export function createEmptyBalanceSheet(): PopulationBalanceSheet {
   return sheet;
 }
 
+export interface ObservedProvinceDemographics {
+  readonly pop: number;
+  readonly male: number;
+  readonly female: number;
+  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly education15Plus: Readonly<Record<EducationLevelId, number>>;
+}
+
 export function seedClassState(
   provinceId: ProvinceId,
   socialClassId: SocialClassId,
   populationPersons: number,
-  laborParticipationBaseRate: number
+  laborParticipationBaseRate: number,
+  observed?: ObservedProvinceDemographics
 ): PopulationClassState {
   const state = createEmptyClassState(provinceId, socialClassId);
   state.populationPersons = populationPersons;
 
-  let remainingAge = populationPersons;
-  for (const band of AGE_BANDS) {
-    const isLast = band === AGE_BANDS[AGE_BANDS.length - 1];
-    const count = isLast ? remainingAge : populationPersons * DEFAULT_AGE_SHARES[band];
-    state.ageCounts[band] = count;
-    remainingAge -= count;
-  }
+  if (observed && observed.pop > 0) {
+    const totalAge = AGE_BANDS.reduce((sum, band) => sum + (observed.age[band] ?? 0), 0) || observed.pop;
+    let remainingAge = populationPersons;
+    for (let index = 0; index < AGE_BANDS.length; index += 1) {
+      const band = AGE_BANDS[index] as AgeBandId;
+      const isLast = index === AGE_BANDS.length - 1;
+      if (isLast) {
+        state.ageCounts[band] = remainingAge;
+      } else {
+        const share = (observed.age[band] ?? 0) / totalAge;
+        const count = populationPersons * share;
+        state.ageCounts[band] = count;
+        remainingAge -= count;
+      }
+    }
+    const totalGender = observed.male + observed.female || observed.pop;
+    state.genderCounts.male = populationPersons * (observed.male / totalGender);
+    state.genderCounts.female = populationPersons - state.genderCounts.male;
 
-  state.genderCounts.female = populationPersons / 2;
-  state.genderCounts.male = populationPersons - state.genderCounts.female;
+    // Education: observed is 15+; apply its shares to working-age (15-64) only.
+    // Senior 65+ share is intentionally not distributed here (separate age band).
+    const totalEducation15Plus = EDUCATION_LEVELS.reduce(
+      (sum, level) => sum + (observed.education15Plus[level] ?? 0),
+      0
+    );
+    const educationShares: Record<EducationLevelId, number> =
+      totalEducation15Plus > 0
+        ? (Object.fromEntries(
+            EDUCATION_LEVELS.map((level) => [
+              level,
+              (observed.education15Plus[level] ?? 0) / totalEducation15Plus
+            ])
+          ) as Record<EducationLevelId, number>)
+        : { ...DEFAULT_EDUCATION_SHARES };
+    const workingAgeTotal = workingAgePopulation(state);
+    let remainingEducation = workingAgeTotal;
+    for (let index = 0; index < EDUCATION_LEVELS.length; index += 1) {
+      const level = EDUCATION_LEVELS[index] as EducationLevelId;
+      const isLast = index === EDUCATION_LEVELS.length - 1;
+      if (isLast) {
+        state.workingAgeEducationCounts[level] = Math.max(0, remainingEducation);
+      } else {
+        const count = workingAgeTotal * educationShares[level]!;
+        state.workingAgeEducationCounts[level] = count;
+        remainingEducation -= count;
+      }
+    }
+  } else {
+    let remainingAge = populationPersons;
+    for (const band of AGE_BANDS) {
+      const isLast = band === AGE_BANDS[AGE_BANDS.length - 1];
+      const count = isLast ? remainingAge : populationPersons * DEFAULT_AGE_SHARES[band];
+      state.ageCounts[band] = count;
+      remainingAge -= count;
+    }
 
-  let remainingEducation = workingAgePopulation(state);
-  for (let index = 0; index < EDUCATION_LEVELS.length; index += 1) {
-    const level = EDUCATION_LEVELS[index] as EducationLevelId;
-    const isLast = index === EDUCATION_LEVELS.length - 1;
-    if (isLast) {
-      state.workingAgeEducationCounts[level] = remainingEducation;
-    } else {
-      const count = workingAgePopulation(state) * DEFAULT_EDUCATION_SHARES[level];
-      state.workingAgeEducationCounts[level] = count;
-      remainingEducation -= count;
+    state.genderCounts.female = populationPersons / 2;
+    state.genderCounts.male = populationPersons - state.genderCounts.female;
+
+    let remainingEducation = workingAgePopulation(state);
+    for (let index = 0; index < EDUCATION_LEVELS.length; index += 1) {
+      const level = EDUCATION_LEVELS[index] as EducationLevelId;
+      const isLast = index === EDUCATION_LEVELS.length - 1;
+      if (isLast) {
+        state.workingAgeEducationCounts[level] = remainingEducation;
+      } else {
+        const count = workingAgePopulation(state) * DEFAULT_EDUCATION_SHARES[level];
+        state.workingAgeEducationCounts[level] = count;
+        remainingEducation -= count;
+      }
     }
   }
 

@@ -6,6 +6,10 @@ import {
   parseProvinceCapital
 } from "./schema.js";
 import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
+import {
+  AGE_BAND_IDS,
+  EDUCATION_LEVEL_IDS
+} from "./types.js";
 import type {
   CountryNameEntry,
   CountryNameTable,
@@ -15,6 +19,8 @@ import type {
   MapFeatureProperties,
   MapPackManifest,
   MapPackProvenance,
+  ProvinceDemographicsEntry,
+  ProvinceDemographicsTable,
   ProvinceFeature,
   ProvinceFeatureProperties,
   SpatialIndexData
@@ -151,6 +157,9 @@ function parseManifest(input: unknown): MapPackManifest {
 
   const coastlines = asString(input.assets.coastlines);
   const countries = asString(input.assets.countries);
+  const demographics = asString(
+    (input.assets as Record<string, unknown>).demographics
+  );
   return {
     schemaVersion: 4,
     format: input.format,
@@ -163,6 +172,7 @@ function parseManifest(input: unknown): MapPackManifest {
       boundaries: input.assets.boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
       ...(countries === undefined ? {} : { countries }),
+      ...(demographics === undefined ? {} : { demographics }),
       spatialIndex: input.assets.spatialIndex,
       globeMesh: input.assets.globeMesh
     },
@@ -291,6 +301,89 @@ function parseCountryNames(input: unknown): CountryNameTable {
   return result;
 }
 
+const ALLOWED_AGE_BANDS = new Set<string>(AGE_BAND_IDS as readonly string[]);
+const ALLOWED_EDUCATION_LEVELS = new Set<string>(EDUCATION_LEVEL_IDS as readonly string[]);
+
+function parseProvinceDemographics(input: unknown): ProvinceDemographicsTable {
+  if (input === undefined) return {};
+  if (!isRecord(input)) {
+    throw new MapSchemaError("Expected demographics table object.", "demographics");
+  }
+  const result: Record<string, ProvinceDemographicsEntry> = {};
+  for (const [provinceId, entry] of Object.entries(input)) {
+    if (!isRecord(entry)) {
+      throw new MapSchemaError(`Demographics ${provinceId} entry invalid.`, "demographics", provinceId);
+    }
+    const pop = asFiniteNumber(entry.pop);
+    const male = asFiniteNumber(entry.male);
+    const female = asFiniteNumber(entry.female);
+    const gdpPpp = asFiniteNumber(entry.gdpPpp);
+    if (pop === undefined || male === undefined || female === undefined || gdpPpp === undefined) {
+      throw new MapSchemaError(
+        `Demographics ${provinceId} requires numeric pop/male/female/gdpPpp.`,
+        "demographics",
+        provinceId
+      );
+    }
+    if (!isRecord(entry.age) || !isRecord(entry.education15Plus)) {
+      throw new MapSchemaError(
+        `Demographics ${provinceId} requires age and education15Plus objects.`,
+        "demographics",
+        provinceId
+      );
+    }
+    const ageKeys = Object.keys(entry.age);
+    if (ageKeys.length === 0) {
+      throw new MapSchemaError(`Demographics ${provinceId} age must not be empty.`, "demographics", provinceId);
+    }
+    for (const [key, value] of Object.entries(entry.age)) {
+      if (!ALLOWED_AGE_BANDS.has(key)) {
+        throw new MapSchemaError(`Demographics ${provinceId}.age.${key} is not a known age band.`, "demographics", provinceId);
+      }
+      if (asFiniteNumber(value) === undefined) {
+        throw new MapSchemaError(
+          `Demographics ${provinceId}.age.${key} must be finite.`,
+          "demographics",
+          provinceId
+        );
+      }
+    }
+    const eduKeys = Object.keys(entry.education15Plus);
+    if (eduKeys.length === 0) {
+      throw new MapSchemaError(
+        `Demographics ${provinceId} education15Plus must not be empty.`,
+        "demographics",
+        provinceId
+      );
+    }
+    for (const [key, value] of Object.entries(entry.education15Plus)) {
+      if (!ALLOWED_EDUCATION_LEVELS.has(key)) {
+        throw new MapSchemaError(
+          `Demographics ${provinceId}.education15Plus.${key} is not a known education level.`,
+          "demographics",
+          provinceId
+        );
+      }
+      if (asFiniteNumber(value) === undefined) {
+        throw new MapSchemaError(
+          `Demographics ${provinceId}.education15Plus.${key} must be finite.`,
+          "demographics",
+          provinceId
+        );
+      }
+    }
+    result[provinceId] = {
+      pop,
+      male,
+      female,
+      age: entry.age as ProvinceDemographicsEntry["age"],
+      education15Plus: entry.education15Plus as ProvinceDemographicsEntry["education15Plus"],
+      gdpPpp
+    };
+  }
+  return result;
+}
+
 function parseSpatialIndex(input: unknown): SpatialIndexData {
   if (!isRecord(input)) {
     throw new MapSchemaError("Invalid spatial index.", "spatialIndex");
@@ -334,6 +427,7 @@ export interface LoadedMapPack {
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
   readonly countries: CountryNameTable;
+  readonly demographics?: ProvinceDemographicsTable;
   readonly spatialIndex: SpatialIndexData;
   readonly globeMesh: GlobeMeshData;
 }
@@ -349,6 +443,7 @@ export interface MapPackBundleInput {
   readonly globeMeshLodIndices?: readonly number[];
   readonly coastlines?: unknown;
   readonly countries?: unknown;
+  readonly demographics?: unknown;
 }
 
 function assertLodCount(manifest: MapPackManifest, provinces: readonly ProvinceFeature[]): void {
@@ -398,7 +493,8 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
       raw.globeMeshLodIndices
     ),
     coastlines: raw.coastlines === undefined ? [] : parseRuntimeCoastlines(raw.coastlines),
-    countries: parseCountryNames(raw.countries)
+    countries: parseCountryNames(raw.countries),
+    demographics: parseProvinceDemographics(raw.demographics)
   };
 }
 
@@ -413,6 +509,7 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     spatialIndexRaw,
     coastlinesRaw,
     countriesRaw,
+    demographicsRaw,
     globeMeshMetadataRaw
   ] = await Promise.all([
     fetchJson(`${root}/${manifest.assets.provinces}`),
@@ -424,6 +521,9 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     manifest.assets.countries === undefined
       ? Promise.resolve(undefined)
       : fetchJson(`${root}/${manifest.assets.countries}`),
+    manifest.assets.demographics === undefined
+      ? Promise.resolve(undefined)
+      : fetchJson(`${root}/${manifest.assets.demographics}`),
     fetchJson(`${root}/${manifest.assets.globeMesh}`)
   ]);
   const globeMeshMetadata = parseGlobeMeshMetadata(globeMeshMetadataRaw);
@@ -445,7 +545,8 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     globeMeshBuffers,
     globeMeshLodIndices,
     ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw }),
-    ...(countriesRaw === undefined ? {} : { countries: countriesRaw })
+    ...(countriesRaw === undefined ? {} : { countries: countriesRaw }),
+    ...(demographicsRaw === undefined ? {} : { demographics: demographicsRaw })
   });
 }
 

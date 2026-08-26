@@ -431,6 +431,46 @@ describe("population system", () => {
     expect(getPopulationInvariantReport(world).valid).toBe(true);
   });
 
+  it("seeds observed age/sex/education distributions proportionally", () => {
+    const observed = {
+      pop: 10_000,
+      male: 5_200,
+      female: 4_800,
+      age: {
+        child_0_14: 2_400,
+        youth_15_24: 1_200,
+        prime_25_44: 3_000,
+        mature_45_64: 2_200,
+        senior_65_plus: 1_200
+      },
+      education15Plus: {
+        basic: 4_000,
+        secondary: 3_500,
+        tertiary: 1_800,
+        advanced: 700
+      }
+    };
+    const world = createPopulationWorld(["p1"], makePopulationStaticData(), undefined, {
+      provinceDemographics: { p1: observed }
+    });
+    const summary = getProvincePopulationSummary(world, "p1");
+    expect(summary.populationPersons).toBeCloseTo(10_000, 5);
+    const state = world.classStatesByProvince.get("p1")!.values().next().value!;
+    // Age/gender/education totals must match the seeded population within tolerance.
+    const ageSum = Object.values(state.ageCounts).reduce((sum, value) => sum + value, 0);
+    expect(ageSum).toBeCloseTo(state.populationPersons, 5);
+    const genderSum = state.genderCounts.male + state.genderCounts.female;
+    expect(genderSum).toBeCloseTo(state.populationPersons, 5);
+    expect(state.genderCounts.male).toBeCloseTo(state.populationPersons * 0.52, 5);
+    const educationSum = Object.values(state.workingAgeEducationCounts).reduce(
+      (sum, value) => sum + value,
+      0
+    );
+    const workingAge = state.ageCounts.youth_15_24 + state.ageCounts.prime_25_44 + state.ageCounts.mature_45_64;
+    expect(educationSum).toBeCloseTo(workingAge, 5);
+    expect(getPopulationInvariantReport(world).valid).toBe(true);
+  });
+
   it("moves population between provinces through exogenous migration commands", () => {
     const world = createPopulationWorld(["a", "b"], makePopulationStaticData(), {
       a: { worker: 10_000 },

@@ -12,9 +12,18 @@ export {
 } from "./dynamics";
 export { collectEmploymentAllocationViolations } from "./labor";
 import { runLaborMarketStep, collectEmploymentAllocationViolations } from "./labor";
-import { laborForcePopulation, seedClassState, sumRecord, workingAgePopulation } from "./state";
+import {
+  DEFAULT_CLASS_POPULATION_SHARES,
+  laborForcePopulation,
+  seedClassState,
+  sumRecord,
+  workingAgePopulation,
+  type ObservedProvinceDemographics
+} from "./state";
 import { validatePopulationStaticData } from "./static-data";
 export { validatePopulationStaticData } from "./static-data";
+export { DEFAULT_CLASS_POPULATION_SHARES } from "./state";
+export type { ObservedProvinceDemographics } from "./state";
 import {
   type ClassConsumptionPlan,
   type EmployerId,
@@ -39,6 +48,7 @@ export function createPopulationWorld(
   options?: {
     readonly governmentEmployerIds?: readonly EmployerId[];
     readonly employerWageMultipliers?: Readonly<Record<EmployerId, number>>;
+    readonly provinceDemographics?: Readonly<Record<ProvinceId, ObservedProvinceDemographics>>;
   }
 ): PopulationWorld {
   const validated = validatePopulationStaticData(staticData);
@@ -62,16 +72,36 @@ export function createPopulationWorld(
 
   for (const provinceId of provinces) {
     world.classStatesByProvince.set(provinceId, new Map());
-    const populations = initialClassPopulations?.[provinceId] ?? {};
-    const specifiedTotal = Object.values(populations).reduce<number>(
+    let populations = initialClassPopulations?.[provinceId] as
+      | Partial<Record<string, number>>
+      | undefined;
+    // If demographics are supplied and no explicit class populations were given,
+    // derive them from the uniform default class ratio.
+    if (
+      (!populations || Object.keys(populations).length === 0) &&
+      options?.provinceDemographics?.[provinceId]
+    ) {
+      const provincePop = options.provinceDemographics[provinceId]!.pop;
+      if (provincePop > 0) {
+        populations = Object.fromEntries(
+          validated.socialClasses.map((definition) => [
+            definition.id,
+            provincePop * (DEFAULT_CLASS_POPULATION_SHARES[definition.id] ?? 0)
+          ])
+        ) as Partial<Record<string, number>>;
+      }
+    }
+    const normalizedPopulations = populations ?? {};
+    const specifiedTotal = Object.values(normalizedPopulations).reduce<number>(
       (total, persons) => total + (persons ?? 0),
       0
     );
     if (specifiedTotal <= 0) {
       continue;
     }
+    const observed = options?.provinceDemographics?.[provinceId];
     for (const definition of validated.socialClasses) {
-      const persons = populations[definition.id];
+      const persons = normalizedPopulations[definition.id];
       if (!persons || persons <= 0) {
         continue;
       }
@@ -79,7 +109,13 @@ export function createPopulationWorld(
         .get(provinceId)
         ?.set(
           definition.id,
-          seedClassState(provinceId, definition.id, persons, definition.laborParticipationBaseRate)
+          seedClassState(
+            provinceId,
+            definition.id,
+            persons,
+            definition.laborParticipationBaseRate,
+            observed
+          )
         );
     }
   }

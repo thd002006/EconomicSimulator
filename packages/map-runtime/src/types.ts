@@ -21,6 +21,29 @@ export interface CountryNameEntry {
 
 export type CountryNameTable = Readonly<Record<string, CountryNameEntry>>;
 
+export const AGE_BAND_IDS = [
+  "child_0_14",
+  "youth_15_24",
+  "prime_25_44",
+  "mature_45_64",
+  "senior_65_plus"
+] as const;
+export type AgeBandId = (typeof AGE_BAND_IDS)[number];
+
+export const EDUCATION_LEVEL_IDS = ["basic", "secondary", "tertiary", "advanced"] as const;
+export type EducationLevelId = (typeof EDUCATION_LEVEL_IDS)[number];
+
+export interface ProvinceDemographicsEntry {
+  readonly pop: number;
+  readonly male: number;
+  readonly female: number;
+  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly education15Plus: Readonly<Record<EducationLevelId, number>>;
+  readonly gdpPpp: number;
+}
+
+export type ProvinceDemographicsTable = Readonly<Record<string, ProvinceDemographicsEntry>>;
+
 export interface MapPackManifest {
   readonly schemaVersion: number;
   readonly format: string;
@@ -33,6 +56,7 @@ export interface MapPackManifest {
     boundaries: string;
     coastlines?: string;
     countries?: string;
+    demographics?: string;
     spatialIndex: string;
     globeMesh: string;
   }>;

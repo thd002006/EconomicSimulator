@@ -124,11 +124,54 @@ export async function validatePack(
     }
   }
 
+  let demographics = 0;
+  const demographicsLayer = manifest.layers.demographics;
+  if (demographicsLayer !== undefined) {
+    const demographicsPath = await resolveContainedFile(packDir, demographicsLayer, "layers.demographics");
+    const raw = await readJson(demographicsPath);
+    if (!isRecord(raw)) throw new Error(`Map ${entry.id} demographics must be an object keyed by province id.`);
+    const allowedAgeBands = new Set(["child_0_14", "youth_15_24", "prime_25_44", "mature_45_64", "senior_65_plus"]);
+    const allowedEducationLevels = new Set(["basic", "secondary", "tertiary", "advanced"]);
+    for (const [provinceId, entryValue] of Object.entries(raw)) {
+      if (!provinceIds.has(provinceId)) {
+        throw new Error(`Map ${entry.id} demographics.${provinceId} references unknown province.`);
+      }
+      if (!isRecord(entryValue)) {
+        throw new Error(`Map ${entry.id} demographics.${provinceId} must be an object.`);
+      }
+      for (const field of ["pop", "male", "female", "gdpPpp"] as const) {
+        if (typeof entryValue[field] !== "number" || !Number.isFinite(entryValue[field] as number)) {
+          throw new Error(`Map ${entry.id} demographics.${provinceId} requires finite ${field}.`);
+        }
+      }
+      for (const field of ["age", "education15Plus"] as const) {
+        const bucket = entryValue[field];
+        if (!isRecord(bucket)) {
+          throw new Error(`Map ${entry.id} demographics.${provinceId} requires ${field} object.`);
+        }
+        if (Object.keys(bucket).length === 0) {
+          throw new Error(`Map ${entry.id} demographics.${provinceId} requires non-empty ${field} object.`);
+        }
+        const allowed = field === "age" ? allowedAgeBands : allowedEducationLevels;
+        for (const [key, value] of Object.entries(bucket)) {
+          if (!allowed.has(key)) {
+            throw new Error(`Map ${entry.id} demographics.${provinceId}.${field}.${key} is not a known ${field} key.`);
+          }
+          if (typeof value !== "number" || !Number.isFinite(value)) {
+            throw new Error(`Map ${entry.id} demographics.${provinceId}.${field}.${key} must be finite.`);
+          }
+        }
+      }
+    }
+    demographics = Object.keys(raw).length;
+  }
+
   return {
     provinces: provinces.features.length,
     boundaries: boundaryValue.features.length,
     coastlines,
-    countries
+    countries,
+    demographics
   };
 }
 

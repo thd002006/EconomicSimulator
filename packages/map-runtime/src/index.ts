@@ -15,6 +15,8 @@ export type {
   MapViewModel,
   MapViewModelHooks,
   ProvinceCapital,
+  ProvinceDemographicsEntry,
+  ProvinceDemographicsTable,
   ProvinceFeature,
   ProvinceFeatureProperties,
   SpatialIndexData,

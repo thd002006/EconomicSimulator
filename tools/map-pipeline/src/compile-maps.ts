@@ -271,6 +271,20 @@ export async function compilePack(
     }
   }
 
+  let demographics: Record<string, unknown> | undefined;
+  if (manifest.layers.demographics !== undefined) {
+    const demographicsPath = await resolveContainedFile(
+      sourceDir,
+      manifest.layers.demographics,
+      "layers.demographics"
+    );
+    const text = await readFile(demographicsPath, "utf8");
+    sourceHashes.demographics = sha256(text);
+    const raw = JSON.parse(text) as unknown;
+    if (!isRecord(raw)) throw new Error("demographics must be an object keyed by province id.");
+    demographics = raw as Record<string, unknown>;
+  }
+
   const outDir = join(outputRoot, entry.path, "compiled");
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
@@ -289,6 +303,9 @@ export async function compilePack(
     })
   ).hash;
   assetHashes.countries = (await writeJson(join(outDir, "countries.json"), countries)).hash;
+  if (demographics !== undefined) {
+    assetHashes.demographics = (await writeJson(join(outDir, "demographics.json"), demographics)).hash;
+  }
   assetHashes.spatialIndex = (
     await writeJson(join(outDir, "spatial-index.json"), buildSpatialIndex(provinces))
   ).hash;
@@ -341,6 +358,7 @@ export async function compilePack(
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
       countries: "countries.json",
+      ...(demographics === undefined ? {} : { demographics: "demographics.json" }),
       spatialIndex: "spatial-index.json",
       globeMesh: "globe-mesh.json"
     },
