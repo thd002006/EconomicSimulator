@@ -47,6 +47,18 @@
       "nameEn": "Northern Afghanistan"
     },
     {
+      "id": "AGO-GEBC5650",
+      "countryId": "AGO",
+      "members": [
+        "AO-ZAI",
+        "AO-BGO",
+        "AO-LUA",
+        "AO-CNO"
+      ],
+      "name": "Northwest Angola",
+      "nameEn": "Northwest Angola"
+    },
+    {
       "id": "AIA-GE8519ED",
       "countryId": "AIA",
       "members": [
@@ -884,6 +896,29 @@
       "nameEn": "Southeastern Botswana"
     },
     {
+      "id": "CAF-G6665B76",
+      "countryId": "CAF",
+      "members": [
+        "CF-KG",
+        "CF-MP",
+        "CF-BGF",
+        "CF-KB"
+      ],
+      "name": "Central CAR",
+      "nameEn": "Central CAR"
+    },
+    {
+      "id": "CAF-GD45E6E7",
+      "countryId": "CAF",
+      "members": [
+        "CF-LB",
+        "CF-SE",
+        "CF-HS"
+      ],
+      "name": "Southwest CAR",
+      "nameEn": "Southwest CAR"
+    },
+    {
       "id": "CHE-GA6BD5FC",
       "countryId": "CHE",
       "members": [
@@ -946,6 +981,17 @@
       "nameEn": "Central Chile"
     },
     {
+      "id": "CHL-G619E035",
+      "countryId": "CHL",
+      "members": [
+        "CL-AR",
+        "CL-LR",
+        "CL-LL"
+      ],
+      "name": "Southern Chile",
+      "nameEn": "Southern Chile"
+    },
+    {
       "id": "CIV-G4A6B9E9",
       "countryId": "CIV",
       "members": [
@@ -970,6 +1016,18 @@
       "nameEn": "Southeastern Ivory Coast"
     },
     {
+      "id": "COG-G4EC534D",
+      "countryId": "COG",
+      "members": [
+        "CG-11",
+        "CG-9",
+        "CG-5",
+        "CG-16"
+      ],
+      "name": "Southern Congo",
+      "nameEn": "Southern Congo"
+    },
+    {
       "id": "COK-G80B574D",
       "countryId": "COK",
       "members": [
@@ -983,6 +1041,18 @@
       ],
       "name": "Cook Islands",
       "nameEn": "Cook Islands"
+    },
+    {
+      "id": "COK-GEB2824B",
+      "countryId": "COK",
+      "members": [
+        "CK-X11~",
+        "CK-X08~",
+        "CK-X10~",
+        "CK-X09~"
+      ],
+      "name": "Northern Cook Islands",
+      "nameEn": "Northern Cook Islands"
     },
     {
       "id": "COL-GD01193E",
@@ -1068,6 +1138,18 @@
       "nameEn": "Tarrafal–Santa Catarina–Ribeira Grande de Santiago–Praia–São Domingos–Santa Cruz–São Miguel–Maio–São Salvador do Mundo–São Lourenço dos Órgãos"
     },
     {
+      "id": "CRI-GB0385E3",
+      "countryId": "CRI",
+      "members": [
+        "CR-L",
+        "CR-P",
+        "CR-SJ",
+        "CR-C"
+      ],
+      "name": "Southern Costa Rica",
+      "nameEn": "Southern Costa Rica"
+    },
+    {
       "id": "CUB-G82E23F5",
       "countryId": "CUB",
       "members": [
@@ -1130,6 +1212,17 @@
       "nameEn": "Northern Czechia"
     },
     {
+      "id": "CZE-G01937FD",
+      "countryId": "CZE",
+      "members": [
+        "CZ-US",
+        "CZ-KA",
+        "CZ-PL"
+      ],
+      "name": "ÚKP Region",
+      "nameEn": "ÚKP Region"
+    },
+    {
       "id": "CZE-G330098C",
       "countryId": "CZE",
       "members": [
@@ -1141,6 +1234,26 @@
       ],
       "name": "Eastern Czechia",
       "nameEn": "Eastern Czechia"
+    },
+    {
+      "id": "DEU-Baden-Wurttemberg",
+      "countryId": "DEU",
+      "members": [
+        "DE-BW"
+      ],
+      "name": "Baden-Wurttemberg",
+      "nameEn": "Baden-Wurttemberg"
+    },
+    {
+      "id": "DEU-G5B64D10",
+      "countryId": "DEU",
+      "members": [
+        "DE-NI",
+        "DE-HB",
+        "DE-HH"
+      ],
+      "name": "Northwest Germany",
+      "nameEn": "Northwest Germany"
     },
     {
       "id": "DEU-G8AAB3A4",
@@ -1164,6 +1277,16 @@
       ],
       "name": "Western Germany",
       "nameEn": "Western Germany"
+    },
+    {
+      "id": "DEU-Hesse-Thuringia",
+      "countryId": "DEU",
+      "members": [
+        "DE-HE",
+        "DE-TH"
+      ],
+      "name": "Hesse-Thuringia",
+      "nameEn": "Hesse-Thuringia"
     },
     {
       "id": "DJI-G432D5C7",
@@ -1196,6 +1319,17 @@
       ],
       "name": "Dominica",
       "nameEn": "Dominica"
+    },
+    {
+      "id": "DNK-GBBCC5CF",
+      "countryId": "DNK",
+      "members": [
+        "DK-83",
+        "DK-82",
+        "DK-81"
+      ],
+      "name": "Northern Denmark",
+      "nameEn": "Northern Denmark"
     },
     {
       "id": "DOM-G308903A",
@@ -1321,6 +1455,20 @@
         "DZ-20",
         "DZ-03",
         "DZ-14"
+      ],
+      "name": "Central Algeria",
+      "nameEn": "Central Algeria"
+    },
+    {
+      "id": "DZA-GDBC0E08",
+      "countryId": "DZA",
+      "members": [
+        "DZ-16",
+        "DZ-42",
+        "DZ-09",
+        "DZ-26",
+        "DZ-07",
+        "DZ-17"
       ],
       "name": "Central Algeria",
       "nameEn": "Central Algeria"
@@ -1467,6 +1615,17 @@
       ],
       "name": "Upper Nile",
       "nameEn": "Upper Nile"
+    },
+    {
+      "id": "ERI-GE81D272",
+      "countryId": "ERI",
+      "members": [
+        "ER-SK",
+        "ER-MA",
+        "ER-AN"
+      ],
+      "name": "Central Eritrea",
+      "nameEn": "Central Eritrea"
     },
     {
       "id": "ESP-Andalucía",
@@ -1688,6 +1847,20 @@
       "nameEn": "Western Estonia"
     },
     {
+      "id": "EST-G235FC61",
+      "countryId": "EST",
+      "members": [
+        "EE-84",
+        "EE-82",
+        "EE-86",
+        "EE-65",
+        "EE-78",
+        "EE-49"
+      ],
+      "name": "Southern Estonia",
+      "nameEn": "Southern Estonia"
+    },
+    {
       "id": "ETH-OROMIA-ADDIS",
       "countryId": "ETH",
       "members": [
@@ -1707,6 +1880,17 @@
       ],
       "name": "Somali–Dire Dawa–Harari",
       "nameEn": "Somali–Dire Dawa–Harari"
+    },
+    {
+      "id": "FIN-G17BA699",
+      "countryId": "FIN",
+      "members": [
+        "FI-05",
+        "FI-13",
+        "FI-15"
+      ],
+      "name": "Eastern Finland",
+      "nameEn": "Eastern Finland"
     },
     {
       "id": "FIN-G19C40AD",
@@ -2011,6 +2195,17 @@
       ],
       "name": "Île-de-France",
       "nameEn": "Île-de-France"
+    },
+    {
+      "id": "FSM-G3BD1F2F",
+      "countryId": "FSM",
+      "members": [
+        "FM-KSA",
+        "FM-PNI",
+        "FM-TRK"
+      ],
+      "name": "KPC Region",
+      "nameEn": "KPC Region"
     },
     {
       "id": "GBR-EAST",
@@ -2391,6 +2586,18 @@
       "nameEn": "Western Georgia"
     },
     {
+      "id": "GHA-GC087B68",
+      "countryId": "GHA",
+      "members": [
+        "GH-TV",
+        "GH-CP",
+        "GH-AA",
+        "GH-EP"
+      ],
+      "name": "Southern Ghana",
+      "nameEn": "Southern Ghana"
+    },
+    {
       "id": "GIN-Boke",
       "countryId": "GIN",
       "members": [
@@ -2542,6 +2749,29 @@
       ],
       "name": "Sul",
       "nameEn": "Sul"
+    },
+    {
+      "id": "GNQ-G9D8756F",
+      "countryId": "GNQ",
+      "members": [
+        "GQ-LI",
+        "GQ-KN",
+        "GQ-CS",
+        "GQ-WN"
+      ],
+      "name": "Mainland Equatorial Guinea",
+      "nameEn": "Mainland Equatorial Guinea"
+    },
+    {
+      "id": "GRC-G6D51570",
+      "countryId": "GRC",
+      "members": [
+        "GR-H",
+        "GR-A1",
+        "GR-J"
+      ],
+      "name": "Central Greece",
+      "nameEn": "Central Greece"
     },
     {
       "id": "GRC-G8EE2BD8",
@@ -2767,6 +2997,19 @@
       "nameEn": "Northern Haiti"
     },
     {
+      "id": "HTI-G44F23F4",
+      "countryId": "HTI",
+      "members": [
+        "HT-OU",
+        "HT-SE",
+        "HT-SD",
+        "HT-GA",
+        "HT-NI"
+      ],
+      "name": "Southern Haiti",
+      "nameEn": "Southern Haiti"
+    },
+    {
       "id": "HUN-Central-Hungary",
       "countryId": "HUN",
       "members": [
@@ -2932,6 +3175,29 @@
       "nameEn": "West Java–Jakarta–Banten–Bangka Belitung Islands"
     },
     {
+      "id": "IND-G820F754",
+      "countryId": "IND",
+      "members": [
+        "IN-PB",
+        "IN-JK",
+        "IN-CH"
+      ],
+      "name": "Northwest India",
+      "nameEn": "Northwest India"
+    },
+    {
+      "id": "IND-G8A9727A",
+      "countryId": "IND",
+      "members": [
+        "IN-NL",
+        "IN-MN",
+        "IN-MZ",
+        "IN-TR"
+      ],
+      "name": "Northeast India",
+      "nameEn": "Northeast India"
+    },
+    {
       "id": "IRL-Border",
       "countryId": "IRL",
       "members": [
@@ -3064,6 +3330,17 @@
       ],
       "name": "Southwestern Iran",
       "nameEn": "Southwestern Iran"
+    },
+    {
+      "id": "ISL-G2E41AED",
+      "countryId": "ISL",
+      "members": [
+        "IS-3",
+        "IS-4",
+        "IS-5"
+      ],
+      "name": "Western Iceland",
+      "nameEn": "Western Iceland"
     },
     {
       "id": "ISL-G5C981D1",
@@ -3418,6 +3695,19 @@
       "nameEn": "Eastern Japan"
     },
     {
+      "id": "JPN-G732B0E0",
+      "countryId": "JPN",
+      "members": [
+        "JP-06",
+        "JP-05",
+        "JP-02",
+        "JP-03",
+        "JP-04"
+      ],
+      "name": "Northern Japan",
+      "nameEn": "Northern Japan"
+    },
+    {
       "id": "JPN-GE1E9411",
       "countryId": "JPN",
       "members": [
@@ -3497,6 +3787,17 @@
       "nameEn": "Kanagawa Prefecture–Shizuoka Prefecture"
     },
     {
+      "id": "KHM-G022C81A",
+      "countryId": "KHM",
+      "members": [
+        "KH-15",
+        "KH-2",
+        "KH-24"
+      ],
+      "name": "Western Cambodia",
+      "nameEn": "Western Cambodia"
+    },
+    {
       "id": "KHM-G05FD6D4",
       "countryId": "KHM",
       "members": [
@@ -3526,6 +3827,17 @@
       "nameEn": "Northwest Cambodia"
     },
     {
+      "id": "KHM-GAF401AE",
+      "countryId": "KHM",
+      "members": [
+        "KH-16",
+        "KH-19",
+        "KH-6"
+      ],
+      "name": "Northeast Cambodia",
+      "nameEn": "Northeast Cambodia"
+    },
+    {
       "id": "KHM-GCC9CBB2",
       "countryId": "KHM",
       "members": [
@@ -3537,6 +3849,18 @@
       ],
       "name": "Eastern Cambodia",
       "nameEn": "Eastern Cambodia"
+    },
+    {
+      "id": "KOR-GB72F069",
+      "countryId": "KOR",
+      "members": [
+        "KR-41",
+        "KR-44",
+        "KR-28",
+        "KR-11"
+      ],
+      "name": "Central South Korea",
+      "nameEn": "Central South Korea"
     },
     {
       "id": "KOR-M117",
@@ -3646,6 +3970,17 @@
       ],
       "name": "Northern Laos",
       "nameEn": "Northern Laos"
+    },
+    {
+      "id": "LAO-GDF56C09",
+      "countryId": "LAO",
+      "members": [
+        "LA-BL",
+        "LA-KH",
+        "LA-XI"
+      ],
+      "name": "Central Laos",
+      "nameEn": "Central Laos"
     },
     {
       "id": "LAO-SOUTH",
@@ -3868,6 +4203,41 @@
       "nameEn": "Lesotho"
     },
     {
+      "id": "LTU-G9A1454C",
+      "countryId": "LTU",
+      "members": [
+        "LT-UT",
+        "LT-PN",
+        "LT-MR",
+        "LT-KU"
+      ],
+      "name": "Northern Lithuania",
+      "nameEn": "Northern Lithuania"
+    },
+    {
+      "id": "LTU-GA0A5FFD",
+      "countryId": "LTU",
+      "members": [
+        "LT-TE",
+        "LT-KL",
+        "LT-SA",
+        "LT-TA"
+      ],
+      "name": "Western Lithuania",
+      "nameEn": "Western Lithuania"
+    },
+    {
+      "id": "LUX-GCF02A35",
+      "countryId": "LUX",
+      "members": [
+        "LU-D",
+        "LU-G",
+        "LU-L"
+      ],
+      "name": "Luxembourg",
+      "nameEn": "Luxembourg"
+    },
+    {
       "id": "MAR-G23E8D3D",
       "countryId": "MAR",
       "members": [
@@ -3960,6 +4330,17 @@
       ],
       "name": "Analanjirofo–Atsinanana–Alaotra-Mangoro",
       "nameEn": "Analanjirofo–Atsinanana–Alaotra-Mangoro"
+    },
+    {
+      "id": "MDG-G8F966FF",
+      "countryId": "MDG",
+      "members": [
+        "ne-1159317865",
+        "ne-1159317849",
+        "ne-1159309819"
+      ],
+      "name": "MAA Region",
+      "nameEn": "MAA Region"
     },
     {
       "id": "MDG-GD40E236",
@@ -4076,6 +4457,18 @@
         "MX-HID",
         "MX-GUA",
         "MX-DIF"
+      ],
+      "name": "Central Mexico",
+      "nameEn": "Central Mexico"
+    },
+    {
+      "id": "MEX-GD7FA267",
+      "countryId": "MEX",
+      "members": [
+        "MX-GRO",
+        "MX-PUE",
+        "MX-MOR",
+        "MX-TLA"
       ],
       "name": "Central Mexico",
       "nameEn": "Central Mexico"
@@ -4265,6 +4658,29 @@
       "nameEn": "Malta Xlokk"
     },
     {
+      "id": "MMR-G3733B3A",
+      "countryId": "MMR",
+      "members": [
+        "MM-12",
+        "MM-13",
+        "MM-04"
+      ],
+      "name": "KKM Region",
+      "nameEn": "KKM Region"
+    },
+    {
+      "id": "MMR-GC43EAD4",
+      "countryId": "MMR",
+      "members": [
+        "MM-15",
+        "MM-05",
+        "MM-06",
+        "MM-02"
+      ],
+      "name": "MTYB Region",
+      "nameEn": "MTYB Region"
+    },
+    {
       "id": "MNE-G53E6047",
       "countryId": "MNE",
       "members": [
@@ -4292,6 +4708,41 @@
       ],
       "name": "Montenegro",
       "nameEn": "Montenegro"
+    },
+    {
+      "id": "MNG-G3146427",
+      "countryId": "MNG",
+      "members": [
+        "MN-067",
+        "MN-049",
+        "MN-037",
+        "MN-035"
+      ],
+      "name": "North Central Mongolia",
+      "nameEn": "North Central Mongolia"
+    },
+    {
+      "id": "MNP-GD9E0534",
+      "countryId": "MNP",
+      "members": [
+        "MP-X01~",
+        "MP-X02~",
+        "MP-X03~",
+        "MP-X04~"
+      ],
+      "name": "Northern Mariana Islands",
+      "nameEn": "Northern Mariana Islands"
+    },
+    {
+      "id": "MSR-GE1E9548",
+      "countryId": "MSR",
+      "members": [
+        "MS-P",
+        "MS-A",
+        "MS-G"
+      ],
+      "name": "Montserrat",
+      "nameEn": "Montserrat"
     },
     {
       "id": "MUS-GC60E644",
@@ -4385,6 +4836,18 @@
       "nameEn": "Western Malaysia"
     },
     {
+      "id": "MYS-G8DC7A22",
+      "countryId": "MYS",
+      "members": [
+        "MY-05",
+        "MY-04",
+        "MY-01",
+        "MY-06"
+      ],
+      "name": "Southern Malaysia",
+      "nameEn": "Southern Malaysia"
+    },
+    {
       "id": "NGA-G16C6C65",
       "countryId": "NGA",
       "members": [
@@ -4400,6 +4863,55 @@
       ],
       "name": "Southwest Nigeria",
       "nameEn": "Southwest Nigeria"
+    },
+    {
+      "id": "NGA-G1B995A1",
+      "countryId": "NGA",
+      "members": [
+        "NG-BE",
+        "NG-CR",
+        "NG-AK",
+        "NG-AB",
+        "NG-EB"
+      ],
+      "name": "Southeast Nigeria",
+      "nameEn": "Southeast Nigeria"
+    },
+    {
+      "id": "NGA-G47085B8",
+      "countryId": "NGA",
+      "members": [
+        "NG-BY",
+        "NG-RI",
+        "NG-AN",
+        "NG-EN",
+        "NG-KO",
+        "NG-IM"
+      ],
+      "name": "South Central Nigeria",
+      "nameEn": "South Central Nigeria"
+    },
+    {
+      "id": "NGA-G873B64D",
+      "countryId": "NGA",
+      "members": [
+        "NG-AD",
+        "NG-BA",
+        "NG-GO"
+      ],
+      "name": "ABG Region",
+      "nameEn": "ABG Region"
+    },
+    {
+      "id": "NGA-G9C2ED10",
+      "countryId": "NGA",
+      "members": [
+        "NG-YO",
+        "NG-JI",
+        "NG-KN"
+      ],
+      "name": "YJK Region",
+      "nameEn": "YJK Region"
     },
     {
       "id": "NIC-G2EA47EA",
@@ -4631,6 +5143,17 @@
       "nameEn": "Outlying Islands"
     },
     {
+      "id": "NZL-G3EB2F36",
+      "countryId": "NZL",
+      "members": [
+        "NZ-WGN",
+        "NZ-MWT",
+        "NZ-TKI"
+      ],
+      "name": "Central New Zealand",
+      "nameEn": "Central New Zealand"
+    },
+    {
       "id": "NZL-G6F19A86",
       "countryId": "NZL",
       "members": [
@@ -4641,6 +5164,17 @@
       ],
       "name": "Upper South Island",
       "nameEn": "Upper South Island"
+    },
+    {
+      "id": "OMN-G32EDA56",
+      "countryId": "OMN",
+      "members": [
+        "OM-BA",
+        "OM-BU",
+        "OM-ZA"
+      ],
+      "name": "Northwest Oman",
+      "nameEn": "Northwest Oman"
     },
     {
       "id": "OMN-GFDCCB70",
@@ -4654,6 +5188,53 @@
       ],
       "name": "Northern Oman",
       "nameEn": "Northern Oman"
+    },
+    {
+      "id": "PAK-GD8A1E18",
+      "countryId": "PAK",
+      "members": [
+        "PK-KP",
+        "PK-TA",
+        "PK-IS"
+      ],
+      "name": "KFI Region",
+      "nameEn": "KFI Region"
+    },
+    {
+      "id": "PAN-G1855677",
+      "countryId": "PAN",
+      "members": [
+        "PA-KY",
+        "PA-EM",
+        "PA-5",
+        "PA-8",
+        "PA-2"
+      ],
+      "name": "Eastern Panama",
+      "nameEn": "Eastern Panama"
+    },
+    {
+      "id": "PAN-G29F384E",
+      "countryId": "PAN",
+      "members": [
+        "PA-1",
+        "PA-4",
+        "PA-NB"
+      ],
+      "name": "Western Panama",
+      "nameEn": "Western Panama"
+    },
+    {
+      "id": "PAN-G83E3762",
+      "countryId": "PAN",
+      "members": [
+        "PA-9",
+        "PA-3",
+        "PA-7",
+        "PA-6"
+      ],
+      "name": "Central Panama",
+      "nameEn": "Central Panama"
     },
     {
       "id": "PER-GE65CA0C",
@@ -5017,6 +5598,28 @@
       "nameEn": "West New Britain–New Ireland–Manus"
     },
     {
+      "id": "POL-GB15DA65",
+      "countryId": "POL",
+      "members": [
+        "PL-DS",
+        "PL-LB",
+        "PL-ZP"
+      ],
+      "name": "Northwest Poland",
+      "nameEn": "Northwest Poland"
+    },
+    {
+      "id": "POL-GD1D94A4",
+      "countryId": "POL",
+      "members": [
+        "PL-LU",
+        "PL-MZ",
+        "PL-SK"
+      ],
+      "name": "LMŚ Region",
+      "nameEn": "LMŚ Region"
+    },
+    {
       "id": "POL-GDD396F4",
       "countryId": "POL",
       "members": [
@@ -5027,6 +5630,17 @@
       ],
       "name": "Southern Poland",
       "nameEn": "Southern Poland"
+    },
+    {
+      "id": "PRK-GE27A959",
+      "countryId": "PRK",
+      "members": [
+        "KP-04",
+        "KP-03",
+        "KP-08"
+      ],
+      "name": "Northwest North Korea",
+      "nameEn": "Northwest North Korea"
     },
     {
       "id": "PRK-GEE11CA6",
@@ -5042,6 +5656,19 @@
       "nameEn": "Southern North Korea"
     },
     {
+      "id": "PRT-G0E221B3",
+      "countryId": "PRT",
+      "members": [
+        "PT-09",
+        "PT-11",
+        "PT-14",
+        "PT-10",
+        "PT-06"
+      ],
+      "name": "Central Portugal",
+      "nameEn": "Central Portugal"
+    },
+    {
       "id": "PRT-G25332EF",
       "countryId": "PRT",
       "members": [
@@ -5055,6 +5682,17 @@
       ],
       "name": "Northern Portugal",
       "nameEn": "Northern Portugal"
+    },
+    {
+      "id": "PRT-G64E2AD0",
+      "countryId": "PRT",
+      "members": [
+        "PT-07",
+        "PT-12",
+        "PT-05"
+      ],
+      "name": "Eastern Portugal",
+      "nameEn": "Eastern Portugal"
     },
     {
       "id": "PRY-Alto-Paraguay",
@@ -5231,7 +5869,7 @@
       "nameEn": "Northeast Romania"
     },
     {
-      "id": "ROU-GD4F9793",
+      "id": "ROU-Oltenia",
       "countryId": "ROU",
       "members": [
         "RO-MH",
@@ -5241,12 +5879,20 @@
         "RO-CS",
         "RO-AG",
         "RO-GJ",
-        "RO-VL",
+        "RO-VL"
+      ],
+      "name": "Oltenia",
+      "nameEn": "Oltenia"
+    },
+    {
+      "id": "ROU-West-Transylvania",
+      "countryId": "ROU",
+      "members": [
         "RO-MS",
         "RO-AB"
       ],
-      "name": "Southwest Romania",
-      "nameEn": "Southwest Romania"
+      "name": "West Transylvania",
+      "nameEn": "West Transylvania"
     },
     {
       "id": "RUS-G45B4FF1",
@@ -5260,6 +5906,17 @@
       ],
       "name": "North Caucasus",
       "nameEn": "North Caucasus"
+    },
+    {
+      "id": "RUS-GE0D4638",
+      "countryId": "RUS",
+      "members": [
+        "RU-ULY",
+        "RU-CU",
+        "RU-ME"
+      ],
+      "name": "UCM Region",
+      "nameEn": "UCM Region"
     },
     {
       "id": "RWA-G5A0388A",
@@ -5372,6 +6029,31 @@
       ],
       "name": "Upper Nile",
       "nameEn": "Upper Nile"
+    },
+    {
+      "id": "SEN-G720CBFB",
+      "countryId": "SEN",
+      "members": [
+        "SN-KE",
+        "SN-KD",
+        "SN-SE",
+        "SN-ZG"
+      ],
+      "name": "Southern Senegal",
+      "nameEn": "Southern Senegal"
+    },
+    {
+      "id": "SEN-GB004DE4",
+      "countryId": "SEN",
+      "members": [
+        "SN-KA",
+        "SN-KL",
+        "SN-FK",
+        "SN-TH",
+        "SN-DK"
+      ],
+      "name": "Western Senegal",
+      "nameEn": "Western Senegal"
     },
     {
       "id": "SGP-GFCBE0FB",
@@ -5790,6 +6472,18 @@
       "nameEn": "West Central Sweden"
     },
     {
+      "id": "SWZ-GDCC4552",
+      "countryId": "SWZ",
+      "members": [
+        "SZ-LU",
+        "SZ-HH",
+        "SZ-MA",
+        "SZ-SH"
+      ],
+      "name": "Eswatini",
+      "nameEn": "Eswatini"
+    },
+    {
       "id": "SYC-M212",
       "countryId": "SYC",
       "members": [
@@ -6111,6 +6805,19 @@
       "nameEn": "Timor-Leste"
     },
     {
+      "id": "TON-GBEF3FC7",
+      "countryId": "TON",
+      "members": [
+        "TO-05",
+        "TO-01",
+        "TO-04",
+        "TO-02",
+        "TO-03"
+      ],
+      "name": "Tonga",
+      "nameEn": "Tonga"
+    },
+    {
       "id": "TTO-G5152C69",
       "countryId": "TTO",
       "members": [
@@ -6179,6 +6886,32 @@
       "nameEn": "Northern Tunisia"
     },
     {
+      "id": "TUR-G2226260",
+      "countryId": "TUR",
+      "members": [
+        "TR-48",
+        "TR-07",
+        "TR-70",
+        "TR-20",
+        "TR-15"
+      ],
+      "name": "Southwest Turkey",
+      "nameEn": "Southwest Turkey"
+    },
+    {
+      "id": "TUR-G51E9F2D",
+      "countryId": "TUR",
+      "members": [
+        "TR-31",
+        "TR-33",
+        "TR-01",
+        "TR-46",
+        "TR-80"
+      ],
+      "name": "Southern Turkey",
+      "nameEn": "Southern Turkey"
+    },
+    {
       "id": "TUR-G6F653D3",
       "countryId": "TUR",
       "members": [
@@ -6244,6 +6977,19 @@
       ],
       "name": "Central East Turkey",
       "nameEn": "Central East Turkey"
+    },
+    {
+      "id": "TUR-GE9108C2",
+      "countryId": "TUR",
+      "members": [
+        "TR-42",
+        "TR-51",
+        "TR-32",
+        "TR-64",
+        "TR-03"
+      ],
+      "name": "Central Turkey",
+      "nameEn": "Central Turkey"
     },
     {
       "id": "TUR-GEE3DD70",
@@ -6355,6 +7101,18 @@
       ],
       "name": "Zanzibar",
       "nameEn": "Zanzibar"
+    },
+    {
+      "id": "TZA-GFC61B3F",
+      "countryId": "TZA",
+      "members": [
+        "TZ-23",
+        "TZ-18",
+        "TZ-30",
+        "TZ-22"
+      ],
+      "name": "Northwest Tanzania",
+      "nameEn": "Northwest Tanzania"
     },
     {
       "id": "UGA-Central",
@@ -6501,6 +7259,18 @@
       "nameEn": "Western"
     },
     {
+      "id": "UKR-G3000CCA",
+      "countryId": "UKR",
+      "members": [
+        "UA-74",
+        "UA-32",
+        "UA-71",
+        "UA-30"
+      ],
+      "name": "North Central Ukraine",
+      "nameEn": "North Central Ukraine"
+    },
+    {
       "id": "UKR-GCB228FC",
       "countryId": "UKR",
       "members": [
@@ -6512,6 +7282,38 @@
       ],
       "name": "Western Ukraine",
       "nameEn": "Western Ukraine"
+    },
+    {
+      "id": "UKR-Odessa",
+      "countryId": "UKR",
+      "members": [
+        "UA-51"
+      ],
+      "name": "Odessa",
+      "nameEn": "Odessa"
+    },
+    {
+      "id": "UKR-Podolia",
+      "countryId": "UKR",
+      "members": [
+        "UA-77",
+        "UA-05",
+        "UA-61"
+      ],
+      "name": "Podolia",
+      "nameEn": "Podolia"
+    },
+    {
+      "id": "URY-G5CD6CB1",
+      "countryId": "URY",
+      "members": [
+        "UY-PA",
+        "UY-CO",
+        "UY-SO",
+        "UY-RN"
+      ],
+      "name": "Western Uruguay",
+      "nameEn": "Western Uruguay"
     },
     {
       "id": "URY-G74F4DFB",
@@ -6565,6 +7367,17 @@
       "nameEn": "Mid-Atlantic"
     },
     {
+      "id": "UZB-G59A6BFC",
+      "countryId": "UZB",
+      "members": [
+        "UZ-SA",
+        "UZ-QA",
+        "UZ-SU"
+      ],
+      "name": "Southern Uzbekistan",
+      "nameEn": "Southern Uzbekistan"
+    },
+    {
       "id": "UZB-GF2AD63D",
       "countryId": "UZB",
       "members": [
@@ -6605,6 +7418,19 @@
       "nameEn": "Insular Venezuela"
     },
     {
+      "id": "VEN-GA617F5A",
+      "countryId": "VEN",
+      "members": [
+        "VE-I",
+        "VE-U",
+        "VE-H",
+        "VE-K",
+        "VE-P"
+      ],
+      "name": "Northwest Venezuela",
+      "nameEn": "Northwest Venezuela"
+    },
+    {
       "id": "VEN-GBBB7841",
       "countryId": "VEN",
       "members": [
@@ -6615,6 +7441,17 @@
       ],
       "name": "North Central Venezuela",
       "nameEn": "North Central Venezuela"
+    },
+    {
+      "id": "VIR-GAE70783",
+      "countryId": "VIR",
+      "members": [
+        "VI-X01~",
+        "VI-X03~",
+        "VI-X02~"
+      ],
+      "name": "US Virgin Islands",
+      "nameEn": "US Virgin Islands"
     },
     {
       "id": "VNM-G-REMAIN-1A4EFE",
@@ -6791,6 +7628,18 @@
       ],
       "name": "Samoa",
       "nameEn": "Samoa"
+    },
+    {
+      "id": "YEM-G5B4F58B",
+      "countryId": "YEM",
+      "members": [
+        "YE-JA",
+        "YE-SN",
+        "YE-AM",
+        "YE-SA"
+      ],
+      "name": "Northwest Yemen",
+      "nameEn": "Northwest Yemen"
     },
     {
       "id": "YEM-GC1C039B",
