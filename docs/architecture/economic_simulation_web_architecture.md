@@ -326,10 +326,10 @@ GDP 统计       每月或每季度
 8. 执行运输、进口和出口
 9. 执行消费与库存损耗
 10. 若为月末，执行不可中断结算批次
-    10a. 结算工资、已交付采购、维护、利息、税费和到期债务
+    10a. 结算工资、已交付采购、维护、租金、利息、税费、转移支付和到期债务，双方同时入账
     10b. Economic Unit 关闭收入费用，确认利润并更新留存收益
     10c. 判定偿付能力，冻结本月股东名册和分红预算
-    10d. 支付分红、转移支付、利息和租金等人口财产收入
+    10d. 按冻结预算支付分红
     10e. 人口接收本月实际消费结果并更新资产负债表
 11. 处理生命周期并准备下月
     11a. Economic Unit 进入、重组、清算和退出
@@ -607,36 +607,35 @@ Country 负责：
 
 Province 负责或承载：
 
-- 人口和劳动力；
-- 生产能力和资源；
-- 地方库存和价格；
-- 基础设施状态；
-- 地方市场或市场节点引用。
+- 人口、Economic Unit、市场和运输节点的空间键；
+- 静态资源潜力；
+- 主要地方市场和主要运输节点引用；
+- 从各权威模块派生的省级 Metrics。
 
 ### 11.2 运输图
 
 道路、铁路、航线和贸易路线统一建模为图，而不是嵌入 Province Polygon：
 
 ```text
-TransportNode
+TransportNodeDefinition
 ├── id
 ├── kind: ProvinceHub | City | Port | Border | Junction
 ├── provinceId
-└── position
+├── position
+└── designCapacity: Port 必填，其他 Kind 为 null
 
-TransportEdge
+TransportEdgeDefinition
 ├── id
 ├── kind: Road | Railway | SeaLane | Canal
 ├── fromNodeId
 ├── toNodeId
 ├── distance
-├── capacity
+├── designCapacity
 ├── costParameters
-├── travelTime
-└── condition
+└── baseTravelTime
 ```
 
-实际贸易路线是运输图上的路径或流量结果，不应与永久基础设施实体混为一体。
+Transport Graph 保存拓扑和静态工程参数。道路、铁路和港口的当前经营者、condition 与经营状态保存在对应 Economic Unit 的 Transport 组件中，并通过可重建索引映射到 Node 或 Edge；Transport 模块从资产 Definition、condition、员工和可用性输入派生可售容量，不保存第二个容量上限。实际贸易路线是路径或流量结果，不应与永久基础设施资产或经营单位混为一体。
 
 ---
 

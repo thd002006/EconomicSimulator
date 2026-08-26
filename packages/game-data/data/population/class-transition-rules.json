@@ -1,0 +1,103 @@
+[
+  {
+    "sourceClassId": "*",
+    "targetClassId": "capitalist",
+    "priority": 100,
+    "minimumIncomeShare": { "business": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "rentier",
+    "priority": 90,
+    "minimumCombinedIncomeShare": { "categories": ["rent", "capital"], "share": 0.6 },
+    "minimumPassiveAssetsCentsPerCapita": 12000000,
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "small_business_owner",
+    "priority": 80,
+    "minimumIncomeShare": { "self_employment": 0.6 },
+    "minimumProductiveAssetsCentsPerCapita": 2000000,
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "civil_servant",
+    "priority": 70,
+    "minimumGovernmentJobShare": 0.6,
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "farmer",
+    "priority": 60,
+    "minimumJobShare": { "agriculture": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "managerial",
+    "priority": 51,
+    "minimumJobShare": { "senior_management": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "managerial",
+    "priority": 50,
+    "minimumJobShare": { "middle_management": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "professional",
+    "priority": 40,
+    "minimumJobShare": { "professional": 0.6 },
+    "minimumEducationShare": { "tertiary": 0.5 },
+    "minimumSkillShare": { "high": 0.5 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "skilled_worker",
+    "priority": 30,
+    "minimumJobShare": { "skilled_technical": 0.6 },
+    "minimumSkillShare": { "high": 0.5 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "office_worker",
+    "priority": 20,
+    "minimumJobShare": { "office_clerical": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "service_worker",
+    "priority": 10,
+    "minimumJobShare": { "consumer_service": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  },
+  {
+    "sourceClassId": "*",
+    "targetClassId": "worker",
+    "priority": 0,
+    "minimumIncomeShare": { "labor": 0.6 },
+    "delayMonths": 12,
+    "maximumTransferRatePerMonth": 0.01
+  }
+]

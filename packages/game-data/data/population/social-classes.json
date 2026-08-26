@@ -1,0 +1,200 @@
+[
+  {
+    "id": "farmer",
+    "nameKey": "social_class.farmer",
+    "laborParticipationBaseRate": 0.7,
+    "reservationWageMultiplier": 0.7,
+    "jobCompatibilityByCategory": {
+      "agriculture": 1,
+      "basic_industrial": 0.3,
+      "skilled_technical": 0,
+      "consumer_service": 0.1,
+      "office_clerical": 0,
+      "professional": 0,
+      "middle_management": 0,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.05
+  },
+  {
+    "id": "worker",
+    "nameKey": "social_class.worker",
+    "laborParticipationBaseRate": 0.85,
+    "reservationWageMultiplier": 1,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0.3,
+      "basic_industrial": 1,
+      "skilled_technical": 0.4,
+      "consumer_service": 0.5,
+      "office_clerical": 0.1,
+      "professional": 0,
+      "middle_management": 0.1,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.08
+  },
+  {
+    "id": "skilled_worker",
+    "nameKey": "social_class.skilled_worker",
+    "laborParticipationBaseRate": 0.88,
+    "reservationWageMultiplier": 1.4,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0.1,
+      "basic_industrial": 0.6,
+      "skilled_technical": 1,
+      "consumer_service": 0,
+      "office_clerical": 0.2,
+      "professional": 0.3,
+      "middle_management": 0,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.1
+  },
+  {
+    "id": "service_worker",
+    "nameKey": "social_class.service_worker",
+    "laborParticipationBaseRate": 0.85,
+    "reservationWageMultiplier": 0.9,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0.1,
+      "basic_industrial": 0.2,
+      "skilled_technical": 0,
+      "consumer_service": 1,
+      "office_clerical": 0.4,
+      "professional": 0,
+      "middle_management": 0,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.07
+  },
+  {
+    "id": "office_worker",
+    "nameKey": "social_class.office_worker",
+    "laborParticipationBaseRate": 0.85,
+    "reservationWageMultiplier": 1.2,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0.1,
+      "skilled_technical": 0,
+      "consumer_service": 0.5,
+      "office_clerical": 1,
+      "professional": 0.2,
+      "middle_management": 0.3,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.1
+  },
+  {
+    "id": "professional",
+    "nameKey": "social_class.professional",
+    "laborParticipationBaseRate": 0.9,
+    "reservationWageMultiplier": 2.2,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0,
+      "skilled_technical": 0.5,
+      "consumer_service": 0,
+      "office_clerical": 0.4,
+      "professional": 1,
+      "middle_management": 0.3,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.15
+  },
+  {
+    "id": "managerial",
+    "nameKey": "social_class.managerial",
+    "laborParticipationBaseRate": 0.92,
+    "reservationWageMultiplier": 2.8,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0,
+      "skilled_technical": 0,
+      "consumer_service": 0,
+      "office_clerical": 0.3,
+      "professional": 0.4,
+      "middle_management": 1,
+      "senior_management": 0.8
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.2
+  },
+  {
+    "id": "civil_servant",
+    "nameKey": "social_class.civil_servant",
+    "laborParticipationBaseRate": 0.9,
+    "reservationWageMultiplier": 1.3,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0.1,
+      "skilled_technical": 0,
+      "consumer_service": 0.3,
+      "office_clerical": 0.8,
+      "professional": 0.5,
+      "middle_management": 0.7,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.12
+  },
+  {
+    "id": "small_business_owner",
+    "nameKey": "social_class.small_business_owner",
+    "laborParticipationBaseRate": 0.8,
+    "reservationWageMultiplier": 1.1,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0.6,
+      "basic_industrial": 0.5,
+      "skilled_technical": 0.4,
+      "consumer_service": 0.6,
+      "office_clerical": 0.3,
+      "professional": 0,
+      "middle_management": 0.5,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "standard",
+    "savingPropensity": 0.15
+  },
+  {
+    "id": "capitalist",
+    "nameKey": "social_class.capitalist",
+    "laborParticipationBaseRate": 0.5,
+    "reservationWageMultiplier": 3,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0,
+      "skilled_technical": 0,
+      "consumer_service": 0,
+      "office_clerical": 0.1,
+      "professional": 0,
+      "middle_management": 0.6,
+      "senior_management": 0.8
+    },
+    "consumptionProfileId": "affluent",
+    "savingPropensity": 0.25
+  },
+  {
+    "id": "rentier",
+    "nameKey": "social_class.rentier",
+    "laborParticipationBaseRate": 0.1,
+    "reservationWageMultiplier": 2,
+    "jobCompatibilityByCategory": {
+      "agriculture": 0,
+      "basic_industrial": 0,
+      "skilled_technical": 0,
+      "consumer_service": 0.05,
+      "office_clerical": 0.1,
+      "professional": 0,
+      "middle_management": 0,
+      "senior_management": 0
+    },
+    "consumptionProfileId": "affluent",
+    "savingPropensity": 0.3
+  }
+]

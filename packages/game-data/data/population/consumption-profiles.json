@@ -1,0 +1,4 @@
+[
+  { "id": "standard", "essentialNeedPerPersonCentsPerMonth": 100000 },
+  { "id": "affluent", "essentialNeedPerPersonCentsPerMonth": 250000 }
+]

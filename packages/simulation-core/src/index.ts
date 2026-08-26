@@ -10,3 +10,28 @@ export {
   type SimulationStateV1,
   type SimulationSummary
 } from "./types";
+export {
+  applyClassIncomeEvent,
+  applyExogenousMigrationCommand,
+  createPopulationWorld,
+  getPopulationInvariantReport,
+  getProvinceLaborMarket,
+  getProvincePopulationSummary,
+  removeEmployer,
+  runMonthlyPopulationStep,
+  setEmployer,
+  upsertJobDemand,
+  validatePopulationStaticData
+} from "./population/index";
+export type {
+  ClassConsumptionPlan,
+  EquityReclassificationEvent,
+  ExogenousMigrationCommand,
+  InheritanceEvent,
+  MonthlyPopulationStepResult,
+  PopulationStaticData,
+  PopulationWorld,
+  ProvinceLaborMarketSummary,
+  ProvincePopulationSummary
+} from "./population/types";
+export type { PopulationInvariantReport } from "./population/index";

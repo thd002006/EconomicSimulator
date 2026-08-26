@@ -1,0 +1,66 @@
+[
+  {
+    "id": "farm_worker",
+    "categoryId": "agriculture",
+    "minimumEducation": "basic",
+    "minimumSkill": "low",
+    "productivityMultiplier": 0.8,
+    "workingConditionScore": 0.95
+  },
+  {
+    "id": "production_operator",
+    "categoryId": "basic_industrial",
+    "minimumEducation": "basic",
+    "minimumSkill": "low",
+    "productivityMultiplier": 1,
+    "workingConditionScore": 0.95
+  },
+  {
+    "id": "technician",
+    "categoryId": "skilled_technical",
+    "minimumEducation": "secondary",
+    "minimumSkill": "medium",
+    "productivityMultiplier": 1.3,
+    "workingConditionScore": 1
+  },
+  {
+    "id": "sales_clerk",
+    "categoryId": "consumer_service",
+    "minimumEducation": "basic",
+    "minimumSkill": "low",
+    "productivityMultiplier": 0.8,
+    "workingConditionScore": 0.98
+  },
+  {
+    "id": "office_clerk",
+    "categoryId": "office_clerical",
+    "minimumEducation": "secondary",
+    "minimumSkill": "low",
+    "productivityMultiplier": 1,
+    "workingConditionScore": 1.02
+  },
+  {
+    "id": "engineer",
+    "categoryId": "professional",
+    "minimumEducation": "tertiary",
+    "minimumSkill": "high",
+    "productivityMultiplier": 1.8,
+    "workingConditionScore": 1.05
+  },
+  {
+    "id": "department_manager",
+    "categoryId": "middle_management",
+    "minimumEducation": "tertiary",
+    "minimumSkill": "high",
+    "productivityMultiplier": 1.6,
+    "workingConditionScore": 1
+  },
+  {
+    "id": "executive",
+    "categoryId": "senior_management",
+    "minimumEducation": "tertiary",
+    "minimumSkill": "expert",
+    "productivityMultiplier": 2.2,
+    "workingConditionScore": 0.95
+  }
+]

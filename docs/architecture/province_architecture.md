@@ -93,7 +93,7 @@ View Model  为具体 Query 和 UI 裁剪的只读结果
 | 数据层     | 省份系统示例                                          | 是否进入存档                       |
 | ---------- | ----------------------------------------------------- | ---------------------------------- |
 | Definition | 地图要素引用、面积、地形、气候、资源潜力              | 记录数据包版本，不逐项复制         |
-| State      | 当前国家归属、已结束归属期间、主要市场和主要运输节点 | 是                                 |
+| State      | 当前国家归属、已结束归属期间、主要市场和主要运输节点  | 是                                 |
 | Metrics    | 人口、GDP、就业率、平均工资、物价、产出、经济单位数量 | 默认否；历史采样按统计系统规则保存 |
 | View Model | `ProvinceSummaryView`、经济单位分页、Inspector 数据   | 否                                 |
 
@@ -254,7 +254,7 @@ interface ProvinceLocalState {
 }
 ```
 
-道路、铁路、港口、公用事业和政府服务的 condition、capacity 与经营状态由对应 Economic Unit 及 Transport 组件持有。Province 基础设施概况只能从这些状态派生，不保存可独立修改的 condition 或 coverage。
+道路、铁路、港口、公用事业和政府服务的 condition 与经营状态只由 Transport 等专门模块中、以 `economicUnitId` 为键的经营组件持有；可用 capacity 从资产 Definition 与当前经营输入派生。Province 基础设施概况只能从这些来源聚合，不保存可独立修改的 condition、capacity 或 coverage。
 
 ---
 
@@ -460,12 +460,12 @@ interface ProvinceOwnershipChangedEvent {
 
 端到端顺序只以 `economic_simulation_web_architecture.md` 的标准 Tick 为准。Province 没有独立时钟，只在以下阶段挂接：
 
-| Scheduler 阶段 | Province 行为                                                                 |
-| -------------- | ----------------------------------------------------------------------------- |
-| 1              | 原子提交归属、主要市场和主要运输节点变更；接收已验证的 Unit 迁址结果          |
-| 2～3           | 把 Country 政策映射到当前 Province；向计划模块提供市场、资源潜力和只读索引   |
-| 5～11          | 不主动修改其他模块，仅按 `provinceId` 接收阶段结果和索引失效标记             |
-| 12             | 检查引用完整性、当前归属唯一性、主要节点和反向索引一致性                     |
+| Scheduler 阶段 | Province 行为                                                                     |
+| -------------- | --------------------------------------------------------------------------------- |
+| 1              | 原子提交归属、主要市场和主要运输节点变更；接收已验证的 Unit 迁址结果              |
+| 2～3           | 把 Country 政策映射到当前 Province；向计划模块提供市场、资源潜力和只读索引        |
+| 5～11          | 不主动修改其他模块，仅按 `provinceId` 接收阶段结果和索引失效标记                  |
+| 12             | 检查引用完整性、当前归属唯一性、主要节点和反向索引一致性                          |
 | 13～14         | 从 Population、Economic Units、Markets 和 Transport 聚合 Metrics、历史与 UI Delta |
 
 归属或 Unit 迁址在 Tick 中途不可见。Province 不得在月末批次中插入额外招聘、生产、人口转移或基础设施更新；存档只允许在完整 Tick 结束且不变量通过后生成。
@@ -519,15 +519,15 @@ interface ProvinceMetrics {
 
 Metrics 的来源必须可解释：
 
-| 指标           | 主要来源                           |
-| -------------- | ---------------------------------- |
-| 人口与就业     | Population、Employment Allocation  |
-| 平均工资       | Wage Settlement、人口收入累计器    |
-| GDP            | Production、Markets、Accounting    |
-| 消费           | 市场实际成交和人口结算             |
-| 贸易           | Market、Transport、Accounting      |
-| 经济单位数量   | 非 `closed` 的 `EconomicUnitState` |
-| 价格和生活成本 | 主要地方市场                       |
+| 指标           | 主要来源                            |
+| -------------- | ----------------------------------- |
+| 人口与就业     | Population、Employment Allocation   |
+| 平均工资       | Wage Settlement、人口收入累计器     |
+| GDP            | Production、Markets、Accounting     |
+| 消费           | 市场实际成交和人口结算              |
+| 贸易           | Market、Transport、Accounting       |
+| 经济单位数量   | 非 `closed` 的 `EconomicUnitState`  |
+| 价格和生活成本 | 主要地方市场                        |
 | 基础设施概况   | Economic Unit 与 Transport 组件聚合 |
 
 不得把计划产量、挂单金额或期望消费误报为实际 GDP、贸易或消费。

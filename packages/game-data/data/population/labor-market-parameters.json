@@ -1,0 +1,11 @@
+{
+  "jobSearchRateAmongEmployed": 0,
+  "acceptanceRateFloor": 0.8,
+  "acceptanceRateRange": 0.4,
+  "monthlyWageAdjustmentRate": 0.05,
+  "legalMinimumWageCentsPerMonth": 50000,
+  "configuredMaximumWageCentsPerMonth": 500000,
+  "provinceSubsistenceCostCentsPerMonth": 150000,
+  "maxCashDrawdownSharePerMonth": 0.02,
+  "populationTolerance": 1e-6
+}

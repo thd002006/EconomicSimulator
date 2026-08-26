@@ -26,6 +26,7 @@ V1 采用以下设计：
 12. 每个 Economic Unit 只能属于一个 Province。跨省道路或铁路在省界处分段为多个 Economic Unit，并通过 Transport Graph 连接。
 13. 经济单位的当前状态是权威数据；产量、销售额、利润率、估值和集团汇总是 Metrics，不回写成并行真相。
 14. 破产、关闭、出售、增发、股份转让和分红只在完整 Tick 边界原子提交。
+15. 每种 Economic Unit 必须定义至少一种可出售商品或服务；采购投入可以为空，岗位需求、实际销量、利润和实际分红可以为零。
 
 V1 明确不做：
 
@@ -155,7 +156,7 @@ type TransportEdgeId = string;
 type Tick = number;
 ```
 
-真实 Employer 的 `EmployerId` 与 `EconomicUnitId` 使用相同值。人口系统中的 `self_employment_pool` 是劳动力聚合工具，不是 Economic Unit，不拥有股本，也不得进入经济单位查询。
+真实 Employer 的 `EmployerId` 与 `EconomicUnitId` 使用相同值。V1 不创建脱离 Economic Unit 账户与股权的合成 Employer；`self_employed` 只是 Unit 内的雇佣安排，不是独立主体。
 
 所有 ID 全局稳定且不包含显示名称。跨模块关系只传 ID，不持有可变对象引用。
 
@@ -275,6 +276,8 @@ EconomicUnitState
 | government_service | Service                               |
 
 每个非 `closed` 单位必须有且只有一种符合 Kind 的主经营组件。所有真实单位都有 Employer 和 Equity 组件，即使当前岗位数或利润为零。
+
+主经营组件或其 Industry Definition 必须提供至少一个输出：工厂和农场输出商品，商店输出带零售服务的商品，服务机构和总部输出服务，仓库输出仓储服务，道路、铁路和港口输出运输服务。没有成交不违反这一约束；完全没有可出售输出定义则属于无效 Unit 数据。
 
 ---
 
@@ -437,11 +440,12 @@ interface TransportInfrastructureOperationState {
   readonly transportEdgeIds: readonly TransportEdgeId[];
   serviceId: ServiceId;
   condition: number;
-  maximumCapacityPerDay: number;
 }
 ```
 
 道路和铁路 Unit 至少引用一个 Transport Edge；港口至少引用一个位于同一 Province 的 Transport Node。引用的资产不能同时被两个活动 Economic Unit 作为同一经营权主体控制。
+
+设计容量只来自引用 Transport Asset 的静态 Definition。每项资产的当日可用容量由 Transport 模块按 `designCapacity × condition × staffingFactor × availabilityFactor` 派生；Economic Unit 不保存第二个可独立修改的容量上限。多资产 Unit 逐项接受容量约束，不能用简单总和绕过某一 Edge 或 Node 的瓶颈。
 
 ### 11.2 经营方式
 
@@ -488,7 +492,7 @@ type ShareholderRef =
   | { readonly kind: "government"; readonly countryId: CountryId };
 ```
 
-Population Class 股东引用该 Class 的投资账户。Class 人数变化不会按人拆分股份；股份和股息仍属于聚合账户。
+Population Class 股东引用该 Class 的投资账户。纯人口计数变化不会隐式修改股份；Class 流动、继承或迁移若携带投资资产，必须执行显式的股份重分类，使 Share Position 与账面价值一起转移。
 
 ### 12.2 权威股本状态
 
@@ -704,17 +708,17 @@ getUltimateShareholders
 
 端到端顺序只以 `economic_simulation_web_architecture.md` 的标准 Tick 为准。Economic Units 在以下阶段挂接：
 
-| Scheduler 阶段 | Economic Units 读取                              | Economic Units 输出                              |
-| -------------- | ------------------------------------------------ | ------------------------------------------------ |
-| 1              | 已确认的创建、迁址、状态和股份交易 Command       | 原子状态变化与 Event                             |
-| 3              | 价格、库存、资产、政策和上期经营结果             | 采购、生产、服务、销售和岗位计划                 |
-| 5～9           | 已分配员工与投入、市场成交、运输和交付           | 产出、服务容量、库存变化、收入确认和资产 condition |
-| 10a            | 本月就业、交付、维护、融资和税费                 | 工资、成本、利息、税费和债务 Ledger Transaction |
-| 10b            | 已完成的本月 Ledger Transaction                  | 利润、亏损和更新后的留存收益                     |
-| 10c            | 现金、到期义务、留存收益和股东名册               | 偿付能力结果、冻结的分红预算                     |
-| 10d            | 冻结的预算与股东名册                             | 确定性分红 Transaction 和股东收入                |
-| 11a            | 偿付能力与清算决定                               | 重组、经营权转让、清算或关闭结果                 |
-| 12～14         | 最终权威状态                                     | 不变量报告、Metrics、历史、Event 和 UI Delta     |
+| Scheduler 阶段 | Economic Units 读取                        | Economic Units 输出                                |
+| -------------- | ------------------------------------------ | -------------------------------------------------- |
+| 1              | 已确认的创建、迁址、状态和股份交易 Command | 原子状态变化与 Event                               |
+| 3              | 价格、库存、资产、政策和上期经营结果       | 采购、生产、服务、销售和岗位计划                   |
+| 5～9           | 已分配员工与投入、市场成交、运输和交付     | 产出、服务容量、库存变化、收入确认和资产 condition |
+| 10a            | 本月就业、交付、维护、融资和税费           | 工资、成本、利息、税费和债务 Ledger Transaction    |
+| 10b            | 已完成的本月 Ledger Transaction            | 利润、亏损和更新后的留存收益                       |
+| 10c            | 现金、到期义务、留存收益和股东名册         | 偿付能力结果、冻结的分红预算                       |
+| 10d            | 冻结的预算与股东名册                       | 确定性分红 Transaction 和股东收入                  |
+| 11a            | 偿付能力与清算决定                         | 重组、经营权转让、清算或关闭结果                   |
+| 12～14         | 最终权威状态                               | 不变量报告、Metrics、历史、Event 和 UI Delta       |
 
 本月收到的其他 Unit 分红可以进入本月投资收入，但不能增加 10c 已冻结的分红预算；最早在下月向上层股东继续分配。Economic Units 不自行调用市场、劳动力或 Statistics 阶段。
 
@@ -938,7 +942,7 @@ road / railway 至少绑定一个有效 Transport Edge
 port 至少绑定一个有效且同省 Transport Node
 同一经营权资产最多绑定一个活动 Economic Unit
 condition 位于 0～1
-实际已售运输服务 <= condition 调整后的容量
+每项资产的实际已售运输服务 <= 从 designCapacity、condition、员工和可用性派生的容量
 关闭基础设施 Unit 时资产具有新运营者或明确的关闭状态
 ```
 
