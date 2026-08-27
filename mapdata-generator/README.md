@@ -64,7 +64,7 @@ provinces/<sourceProvinceId>/
 
 `members` 必须是所引用 L1 源省 ID 的完全划分（无交叉、无遗漏）。工程不存 dissolve 后的全球几何。人口以 L2 class CSV 为准（方便直接改）；合并/拆分只改 `groups.json`，导出时按 members 汇总 class。
 
-导出 L3 时：按组成员汇总 L2 `classes/*.csv`，写出游戏省的 class CSV；`gdp_ppp` 从 L1 `demographics.json` 求和写入；**不**写 `demographics.json`。
+导出 L3 时：按组成员汇总 L2 `classes/*.csv`，写出游戏省的 class CSV；`gdp_ppp` 从 L1 `province.csv` 求和写入；**不**写 `demographics.json`。
 
 ## 遗留合并管线
 

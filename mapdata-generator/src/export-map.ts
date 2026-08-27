@@ -1,9 +1,10 @@
 import { spawn } from "node:child_process";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeProvinceCsvSkeleton, writeMapManifest } from "./build-world-modern.js";
 import {
+  parseCsvLine,
   readProvinceClassCsvs,
   sumClassSeedRows,
   writeClassSeedRows
@@ -15,7 +16,6 @@ import {
   validatePartition,
   type ProjectGroup
 } from "./project.js";
-import type { ProvinceDemographicsEntry } from "./socioeconomic/aggregate.js";
 import {
   buildTopology,
   extractTopologyLines,
@@ -63,15 +63,29 @@ async function loadBaseProvinces(baseRoot: string): Promise<Map<string, BaseProv
 
 async function loadGdpBySourceId(baseRoot: string): Promise<Map<string, number>> {
   const result = new Map<string, number>();
+  const provincesRoot = join(baseRoot, "provinces");
+  let ids: string[] = [];
   try {
-    const demographics = JSON.parse(
-      await readFile(join(baseRoot, "demographics.json"), "utf8")
-    ) as Record<string, ProvinceDemographicsEntry>;
-    for (const [id, entry] of Object.entries(demographics)) {
-      if (Number.isFinite(entry.gdpPpp)) result.set(id, entry.gdpPpp);
-    }
+    ids = (await readdir(provincesRoot, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
   } catch {
-    // missing demographics.json → GDP defaults to 0
+    return result;
+  }
+  for (const id of ids) {
+    try {
+      const text = await readFile(join(provincesRoot, id, "province.csv"), "utf8");
+      const lines = text.trim().split(/\r?\n/);
+      if (lines.length < 2) continue;
+      const headers = parseCsvLine(lines[0]!);
+      const cells = parseCsvLine(lines[1]!);
+      const index = headers.indexOf("gdp_ppp");
+      if (index < 0) continue;
+      const value = Number(cells[index] ?? 0);
+      if (Number.isFinite(value)) result.set(id, value);
+    } catch {
+      // skip missing province.csv
+    }
   }
   return result;
 }

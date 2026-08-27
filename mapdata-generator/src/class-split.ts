@@ -149,7 +149,7 @@ function csvEscape(value: string): string {
   return value;
 }
 
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
   const cells: string[] = [];
   let current = "";
   let inQuotes = false;
