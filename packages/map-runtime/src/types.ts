@@ -63,6 +63,8 @@ export interface MapPackManifest {
     coastlines?: string;
     countries?: string;
     demographics?: string;
+    provinceDefinitions?: string;
+    scenarioSeed?: string;
     spatialIndex: string;
     globeMesh: string;
   }>;

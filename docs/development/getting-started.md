@@ -53,6 +53,6 @@ pnpm map:publish
 pnpm dev
 ```
 
-每张地图是一个自包含的 `assets/maps/<mapId>/` 目录，其中包括 GeoJSON 几何、稳定 ID、显式关系数据，以及自动生成且忽略提交的 `compiled/`。客户端开发服务器直接读取该目录，发行构建则将 `compiled/` 打包到只读应用资源 `/maps/<id>`；发布后的程序不会向项目或安装目录写文件。
+每张地图是一个自包含的 `assets/maps/<mapId>/` 目录（schemaVersion 3）：`geometry/` 保存省界/共享边/海岸线，CSV 保存国家、省份、人口 class、公司与经营单位；`compiled/` 由 `map:publish` 生成且默认不提交。客户端开发服务器读取该目录，发行构建将 `compiled/` 打包到 `/maps/<id>`。
 
-Natural Earth 原始下载文件、缓存、区划归并、首府选择和拓扑简化逻辑统一放在独立的 `mapdata-generator/` 子项目中。它不属于游戏的开发或构建依赖，只有制作或更新底图时才手动运行；其最终候选与审查报告经过人工检查后，再把四个发布文件导入 `assets/maps/<mapId>/`。地图包没有独立城市图层，首府保存在各省份属性中。
+Natural Earth 下载与区划归并在独立的 `mapdata-generator/`（L0→L1，不进游戏构建）；校验与编译在 `tools/map-pipeline`（L1→L2，每次 dev/build）。玩家自定义地图只跑 publish。

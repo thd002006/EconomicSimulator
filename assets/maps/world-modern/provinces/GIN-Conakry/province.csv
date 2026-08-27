@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+GIN-Conakry,Conakry,Conakry,GIN,25,1,0.272,0.285,tropical,tropical,0,"Conakry in Guinea, varied lowlands and uplands, tourism and fishing.",Conakry,Conakry

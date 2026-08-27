@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+FRA-Hauts-de-France,Hauts-de-France,Hauts-de-France,FRA,31879,17373,0.877,0.869,temperate_cold,temperate,166930180520,"Merged from Aisne, Nord, Oise, Pas-de-Calais and Somme. Hauts-de-France in France, temperate lowlands and uplands, forestry and highland farming.",Lille,Lille

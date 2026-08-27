@@ -12,7 +12,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 REVIEW = REPO / "mapdata-generator/output/world-modern/review-report.json"
-PROV_GEO = REPO / "assets/maps/world-modern/provinces.geojson"
+PROV_GEO = REPO / "assets/maps/world-modern/geometry/provinces.geojson"
 OUT = REPO / "packages/game-data/data/provinces.json"
 
 # --- country base values (arableShare, cultivationCondition, habitability) ---

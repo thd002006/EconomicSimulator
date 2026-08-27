@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+MY-12,Sabah,Sabah,MYS,74139,5107,0.577,0.626,tropical,tropical,18307880057,"Sabah in Malaysia, varied lowlands and uplands, mining and energy.",Kota Kinabalu,Kota Kinabalu

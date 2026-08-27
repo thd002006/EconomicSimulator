@@ -23,9 +23,27 @@ const ScenarioProvinceBootstrapSchema = z.object({
   demographics: ScenarioProvinceDemographicsSchema.optional()
 });
 
+const ScenarioClassSeedSchema = z.object({
+  provinceId: z.string().min(1),
+  socialClassId: z.string().min(1),
+  populationPersons: z.number().finite(),
+  male: z.number().finite(),
+  female: z.number().finite(),
+  age: z.record(z.string(), z.number().finite()),
+  education15Plus: z.record(z.string(), z.number().finite()),
+  cashCents: z.number().finite().optional()
+});
+
+const ScenarioMapSeedSchema = z.object({
+  mapId: z.string().min(1),
+  provinces: z.array(ScenarioProvinceBootstrapSchema),
+  classSeeds: z.array(ScenarioClassSeedSchema)
+});
+
 const ScenarioBootstrapSchema = z.object({
   mapId: z.string().min(1),
-  provinces: z.array(ScenarioProvinceBootstrapSchema).min(1)
+  provinces: z.array(ScenarioProvinceBootstrapSchema).min(1),
+  seed: ScenarioMapSeedSchema.optional()
 });
 
 export const WorkerRequestSchema = z.discriminatedUnion("kind", [

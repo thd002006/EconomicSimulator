@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+IRL-South-East,South-East,South-East,IRL,9223,1862,0.67,0.755,temperate_cold,temperate,16716070703,"Merged from Carlow, Kilkenny, Tipperary, Waterford and Wexford. South-East in Ireland, temperate maritime greenfields, port trade and logistics.",Kilkenny,Kilkenny

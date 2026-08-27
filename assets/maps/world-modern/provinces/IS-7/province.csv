@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+IS-7,Austurland,Austurland,ISL,21283,61,0.05,0.281,boreal,continental,340508410,"Austurland in Iceland, varied lowlands and uplands, port trade and logistics.",Egilsstaðir,Egilsstaðir

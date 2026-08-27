@@ -9,6 +9,7 @@ export {
   type ProvinceId,
   type ProvincePopulationQueryResult,
   type ScenarioBootstrap,
+  type ScenarioMapSeed,
   type ScenarioProvinceBootstrap,
   type ScenarioProvinceDemographics,
   type SimulationEngine,

@@ -402,7 +402,7 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
     join(toolRoot, "config/world-modern-socioeconomic.json")
   );
   const entries = await aggregateSocioeconomic(toolRoot, config, {
-    provincesPath: join(toolRoot, "output/world-modern/provinces.geojson"),
+    provincesPath: join(toolRoot, "output/world-modern/geometry/provinces.geojson"),
     outputPath: join(toolRoot, "output/world-modern/province-demographics.json")
   });
   await writeFile(

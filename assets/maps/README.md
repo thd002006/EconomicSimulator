@@ -1,33 +1,34 @@
-# 制作完成的地图数据
+# 制作完成的地图数据（L1 Authored）
 
-`assets/maps/` 是游戏地图的唯一可维护真相来源。每张地图是一个可以整体添加、移动或分享的自包含目录，保存经过人工整理、拥有稳定 ID 的 GeoJSON、显式关系数据和就地生成的发布文件。
+`assets/maps/` 是游戏地图的唯一可维护真相来源。每张地图是一个自包含目录：几何只读，玩法数据以 CSV 分目录保存；`compiled/` 由 `map:publish` 生成。
 
 ```text
 assets/maps/<mapId>/
-├── map.json
-├── provinces.geojson
-├── boundaries.json
-├── coastlines.geojson
-└── compiled/              # map:publish 自动生成，默认不提交
+├── map.json                 # schemaVersion 3
+├── geometry/                # 省界 / 共享边 / 海岸线（不 CSV 化）
+│   ├── provinces.geojson
+│   ├── boundaries.json
+│   └── coastlines.geojson
+├── countries.csv
+├── companies/<companyId>/   # 可选；含 company.csv + shareholders.csv
+├── provinces/<provinceId>/
+│   ├── province.csv
+│   ├── classes/<socialClassId>.csv
+│   └── operating-units.csv
+└── compiled/                # map:publish 生成，默认不提交
 ```
 
-- `provinces.geojson` 和 `coastlines.geojson` 是制作完成、可编辑的地图图层；地图包不包含独立城市图层。
-- 每个 Province 的 `properties.capital` 必填，包含省份首府坐标和可选名称；没有真实首府资料时由生成器选择省内视觉中心点。
-- `boundaries.json` 保存共享省份边及其两侧省份 ID，支持按模拟中的当前归属绘制国界。
-- 运行时优化文件只生成到当前地图的 `compiled/`，该目录默认不提交。
-- 新增地图只需加入一个符合上述结构且目录名与 `map.json.id` 相同的目录；校验、编译和客户端打包会自动发现它。
-- 图层路径必须留在当前地图目录内；绝对路径、`..` 穿越和符号链接逃逸会被拒绝。
-- 编译后的最后一级 LOD 始终保留原始几何；其余 LOD 使用带面积、环方向和自相交保护的自适应简化。
-- 当前海岸线发布文件保留原始坐标，避免高倍缩放时偏离省份海岸。
-- 相同输入生成字节一致的 `compiled/`，清单中不写动态构建时间。
-- `map.json` 必须符合制作格式 Schema v2；Province、Boundary、Coastline 全部要求稳定且唯一的 ID。
-- 编译清单使用 Schema v3 / `economic-simulator.map-runtime/v2`，并生成 `[0.25, 0.08, 0]` 三档省份 LOD。
-- 游戏构建不会下载 Natural Earth，也不会从外部地理资料制作地图。
-- 上游资料下载、缓存和地图草稿制作位于独立的 `mapdata-generator/` 子项目。
-- 发行构建会把 `compiled/` 作为只读资源打包；运行时不会向项目或安装目录写文件。
-- 未来的玩家地图应整体放在用户数据目录；如果需要运行时编译，其 `compiled/` 也位于同一玩家地图目录。
+两段工具链（包分离、生命周期不同）：
 
-验证并生成客户端地图：
+| 命令 | 工具 | 作用 |
+|---|---|---|
+| `mapdata-generator` 内 `pnpm generate:world-modern` | L0→L1 authoring | 下载 Natural Earth，写出上表结构（不进游戏构建） |
+| `pnpm map:validate` / `pnpm map:publish` | L1→L2 `tools/map-pipeline` | 校验并编译 LOD / scenario-seed |
+
+- 首府坐标在 `geometry/provinces.geojson`；名称可在 `province.csv` 覆盖。
+- `boundaries.json` 保存共享省边；国界由两侧归属在运行时推导。
+- 编译产物含 `scenario-seed.json` 与 `province-definitions.json`；`world-modern` 发布时同步写出 `packages/game-data/data/provinces.json`。
+- 游戏构建不下载 Natural Earth；玩家自定义地图只跑 publish，不跑 authoring。
 
 ```powershell
 pnpm map:validate

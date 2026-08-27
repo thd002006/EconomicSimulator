@@ -16,6 +16,24 @@ export interface ScenarioProvinceDemographics {
   readonly education15Plus: Readonly<Record<string, number>>;
 }
 
+export interface ScenarioClassSeed {
+  readonly provinceId: ProvinceId;
+  readonly socialClassId: string;
+  readonly populationPersons: number;
+  readonly male: number;
+  readonly female: number;
+  readonly age: Readonly<Record<string, number>>;
+  readonly education15Plus: Readonly<Record<string, number>>;
+  readonly cashCents?: number;
+}
+
+/** Compiled map scenario seed (from L1 CSV publish). Population only until company bootstrap is wired. */
+export interface ScenarioMapSeed {
+  readonly mapId: string;
+  readonly provinces: readonly ScenarioProvinceBootstrap[];
+  readonly classSeeds: readonly ScenarioClassSeed[];
+}
+
 export interface ScenarioProvinceBootstrap {
   readonly id: ProvinceId;
   readonly ownerCountryId: CountryId;
@@ -25,6 +43,8 @@ export interface ScenarioProvinceBootstrap {
 export interface ScenarioBootstrap {
   readonly mapId: string;
   readonly provinces: readonly ScenarioProvinceBootstrap[];
+  /** When present, class populations come from classSeeds instead of default shares. */
+  readonly seed?: ScenarioMapSeed;
 }
 
 export interface NewSimulationInput {

@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+TZA-G976A23D,Njombe–Iringa,Njombe–Iringa,TZA,60792,7648,0.339,0.459,tropical,tropical,2971283249,"Merged from Iringa and Njombe. Njombe–Iringa, varied lowlands and uplands, industrial and service hub.",Iringa,Iringa

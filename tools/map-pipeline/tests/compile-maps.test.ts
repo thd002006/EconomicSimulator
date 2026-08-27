@@ -33,25 +33,46 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
   const sourceRoot = join(root, "source");
   const outputRoot = join(root, "output");
   const mapDirectory = join(sourceRoot, "test-map");
-  await mkdir(mapDirectory, { recursive: true });
+  const geometryDir = join(mapDirectory, "geometry");
+  const provinceDir = join(mapDirectory, "provinces", "tiny");
+  await mkdir(geometryDir, { recursive: true });
+  await mkdir(join(provinceDir, "classes"), { recursive: true });
+  await mkdir(join(mapDirectory, "companies"), { recursive: true });
   await writeFile(
     join(mapDirectory, "map.json"),
     JSON.stringify({
-      schemaVersion: 2,
+      schemaVersion: 3,
       id: "test-map",
       version: "1.0.0",
       nameKey: "map.test",
       coordinateReferenceSystem: "EPSG:4326",
       layers: {
-        provinces: "provinces.geojson",
-        boundaries: "boundaries.json",
-        coastlines: "coastlines.geojson"
+        provinces: "geometry/provinces.geojson",
+        boundaries: "geometry/boundaries.json",
+        coastlines: "geometry/coastlines.geojson",
+        countries: "countries.csv",
+        provincesDir: "provinces",
+        companiesDir: "companies"
       }
     }),
     "utf8"
   );
+  await writeFile(join(mapDirectory, "countries.csv"), "id,name_en,name\nUNK,Unknown,\n", "utf8");
   await writeFile(
-    join(mapDirectory, "provinces.geojson"),
+    join(provinceDir, "province.csv"),
+    [
+      "id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id",
+      "tiny,Tiny,Tiny,UNK,1,0,0.5,0.5,temperate,temperate"
+    ].join("\n") + "\n",
+    "utf8"
+  );
+  await writeFile(
+    join(provinceDir, "operating-units.csv"),
+    "id,kind,industry_id,default_market_id,owner_company_id,owner_shares,operating_status,initial_cash_cents\n",
+    "utf8"
+  );
+  await writeFile(
+    join(geometryDir, "provinces.geojson"),
     JSON.stringify({
       type: "FeatureCollection",
       features: [
@@ -60,6 +81,7 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
           id: "tiny",
           properties: {
             name: "Tiny",
+            adm0A3: "UNK",
             capital: { coordinates: [0.005, 0.005], nameEn: "Tiny Capital" }
           },
           geometry: polygon([
@@ -76,12 +98,12 @@ async function createMapFixture(): Promise<{ sourceRoot: string; outputRoot: str
     "utf8"
   );
   await writeFile(
-    join(mapDirectory, "boundaries.json"),
+    join(geometryDir, "boundaries.json"),
     JSON.stringify({ type: "BoundaryCollection", features: [] }),
     "utf8"
   );
   await writeFile(
-    join(mapDirectory, "coastlines.geojson"),
+    join(geometryDir, "coastlines.geojson"),
     JSON.stringify({
       type: "FeatureCollection",
       features: [

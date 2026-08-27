@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+FRA-Auvergne-Rhône-Alpes,Auvergne-Rhône-Alpes,Auvergne-Rhône-Alpes,FRA,70757,42733,0.95,0.848,temperate_cold,temperate,242103439200,"Merged from Ain, Allier, Ardèche and 9 others. Auvergne-Rhône-Alpes in France, temperate lowlands and uplands, mining and energy.",Lyon,Lyon

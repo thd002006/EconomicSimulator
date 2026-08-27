@@ -834,18 +834,40 @@ async function writeJson(path: string, value: unknown): Promise<number> {
   return Buffer.byteLength(text);
 }
 
-async function writeWorldModernManifest(outDir: string, version = "0.3.5"): Promise<number> {
+function csvEscape(value: string): string {
+  if (/[",\n\r]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
+  return value;
+}
+
+async function writeCsv(
+  path: string,
+  headers: readonly string[],
+  rows: readonly Record<string, string>[]
+): Promise<number> {
+  const lines = [headers.map(csvEscape).join(",")];
+  for (const row of rows) {
+    lines.push(headers.map((header) => csvEscape(row[header] ?? "")).join(","));
+  }
+  const text = `${lines.join("\n")}\n`;
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, text, "utf8");
+  return Buffer.byteLength(text);
+}
+
+async function writeWorldModernManifest(outDir: string, version = "0.3.8"): Promise<number> {
   return writeJson(join(outDir, "map.json"), {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id: "world-modern",
     version,
     nameKey: "map.worldModern.name",
     coordinateReferenceSystem: "EPSG:4326",
     layers: {
-      provinces: "provinces.geojson",
-      boundaries: "boundaries.json",
-      coastlines: "coastlines.geojson",
-      countries: "countries.json"
+      provinces: "geometry/provinces.geojson",
+      boundaries: "geometry/boundaries.json",
+      coastlines: "geometry/coastlines.geojson",
+      countries: "countries.csv",
+      provincesDir: "provinces",
+      companiesDir: "companies"
     },
     attribution: {
       source: "Natural Earth 1:10m",
@@ -864,29 +886,118 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
+async function writeCountriesCsv(
+  outDir: string,
+  countries: Record<string, { nameEn: string; name?: string }>
+): Promise<number> {
+  const rows = Object.entries(countries)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([id, entry]) => ({
+      id,
+      name_en: entry.nameEn,
+      ...(entry.name === undefined ? {} : { name: entry.name })
+    }));
+  return writeCsv(join(outDir, "countries.csv"), ["id", "name_en", "name"], rows);
+}
+
+async function writeProvinceCsvSkeleton(
+  outDir: string,
+  provinces: GeoJsonFeatureCollection
+): Promise<number> {
+  let bytes = 0;
+  await mkdir(join(outDir, "companies"), { recursive: true });
+  for (const feature of provinces.features) {
+    const id = String(feature.id);
+    const dir = join(outDir, "provinces", id);
+    await mkdir(join(dir, "classes"), { recursive: true });
+    const props = (feature.properties ?? {}) as Record<string, unknown>;
+    const capital =
+      props.capital !== null && typeof props.capital === "object"
+        ? (props.capital as Record<string, unknown>)
+        : {};
+    const areaKm2 =
+      feature.geometry === null || feature.geometry === undefined
+        ? 1
+        : Math.max(1, Math.round(geometryAreaKm2(feature.geometry as AreaGeometry)));
+    bytes += await writeCsv(
+      join(dir, "province.csv"),
+      [
+        "id",
+        "name",
+        "name_en",
+        "owner_country_id",
+        "land_area_km2",
+        "arable_land_km2",
+        "cultivation_condition",
+        "habitability",
+        "terrain_profile_id",
+        "climate_profile_id",
+        "description",
+        "capital_name",
+        "capital_name_en"
+      ],
+      [
+        {
+          id,
+          name: typeof props.name === "string" ? props.name : "",
+          name_en: typeof props.nameEn === "string" ? props.nameEn : "",
+          owner_country_id: typeof props.adm0A3 === "string" ? props.adm0A3 : "UNK",
+          land_area_km2: String(areaKm2),
+          arable_land_km2: "0",
+          cultivation_condition: "0.5",
+          habitability: "0.5",
+          terrain_profile_id: "temperate",
+          climate_profile_id: "temperate",
+          description: typeof props.description === "string" ? props.description : "",
+          capital_name: typeof capital.name === "string" ? capital.name : "",
+          capital_name_en: typeof capital.nameEn === "string" ? capital.nameEn : ""
+        }
+      ]
+    );
+    bytes += await writeCsv(
+      join(dir, "operating-units.csv"),
+      [
+        "id",
+        "kind",
+        "industry_id",
+        "default_market_id",
+        "owner_company_id",
+        "owner_shares",
+        "operating_status",
+        "initial_cash_cents"
+      ],
+      []
+    );
+  }
+  return bytes;
+}
+
 /**
- * countries-only rewrites countries.json + map.json. The manifest always lists
- * provinces/boundaries/coastlines, so those must already exist in outDir (or be
- * copyable from the authored assets pack) before we write a publishable map.json.
+ * countries-only rewrites countries.csv + map.json. Geometry companions must exist
+ * under geometry/ in outDir (or be copyable from the authored assets pack).
  */
 export async function ensureCountriesOnlyCompanionLayers(
   outDir: string,
   assetsDir: string
 ): Promise<{ copied: string[] }> {
+  const geometryDir = join(outDir, "geometry");
+  await mkdir(geometryDir, { recursive: true });
   const required = ["provinces.geojson", "boundaries.json", "coastlines.geojson"] as const;
   const copied: string[] = [];
   const missing: string[] = [];
   for (const layer of required) {
-    const dest = join(outDir, layer);
+    const dest = join(geometryDir, layer);
     if (await pathExists(dest)) continue;
-    const source = join(assetsDir, layer);
-    if (await pathExists(source)) {
-      await mkdir(outDir, { recursive: true });
+    const candidates = [join(assetsDir, "geometry", layer), join(assetsDir, layer), join(outDir, layer)];
+    let copiedLayer = false;
+    for (const source of candidates) {
+      if (!(await pathExists(source))) continue;
       await copyFile(source, dest);
       copied.push(layer);
-      continue;
+      copiedLayer = true;
+      break;
     }
-    missing.push(layer);
+    if (!copiedLayer) missing.push(layer);
   }
   if (missing.length > 0) {
     throw new Error(
@@ -907,6 +1018,8 @@ async function writeCountriesOnly(projectRoot: string, outDir: string): Promise<
   const source = await readCollection(provincesPath);
 
   const authoredCandidates = [
+    join(outDir, "geometry/provinces.geojson"),
+    join(assetsDir, "geometry/provinces.geojson"),
     join(outDir, "provinces.geojson"),
     join(assetsDir, "provinces.geojson")
   ];
@@ -930,7 +1043,7 @@ async function writeCountriesOnly(projectRoot: string, outDir: string): Promise<
   }
 
   const countries = collectCountryNames(source, countryIds);
-  const bytes = await writeJson(join(outDir, "countries.json"), countries);
+  const bytes = await writeCountriesCsv(outDir, countries);
   await writeWorldModernManifest(outDir);
   console.log(
     JSON.stringify(
@@ -1123,11 +1236,14 @@ async function main(args: readonly string[]): Promise<void> {
   });
   const finalCountryIds = new Set(groups.map((group) => group.countryId));
   const countries = collectCountryNames(sourceCollection, finalCountryIds);
+  const geometryDir = join(outDir, "geometry");
+  await mkdir(geometryDir, { recursive: true });
   const bytes: Record<string, number> = {};
-  bytes.provinces = await writeJson(join(outDir, "provinces.geojson"), provinces);
-  bytes.boundaries = await writeJson(join(outDir, "boundaries.json"), boundaries);
-  bytes.coastlines = await writeJson(join(outDir, "coastlines.geojson"), lines.coastlines);
-  bytes.countries = await writeJson(join(outDir, "countries.json"), countries);
+  bytes.provinces = await writeJson(join(geometryDir, "provinces.geojson"), provinces);
+  bytes.boundaries = await writeJson(join(geometryDir, "boundaries.json"), boundaries);
+  bytes.coastlines = await writeJson(join(geometryDir, "coastlines.geojson"), lines.coastlines);
+  bytes.countries = await writeCountriesCsv(outDir, countries);
+  bytes.provinceCsv = await writeProvinceCsvSkeleton(outDir, provinces);
   bytes.manifest = await writeWorldModernManifest(outDir);
   await writeJson(join(outDir, "review-report.json"), {
     sourceProvinceCount: sourceProvinces.length,

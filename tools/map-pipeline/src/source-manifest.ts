@@ -1,5 +1,5 @@
 export interface SourceMapManifest {
-  readonly schemaVersion: 2;
+  readonly schemaVersion: 3;
   readonly id: string;
   readonly version: string;
   readonly nameKey: string;
@@ -8,8 +8,9 @@ export interface SourceMapManifest {
     readonly provinces: string;
     readonly boundaries: string;
     readonly coastlines?: string;
-    readonly countries?: string;
-    readonly demographics?: string;
+    readonly countries: string;
+    readonly provincesDir: string;
+    readonly companiesDir: string;
   };
   readonly attribution?: {
     readonly source: string;
@@ -29,11 +30,29 @@ function requiredString(value: unknown, field: string): string {
   return value;
 }
 
+function parseAttribution(
+  value: unknown
+): SourceMapManifest["attribution"] | undefined {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) {
+    throw new Error("Source map manifest attribution must be an object.");
+  }
+  const naturalEarthCommit =
+    value.naturalEarthCommit === undefined
+      ? undefined
+      : requiredString(value.naturalEarthCommit, "attribution.naturalEarthCommit");
+  return {
+    source: requiredString(value.source, "attribution.source"),
+    license: requiredString(value.license, "attribution.license"),
+    ...(naturalEarthCommit === undefined ? {} : { naturalEarthCommit })
+  };
+}
+
 export function parseSourceMapManifest(value: unknown, expectedId: string): SourceMapManifest {
   if (!isRecord(value)) throw new Error("Source map manifest must be an object.");
-  if (value.schemaVersion !== 2) {
+  if (value.schemaVersion !== 3) {
     throw new Error(
-      `Unsupported source map schemaVersion ${String(value.schemaVersion)}; expected 2.`
+      `Unsupported source map schemaVersion ${String(value.schemaVersion)}; expected 3.`
     );
   }
   const id = requiredString(value.id, "id");
@@ -52,37 +71,21 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     throw new Error("Source map manifest coordinateReferenceSystem must be EPSG:4326.");
   }
   if (!isRecord(value.layers)) throw new Error("Source map manifest layers must be an object.");
+  const attribution = parseAttribution(value.attribution);
   const provinces = requiredString(value.layers.provinces, "layers.provinces");
   const boundaries = requiredString(value.layers.boundaries, "layers.boundaries");
   const coastlines =
     value.layers.coastlines === undefined
       ? undefined
       : requiredString(value.layers.coastlines, "layers.coastlines");
-  const countries =
-    value.layers.countries === undefined
-      ? undefined
-      : requiredString(value.layers.countries, "layers.countries");
-  const demographics =
-    (value.layers as Record<string, unknown>).demographics === undefined
-      ? undefined
-      : requiredString((value.layers as Record<string, unknown>).demographics as string, "layers.demographics");
-  let attribution: SourceMapManifest["attribution"];
-  if (value.attribution !== undefined) {
-    if (!isRecord(value.attribution)) {
-      throw new Error("Source map manifest attribution must be an object.");
-    }
-    const naturalEarthCommit =
-      value.attribution.naturalEarthCommit === undefined
-        ? undefined
-        : requiredString(value.attribution.naturalEarthCommit, "attribution.naturalEarthCommit");
-    attribution = {
-      source: requiredString(value.attribution.source, "attribution.source"),
-      license: requiredString(value.attribution.license, "attribution.license"),
-      ...(naturalEarthCommit === undefined ? {} : { naturalEarthCommit })
-    };
-  }
+  const countries = requiredString(value.layers.countries, "layers.countries");
+  const provincesDir = requiredString(value.layers.provincesDir, "layers.provincesDir");
+  const companiesDir =
+    value.layers.companiesDir === undefined
+      ? "companies"
+      : requiredString(value.layers.companiesDir, "layers.companiesDir");
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     id,
     version,
     nameKey,
@@ -91,8 +94,9 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
       provinces,
       boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
-      ...(countries === undefined ? {} : { countries }),
-      ...(demographics === undefined ? {} : { demographics })
+      countries,
+      provincesDir,
+      companiesDir
     },
     ...(attribution === undefined ? {} : { attribution })
   };

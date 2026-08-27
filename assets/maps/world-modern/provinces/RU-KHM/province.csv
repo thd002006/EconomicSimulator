@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+RU-KHM,Khanty-Mansiy,Khanty-Mansi Autonomous Okrug,RUS,530554,29763,0.404,0.413,boreal,continental,97050682493,"Khanty-Mansi Autonomous Okrug in Russia, boreal forest and steppe, services and light industry.",Khanty Mansiysk,Khanty-Mansiysk

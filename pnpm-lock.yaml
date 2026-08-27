@@ -135,9 +135,15 @@ importers:
 
   tools/map-pipeline:
     dependencies:
+      '@economic-simulator/game-data':
+        specifier: workspace:*
+        version: link:../../packages/game-data
       '@economic-simulator/map-runtime':
         specifier: workspace:*
         version: link:../../packages/map-runtime
+      '@economic-simulator/simulation-core':
+        specifier: workspace:*
+        version: link:../../packages/simulation-core
       earcut:
         specifier: 3.2.3
         version: 3.2.3

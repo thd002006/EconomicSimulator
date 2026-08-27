@@ -10,11 +10,11 @@ import json, pathlib, hashlib, re
 
 REPO = pathlib.Path(r"D:\godot project\EconomicSimulator")
 CACHE = REPO / "mapdata-generator/cache/natural-earth/ne_10m_admin_1_states_provinces_lakes.geojson"
-PROV_GEO = REPO / "assets/maps/world-modern/provinces.geojson"
+PROV_GEO = REPO / "assets/maps/world-modern/geometry/provinces.geojson"
 REVIEW = REPO / "mapdata-generator/output/world-modern/review-report.json"
-COUNTRIES = REPO / "assets/maps/world-modern/countries.json"
+COUNTRIES = REPO / "assets/maps/world-modern/countries.csv"
 OUT1 = REPO / "mapdata-generator/data/province-descriptions.json"
-OUT2 = REPO / "assets/maps/world-modern/province-descriptions.json"
+OUT2 = REPO / "mapdata-generator/output/world-modern/province-descriptions.json"
 
 # Build source id -> nameEn mapping (iso, adm1_code, ne-id)
 source_map = {}
@@ -34,7 +34,15 @@ for f in cache_data["features"]:
 # Also map with NE prefix handling: review uses "ne-115931..." already
 # Ensure lower/upper agnostic? keep as is
 
-countries_data = json.loads(COUNTRIES.read_text(encoding="utf-8"))
+countries_data = {}
+for line in COUNTRIES.read_text(encoding="utf-8").splitlines()[1:]:
+    if not line.strip():
+        continue
+    parts = line.split(",", 2)
+    if len(parts) < 2:
+        continue
+    country_id, name_en = parts[0], parts[1]
+    countries_data[country_id] = {"nameEn": name_en}
 prov_geo = json.loads(PROV_GEO.read_text(encoding="utf-8"))
 review_data = json.loads(REVIEW.read_text(encoding="utf-8"))
 

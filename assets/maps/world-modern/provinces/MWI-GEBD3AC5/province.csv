@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+MWI-GEBD3AC5,Northern Malawi,Northern Malawi,MWI,32236,10777,0.381,0.456,tropical,tropical,1427114562,"Merged from Chitipa, Mzimba, Nkhata Bay, Nkhotakota and Rumphi. Northern Malawi in Malawi, varied lowlands and uplands, smallholder farming and markets.",Mzuzu,Mzuzu

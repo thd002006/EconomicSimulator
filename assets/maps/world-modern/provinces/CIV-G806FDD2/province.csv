@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+CIV-G806FDD2,Southeastern Ivory Coast,Southeastern Ivory Coast,CIV,58831,11981,0.403,0.531,tropical,tropical,20857120224,"Merged from Agnéby, Lagunes, N'zi-Comoé, Sud-Bandama and Sud-Comoé. Southeastern Ivory Coast, coastal plain and shoreline, agriculture and food processing.",Abidjan,Abidjan

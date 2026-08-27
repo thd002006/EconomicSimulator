@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ECU-Sierra-Norte,Sierra Norte,North Highlands,ECU,23733,1493,0.528,0.627,tropical,tropical,26516295824,"Merged from Carchi, Cotopaxi, Imbabura and Pichincha. North Highlands in Ecuador, highland valleys and mountain slopes, smallholder farming and markets.",Quito,Quito

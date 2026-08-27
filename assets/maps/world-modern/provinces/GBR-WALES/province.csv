@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+GBR-WALES,Wales,Wales,GBR,20706,8106,0.768,0.772,temperate_cold,temperate,70247246549,"Merged from Anglesey, Blaenau Gwent, Bridgend and 19 others. Wales in United Kingdom, temperate maritime lowlands, port trade and logistics.",Cardiff,Cardiff

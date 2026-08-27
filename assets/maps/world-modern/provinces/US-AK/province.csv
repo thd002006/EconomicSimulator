@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+US-AK,Alaska,Alaska,USA,1495651,2916,0.115,0.19,temperate_cold,continental,27181717918,"Alaska in United States of America, temperate plains and urban corridors, farming and market towns.",Juneau,Juneau

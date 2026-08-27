@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+CA-NB,New Brunswick,New Brunswick,CAN,72576,3696,0.438,0.454,temperate_cold,temperate,20801844299,"New Brunswick in Canada, boreal forest and prairie, agriculture and food processing.",Fredericton,Fredericton

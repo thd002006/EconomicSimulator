@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+COG-G4EC534D,Southern Congo,Southern Congo,COG,54433,895,0.283,0.403,tropical,tropical,6239620953,"Merged from Bouenza, Kouilou, Niari and Pointe-Noire. Southern Congo, varied lowlands and uplands, agriculture and food processing.",Pointe-Noire,Pointe-Noire

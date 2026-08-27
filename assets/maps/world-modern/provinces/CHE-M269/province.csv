@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+CHE-M269,Valais–Genève–Vaud,Valais–Geneva–Vaud,CHE,8884,1320,0.705,0.681,temperate_cold,temperate,61125973533,"Merged from Geneva, Valais and Vaud. Valais–Geneva–Vaud in Switzerland, Alpine and plateau, industrial and service hub.",Geneva,Geneva

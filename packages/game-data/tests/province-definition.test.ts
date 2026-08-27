@@ -6,7 +6,10 @@ import { PROVINCE_DEFINITIONS, parseProvinceDefinitions } from "../src/province-
 describe("province definitions", () => {
   it("contains exactly 1287 provinces matching the authored map", () => {
     const repoRoot = join(import.meta.dirname, "../../..");
-    const geoText = readFileSync(join(repoRoot, "assets/maps/world-modern/provinces.geojson"), "utf8");
+    const geoText = readFileSync(
+      join(repoRoot, "assets/maps/world-modern/geometry/provinces.geojson"),
+      "utf8",
+    );
     const reviewText = readFileSync(
       join(repoRoot, "mapdata-generator/output/world-modern/review-report.json"),
       "utf8",

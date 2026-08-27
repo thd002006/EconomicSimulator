@@ -11,6 +11,13 @@ import {
   type GeoJsonGeometry,
   type LonLat
 } from "@economic-simulator/map-runtime";
+import {
+  aggregateDemographicsFromClasses,
+  assertAuthoredCrossRefs,
+  buildProvinceDefinitions,
+  buildScenarioSeed,
+  loadAuthoredMapContent
+} from "./authored-pack.js";
 import { assertUniqueFeatureIds } from "./feature-ids.js";
 import { resolveContainedFile } from "./path-safety.js";
 import { signedRingArea, simplifyRingSafely } from "./simplify.js";
@@ -19,7 +26,7 @@ import { compileGlobeMesh, serializeGlobeMesh } from "./globe-mesh.js";
 
 export const LOD_TOLERANCES = [0.25, 0.08, 0] as const;
 const GRID_CELL_SIZE = 5;
-const TOOL_VERSION = "0.5.0";
+const TOOL_VERSION = "0.6.1";
 
 type RecordValue = Record<string, unknown>;
 type Feature = {
@@ -198,21 +205,49 @@ export async function compilePack(
   sourceHashes.provinces = sha256(provinceText);
   const provinceCollection = parseCollection(JSON.parse(provinceText) as unknown, "provinces");
   const provinceIds = assertUniqueFeatureIds(provinceCollection.features, "provinces");
+
+  const authored = await loadAuthoredMapContent(sourceDir, {
+    countriesPath: manifest.layers.countries,
+    provincesDir: manifest.layers.provincesDir,
+    companiesDir: manifest.layers.companiesDir
+  });
+  assertAuthoredCrossRefs(authored, new Set(provinceIds));
+  sourceHashes.countries = sha256(await readFile(join(sourceDir, manifest.layers.countries), "utf8"));
+  sourceHashes.provincesDir = sha256(
+    JSON.stringify(
+      [...authored.provinces.entries()].map(([id, pack]) => [
+        id,
+        pack.overview,
+        pack.classes,
+        pack.operatingUnits
+      ])
+    )
+  );
+  sourceHashes.companiesDir = sha256(JSON.stringify(authored.companies));
+
   const provinces = provinceCollection.features.map((feature, index) => {
     const id = provinceIds[index]!;
     const geometry = parsePolygonGeometry(feature.geometry, "provinces", id);
-    const description = parseProvinceDescription(
-      feature.properties?.description,
-      "provinces",
-      id
-    );
+    const overview = authored.provinces.get(id)?.overview;
+    const capital = parseProvinceCapital(feature.properties?.capital, "provinces", id);
+    const description =
+      overview?.description ??
+      parseProvinceDescription(feature.properties?.description, "provinces", id);
+    const properties = {
+      ...pickProperties(feature.properties),
+      ...(overview?.name !== undefined ? { name: overview.name } : {}),
+      ...(overview?.nameEn !== undefined ? { nameEn: overview.nameEn } : {}),
+      ...(overview?.ownerCountryId !== undefined ? { adm0A3: overview.ownerCountryId } : {}),
+      capital: {
+        ...capital,
+        ...(overview?.capitalName !== undefined ? { name: overview.capitalName } : {}),
+        ...(overview?.capitalNameEn !== undefined ? { nameEn: overview.capitalNameEn } : {})
+      },
+      ...(description === undefined ? {} : { description })
+    };
     return {
       id,
-      properties: {
-        ...pickProperties(feature.properties),
-        capital: parseProvinceCapital(feature.properties?.capital, "provinces", id),
-        ...(description === undefined ? {} : { description })
-      },
+      properties,
       bbox: computeBBox(geometry),
       lod: buildTriangulatableLods(id, geometry)
     };
@@ -258,40 +293,14 @@ export async function compilePack(
   }
 
   const countries: Record<string, { nameEn: string; name?: string }> = {};
-  if (manifest.layers.countries !== undefined) {
-    const countriesPath = await resolveContainedFile(
-      sourceDir,
-      manifest.layers.countries,
-      "layers.countries"
-    );
-    const text = await readFile(countriesPath, "utf8");
-    sourceHashes.countries = sha256(text);
-    const raw = JSON.parse(text) as unknown;
-    if (!isRecord(raw)) throw new Error("countries must be an object keyed by country id.");
-    for (const [countryId, entry] of Object.entries(raw)) {
-      if (!isRecord(entry) || typeof entry.nameEn !== "string" || entry.nameEn.trim() === "") {
-        throw new Error(`countries.${countryId} requires a non-empty nameEn string.`);
-      }
-      countries[countryId] = {
-        nameEn: entry.nameEn,
-        ...(typeof entry.name === "string" && entry.name.trim() !== "" ? { name: entry.name } : {})
-      };
-    }
+  for (const country of authored.countries) {
+    countries[country.id] = {
+      nameEn: country.nameEn,
+      ...(country.name === undefined ? {} : { name: country.name })
+    };
   }
 
-  let demographics: Record<string, unknown> | undefined;
-  if (manifest.layers.demographics !== undefined) {
-    const demographicsPath = await resolveContainedFile(
-      sourceDir,
-      manifest.layers.demographics,
-      "layers.demographics"
-    );
-    const text = await readFile(demographicsPath, "utf8");
-    sourceHashes.demographics = sha256(text);
-    const raw = JSON.parse(text) as unknown;
-    if (!isRecord(raw)) throw new Error("demographics must be an object keyed by province id.");
-    demographics = raw as Record<string, unknown>;
-  }
+  const demographics: Record<string, unknown> = aggregateDemographicsFromClasses(authored.provinces);
 
   const outDir = join(outputRoot, entry.path, "compiled");
   await rm(outDir, { recursive: true, force: true });
@@ -311,8 +320,16 @@ export async function compilePack(
     })
   ).hash;
   assetHashes.countries = (await writeJson(join(outDir, "countries.json"), countries)).hash;
-  if (demographics !== undefined) {
-    assetHashes.demographics = (await writeJson(join(outDir, "demographics.json"), demographics)).hash;
+  assetHashes.demographics = (await writeJson(join(outDir, "demographics.json"), demographics)).hash;
+  const provinceDefinitions = buildProvinceDefinitions(manifest.id, authored);
+  assetHashes.provinceDefinitions = (
+    await writeJson(join(outDir, "province-definitions.json"), provinceDefinitions)
+  ).hash;
+  const scenarioSeed = buildScenarioSeed(manifest.id, authored);
+  assetHashes.scenarioSeed = (await writeJson(join(outDir, "scenario-seed.json"), scenarioSeed)).hash;
+  if (manifest.id === "world-modern") {
+    const gameDataProvincesPath = resolve(repoRootFromCompile(), "packages/game-data/data/provinces.json");
+    await writeJson(gameDataProvincesPath, provinceDefinitions);
   }
   assetHashes.spatialIndex = (
     await writeJson(join(outDir, "spatial-index.json"), buildSpatialIndex(provinces))
@@ -366,7 +383,9 @@ export async function compilePack(
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
       countries: "countries.json",
-      ...(demographics === undefined ? {} : { demographics: "demographics.json" }),
+      demographics: "demographics.json",
+      provinceDefinitions: "province-definitions.json",
+      scenarioSeed: "scenario-seed.json",
       spatialIndex: "spatial-index.json",
       globeMesh: "globe-mesh.json"
     },
@@ -394,6 +413,10 @@ export async function compileAllMaps(sourceRoot: string): Promise<void> {
   for (const directory of mapDirectories) {
     await compilePack(sourceRoot, sourceRoot, { id: directory, path: directory });
   }
+}
+
+function repoRootFromCompile(): string {
+  return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 }
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");

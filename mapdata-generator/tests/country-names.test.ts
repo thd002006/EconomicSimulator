@@ -67,7 +67,7 @@ test("ensureCountriesOnlyCompanionLayers copies missing layers from assets", asy
     "coastlines.geojson",
     "provinces.geojson"
   ]);
-  assert.equal(await readFile(join(outDir, "boundaries.json"), "utf8"), "[]\n");
+  assert.equal(await readFile(join(outDir, "geometry", "boundaries.json"), "utf8"), "[]\n");
   await rm(root, { recursive: true, force: true });
 });
 

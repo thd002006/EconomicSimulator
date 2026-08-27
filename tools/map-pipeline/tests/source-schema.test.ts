@@ -3,12 +3,18 @@ import { assertUniqueFeatureIds } from "../src/feature-ids.js";
 import { parseSourceMapManifest } from "../src/source-manifest.js";
 
 const validManifest = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   id: "test-map",
   version: "1.2.3",
   nameKey: "map.test.name",
   coordinateReferenceSystem: "EPSG:4326",
-  layers: { provinces: "provinces.geojson", boundaries: "boundaries.json" }
+  layers: {
+    provinces: "geometry/provinces.geojson",
+    boundaries: "geometry/boundaries.json",
+    countries: "countries.csv",
+    provincesDir: "provinces",
+    companiesDir: "companies"
+  }
 };
 
 describe("source map schema", () => {
@@ -17,12 +23,12 @@ describe("source map schema", () => {
   });
 
   it.each([
-    ["schemaVersion", { ...validManifest, schemaVersion: 1 }],
+    ["schemaVersion", { ...validManifest, schemaVersion: 2 }],
     ["version", { ...validManifest, version: undefined }],
     ["version format", { ...validManifest, version: "first" }],
     ["nameKey", { ...validManifest, nameKey: "" }],
     ["coordinate reference system", { ...validManifest, coordinateReferenceSystem: "EPSG:3857" }],
-    ["required layer", { ...validManifest, layers: { boundaries: "boundaries.json" } }]
+    ["required layer", { ...validManifest, layers: { boundaries: "geometry/boundaries.json" } }]
   ])("rejects an invalid %s", (_label, manifest) => {
     expect(() => parseSourceMapManifest(manifest, "test-map")).toThrow();
   });

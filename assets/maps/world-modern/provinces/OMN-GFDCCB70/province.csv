@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+OMN-GFDCCB70,Northern Oman,Northern Oman,OMN,74047,151,0.129,0.125,subtropical,subtropical,65745281096,"Merged from Ad Dakhiliyah, Al Batinah South, Ash Sharqiyah, Ash Sharqiyah North and Muscat. Northern Oman in Oman, varied lowlands and uplands, forestry and highland farming.",Muscat,Muscat

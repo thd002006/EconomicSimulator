@@ -97,6 +97,58 @@ describe("world bootstrap", () => {
         demo.age.senior_65_plus
     ).toBe(1000);
   });
+
+  it("applies explicit classSeeds instead of default class shares", () => {
+    const world = bootstrapGameWorld({
+      mapId: "seeded",
+      provinces: [
+        {
+          id: "A",
+          ownerCountryId: "AAA",
+          demographics: {
+            pop: 100,
+            male: 60,
+            female: 40,
+            age: {
+              child_0_14: 10,
+              youth_15_24: 10,
+              prime_25_44: 40,
+              mature_45_64: 20,
+              senior_65_plus: 20
+            },
+            education15Plus: { basic: 25, secondary: 25, tertiary: 25, advanced: 25 }
+          }
+        }
+      ],
+      seed: {
+        mapId: "seeded",
+        provinces: [{ id: "A", ownerCountryId: "AAA" }],
+        classSeeds: [
+          {
+            provinceId: "A",
+            socialClassId: "farmer",
+            populationPersons: 100,
+            male: 60,
+            female: 40,
+            age: {
+              child_0_14: 10,
+              youth_15_24: 10,
+              prime_25_44: 40,
+              mature_45_64: 20,
+              senior_65_plus: 20
+            },
+            education15Plus: { basic: 25, secondary: 25, tertiary: 25, advanced: 25 }
+          }
+        ]
+      }
+    });
+    const farmer = world.population.classStatesByProvince.get("A")?.get("farmer");
+    expect(farmer?.populationPersons).toBe(100);
+    expect(farmer?.genderCounts.male).toBe(60);
+    expect(farmer?.genderCounts.female).toBe(40);
+    expect(farmer?.ageCounts.prime_25_44).toBe(40);
+    expect(world.population.classStatesByProvince.get("A")?.get("worker")).toBeUndefined();
+  });
 });
 
 describe("DeterministicSimulationEngine queries", () => {

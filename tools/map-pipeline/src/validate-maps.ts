@@ -7,6 +7,11 @@ import {
   parseProvinceCapital,
   pointInGeometry
 } from "@economic-simulator/map-runtime";
+import {
+  aggregateDemographicsFromClasses,
+  assertAuthoredCrossRefs,
+  loadAuthoredMapContent
+} from "./authored-pack.js";
 import { assertUniqueFeatureIds } from "./feature-ids.js";
 import { resolveContainedFile } from "./path-safety.js";
 import { parseSourceMapManifest } from "./source-manifest.js";
@@ -39,6 +44,7 @@ export async function validatePack(
   assertSafeSegment(entry.path, "map path");
   const packDir = join(root, entry.path);
   const manifest = parseSourceMapManifest(await readJson(join(packDir, "map.json")), entry.id);
+
   const provincePath = await resolveContainedFile(
     packDir,
     manifest.layers.provinces,
@@ -66,7 +72,7 @@ export async function validatePack(
     boundaryValue.type !== "BoundaryCollection" ||
     !Array.isArray(boundaryValue.features)
   ) {
-    throw new Error(`Map ${entry.id} boundaries must be a BoundaryCollection.`);
+    throw new Error("boundaries must be a BoundaryCollection.");
   }
   assertUniqueFeatureIds(boundaryValue.features, "boundaries");
   for (const [index, raw] of boundaryValue.features.entries()) {
@@ -103,75 +109,21 @@ export async function validatePack(
     }
   }
 
-  let countries = 0;
-  if (manifest.layers.countries !== undefined) {
-    const countriesPath = await resolveContainedFile(
-      packDir,
-      manifest.layers.countries,
-      "layers.countries"
-    );
-    const raw = await readJson(countriesPath);
-    if (!isRecord(raw)) throw new Error(`Map ${entry.id} countries must be an object.`);
-    for (const [countryId, entryValue] of Object.entries(raw)) {
-      if (
-        !isRecord(entryValue) ||
-        typeof entryValue.nameEn !== "string" ||
-        entryValue.nameEn.trim() === ""
-      ) {
-        throw new Error(`Map ${entry.id} countries.${countryId} requires nameEn.`);
-      }
-      countries += 1;
-    }
-  }
-
-  let demographics = 0;
-  const demographicsLayer = manifest.layers.demographics;
-  if (demographicsLayer !== undefined) {
-    const demographicsPath = await resolveContainedFile(packDir, demographicsLayer, "layers.demographics");
-    const raw = await readJson(demographicsPath);
-    if (!isRecord(raw)) throw new Error(`Map ${entry.id} demographics must be an object keyed by province id.`);
-    const allowedAgeBands = new Set(["child_0_14", "youth_15_24", "prime_25_44", "mature_45_64", "senior_65_plus"]);
-    const allowedEducationLevels = new Set(["basic", "secondary", "tertiary", "advanced"]);
-    for (const [provinceId, entryValue] of Object.entries(raw)) {
-      if (!provinceIds.has(provinceId)) {
-        throw new Error(`Map ${entry.id} demographics.${provinceId} references unknown province.`);
-      }
-      if (!isRecord(entryValue)) {
-        throw new Error(`Map ${entry.id} demographics.${provinceId} must be an object.`);
-      }
-      for (const field of ["pop", "male", "female", "gdpPpp"] as const) {
-        if (typeof entryValue[field] !== "number" || !Number.isFinite(entryValue[field] as number)) {
-          throw new Error(`Map ${entry.id} demographics.${provinceId} requires finite ${field}.`);
-        }
-      }
-      for (const field of ["age", "education15Plus"] as const) {
-        const bucket = entryValue[field];
-        if (!isRecord(bucket)) {
-          throw new Error(`Map ${entry.id} demographics.${provinceId} requires ${field} object.`);
-        }
-        if (Object.keys(bucket).length === 0) {
-          throw new Error(`Map ${entry.id} demographics.${provinceId} requires non-empty ${field} object.`);
-        }
-        const allowed = field === "age" ? allowedAgeBands : allowedEducationLevels;
-        for (const [key, value] of Object.entries(bucket)) {
-          if (!allowed.has(key)) {
-            throw new Error(`Map ${entry.id} demographics.${provinceId}.${field}.${key} is not a known ${field} key.`);
-          }
-          if (typeof value !== "number" || !Number.isFinite(value)) {
-            throw new Error(`Map ${entry.id} demographics.${provinceId}.${field}.${key} must be finite.`);
-          }
-        }
-      }
-    }
-    demographics = Object.keys(raw).length;
-  }
-
+  const content = await loadAuthoredMapContent(packDir, {
+    countriesPath: manifest.layers.countries,
+    provincesDir: manifest.layers.provincesDir,
+    companiesDir: manifest.layers.companiesDir
+  });
+  assertAuthoredCrossRefs(content, provinceIds);
+  const demographics = aggregateDemographicsFromClasses(content.provinces);
   return {
     provinces: provinces.features.length,
     boundaries: boundaryValue.features.length,
     coastlines,
-    countries,
-    demographics
+    countries: content.countries.length,
+    demographics: Object.keys(demographics).length,
+    companies: content.companies.length,
+    classSeeds: [...content.provinces.values()].reduce((sum, pack) => sum + pack.classes.length, 0)
   };
 }
 

@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ITA-Molise,Molise,Molise,ITA,4518,1395,0.739,0.72,temperate,temperate,8419208597,"Merged from Campobasso and Isernia. Molise in Italy, Alpine north and Mediterranean south, port trade and logistics.",Campobasso,Campobasso

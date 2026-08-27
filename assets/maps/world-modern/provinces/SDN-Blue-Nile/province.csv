@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+SDN-Blue-Nile,Blue Nile,Blue Nile,SDN,144751,5319,0.272,0.321,tropical,tropical,11607979439,"Merged from Al Jazirah, Blue Nile, Sennar and White Nile. Blue Nile in Sudan, Nile-Sahel savanna and desert, pastoral herding and oasis farming.",Kosti,Kosti

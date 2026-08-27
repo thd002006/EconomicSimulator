@@ -57,7 +57,7 @@ export {
 
 export { ProvinceGridIndex } from "./spatial-index.js";
 export { loadMapPack, parseMapPackBundle } from "./load-map-pack.js";
-export type { LoadedMapPack, MapPackBundleInput } from "./load-map-pack.js";
+export type { LoadedMapPack, MapPackBundleInput, ScenarioSeedData } from "./load-map-pack.js";
 export {
   MapSchemaError,
   parseBBox,

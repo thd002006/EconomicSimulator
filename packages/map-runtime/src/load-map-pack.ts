@@ -163,6 +163,10 @@ function parseManifest(input: unknown): MapPackManifest {
   const demographics = asString(
     (input.assets as Record<string, unknown>).demographics
   );
+  const provinceDefinitions = asString(
+    (input.assets as Record<string, unknown>).provinceDefinitions
+  );
+  const scenarioSeed = asString((input.assets as Record<string, unknown>).scenarioSeed);
   return {
     schemaVersion: 4,
     format: input.format,
@@ -176,6 +180,8 @@ function parseManifest(input: unknown): MapPackManifest {
       ...(coastlines === undefined ? {} : { coastlines }),
       ...(countries === undefined ? {} : { countries }),
       ...(demographics === undefined ? {} : { demographics }),
+      ...(provinceDefinitions === undefined ? {} : { provinceDefinitions }),
+      ...(scenarioSeed === undefined ? {} : { scenarioSeed }),
       spatialIndex: input.assets.spatialIndex,
       globeMesh: input.assets.globeMesh
     },
@@ -431,8 +437,24 @@ export interface LoadedMapPack {
   readonly boundaries: readonly MapBoundary[];
   readonly countries: CountryNameTable;
   readonly demographics?: ProvinceDemographicsTable;
+  readonly scenarioSeed?: ScenarioSeedData;
   readonly spatialIndex: SpatialIndexData;
   readonly globeMesh: GlobeMeshData;
+}
+
+export interface ScenarioSeedData {
+  readonly mapId: string;
+  readonly provinces: readonly { id: string; ownerCountryId: string }[];
+  readonly classSeeds: readonly {
+    provinceId: string;
+    socialClassId: string;
+    populationPersons: number;
+    male: number;
+    female: number;
+    age: Readonly<Record<string, number>>;
+    education15Plus: Readonly<Record<string, number>>;
+    cashCents?: number;
+  }[];
 }
 
 export interface MapPackBundleInput {
@@ -447,6 +469,7 @@ export interface MapPackBundleInput {
   readonly coastlines?: unknown;
   readonly countries?: unknown;
   readonly demographics?: unknown;
+  readonly scenarioSeed?: unknown;
 }
 
 function assertLodCount(manifest: MapPackManifest, provinces: readonly ProvinceFeature[]): void {
@@ -464,6 +487,94 @@ function assertLodCount(manifest: MapPackManifest, provinces: readonly ProvinceF
       );
     }
   }
+}
+
+function parseFiniteRecord(
+  value: unknown,
+  label: string
+): Record<string, number> {
+  if (!isRecord(value) || Object.keys(value).length === 0) {
+    throw new MapSchemaError(`${label} must be a non-empty object.`, "scenarioSeed");
+  }
+  const result: Record<string, number> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    const number = asFiniteNumber(entry);
+    if (number === undefined) {
+      throw new MapSchemaError(`${label}.${key} must be finite.`, "scenarioSeed");
+    }
+    result[key] = number;
+  }
+  return result;
+}
+
+function parseScenarioSeed(input: unknown): ScenarioSeedData | undefined {
+  if (input === undefined) return undefined;
+  if (!isRecord(input)) {
+    throw new MapSchemaError("Expected scenario-seed object.", "scenarioSeed");
+  }
+  const mapId = asString(input.mapId);
+  if (mapId === undefined || !Array.isArray(input.provinces) || !Array.isArray(input.classSeeds)) {
+    throw new MapSchemaError("scenario-seed requires mapId, provinces, and classSeeds.", "scenarioSeed");
+  }
+  const provinces: Array<{ id: string; ownerCountryId: string }> = [];
+  for (const [index, raw] of input.provinces.entries()) {
+    if (!isRecord(raw)) {
+      throw new MapSchemaError(`scenario-seed.provinces[${index}] invalid.`, "scenarioSeed");
+    }
+    const id = asString(raw.id);
+    const ownerCountryId = asString(raw.ownerCountryId);
+    if (id === undefined || ownerCountryId === undefined) {
+      throw new MapSchemaError(
+        `scenario-seed.provinces[${index}] requires id and ownerCountryId.`,
+        "scenarioSeed"
+      );
+    }
+    provinces.push({ id, ownerCountryId });
+  }
+  const classSeeds: Array<ScenarioSeedData["classSeeds"][number]> = [];
+  for (const [index, raw] of input.classSeeds.entries()) {
+    if (!isRecord(raw)) {
+      throw new MapSchemaError(`scenario-seed.classSeeds[${index}] invalid.`, "scenarioSeed");
+    }
+    const provinceId = asString(raw.provinceId);
+    const socialClassId = asString(raw.socialClassId);
+    const populationPersons = asFiniteNumber(raw.populationPersons);
+    const male = asFiniteNumber(raw.male);
+    const female = asFiniteNumber(raw.female);
+    if (
+      provinceId === undefined ||
+      socialClassId === undefined ||
+      populationPersons === undefined ||
+      male === undefined ||
+      female === undefined
+    ) {
+      throw new MapSchemaError(
+        `scenario-seed.classSeeds[${index}] missing required numeric/string fields.`,
+        "scenarioSeed"
+      );
+    }
+    const cashCents = raw.cashCents === undefined ? undefined : asFiniteNumber(raw.cashCents);
+    if (raw.cashCents !== undefined && cashCents === undefined) {
+      throw new MapSchemaError(
+        `scenario-seed.classSeeds[${index}].cashCents must be finite.`,
+        "scenarioSeed"
+      );
+    }
+    classSeeds.push({
+      provinceId,
+      socialClassId,
+      populationPersons,
+      male,
+      female,
+      age: parseFiniteRecord(raw.age, `scenario-seed.classSeeds[${index}].age`),
+      education15Plus: parseFiniteRecord(
+        raw.education15Plus,
+        `scenario-seed.classSeeds[${index}].education15Plus`
+      ),
+      ...(cashCents === undefined ? {} : { cashCents })
+    });
+  }
+  return { mapId, provinces, classSeeds };
 }
 
 /** Parse an already-loaded runtime map pack bundle (Node validation or tests). */
@@ -485,6 +596,7 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
   ) {
     throw new MapSchemaError("Globe mesh province IDs do not match provinces.", "globeMesh");
   }
+  const scenarioSeed = parseScenarioSeed(raw.scenarioSeed);
   return {
     manifest,
     provinces,
@@ -497,7 +609,8 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
     ),
     coastlines: raw.coastlines === undefined ? [] : parseRuntimeCoastlines(raw.coastlines),
     countries: parseCountryNames(raw.countries),
-    demographics: parseProvinceDemographics(raw.demographics)
+    demographics: parseProvinceDemographics(raw.demographics),
+    ...(scenarioSeed === undefined ? {} : { scenarioSeed })
   };
 }
 
@@ -513,6 +626,7 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     coastlinesRaw,
     countriesRaw,
     demographicsRaw,
+    scenarioSeedRaw,
     globeMeshMetadataRaw
   ] = await Promise.all([
     fetchJson(`${root}/${manifest.assets.provinces}`),
@@ -527,6 +641,9 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     manifest.assets.demographics === undefined
       ? Promise.resolve(undefined)
       : fetchJson(`${root}/${manifest.assets.demographics}`),
+    manifest.assets.scenarioSeed === undefined
+      ? Promise.resolve(undefined)
+      : fetchJson(`${root}/${manifest.assets.scenarioSeed}`),
     fetchJson(`${root}/${manifest.assets.globeMesh}`)
   ]);
   const globeMeshMetadata = parseGlobeMeshMetadata(globeMeshMetadataRaw);
@@ -549,7 +666,8 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     globeMeshLodIndices,
     ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw }),
     ...(countriesRaw === undefined ? {} : { countries: countriesRaw }),
-    ...(demographicsRaw === undefined ? {} : { demographics: demographicsRaw })
+    ...(demographicsRaw === undefined ? {} : { demographics: demographicsRaw }),
+    ...(scenarioSeedRaw === undefined ? {} : { scenarioSeed: scenarioSeedRaw })
   });
 }
 

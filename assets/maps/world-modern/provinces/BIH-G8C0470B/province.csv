@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+BIH-G8C0470B,Federacija Bosna i Hercegovina,Federacija Bosna i Hercegovina,BIH,28165,6776,0.629,0.71,temperate,temperate,16190245834,"Merged from Bosnian Podrinje Canton, Central Bosnia Canton, Livno and 5 others. Federacija Bosna i Hercegovina, varied lowlands and uplands, services and light industry.",Sarajevo,Sarajevo
