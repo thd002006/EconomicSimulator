@@ -405,12 +405,22 @@ export async function compilePack(
   console.log(`Compiled authored map: ${entry.id} (${provinces.length} provinces)`);
 }
 
-export async function compileAllMaps(sourceRoot: string): Promise<void> {
+export async function compileAllMaps(
+  sourceRoot: string,
+  options: { mapId?: string } = {}
+): Promise<void> {
   const mapDirectories = (await readdir(sourceRoot, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
-  for (const directory of mapDirectories) {
+  const selected =
+    options.mapId === undefined
+      ? mapDirectories
+      : mapDirectories.filter((name) => name === options.mapId);
+  if (options.mapId !== undefined && selected.length === 0) {
+    throw new Error(`Map not found under ${sourceRoot}: ${options.mapId}`);
+  }
+  for (const directory of selected) {
     await compilePack(sourceRoot, sourceRoot, { id: directory, path: directory });
   }
 }
@@ -419,8 +429,28 @@ function repoRootFromCompile(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 }
 
+function parseCompileArgs(args: readonly string[]): { mapId?: string } {
+  let mapId: string | undefined;
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    if (argument === "--map") {
+      mapId = args[index + 1];
+      if (mapId === undefined) throw new Error("--map requires a map id.");
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("--map=")) {
+      mapId = argument.slice("--map=".length);
+      continue;
+    }
+    throw new Error(`Unknown compile argument: ${argument}`);
+  }
+  return { mapId };
+}
+
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(toolRoot, "../..");
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  await compileAllMaps(join(repoRoot, "assets/maps"));
+  const { mapId } = parseCompileArgs(process.argv.slice(2));
+  await compileAllMaps(join(repoRoot, "assets/maps"), { mapId });
 }

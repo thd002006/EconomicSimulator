@@ -11,6 +11,7 @@ interface ReviewProvince {
   readonly areaKm2: number;
   readonly minimumAreaKm2: number;
   readonly belowMinimumReason?: string;
+  readonly name?: string;
 }
 
 interface CountrySummary {
@@ -32,9 +33,16 @@ interface ReviewReport {
 }
 
 const outputUrl = new URL("../output/world-modern/", import.meta.url);
-const report = JSON.parse(
-  await readFile(new URL("review-report.json", outputUrl), "utf8")
-) as ReviewReport;
+let report: ReviewReport;
+try {
+  report = JSON.parse(
+    await readFile(new URL("review-report.json", outputUrl), "utf8")
+  ) as ReviewReport;
+} catch {
+  throw new Error(
+    "Missing output/world-modern/review-report.json. Run `pnpm generate:world-modern` before these tests."
+  );
+}
 
 test("uniform policy replaces country-specific golden counts", () => {
   assert.equal(report.requestedRetainedFraction, 0.5);

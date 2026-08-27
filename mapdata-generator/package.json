@@ -5,8 +5,12 @@
   "type": "module",
   "scripts": {
     "generate:world-modern": "tsx src/build-world-modern.ts",
+    "generate:base": "tsx src/build-world-modern.ts --base",
+    "generate:base:socioeconomic": "tsx src/socioeconomic/aggregate.ts --provinces base/world-admin1/geometry/provinces.geojson --out base/world-admin1/demographics.json --apply-gdp",
     "generate:countries": "tsx src/build-world-modern.ts --countries-only",
-    "test": "pnpm generate:world-modern && tsx --test tests/**/*.test.ts",
+    "editor": "pnpm --dir editor dev",
+    "export-map": "tsx src/export-map.ts",
+    "test": "tsx --test tests/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

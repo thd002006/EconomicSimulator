@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>地图编辑器</title>
+    <link href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+      :root {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: #1a1a1a;
+        background: #f4f4f1;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      #app {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        height: 100vh;
+      }
+      aside {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        border-right: 1px solid #ccc;
+        overflow: auto;
+        background: #fff;
+      }
+      h1 { font-size: 1.1rem; margin: 0; }
+      label { display: block; font-size: 0.8rem; color: #555; margin-bottom: 0.2rem; }
+      select, input, button {
+        width: 100%;
+        padding: 0.4rem 0.5rem;
+        margin-bottom: 0.4rem;
+      }
+      button { cursor: pointer; }
+      .row { display: flex; gap: 0.4rem; }
+      .row > * { flex: 1; }
+      #status { font-size: 0.8rem; color: #333; white-space: pre-wrap; }
+      #groups {
+        flex: 1;
+        min-height: 200px;
+        overflow: auto;
+        border: 1px solid #ddd;
+        padding: 0.4rem;
+        font-size: 0.85rem;
+      }
+      #groups label {
+        display: flex;
+        gap: 0.4rem;
+        align-items: flex-start;
+        margin: 0.2rem 0;
+        color: inherit;
+      }
+      #map { height: 100%; }
+      .muted { color: #777; font-size: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <aside>
+        <h1>地图编辑器 (L1→L2→L3)</h1>
+        <p class="muted">导入基础图，合并/拆分后保存工程；导出写入 assets/maps（不覆盖，撞名加后缀）并自动编译。</p>
+
+        <label>基础地图 L1</label>
+        <select id="baseSelect"></select>
+        <div class="row">
+          <button id="btnNew" type="button">新建工程</button>
+          <button id="btnRefresh" type="button">刷新</button>
+        </div>
+
+        <label>工程 L2</label>
+        <select id="projectSelect"></select>
+        <div class="row">
+          <button id="btnOpen" type="button">打开</button>
+          <button id="btnSave" type="button">保存</button>
+        </div>
+
+        <label>国家（地图预览）</label>
+        <select id="countrySelect"></select>
+
+        <div class="row">
+          <button id="btnMerge" type="button">合并所选</button>
+          <button id="btnSplit" type="button">拆分所选</button>
+        </div>
+
+        <label>导出 mapId（建议名）</label>
+        <input id="exportMapId" placeholder="my-map" />
+        <button id="btnExport" type="button">导出 L3+L4</button>
+
+        <div id="status">未加载工程</div>
+        <div id="groups"></div>
+      </aside>
+      <div id="map"></div>
+    </div>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

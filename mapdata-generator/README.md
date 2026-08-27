@@ -1,43 +1,67 @@
 # Map Data Generator
 
-独立的地图资料制作子项目。它负责固定版本 Natural Earth 资料的下载与规范化、统一规则区划归并、拓扑简化、首府选择和审查报告生成。
+独立的地图资料制作子项目（含基础图生成与合并/拆分编辑器）。不属于游戏构建链：`dev` / `build:web` / `tauri:build` 不会调用这里。
 
-它不属于游戏的构建链：主项目的 `dev`、`build:web` 和 `tauri:build` 都不会调用这里的脚本。
+## 五层数据模型
+
+| 层 | 名称 | 目录 | 谁写 | 谁读 | 进 git |
+|---|---|---|---|---|---|
+| **L0** | Raw | `cache/` | 下载脚本 | 仅 generator | 否 |
+| **L1** | 基础地图 | `base/<baseMapId>/` | `generate:base` + socioeconomic | 编辑器导入；导出派生 | 生成物默认 **gitignore**；若入库须走 LFS（见根 `.gitattributes`） |
+| **L2** | 编辑工程 | `projects/<projectId>/` | 地图编辑器 | 编辑器再打开；导出 | 是（轻量分组） |
+| **L3** | Authored | `../assets/maps/<mapId>/`（不含 compiled） | 编辑器导出；人工/模组 | validate / publish | 是 |
+| **L4** | Runtime | `../assets/maps/<mapId>/compiled/` | `map:publish` | 客户端 / Worker | 否 |
+
+旧文档里的「L1 Authored / L2 Runtime」分别对应本表的 **L3 / L4**。
+
+```text
+L0 Raw → generate:base → L1 base
+L1 → 编辑器导入 → 保存 L2 projects/
+L2 → 导出 → L3 assets/maps/<mapId>/ → 自动 publish → L4 compiled/
+```
+
+`habitability` / `cultivation_condition` / `arable_land_km2` 在 L1 中写 **0** 表示尚未制作，不是真实宜居度为零。
+
+## 命令
 
 ```powershell
 cd mapdata-generator
 pnpm install
+
+# L0 → L1：零合并基础图（默认 base/world-admin1）
+# --base 未传 --retain 时默认保留率至少 0.8（高于合并管线的 0.5）
+pnpm generate:base
+pnpm generate:base -- --retain 0.8
+pnpm generate:base -- --retain 1
+
+# 对 L1 多边形跑社会经济（人口 / GDP），写入 demographics.json 与 province.csv 的 gdp_ppp
+pnpm generate:base:socioeconomic
+
+# 旧管线：合并版候选（仍写 output/world-modern，不进 L1）
+# world-modern-output 金标测试依赖该输出；缺报告会直接 fail
 pnpm generate:world-modern
+
+# 地图编辑器（导入 L1 / 编辑 / 存 L2 / 导出 L3+L4）
+pnpm editor
 ```
 
-边界简化默认保留 50% 的加权弧点，可通过命令行调整：
+导出 **禁止覆盖** 已有 `assets/maps/<mapId>/`；撞名时自动加 `-2`、`-3`… 后缀，并更新 `map.json` 的 `id`。
 
-```powershell
-# 小数和百分数写法等价；允许范围为 (0, 1] 或 (0%, 100%]
-pnpm generate:world-modern -- --retain 0.5
-pnpm generate:world-modern -- --retain 50%
+## L1 布局（`base/world-admin1/`）
+
+与 schema v3 子集对齐，另含 `demographics.json`（人口年龄教育与 GDP，供编辑器/导出求和）。不写 `classes/*`。
+
+本地用 `pnpm generate:base`（及可选 `generate:base:socioeconomic`）生成。`base/**` 默认不进 git，只保留 `base/.gitkeep`；需要入库时先确认根 `.gitattributes` 已对 `mapdata-generator/base/**/*.geojson` 与 `boundaries.json` 启用 LFS，再单独提交数据。
+
+## L2 布局（`projects/<projectId>/`）
+
+```text
+project.json    # baseMapId、建议导出 mapId、显示名…
+groups.json     # 完整分区：id / countryId / members[] / name…
 ```
 
-该比例是基础目标。面积误差超过 5%、环方向改变或几何退化的省份会自动保留更多点；`review-report.json` 中的 `requestedRetainedFraction` 和 `retainedFraction` 分别记录请求值与最终采用值。
+`members` 必须是所引用 L1 源省 ID 的完全划分（无交叉、无遗漏）。工程不存 dissolve 后的全球几何。
 
-- 原始下载缓存：`cache/natural-earth/`
-- 可审计的全局归并参数：`config/world-modern-merges.json`
-- 手工覆盖（拆分/重划不合理合并省）：`config/world-modern-manual-groups.json`，允许突破最低面积限制
-- 生成的最终候选与审查报告：`output/world-modern/`
-- 游戏采用的制作完成地图：`../assets/maps/<mapId>/`
+## 遗留合并管线
 
-生成流程依次执行：下载与规范化 → 官方宏观区连通分组 → 同国完全包围合并 → 动态最低面积合并 → 700 km 群岛合并 → 手工覆盖强制拆分/重组（`world-modern-manual-groups.json`）→ TopoJSON dissolve 与简化 → 输出报告。面积严格超过 5,000,000 km² 的国家跳过官方宏观区，直接从一级政区开始执行后续规则。除 Baikonur 租借地还原给哈萨克斯坦这一源数据归属修正外，所有国家使用同一套参数，不存在按国家 ID 编写的特殊分组。最低省面积从 10,000 km² 随国家面积线性增长，在国家面积达到 500,000 km² 时封顶为 50,000 km²。普通合并必须共享线段边界，仅群岛可以在多边形边缘距离不超过 700 km 时形成 MultiPolygon。手工覆盖在自动合并完成后应用，允许将狭长/跨文化屏障的大省拆为多个可低于阈值的合理省，示例见埃及（23省合并体拆为 Sinai/Canal/Delta/Cairo/Upper 五省）。
-
-生成器保持独立，不加入根 workspace，也不参与游戏构建。`review-report.json` 会逐国记录国家面积、动态阈值、合并前后数量和无法合法继续合并的低面积例外。
-
-最终省份来自具有完整官方宏区数据的国家时，使用“–”连接并去重宏区名；没有宏区数据时，本地名和英文名分别按稳定的源数据顺序连接一级政区名。未合并省份保持原名。
-
-输出目录为 L1 正式层：`map.json`（schemaVersion 3）、`geometry/{provinces,boundaries,coastlines}`、`countries.csv`、`provinces/<id>/province.csv`（骨架）与空的 `companies/`，以及不会进入发行包的 `review-report.json`。地图没有独立城市图层；每个省份都内嵌一个首府。将候选导入主项目前必须审查报告，必要时补全 class / 定义字段，再执行根项目的 `pnpm map:validate` 与 `pnpm map:publish`。
-
-仅需补写或刷新国名表、不必重跑归并/简化时：
-
-```powershell
-pnpm generate:countries
-```
-
-该模式写出 `countries.csv` 并更新 `map.json`。写 manifest 前会确认 `geometry/` 下 companions 已在 `output/world-modern/` 中；若缺失则从 `../assets/maps/world-modern/geometry/`（或旧扁平路径）复制。
+`pnpm generate:world-modern` 仍使用 `config/world-modern-merges.json` 与 `world-modern-manual-groups.json`，输出到 `output/world-modern/`。新制作请走 L1 → 编辑器 → L2 → 导出 L3。

@@ -1,4 +1,10 @@
 node_modules/
 cache/
 output/
+# Generated L1 packs (run `pnpm generate:base`); commit only after LFS rules are set.
+base/**
+!base/.gitkeep
+editor/node_modules/
+editor/dist/
+editor/package-lock.json
 *.log

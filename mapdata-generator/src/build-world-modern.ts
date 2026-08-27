@@ -64,14 +64,19 @@ const SOURCES = {
 export function parseGeneratorArgs(
   args: readonly string[],
   defaultRetainedFraction = 0.5
-): { retainedFraction: number; countriesOnly: boolean } {
+): { retainedFraction: number; countriesOnly: boolean; base: boolean } {
   let rawValue: string | undefined;
   let countriesOnly = false;
+  let base = false;
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]!;
     if (argument === "--") continue;
     if (argument === "--countries-only") {
       countriesOnly = true;
+      continue;
+    }
+    if (argument === "--base") {
+      base = true;
       continue;
     }
     if (argument === "--retain" || argument === "--retained-fraction") {
@@ -90,8 +95,15 @@ export function parseGeneratorArgs(
     }
     throw new Error(`Unknown generator argument: ${argument}`);
   }
+  if (countriesOnly && base) {
+    throw new Error("--countries-only and --base cannot be combined.");
+  }
   if (rawValue === undefined) {
-    return { retainedFraction: defaultRetainedFraction, countriesOnly };
+    return {
+      retainedFraction: base ? Math.max(defaultRetainedFraction, 0.8) : defaultRetainedFraction,
+      countriesOnly,
+      base
+    };
   }
   const percentage = rawValue.endsWith("%");
   const numericText = percentage ? rawValue.slice(0, -1) : rawValue;
@@ -102,7 +114,19 @@ export function parseGeneratorArgs(
       `Retained arc fraction must be in (0, 1] or written as (0%, 100%]: ${rawValue}`
     );
   }
-  return { retainedFraction: fraction, countriesOnly };
+  return { retainedFraction: fraction, countriesOnly, base };
+}
+
+/** One-province-per-source-admin1 groups (L1 base, no merges). */
+export function identityMergeGroups(provinces: readonly SourceProvince[]): MergeGroup[] {
+  return provinces.map((province) => ({
+    id: province.id,
+    name: province.name,
+    nameEn: province.nameEn,
+    countryId: province.countryId,
+    memberIndices: [province.index],
+    method: "retained" as const
+  }));
 }
 
 /** @deprecated Prefer parseGeneratorArgs. */
@@ -854,12 +878,20 @@ async function writeCsv(
   return Buffer.byteLength(text);
 }
 
-async function writeWorldModernManifest(outDir: string, version = "0.3.8"): Promise<number> {
+export async function writeMapManifest(
+  outDir: string,
+  options: {
+    id: string;
+    version: string;
+    nameKey: string;
+    attribution?: Record<string, string>;
+  }
+): Promise<number> {
   return writeJson(join(outDir, "map.json"), {
     schemaVersion: 3,
-    id: "world-modern",
-    version,
-    nameKey: "map.worldModern.name",
+    id: options.id,
+    version: options.version,
+    nameKey: options.nameKey,
     coordinateReferenceSystem: "EPSG:4326",
     layers: {
       provinces: "geometry/provinces.geojson",
@@ -872,7 +904,8 @@ async function writeWorldModernManifest(outDir: string, version = "0.3.8"): Prom
     attribution: {
       source: "Natural Earth 1:10m",
       license: "public domain",
-      naturalEarthCommit: NATURAL_EARTH_COMMIT
+      naturalEarthCommit: NATURAL_EARTH_COMMIT,
+      ...options.attribution
     }
   });
 }
@@ -900,10 +933,15 @@ async function writeCountriesCsv(
   return writeCsv(join(outDir, "countries.csv"), ["id", "name_en", "name"], rows);
 }
 
-async function writeProvinceCsvSkeleton(
+export async function writeProvinceCsvSkeleton(
   outDir: string,
-  provinces: GeoJsonFeatureCollection
+  provinces: GeoJsonFeatureCollection,
+  options: {
+    unsetGameplayFields?: boolean;
+    gdpById?: ReadonlyMap<string, number>;
+  } = {}
 ): Promise<number> {
+  const unset = options.unsetGameplayFields === true;
   let bytes = 0;
   await mkdir(join(outDir, "companies"), { recursive: true });
   for (const feature of provinces.features) {
@@ -919,6 +957,7 @@ async function writeProvinceCsvSkeleton(
       feature.geometry === null || feature.geometry === undefined
         ? 1
         : Math.max(1, Math.round(geometryAreaKm2(feature.geometry as AreaGeometry)));
+    const gdp = options.gdpById?.get(id);
     bytes += await writeCsv(
       join(dir, "province.csv"),
       [
@@ -932,6 +971,7 @@ async function writeProvinceCsvSkeleton(
         "habitability",
         "terrain_profile_id",
         "climate_profile_id",
+        "gdp_ppp",
         "description",
         "capital_name",
         "capital_name_en"
@@ -944,10 +984,11 @@ async function writeProvinceCsvSkeleton(
           owner_country_id: typeof props.adm0A3 === "string" ? props.adm0A3 : "UNK",
           land_area_km2: String(areaKm2),
           arable_land_km2: "0",
-          cultivation_condition: "0.5",
-          habitability: "0.5",
+          cultivation_condition: unset ? "0" : "0.5",
+          habitability: unset ? "0" : "0.5",
           terrain_profile_id: "temperate",
           climate_profile_id: "temperate",
+          gdp_ppp: String(gdp ?? 0),
           description: typeof props.description === "string" ? props.description : "",
           capital_name: typeof capital.name === "string" ? capital.name : "",
           capital_name_en: typeof capital.nameEn === "string" ? capital.nameEn : ""
@@ -1044,7 +1085,11 @@ async function writeCountriesOnly(projectRoot: string, outDir: string): Promise<
 
   const countries = collectCountryNames(source, countryIds);
   const bytes = await writeCountriesCsv(outDir, countries);
-  await writeWorldModernManifest(outDir);
+  await writeMapManifest(outDir, {
+    id: "world-modern",
+    version: "0.3.8",
+    nameKey: "map.worldModern.name"
+  });
   console.log(
     JSON.stringify(
       {
@@ -1064,11 +1109,14 @@ async function writeCountriesOnly(projectRoot: string, outDir: string): Promise<
 async function main(args: readonly string[]): Promise<void> {
   const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const policy = await loadMergePolicy(join(projectRoot, "config/world-modern-merges.json"));
-  const { retainedFraction: requestedRetainedFraction, countriesOnly } = parseGeneratorArgs(
-    args,
-    policy.defaultRetainedArcFraction
-  );
-  const outDir = join(projectRoot, "output/world-modern");
+  const {
+    retainedFraction: requestedRetainedFraction,
+    countriesOnly,
+    base
+  } = parseGeneratorArgs(args, policy.defaultRetainedArcFraction);
+  const outDir = base
+    ? join(projectRoot, "base/world-admin1")
+    : join(projectRoot, "output/world-modern");
   if (countriesOnly) {
     await writeCountriesOnly(projectRoot, outDir);
     return;
@@ -1086,15 +1134,21 @@ async function main(args: readonly string[]): Promise<void> {
   const sourceTopology = buildTopology("source", normalizedCollection(sourceProvinces));
   const sourceGeometries = topologyGeometries(sourceTopology, "source");
   const adjacency = buildAdjacency(sourceTopology, "source");
-  const autoGroups = buildMergeGroups(sourceProvinces, adjacency, policy);
-  const manualOverrides = await loadManualOverrides(
-    join(projectRoot, "config/world-modern-manual-groups.json")
-  );
-  const groups = applyManualOverrides(autoGroups, sourceProvinces, manualOverrides);
-  if (manualOverrides !== undefined && manualOverrides.manualGroups.length > 0) {
-    console.log(
-      `Manual overrides: ${manualOverrides.manualGroups.length} manual groups applied, ${autoGroups.length} -> ${groups.length} provinces.`
+  let groups: MergeGroup[];
+  if (base) {
+    groups = identityMergeGroups(sourceProvinces);
+    console.log(`Base mode: ${groups.length} unmerged admin_1 provinces → ${outDir}`);
+  } else {
+    const autoGroups = buildMergeGroups(sourceProvinces, adjacency, policy);
+    const manualOverrides = await loadManualOverrides(
+      join(projectRoot, "config/world-modern-manual-groups.json")
     );
+    groups = applyManualOverrides(autoGroups, sourceProvinces, manualOverrides);
+    if (manualOverrides !== undefined && manualOverrides.manualGroups.length > 0) {
+      console.log(
+        `Manual overrides: ${manualOverrides.manualGroups.length} manual groups applied, ${autoGroups.length} -> ${groups.length} provinces.`
+      );
+    }
   }
   const countryAreas = new Map<string, number>();
   for (const province of sourceProvinces) {
@@ -1243,9 +1297,25 @@ async function main(args: readonly string[]): Promise<void> {
   bytes.boundaries = await writeJson(join(geometryDir, "boundaries.json"), boundaries);
   bytes.coastlines = await writeJson(join(geometryDir, "coastlines.geojson"), lines.coastlines);
   bytes.countries = await writeCountriesCsv(outDir, countries);
-  bytes.provinceCsv = await writeProvinceCsvSkeleton(outDir, provinces);
-  bytes.manifest = await writeWorldModernManifest(outDir);
+  bytes.provinceCsv = await writeProvinceCsvSkeleton(outDir, provinces, {
+    unsetGameplayFields: base
+  });
+  bytes.manifest = await writeMapManifest(
+    outDir,
+    base
+      ? {
+          id: "world-admin1",
+          version: "0.1.0",
+          nameKey: "map.worldAdmin1.name"
+        }
+      : {
+          id: "world-modern",
+          version: "0.3.8",
+          nameKey: "map.worldModern.name"
+        }
+  );
   await writeJson(join(outDir, "review-report.json"), {
+    mode: base ? "no-merge" : "merged",
     sourceProvinceCount: sourceProvinces.length,
     provinceCount: provinces.features.length,
     countrySummary: Object.fromEntries(

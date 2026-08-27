@@ -2,7 +2,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isRecord, pointInGeometry, validCode } from "../geo.js";
-import type { AreaGeometry } from "../types.js";
+import type { AreaGeometry, GeoJsonFeatureCollection } from "../types.js";
+import { writeProvinceCsvSkeleton } from "../build-world-modern.js";
 import {
   loadSocioeconomicConfig,
   ensureSocioeconomicSources,
@@ -397,21 +398,89 @@ export async function aggregateSocioeconomic(
 }
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+
+function parseAggregateArgs(args: readonly string[]): {
+  provincesPath: string;
+  outputPath: string;
+  applyGdp: boolean;
+} {
+  let provincesPath = join(toolRoot, "output/world-modern/geometry/provinces.geojson");
+  let outputPath = join(toolRoot, "output/world-modern/province-demographics.json");
+  let applyGdp = false;
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    if (argument === "--") continue;
+    if (argument === "--apply-gdp") {
+      applyGdp = true;
+      continue;
+    }
+    if (argument === "--provinces") {
+      const value = args[index + 1];
+      if (value === undefined) throw new Error("--provinces requires a path.");
+      provincesPath = resolve(toolRoot, value);
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("--provinces=")) {
+      provincesPath = resolve(toolRoot, argument.slice("--provinces=".length));
+      continue;
+    }
+    if (argument === "--out") {
+      const value = args[index + 1];
+      if (value === undefined) throw new Error("--out requires a path.");
+      outputPath = resolve(toolRoot, value);
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("--out=")) {
+      outputPath = resolve(toolRoot, argument.slice("--out=".length));
+      continue;
+    }
+    throw new Error(`Unknown socioeconomic argument: ${argument}`);
+  }
+  return { provincesPath, outputPath, applyGdp };
+}
+
+/** Patch gdp_ppp on each provinces/<id>/province.csv from demographics. */
+export async function applyGdpToProvinceCsv(
+  mapRoot: string,
+  entries: Readonly<Record<string, ProvinceDemographicsEntry>>
+): Promise<number> {
+  const provincesPath = join(mapRoot, "geometry/provinces.geojson");
+  const collection = JSON.parse(
+    await readFile(provincesPath, "utf8")
+  ) as GeoJsonFeatureCollection;
+  const gdpById = new Map(
+    Object.entries(entries).map(([id, entry]) => [id, entry.gdpPpp] as const)
+  );
+  await writeProvinceCsvSkeleton(mapRoot, collection, {
+    unsetGameplayFields: true,
+    gdpById
+  });
+  return gdpById.size;
+}
+
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const { provincesPath, outputPath, applyGdp } = parseAggregateArgs(process.argv.slice(2));
   const config = await loadSocioeconomicConfig(
     join(toolRoot, "config/world-modern-socioeconomic.json")
   );
   const entries = await aggregateSocioeconomic(toolRoot, config, {
-    provincesPath: join(toolRoot, "output/world-modern/geometry/provinces.geojson"),
-    outputPath: join(toolRoot, "output/world-modern/province-demographics.json")
+    provincesPath,
+    outputPath
   });
-  await writeFile(
-    join(toolRoot, "output/world-modern/province-demographics.json"),
-    `${JSON.stringify(entries, null, 2)}\n`
-  );
+  await writeFile(outputPath, `${JSON.stringify(entries, null, 2)}\n`);
+  let gdpPatched = 0;
+  if (applyGdp) {
+    gdpPatched = await applyGdpToProvinceCsv(dirname(outputPath), entries);
+  }
   const totalPop = Object.values(entries).reduce((sum, entry) => sum + entry.pop, 0);
   const totalGdp = Object.values(entries).reduce((sum, entry) => sum + entry.gdpPpp, 0);
   console.log(
-    JSON.stringify({ provinces: Object.keys(entries).length, totalPop, totalGdp }, null, 2)
+    JSON.stringify(
+      { provinces: Object.keys(entries).length, totalPop, totalGdp, outputPath, gdpPatched },
+      null,
+      2
+    )
   );
 }

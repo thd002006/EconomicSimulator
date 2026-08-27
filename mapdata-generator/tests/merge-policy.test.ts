@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildMergeGroups, parseRetainedFraction } from "../src/build-world-modern.js";
+import { buildMergeGroups, identityMergeGroups, parseGeneratorArgs, parseRetainedFraction } from "../src/build-world-modern.js";
 import { geometryGapKm, interiorPoint, pointInGeometry } from "../src/geo.js";
 import { dynamicMinimumProvinceAreaKm2, type MergeParameters } from "../src/merge-policy.js";
 import type { SourceProvince } from "../src/types.js";
@@ -77,6 +77,23 @@ test("simplification retention accepts fractions and percentages", () => {
   assert.throws(() => parseRetainedFraction(["--retain", "0"]), /must be in/);
   assert.throws(() => parseRetainedFraction(["--retain=101%"]), /must be in/);
   assert.throws(() => parseRetainedFraction(["--unknown", "0.5"]), /Unknown/);
+});
+
+test("parseGeneratorArgs accepts --base", () => {
+  const parsed = parseGeneratorArgs(["--base"], 0.5);
+  assert.equal(parsed.base, true);
+  assert.equal(parsed.retainedFraction, 0.8);
+});
+
+test("identityMergeGroups keeps one group per source province", () => {
+  const provinces = [province(0, 1_000), province(1, 40_000)];
+  const groups = identityMergeGroups(provinces);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(
+    groups.map((group) => [...group.memberIndices]),
+    [[0], [1]]
+  );
+  assert.ok(groups.every((group) => group.method === "retained"));
 });
 
 test("area merging absorbs the smallest province only through a shared line", () => {
