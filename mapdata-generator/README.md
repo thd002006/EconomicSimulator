@@ -49,18 +49,22 @@ pnpm editor
 
 ## L1 布局（`base/world-admin1/`）
 
-与 schema v3 子集对齐，另含 `demographics.json`（人口年龄教育与 GDP，供编辑器/导出求和）。不写 `classes/*`。
+与 schema v3 子集对齐，另含 `demographics.json`（栅格聚合结果）。**不**创建 `classes/`；新建 L2 工程时再拆成可编辑的 class CSV。
 
 本地用 `pnpm generate:base`（及可选 `generate:base:socioeconomic`）生成。`base/**` 默认不进 git，只保留 `base/.gitkeep`；需要入库时先确认根 `.gitattributes` 已对 `mapdata-generator/base/**/*.geojson` 与 `boundaries.json` 启用 LFS，再单独提交数据。
 
 ## L2 布局（`projects/<projectId>/`）
 
 ```text
-project.json    # baseMapId、建议导出 mapId、显示名…
-groups.json     # 完整分区：id / countryId / members[] / name…
+project.json                      # baseMapId、建议导出 mapId、显示名…
+groups.json                       # 完整分区：id / countryId / members[] / name…
+provinces/<sourceProvinceId>/
+  classes/<socialClassId>.csv     # 可编辑人口（按 L1 原子省）；新建工程时从 L1 demographics 拆出
 ```
 
-`members` 必须是所引用 L1 源省 ID 的完全划分（无交叉、无遗漏）。工程不存 dissolve 后的全球几何。
+`members` 必须是所引用 L1 源省 ID 的完全划分（无交叉、无遗漏）。工程不存 dissolve 后的全球几何。人口以 L2 class CSV 为准（方便直接改）；合并/拆分只改 `groups.json`，导出时按 members 汇总 class。
+
+导出 L3 时：按组成员汇总 L2 `classes/*.csv`，写出游戏省的 class CSV；`gdp_ppp` 从 L1 `demographics.json` 求和写入；**不**写 `demographics.json`。
 
 ## 遗留合并管线
 

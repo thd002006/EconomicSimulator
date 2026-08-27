@@ -3,6 +3,11 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { writeProvinceCsvSkeleton, writeMapManifest } from "./build-world-modern.js";
+import {
+  readProvinceClassCsvs,
+  sumClassSeedRows,
+  writeClassSeedRows
+} from "./class-split.js";
 import { interiorPoint } from "./geo.js";
 import {
   allocateMapId,
@@ -56,52 +61,19 @@ async function loadBaseProvinces(baseRoot: string): Promise<Map<string, BaseProv
   return map;
 }
 
-async function loadDemographics(
-  baseRoot: string
-): Promise<Record<string, ProvinceDemographicsEntry>> {
+async function loadGdpBySourceId(baseRoot: string): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
   try {
-    return JSON.parse(await readFile(join(baseRoot, "demographics.json"), "utf8")) as Record<
-      string,
-      ProvinceDemographicsEntry
-    >;
+    const demographics = JSON.parse(
+      await readFile(join(baseRoot, "demographics.json"), "utf8")
+    ) as Record<string, ProvinceDemographicsEntry>;
+    for (const [id, entry] of Object.entries(demographics)) {
+      if (Number.isFinite(entry.gdpPpp)) result.set(id, entry.gdpPpp);
+    }
   } catch {
-    return {};
+    // missing demographics.json → GDP defaults to 0
   }
-}
-
-function sumDemographics(
-  members: readonly string[],
-  source: Readonly<Record<string, ProvinceDemographicsEntry>>
-): ProvinceDemographicsEntry {
-  const emptyAge = {
-    child_0_14: 0,
-    youth_15_24: 0,
-    prime_25_44: 0,
-    mature_45_64: 0,
-    senior_65_plus: 0
-  };
-  const emptyEdu = { basic: 0, secondary: 0, tertiary: 0, advanced: 0 };
-  let pop = 0;
-  let male = 0;
-  let female = 0;
-  let gdpPpp = 0;
-  const age = { ...emptyAge };
-  const education15Plus = { ...emptyEdu };
-  for (const member of members) {
-    const entry = source[member];
-    if (entry === undefined) continue;
-    pop += entry.pop;
-    male += entry.male;
-    female += entry.female;
-    gdpPpp += entry.gdpPpp;
-    for (const key of Object.keys(age) as (keyof typeof age)[]) {
-      age[key] += entry.age[key] ?? 0;
-    }
-    for (const key of Object.keys(education15Plus) as (keyof typeof education15Plus)[]) {
-      education15Plus[key] += entry.education15Plus[key] ?? 0;
-    }
-  }
-  return { pop, male, female, age, education15Plus, gdpPpp };
+  return result;
 }
 
 function dissolveGroup(group: ProjectGroup, base: ReadonlyMap<string, BaseProvince>): AreaGeometry {
@@ -172,18 +144,26 @@ export async function exportProjectToL3L4(options: {
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
 
-  const demographics = await loadDemographics(baseRoot);
+  const sourceGdp = await loadGdpBySourceId(baseRoot);
   const gdpById = new Map<string, number>();
   const derivedFeatures: GeoJsonFeature<AreaGeometry>[] = [];
-  const derivedDemographics: Record<string, ProvinceDemographicsEntry> = {};
+  const classRowsByGroup = new Map<string, Awaited<ReturnType<typeof sumClassSeedRows>>>();
 
   for (const group of project.groups) {
     const geometry = dissolveGroup(group, base);
     const first = base.get(group.members[0]!)!;
     const capital = first.capital ?? { coordinates: interiorPoint(geometry) };
-    const demo = sumDemographics(group.members, demographics);
-    derivedDemographics[group.id] = demo;
-    gdpById.set(group.id, demo.gdpPpp);
+    const memberClassRows = await Promise.all(
+      group.members.map((memberId) =>
+        readProvinceClassCsvs(join(projectDir, "provinces", memberId))
+      )
+    );
+    const mergedClasses = sumClassSeedRows(memberClassRows);
+    classRowsByGroup.set(group.id, mergedClasses);
+    gdpById.set(
+      group.id,
+      group.members.reduce((sum, memberId) => sum + (sourceGdp.get(memberId) ?? 0), 0)
+    );
     derivedFeatures.push(
       makeAuthoredFeature(
         group.id,
@@ -235,6 +215,10 @@ export async function exportProjectToL3L4(options: {
     unsetGameplayFields: true,
     gdpById
   });
+  let classFiles = 0;
+  for (const [provinceId, rows] of classRowsByGroup) {
+    classFiles += await writeClassSeedRows(join(outDir, "provinces", provinceId), rows);
+  }
   await writeMapManifest(outDir, {
     id: mapId,
     version: "0.1.0",
@@ -245,13 +229,13 @@ export async function exportProjectToL3L4(options: {
       projectId: project.meta.projectId
     }
   });
-  await writeJson(join(outDir, "demographics.json"), derivedDemographics);
   await writeJson(join(outDir, "export-report.json"), {
     mapId,
     projectId: project.meta.projectId,
     baseMapId: project.meta.baseMapId,
     provinceCount: provinces.features.length,
-    sourceProvinceCount: base.size
+    sourceProvinceCount: base.size,
+    classFiles
   });
 
   await publishMap(options.repoRoot, mapId);

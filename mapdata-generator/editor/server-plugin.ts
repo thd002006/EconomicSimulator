@@ -1,5 +1,5 @@
 import type { Plugin } from "vite";
-import { access, readdir, readFile } from "node:fs/promises";
+import { access, readdir, readFile, rm } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
@@ -15,6 +15,7 @@ import {
   type EditorProject
 } from "../src/project.js";
 import { exportProjectToL3L4 } from "../src/export-map.js";
+import { seedProjectClassesFromBase } from "../src/class-split.js";
 
 const generatorRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(generatorRoot, "..");
@@ -174,7 +175,19 @@ export function mapEditorApiPlugin(): Plugin {
               groups: identityGroupsFromIds(index.provinces)
             };
             await saveProject(projectDir, project);
-            return sendJson(res, 201, project);
+            const baseRoot = join(generatorRoot, "base", baseMapId);
+            let classFiles = 0;
+            try {
+              classFiles = await seedProjectClassesFromBase(projectDir, baseRoot);
+            } catch (error) {
+              await rm(projectDir, { recursive: true, force: true });
+              return sendJson(res, 500, {
+                error: `Class seeding failed (need L1 demographics.json): ${
+                  error instanceof Error ? error.message : String(error)
+                }`
+              });
+            }
+            return sendJson(res, 201, { ...project, classFiles });
           }
           if (req.method === "PUT" && url.pathname.startsWith("/api/projects/")) {
             const projectId = decodeURIComponent(url.pathname.slice("/api/projects/".length));

@@ -947,7 +947,7 @@ export async function writeProvinceCsvSkeleton(
   for (const feature of provinces.features) {
     const id = String(feature.id);
     const dir = join(outDir, "provinces", id);
-    await mkdir(join(dir, "classes"), { recursive: true });
+    await mkdir(dir, { recursive: true });
     const props = (feature.properties ?? {}) as Record<string, unknown>;
     const capital =
       props.capital !== null && typeof props.capital === "object"
