@@ -799,6 +799,34 @@ function chooseCapital(
   };
 }
 
+async function loadProvinceDescriptions(
+  projectRoot: string
+): Promise<Map<string, string> | undefined> {
+  const candidates = [
+    join(projectRoot, "data/province-descriptions.json"),
+    join(projectRoot, "../assets/maps/world-modern/province-descriptions.json")
+  ];
+  for (const candidate of candidates) {
+    try {
+      const raw = JSON.parse(await readFile(candidate, "utf8")) as unknown;
+      if (!isRecord(raw)) continue;
+      const result = new Map<string, string>();
+      for (const [key, value] of Object.entries(raw)) {
+        if (typeof value === "string" && value.trim() !== "") {
+          result.set(key, value.trim());
+        }
+      }
+      if (result.size > 0) {
+        console.log(`Loaded ${result.size} province descriptions from ${candidate}`);
+      }
+      return result;
+    } catch {
+      // try next candidate
+    }
+  }
+  return undefined;
+}
+
 async function writeJson(path: string, value: unknown): Promise<number> {
   const text = `${JSON.stringify(value)}\n`;
   await mkdir(dirname(path), { recursive: true });
@@ -969,6 +997,8 @@ async function main(args: readonly string[]): Promise<void> {
     ])
   );
 
+  const provinceDescriptions = await loadProvinceDescriptions(projectRoot);
+
   const review: ReviewProvince[] = [];
   const mergedFeatures: GeoJsonFeature<AreaGeometry>[] = groups.map((group) => {
     const geometry = mergeGeometry(
@@ -992,6 +1022,7 @@ async function main(args: readonly string[]): Promise<void> {
       capitalSource: selectedCapital.source,
       minimumAreaKm2: Math.round(minimumAreas.get(group.countryId)!)
     });
+    const description = provinceDescriptions?.get(group.id);
     return makeAuthoredFeature(
       group.id,
       {
@@ -999,7 +1030,8 @@ async function main(args: readonly string[]): Promise<void> {
         nameEn: group.nameEn,
         adm0A3: group.countryId,
         type: "Game province",
-        capital: selectedCapital.capital
+        capital: selectedCapital.capital,
+        ...(description === undefined ? {} : { description })
       },
       geometry
     );

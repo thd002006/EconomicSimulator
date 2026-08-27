@@ -81,6 +81,7 @@ export interface AuthoredProvinceProperties extends Record<string, unknown> {
   readonly adm0A3: string;
   readonly type: string;
   readonly capital: ProvinceCapital;
+  readonly description?: string;
 }
 
 export interface ReviewProvince {

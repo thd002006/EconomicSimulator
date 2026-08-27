@@ -7,6 +7,7 @@ import {
   parseLineGeometry,
   parsePolygonGeometry,
   parseProvinceCapital,
+  parseProvinceDescription,
   type GeoJsonGeometry,
   type LonLat
 } from "@economic-simulator/map-runtime";
@@ -145,7 +146,8 @@ function pickProperties(properties: RecordValue | null | undefined): RecordValue
     "isoA2",
     "iso_a2",
     "type",
-    "scalerank"
+    "scalerank",
+    "description"
   ];
   return Object.fromEntries(
     allowed.filter((key) => properties[key] !== undefined).map((key) => [key, properties[key]])
@@ -199,11 +201,17 @@ export async function compilePack(
   const provinces = provinceCollection.features.map((feature, index) => {
     const id = provinceIds[index]!;
     const geometry = parsePolygonGeometry(feature.geometry, "provinces", id);
+    const description = parseProvinceDescription(
+      feature.properties?.description,
+      "provinces",
+      id
+    );
     return {
       id,
       properties: {
         ...pickProperties(feature.properties),
-        capital: parseProvinceCapital(feature.properties?.capital, "provinces", id)
+        capital: parseProvinceCapital(feature.properties?.capital, "provinces", id),
+        ...(description === undefined ? {} : { description })
       },
       bbox: computeBBox(geometry),
       lod: buildTriangulatableLods(id, geometry)

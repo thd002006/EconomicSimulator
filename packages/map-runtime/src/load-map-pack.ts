@@ -3,7 +3,8 @@ import {
   parseBBox,
   parseLineGeometry,
   parsePolygonGeometry,
-  parseProvinceCapital
+  parseProvinceCapital,
+  parseProvinceDescription
 } from "./schema.js";
 import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
 import {
@@ -75,9 +76,11 @@ function normalizeProvinceProperties(
   raw: Record<string, unknown> | null,
   id: string
 ): ProvinceFeatureProperties {
+  const description = parseProvinceDescription(raw?.description, "provinces", id);
   return {
     ...normalizeProperties(raw),
-    capital: parseProvinceCapital(raw?.capital, "provinces", id)
+    capital: parseProvinceCapital(raw?.capital, "provinces", id),
+    ...(description === undefined ? {} : { description })
   };
 }
 

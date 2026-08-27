@@ -174,6 +174,27 @@ export function parseProvinceCapital(
   };
 }
 
+export function parseProvinceDescription(
+  value: unknown,
+  layer: string,
+  featureId: string
+): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "string") {
+    throw new MapSchemaError("properties.description must be a string.", layer, featureId);
+  }
+  const trimmed = value.trim();
+  if (trimmed === "") return undefined;
+  if (trimmed.length > 500) {
+    throw new MapSchemaError(
+      `properties.description too long (${trimmed.length} chars, max 500).`,
+      layer,
+      featureId
+    );
+  }
+  return trimmed;
+}
+
 export function parseBBox(
   value: unknown,
   layer: string,

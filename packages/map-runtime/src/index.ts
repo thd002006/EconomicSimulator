@@ -63,6 +63,7 @@ export {
   parseLineGeometry,
   parsePointGeometry,
   parsePolygonGeometry,
-  parseProvinceCapital
+  parseProvinceCapital,
+  parseProvinceDescription
 } from "./schema.js";
 export { createMapViewModel } from "./view-model.js";

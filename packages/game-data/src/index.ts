@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export * from "./population-data-pack";
+export * from "./province-definition";
 
 export const GAME_DATA_SCHEMA_VERSION = 1 as const;
 
