@@ -183,6 +183,15 @@ describe("DeterministicSimulationEngine queries", () => {
     expect(engine.queryProvinceOwner("A")).toBe("AAA");
     expect(engine.queryOwnershipTable()).toEqual({ A: "AAA" });
     expect(engine.queryProvincePopulation("A").summary.populationPersons).toBe(100);
+    const pop = engine.queryProvincePopulation("A");
+    expect(pop.classes.length).toBeGreaterThan(0);
+    expect(pop.classes.every((entry) => entry.populationPersons > 0)).toBe(true);
+    expect(pop.classes.reduce((sum, entry) => sum + entry.populationPersons, 0)).toBe(100);
+    const employmentTotal = Object.values(pop.demographics.employment).reduce(
+      (sum, value) => sum + value,
+      0
+    );
+    expect(employmentTotal).toBe(100);
     expect(engine.queryCountryPopulation("AAA").populationPersons).toBe(100);
   });
 });

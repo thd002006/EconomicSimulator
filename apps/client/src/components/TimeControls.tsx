@@ -15,11 +15,11 @@ export function TimeControls(props: TimeControlsProps): React.JSX.Element {
   const paused = props.speed === 0;
 
   return (
-    <div className="time-controls" aria-label="时间控制">
+    <div className="time-controls" aria-label="Time controls">
       <div className="time-readout">
-        <p className="label">日期</p>
+        <p className="label">Date</p>
         <strong>{props.dateLabel}</strong>
-        <span className="time-tick">第 {props.tick.toLocaleString()} 日</span>
+        <span className="time-tick">Day {props.tick.toLocaleString("en-US")}</span>
       </div>
 
       <div className="time-actions">
@@ -29,7 +29,7 @@ export function TimeControls(props: TimeControlsProps): React.JSX.Element {
           aria-pressed={paused}
           onClick={props.onPause}
         >
-          暂停
+          Pause
         </button>
         <button
           type="button"
@@ -59,7 +59,7 @@ export function TimeControls(props: TimeControlsProps): React.JSX.Element {
           30×
         </button>
         <button type="button" disabled={props.disabled === true || !paused} onClick={props.onStep}>
-          +1 日
+          +1 day
         </button>
       </div>
     </div>

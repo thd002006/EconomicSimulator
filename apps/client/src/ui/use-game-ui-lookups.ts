@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ProvinceDemographicsTable } from "@economic-simulator/map-runtime";
 import type {
   CountryPopulationSummary,
   ProvincePopulationQueryResult
@@ -16,6 +17,7 @@ export function useGameUiLookups(
   simulationId: string | undefined,
   mapDisplay: MapDisplayLookups | undefined,
   ownership: Readonly<Record<string, string>> | undefined,
+  demographics: ProvinceDemographicsTable | undefined,
   selection: MapSelection | undefined,
   hovered: MapSelection | undefined
 ): GameUiLookups | undefined {
@@ -74,5 +76,11 @@ export function useGameUiLookups(
   if (mapDisplay === undefined || ownership === undefined) {
     return undefined;
   }
-  return mergeGameUiLookups(mapDisplay, ownership, provincePopulation, countryPopulation);
+  return mergeGameUiLookups(
+    mapDisplay,
+    ownership,
+    provincePopulation,
+    countryPopulation,
+    demographics
+  );
 }

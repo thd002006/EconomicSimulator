@@ -45,6 +45,7 @@ export function App(): React.JSX.Element {
     connection === "ready" ? simulationId : undefined,
     mapDisplay,
     provinceOwners,
+    mapPack?.demographics,
     selection,
     hovered
   );
@@ -77,7 +78,7 @@ export function App(): React.JSX.Element {
       .catch((error: unknown) => {
         if (cancelled) return;
         setConnection("error");
-        setErrorMessage(error instanceof Error ? error.message : "模拟初始化失败。");
+        setErrorMessage(error instanceof Error ? error.message : "Failed to initialize simulation.");
       });
 
     return () => {
@@ -101,7 +102,7 @@ export function App(): React.JSX.Element {
       } catch (error) {
         setSpeed(0);
         setConnection("error");
-        setErrorMessage(error instanceof Error ? error.message : "时间推进失败。");
+        setErrorMessage(error instanceof Error ? error.message : "Failed to advance time.");
       } finally {
         advancingRef.current = false;
       }
@@ -141,7 +142,7 @@ export function App(): React.JSX.Element {
       <header className="game-topbar">
         <div className="game-brand">
           <p className="eyebrow">Economic Simulator</p>
-          <h1>世界经营</h1>
+          <h1>World Management</h1>
         </div>
 
         <TimeControls
@@ -156,9 +157,9 @@ export function App(): React.JSX.Element {
         />
 
         <div className="game-topbar-status" aria-live="polite">
-          {connection === "starting" ? "正在载入模拟…" : null}
-          {connection === "ready" ? "运行中" : null}
-          {connection === "error" ? (errorMessage ?? "连接异常") : null}
+          {connection === "starting" ? "Loading simulation…" : null}
+          {connection === "ready" ? "Running" : null}
+          {connection === "error" ? (errorMessage ?? "Connection error") : null}
         </div>
       </header>
 
@@ -170,8 +171,8 @@ export function App(): React.JSX.Element {
           onClose={() => setSelection(undefined)}
         />
         {mapPack === undefined ? (
-          <section className="map-panel map-panel-fill" aria-label="世界平面地图">
-            <p className="map-overlay">正在加载世界平面地图…</p>
+          <section className="map-panel map-panel-fill" aria-label="World map">
+            <p className="map-overlay">Loading world map…</p>
           </section>
         ) : (
           <MapView pack={mapPack} {...mapProps} />

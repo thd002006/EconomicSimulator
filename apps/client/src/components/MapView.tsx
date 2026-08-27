@@ -38,7 +38,8 @@ function createOwnerLookup(
 function buildMapDisplay(model: GlobeRuntimeModel): MapDisplayLookups {
   return {
     findProvince: (id) => model.findProvince(id),
-    getCountryName: (ownerId) => model.getCountryName(ownerId)
+    getCountryName: (ownerId) => model.getCountryName(ownerId),
+    getCountryGdpPpp: (ownerId) => model.getCountryAggregate(ownerId)?.gdpPpp
   };
 }
 
@@ -143,7 +144,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     const pack = props.pack;
     try {
       const canvas = canvasRef.current;
-      if (canvas === null) throw new Error("地图画布不可用。");
+      if (canvas === null) throw new Error("Map canvas is unavailable.");
       const model = createMapViewModel(pack, {
         getProvinceOwner: (provinceId) => ownersRef.current?.[provinceId]
       }) as GlobeRuntimeModel;
@@ -169,7 +170,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     } catch (error: unknown) {
       if (cancelled) return;
       setLoadState("error");
-      setErrorMessage(error instanceof Error ? error.message : "平面地图加载失败。");
+      setErrorMessage(error instanceof Error ? error.message : "Failed to load the map.");
     }
 
     return () => {
@@ -229,7 +230,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     const lost = (event: Event): void => {
       event.preventDefault();
       setLoadState("error");
-      setErrorMessage("WebGL 上下文已丢失，正在等待恢复…");
+      setErrorMessage("WebGL context lost; waiting for restore…");
     };
     const restored = (): void => setContextEpoch((value) => value + 1);
     canvas.addEventListener("webglcontextlost", lost);
@@ -314,16 +315,16 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   return (
     <section
       className={props.fill === true ? "map-panel map-panel-fill" : "map-panel"}
-      aria-label="世界平面地图"
+      aria-label="World map"
     >
       {props.fill === true ? null : (
         <div className="map-toolbar">
           <div>
-            <p className="label">地图包</p>
+            <p className="label">Map pack</p>
             <strong>{mapId}</strong>
           </div>
           <div>
-            <p className="label">悬停</p>
+            <p className="label">Hover</p>
             <strong>
               {hovered === undefined
                 ? "—"
@@ -333,7 +334,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
             </strong>
           </div>
           <div>
-            <p className="label">选中</p>
+            <p className="label">Selected</p>
             <strong>
               {props.selection === undefined
                 ? "—"
@@ -343,7 +344,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
             </strong>
           </div>
           <div>
-            <p className="label">层级</p>
+            <p className="label">Level</p>
             <strong>{displaySelection?.kind ?? "—"}</strong>
           </div>
         </div>
@@ -359,14 +360,14 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           onPointerLeave={onPointerLeave}
           onContextMenu={(event) => event.preventDefault()}
         />
-        {loadState === "loading" ? <p className="map-overlay">正在加载世界平面地图…</p> : null}
+        {loadState === "loading" ? <p className="map-overlay">Loading world map…</p> : null}
         {loadState === "error" ? (
           <p className="map-overlay map-overlay-error">{errorMessage}</p>
         ) : null}
         {props.fill === true ? <MapHoverCard selection={hovered} lookups={hoverLookups} /> : null}
       </div>
       {props.fill === true ? null : (
-        <p className="map-hint">拖拽平移 · 滚轮缩放 · 点击选择省份或国家</p>
+        <p className="map-hint">Drag to pan · scroll to zoom · click to select a province or country</p>
       )}
     </section>
   );

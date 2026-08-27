@@ -12,9 +12,14 @@ export interface EntityPanelProps {
   readonly kind: MapSelectionKind | undefined;
   readonly title: string;
   readonly subtitle?: string;
+  readonly headerMedia?: ReactNode;
   readonly emptyHint: string;
   readonly tabs: readonly EntityPanelTab[];
   readonly onClose?: () => void;
+}
+
+function kindLabel(kind: MapSelectionKind): string {
+  return kind === "province" ? "Province" : "Country";
 }
 
 export function EntityPanel(props: EntityPanelProps): React.JSX.Element {
@@ -32,10 +37,10 @@ export function EntityPanel(props: EntityPanelProps): React.JSX.Element {
 
   if (props.kind === undefined || props.tabs.length === 0) {
     return (
-      <aside className="inspector" aria-label="实体检视">
+      <aside className="inspector" aria-label="Entity inspector">
         <header className="inspector-header">
-          <p className="label">检视</p>
-          <h2>未选择</h2>
+          <p className="label">Inspector</p>
+          <h2>None selected</h2>
         </header>
         <p className="inspector-empty">{props.emptyHint}</p>
       </aside>
@@ -51,22 +56,25 @@ export function EntityPanel(props: EntityPanelProps): React.JSX.Element {
   };
 
   return (
-    <aside className="inspector" aria-label="实体检视">
+    <aside className="inspector" aria-label="Entity inspector">
       <header className="inspector-header">
         <div className="inspector-header-row">
-          <p className="label">{props.kind === "province" ? "省份" : "国家"}</p>
+          <p className="label">{kindLabel(props.kind)}</p>
           {props.onClose === undefined ? null : (
             <button type="button" className="inspector-close" onClick={props.onClose}>
-              关闭
+              Close
             </button>
           )}
         </div>
         <h2>{props.title}</h2>
         {props.subtitle === undefined ? null : <p className="inspector-sub">{props.subtitle}</p>}
+        {props.headerMedia === undefined ? null : (
+          <div className="inspector-header-media">{props.headerMedia}</div>
+        )}
       </header>
 
       {props.tabs.length > 1 ? (
-        <div className="inspector-tabs" role="tablist" aria-label="面板标签">
+        <div className="inspector-tabs" role="tablist" aria-label="Panel tabs">
           {props.tabs.map((tab) => (
             <button
               key={tab.id}
@@ -93,6 +101,7 @@ export interface SelectionPanelProps {
   readonly selection: MapSelection | undefined;
   readonly title: string;
   readonly subtitle?: string;
+  readonly headerMedia?: ReactNode;
   readonly tabs: readonly EntityPanelTab[];
   readonly emptyHint: string;
   readonly onClose?: () => void;
@@ -107,6 +116,7 @@ function panelPropsFromSelection(
     kind: selection?.kind,
     title: model.title,
     ...(model.subtitle === undefined ? {} : { subtitle: model.subtitle }),
+    ...(model.headerMedia === undefined ? {} : { headerMedia: model.headerMedia }),
     emptyHint: model.emptyHint,
     tabs: model.tabs,
     ...(model.onClose === undefined ? {} : { onClose: model.onClose })

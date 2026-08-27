@@ -2,6 +2,7 @@ import {
   lonLatToMapXY,
   mapXYToLonLat,
   wrapLongitude,
+  type CountryAggregate,
   type GeoJsonGeometry,
   type LonLat,
   type MapBoundary,
@@ -50,6 +51,7 @@ export interface GlobeRuntimeModel extends MapViewModel {
   findProvince(id: string): ProvinceFeature | undefined;
   getProvinceOwner(provinceId: string): string | undefined;
   getCountryName(ownerId: string): string | undefined;
+  getCountryAggregate(ownerId: string): CountryAggregate | undefined;
 }
 
 export function showProvinceBorders(halfHeight: number): boolean {
@@ -426,7 +428,7 @@ export class GlobeRenderer {
     this.rebuildPalette();
 
     const authoredLod = model.globeMesh.lods.at(-1);
-    if (authoredLod === undefined) throw new Error("地图缺少原始精度网格。");
+    if (authoredLod === undefined) throw new Error("Map pack is missing the source-resolution mesh.");
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(authoredLod.positions, 3));
     geometry.setAttribute("provinceSlot", new THREE.BufferAttribute(authoredLod.provinceSlots, 1));

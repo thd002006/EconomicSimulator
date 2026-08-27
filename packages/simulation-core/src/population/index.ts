@@ -26,12 +26,16 @@ export { DEFAULT_CLASS_POPULATION_SHARES } from "./state";
 export type { ObservedProvinceDemographics } from "./state";
 import {
   AGE_BANDS,
+  EMPLOYMENT_STATUSES,
   type AgeBandId,
   type ClassConsumptionPlan,
+  type EducationLevelId,
   type EmployerId,
   type EmployerState,
+  type EmploymentStatusId,
   type EquityReclassificationEvent,
   type ExogenousMigrationCommand,
+  type GenderId,
   type JobDemandState,
   type MonthlyPopulationStepResult,
   type PopulationClassState,
@@ -40,7 +44,9 @@ import {
   type PopulationWorld,
   type ProvinceId,
   type ProvinceLaborMarketSummary,
-  type ProvincePopulationSummary
+  type ProvincePopulationSummary,
+  type SkillLevelId,
+  type SocialClassId
 } from "./types";
 
 export function createPopulationWorld(
@@ -473,6 +479,17 @@ export interface ProvinceDemographicBreakdown {
   readonly male: number;
   readonly female: number;
   readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly employment: Readonly<Record<EmploymentStatusId, number>>;
+}
+
+export interface ProvinceClassPopulationBreakdown {
+  readonly socialClassId: SocialClassId;
+  readonly populationPersons: number;
+  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly gender: Readonly<Record<GenderId, number>>;
+  readonly education: Readonly<Record<EducationLevelId, number>>;
+  readonly skill: Readonly<Record<SkillLevelId, number>>;
+  readonly employment: Readonly<Record<EmploymentStatusId, number>>;
 }
 
 export interface CountryPopulationSummary {
@@ -481,12 +498,36 @@ export interface CountryPopulationSummary {
   readonly populationPersons: number;
 }
 
+function zeroAge(): Record<AgeBandId, number> {
+  return Object.fromEntries(AGE_BANDS.map((band) => [band, 0])) as Record<AgeBandId, number>;
+}
+
+function zeroEmployment(): Record<EmploymentStatusId, number> {
+  return Object.fromEntries(EMPLOYMENT_STATUSES.map((status) => [status, 0])) as Record<
+    EmploymentStatusId,
+    number
+  >;
+}
+
+function classBreakdownFromState(state: PopulationClassState): ProvinceClassPopulationBreakdown {
+  return {
+    socialClassId: state.socialClassId,
+    populationPersons: state.populationPersons,
+    age: { ...state.ageCounts },
+    gender: { ...state.genderCounts },
+    education: { ...state.workingAgeEducationCounts },
+    skill: { ...state.laborForceSkillCounts },
+    employment: { ...state.employmentStatusCounts }
+  };
+}
+
 export function aggregateProvinceDemographics(
   world: PopulationWorld,
   provinceId: ProvinceId
 ): ProvinceDemographicBreakdown {
   const classes = world.classStatesByProvince.get(provinceId);
-  const age = Object.fromEntries(AGE_BANDS.map((band) => [band, 0])) as Record<AgeBandId, number>;
+  const age = zeroAge();
+  const employment = zeroEmployment();
   let male = 0;
   let female = 0;
   if (classes !== undefined) {
@@ -496,9 +537,24 @@ export function aggregateProvinceDemographics(
       for (const band of AGE_BANDS) {
         age[band] += state.ageCounts[band];
       }
+      for (const status of EMPLOYMENT_STATUSES) {
+        employment[status] += state.employmentStatusCounts[status];
+      }
     }
   }
-  return { provinceId, male, female, age };
+  return { provinceId, male, female, age, employment };
+}
+
+export function getProvinceClassPopulationBreakdowns(
+  world: PopulationWorld,
+  provinceId: ProvinceId
+): readonly ProvinceClassPopulationBreakdown[] {
+  const classes = world.classStatesByProvince.get(provinceId);
+  if (classes === undefined) return [];
+  return [...classes.values()]
+    .filter((state) => state.populationPersons > 0)
+    .map(classBreakdownFromState)
+    .sort((a, b) => b.populationPersons - a.populationPersons);
 }
 
 export function getCountryPopulationSummary(

@@ -25,6 +25,7 @@ export {
   createPopulationWorld,
   getCountryPopulationSummary,
   getPopulationInvariantReport,
+  getProvinceClassPopulationBreakdowns,
   getProvinceLaborMarket,
   getProvincePopulationSummary,
   removeEmployer,
@@ -33,6 +34,7 @@ export {
   upsertJobDemand,
   validatePopulationStaticData,
   type CountryPopulationSummary,
+  type ProvinceClassPopulationBreakdown,
   type ProvinceDemographicBreakdown
 } from "./population/index";
 export type {

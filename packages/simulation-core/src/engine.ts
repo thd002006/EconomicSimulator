@@ -2,6 +2,7 @@ import { nextXorShift32, normalizeSeed } from "./prng";
 import {
   aggregateProvinceDemographics,
   getCountryPopulationSummary,
+  getProvinceClassPopulationBreakdowns,
   getProvincePopulationSummary,
   type CountryPopulationSummary
 } from "./population/index.js";
@@ -128,7 +129,8 @@ export class DeterministicSimulationEngine implements SimulationEngine {
     const world = this.requireWorld();
     return {
       summary: getProvincePopulationSummary(world.population, provinceId),
-      demographics: aggregateProvinceDemographics(world.population, provinceId)
+      demographics: aggregateProvinceDemographics(world.population, provinceId),
+      classes: getProvinceClassPopulationBreakdowns(world.population, provinceId)
     };
   }
 

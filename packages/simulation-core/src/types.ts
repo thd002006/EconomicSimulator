@@ -1,4 +1,8 @@
-import type { CountryPopulationSummary, ProvinceDemographicBreakdown } from "./population/index.js";
+import type {
+  CountryPopulationSummary,
+  ProvinceClassPopulationBreakdown,
+  ProvinceDemographicBreakdown
+} from "./population/index.js";
 import type { ProvincePopulationSummary } from "./population/types.js";
 
 export const SIMULATION_SNAPSHOT_VERSION = 1 as const;
@@ -83,6 +87,7 @@ export interface AdvanceResult {
 export interface ProvincePopulationQueryResult {
   readonly summary: ProvincePopulationSummary;
   readonly demographics: ProvinceDemographicBreakdown;
+  readonly classes: readonly ProvinceClassPopulationBreakdown[];
 }
 
 export interface SimulationEngine {

@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@economic-simulator/game-data": "workspace:*",
     "@economic-simulator/map-runtime": "workspace:*",
     "@economic-simulator/simulation-core": "workspace:*",
     "@economic-simulator/simulation-protocol": "workspace:*",

@@ -309,30 +309,65 @@ button[aria-pressed="true"] {
   font-size: 0.75rem;
 }
 
+.inspector-header-media {
+  margin-top: 0.75rem;
+}
+
+.inspector-terrain {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 7.5rem;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  border: 1px solid #24364a;
+  background: #15202c;
+}
+
 .inspector-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.2rem;
+  margin: 0 -0.15rem;
+  padding: 0.35rem 0.15rem 0;
+  border-bottom: 1px solid #2a4054;
+  overflow-x: auto;
 }
 
 .inspector-tab {
-  padding: 0.35rem 0.7rem;
+  position: relative;
+  margin-bottom: -1px;
+  padding: 0.45rem 0.85rem 0.5rem;
   border: 1px solid #2a4054;
-  border-radius: 0.35rem;
-  background: rgb(16 26 38 / 90%);
-  color: #9eb4c8;
+  border-bottom-color: transparent;
+  border-radius: 0.55rem 0.55rem 0 0;
+  background: #0c1520;
+  color: #8ca2b7;
   font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.inspector-tab:hover:not(:disabled) {
+  color: #dce7f5;
+  background: #132033;
+  border-color: #35516a;
+  border-bottom-color: transparent;
 }
 
 .inspector-tab.is-active,
 .inspector-tab[aria-selected="true"] {
-  border-color: #4a7ea8;
-  background: rgb(28 48 68 / 95%);
+  z-index: 1;
+  border-color: #2a4054;
+  border-bottom-color: rgb(11 18 28 / 94%);
+  background: rgb(11 18 28 / 94%);
   color: #e8f2ff;
+  box-shadow: 0 -1px 0 #4a7ea8 inset;
 }
 
 .inspector-tab-panel {
   min-height: 0;
+  padding-top: 0.85rem;
 }
 
 .inspector-header h2 {
@@ -382,6 +417,146 @@ button[aria-pressed="true"] {
   color: #e6eef8;
   font-size: 0.92rem;
   overflow-wrap: anywhere;
+}
+
+.pie-chart-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.pie-chart {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.pie-chart-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.pie-chart-legend {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pie-chart-legend li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+  color: #c5d4e4;
+  font-size: 0.78rem;
+}
+
+.pie-chart-swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 0.12rem;
+}
+
+.pie-chart-legend-value {
+  color: #8ca2b7;
+  font-variant-numeric: tabular-nums;
+}
+
+.pie-chart-empty {
+  color: #7d93a8;
+}
+
+.entity-list {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entity-list-empty {
+  margin: 0.55rem 0 0;
+  color: #8ca2b7;
+  font-size: 0.88rem;
+}
+
+.entity-list-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #2a4054;
+  border-radius: 0.45rem;
+  background: rgb(16 26 38 / 90%);
+  text-align: left;
+}
+
+.entity-list-title {
+  grid-column: 1;
+  color: #e8f2ff;
+  font-size: 0.9rem;
+}
+
+.entity-list-meta {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  color: #9eb4c8;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.entity-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgb(4 10 16 / 72%);
+  backdrop-filter: blur(4px);
+}
+
+.entity-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: min(36rem, 100%);
+  max-height: min(80vh, 44rem);
+  padding: 1rem 1.1rem 1.15rem;
+  border: 1px solid #2a4054;
+  border-radius: 0.7rem;
+  background: #0d1722;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 45%);
+  overflow: hidden;
+}
+
+.entity-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.entity-modal-header h2 {
+  margin: 0;
+  color: #f5f9ff;
+  font-size: 1.15rem;
+}
+
+.entity-modal-sub {
+  margin: 0.3rem 0 0;
+  color: #8ca2b7;
+  font-size: 0.85rem;
+}
+
+.entity-modal-body {
+  min-height: 0;
+  overflow: auto;
 }
 
 @media (max-width: 900px) {

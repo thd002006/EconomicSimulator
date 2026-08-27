@@ -1,4 +1,5 @@
-import type { ProvinceFeature } from "@economic-simulator/map-runtime";
+import { getProvinceDefinition } from "@economic-simulator/game-data";
+import type { ProvinceFeature, ProvinceDemographicsTable } from "@economic-simulator/map-runtime";
 import type {
   CountryPopulationSummary,
   ProvincePopulationQueryResult
@@ -8,12 +9,16 @@ import type { MapSelection } from "./selection.js";
 export interface MapDisplayLookups {
   readonly findProvince: (id: string) => ProvinceFeature | undefined;
   readonly getCountryName: (ownerId: string) => string | undefined;
+  readonly getCountryGdpPpp: (ownerId: string) => number | undefined;
 }
 
 export interface GameUiLookups extends MapDisplayLookups {
   readonly getOwner: (provinceId: string) => string | undefined;
   readonly getProvincePopulation: (provinceId: string) => ProvincePopulationQueryResult | undefined;
   readonly getCountryPopulation: (countryId: string) => CountryPopulationSummary | undefined;
+  readonly getProvinceGdpPpp: (provinceId: string) => number | undefined;
+  readonly getProvinceArableLandKm2: (provinceId: string) => number | undefined;
+  readonly getProvinceLivability: (provinceId: string) => number | undefined;
 }
 
 export function formatCount(value: number | undefined): string {
@@ -21,8 +26,94 @@ export function formatCount(value: number | undefined): string {
   return Math.round(value).toLocaleString("en-US");
 }
 
-export function formatGdp(): string {
-  return "—";
+export function formatGdp(value: number | undefined): string {
+  if (value === undefined || !Number.isFinite(value) || value <= 0) return "—";
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${Math.round(value).toLocaleString("en-US")}`;
+}
+
+export function formatAreaKm2(value: number | undefined): string {
+  if (value === undefined || !Number.isFinite(value)) return "—";
+  return `${Math.round(value).toLocaleString("en-US")} km²`;
+}
+
+export function formatLivability(value: number | undefined): string {
+  if (value === undefined || !Number.isFinite(value)) return "—";
+  return `${(value * 100).toFixed(0)}%`;
+}
+
+const SOCIAL_CLASS_LABELS: Readonly<Record<string, string>> = {
+  farmer: "Farmer",
+  worker: "Worker",
+  skilled_worker: "Skilled Worker",
+  service_worker: "Service Worker",
+  office_worker: "Office Worker",
+  professional: "Professional",
+  managerial: "Managerial",
+  civil_servant: "Civil Servant",
+  small_business_owner: "Small Business Owner",
+  capitalist: "Capitalist",
+  rentier: "Rentier"
+};
+
+const AGE_LABELS: Readonly<Record<string, string>> = {
+  child_0_14: "0–14",
+  youth_15_24: "15–24",
+  prime_25_44: "25–44",
+  mature_45_64: "45–64",
+  senior_65_plus: "65+"
+};
+
+const EMPLOYMENT_LABELS: Readonly<Record<string, string>> = {
+  employed: "Employed",
+  unemployed: "Unemployed",
+  student: "Student",
+  retired: "Retired",
+  not_in_labor_force: "Not in labor force"
+};
+
+const EDUCATION_LABELS: Readonly<Record<string, string>> = {
+  basic: "Basic",
+  secondary: "Secondary",
+  tertiary: "Tertiary",
+  advanced: "Advanced"
+};
+
+const SKILL_LABELS: Readonly<Record<string, string>> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  expert: "Expert"
+};
+
+const GENDER_LABELS: Readonly<Record<string, string>> = {
+  male: "Male",
+  female: "Female"
+};
+
+export function socialClassDisplayName(socialClassId: string): string {
+  return SOCIAL_CLASS_LABELS[socialClassId] ?? socialClassId.replaceAll("_", " ");
+}
+
+export function dimensionLabel(dimension: string, key: string): string {
+  switch (dimension) {
+    case "age":
+      return AGE_LABELS[key] ?? key;
+    case "employment":
+      return EMPLOYMENT_LABELS[key] ?? key;
+    case "education":
+      return EDUCATION_LABELS[key] ?? key;
+    case "skill":
+      return SKILL_LABELS[key] ?? key;
+    case "gender":
+      return GENDER_LABELS[key] ?? key;
+    case "social_class":
+      return socialClassDisplayName(key);
+    default:
+      return key.replaceAll("_", " ");
+  }
 }
 
 export function countryDisplayName(lookups: MapDisplayLookups, countryId: string): string {
@@ -46,8 +137,8 @@ export function hoverStats(
       title: provinceDisplayName(feature, selection.id),
       lines: [
         ownerId === undefined ? "—" : countryDisplayName(lookups, ownerId),
-        `人口 ${formatCount(pop?.summary.populationPersons)}`,
-        `GDP ${formatGdp()}`
+        `Population ${formatCount(pop?.summary.populationPersons)}`,
+        `GDP ${formatGdp(lookups.getProvinceGdpPpp(selection.id))}`
       ]
     };
   }
@@ -55,8 +146,8 @@ export function hoverStats(
   return {
     title: countryDisplayName(lookups, selection.id),
     lines: [
-      `人口 ${formatCount(aggregate?.populationPersons)}`,
-      `GDP ${formatGdp()}`
+      `Population ${formatCount(aggregate?.populationPersons)}`,
+      `GDP ${formatGdp(lookups.getCountryGdpPpp(selection.id))}`
     ]
   };
 }
@@ -65,13 +156,18 @@ export function mergeGameUiLookups(
   map: MapDisplayLookups,
   ownership: Readonly<Record<string, string>>,
   provincePopulation: Readonly<Record<string, ProvincePopulationQueryResult>>,
-  countryPopulation: Readonly<Record<string, CountryPopulationSummary>>
+  countryPopulation: Readonly<Record<string, CountryPopulationSummary>>,
+  demographics: ProvinceDemographicsTable | undefined
 ): GameUiLookups {
   return {
     findProvince: map.findProvince,
     getCountryName: map.getCountryName,
+    getCountryGdpPpp: map.getCountryGdpPpp,
     getOwner: (provinceId) => ownership[provinceId],
     getProvincePopulation: (provinceId) => provincePopulation[provinceId],
-    getCountryPopulation: (countryId) => countryPopulation[countryId]
+    getCountryPopulation: (countryId) => countryPopulation[countryId],
+    getProvinceGdpPpp: (provinceId) => demographics?.[provinceId]?.gdpPpp,
+    getProvinceArableLandKm2: (provinceId) => getProvinceDefinition(provinceId)?.arableLandKm2,
+    getProvinceLivability: (provinceId) => getProvinceDefinition(provinceId)?.habitability
   };
 }
