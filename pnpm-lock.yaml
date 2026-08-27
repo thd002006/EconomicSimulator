@@ -44,6 +44,9 @@ importers:
       '@economic-simulator/map-runtime':
         specifier: workspace:*
         version: link:../../packages/map-runtime
+      '@economic-simulator/simulation-core':
+        specifier: workspace:*
+        version: link:../../packages/simulation-core
       '@economic-simulator/simulation-protocol':
         specifier: workspace:*
         version: link:../../packages/simulation-protocol
@@ -109,7 +112,11 @@ importers:
 
   packages/shared-types: {}
 
-  packages/simulation-core: {}
+  packages/simulation-core:
+    dependencies:
+      '@economic-simulator/game-data':
+        specifier: workspace:*
+        version: link:../game-data
 
   packages/simulation-protocol:
     dependencies:

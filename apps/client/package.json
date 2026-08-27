@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@economic-simulator/map-runtime": "workspace:*",
+    "@economic-simulator/simulation-core": "workspace:*",
     "@economic-simulator/simulation-protocol": "workspace:*",
     "@economic-simulator/worker-host": "workspace:*",
     "@fontsource/eb-garamond": "5.3.0",

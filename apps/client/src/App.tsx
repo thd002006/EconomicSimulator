@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ProvinceFeature } from "@economic-simulator/map-runtime";
+import { loadMapPack, type LoadedMapPack } from "@economic-simulator/map-runtime";
+import { buildScenarioBootstrap } from "./scenario-bootstrap";
 import { MapView } from "./components/MapView";
-import { ProvinceInspector } from "./components/ProvinceInspector";
 import { TimeControls, type PlaySpeed } from "./components/TimeControls";
+import type { MapDisplayLookups } from "./ui/game-lookups";
+import { EntitySelectionPanel } from "./ui/selection-panel-model";
+import type { MapSelection } from "./ui/selection";
+import { useGameUiLookups } from "./ui/use-game-ui-lookups";
 import { SimulationWorkerClient } from "./worker-client";
 
 type ConnectionState = "starting" | "ready" | "error";
 
 const GAME_ID = "world-campaign";
+const MAP_ID = "world-modern";
 const START_YEAR = 1900;
 
 function formatGameDate(tick: number): string {
@@ -28,8 +33,21 @@ export function App(): React.JSX.Element {
   const [simulationId, setSimulationId] = useState(GAME_ID);
   const [tick, setTick] = useState(0);
   const [speed, setSpeed] = useState<PlaySpeed>(0);
-  const [selectedProvince, setSelectedProvince] = useState<ProvinceFeature | undefined>(undefined);
-  const [provinceOwners] = useState<Readonly<Record<string, string>>>({});
+  const [selection, setSelection] = useState<MapSelection | undefined>(undefined);
+  const [hovered, setHovered] = useState<MapSelection | undefined>(undefined);
+  const [mapDisplay, setMapDisplay] = useState<MapDisplayLookups | undefined>(undefined);
+  const [provinceOwners, setProvinceOwners] = useState<Readonly<Record<string, string>>>({});
+  const [mapPack, setMapPack] = useState<LoadedMapPack | undefined>(undefined);
+  const [workerClient, setWorkerClient] = useState<SimulationWorkerClient | undefined>(undefined);
+
+  const gameLookups = useGameUiLookups(
+    workerClient,
+    connection === "ready" ? simulationId : undefined,
+    mapDisplay,
+    provinceOwners,
+    selection,
+    hovered
+  );
 
   useEffect(() => {
     tickRef.current = tick;
@@ -38,20 +56,35 @@ export function App(): React.JSX.Element {
   useEffect(() => {
     const client = new SimulationWorkerClient();
     clientRef.current = client;
-    void client
-      .initialize(GAME_ID, START_YEAR)
-      .then((response) => {
-        setSimulationId(response.simulationId);
-        setTick(response.simulationTick);
-        tickRef.current = response.simulationTick;
+    setWorkerClient(client);
+    let cancelled = false;
+
+    void loadMapPack(`/maps/${MAP_ID}`)
+      .then(async (pack) => {
+        if (cancelled) return;
+        setMapPack(pack);
+        const scenario = buildScenarioBootstrap(pack);
+        const init = await client.initialize(GAME_ID, START_YEAR, scenario);
+        if (cancelled) return;
+        const owners = (await client.queryOwnershipTable(GAME_ID)).payload;
+        if (cancelled) return;
+        setProvinceOwners(owners);
+        setSimulationId(init.simulationId);
+        setTick(init.simulationTick);
+        tickRef.current = init.simulationTick;
         setConnection("ready");
       })
       .catch((error: unknown) => {
+        if (cancelled) return;
         setConnection("error");
         setErrorMessage(error instanceof Error ? error.message : "模拟初始化失败。");
       });
 
-    return () => client.terminate();
+    return () => {
+      cancelled = true;
+      client.terminate();
+      setWorkerClient(undefined);
+    };
   }, []);
 
   const advanceTicks = useCallback(
@@ -88,33 +121,20 @@ export function App(): React.JSX.Element {
     return () => window.clearInterval(timer);
   }, [advanceTicks, connection, speed]);
 
-  const onSelectProvince = useCallback(
-    (_provinceId: string | undefined, feature: ProvinceFeature | undefined) => {
-      setSelectedProvince(feature);
-    },
-    []
-  );
+  const onSelect = useCallback((next: MapSelection | undefined) => {
+    setSelection(next);
+  }, []);
 
-  const selectedOwner =
-    selectedProvince === undefined
-      ? undefined
-      : (provinceOwners[selectedProvince.id] ?? selectedProvince.properties.adm0A3);
-
-  const mapProps =
-    selectedProvince === undefined
-      ? {
-          mapId: "world-modern" as const,
-          fill: true as const,
-          provinceOwners,
-          onSelectProvince
-        }
-      : {
-          mapId: "world-modern" as const,
-          fill: true as const,
-          provinceOwners,
-          selectedProvinceId: selectedProvince.id,
-          onSelectProvince
-        };
+  const mapProps = {
+    mapId: MAP_ID,
+    fill: true as const,
+    provinceOwners,
+    ...(selection === undefined ? {} : { selection }),
+    onSelect,
+    onHoverChange: setHovered,
+    onMapDisplayChange: setMapDisplay,
+    ...(gameLookups === undefined ? {} : { uiLookups: gameLookups })
+  };
 
   return (
     <div className="game-root">
@@ -143,12 +163,19 @@ export function App(): React.JSX.Element {
       </header>
 
       <div className="game-main">
-        <MapView {...mapProps} />
-        <ProvinceInspector
-          feature={selectedProvince}
-          {...(selectedOwner === undefined ? {} : { ownerId: selectedOwner })}
+        <EntitySelectionPanel
+          selection={selection}
+          lookups={gameLookups}
           gameDate={formatGameDate(tick)}
+          onClose={() => setSelection(undefined)}
         />
+        {mapPack === undefined ? (
+          <section className="map-panel map-panel-fill" aria-label="世界平面地图">
+            <p className="map-overlay">正在加载世界平面地图…</p>
+          </section>
+        ) : (
+          <MapView pack={mapPack} {...mapProps} />
+        )}
       </div>
     </div>
   );

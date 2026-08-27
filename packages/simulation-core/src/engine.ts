@@ -1,14 +1,24 @@
 import { nextXorShift32, normalizeSeed } from "./prng";
 import {
+  aggregateProvinceDemographics,
+  getCountryPopulationSummary,
+  getProvincePopulationSummary,
+  type CountryPopulationSummary
+} from "./population/index.js";
+import {
   MAX_ADVANCE_TICKS,
   SIMULATION_SNAPSHOT_VERSION,
   type AdvanceResult,
+  type CountryId,
   type NewSimulationInput,
+  type ProvinceId,
+  type ProvincePopulationQueryResult,
   type SimulationEngine,
   type SimulationSnapshot,
   type SimulationStateV1,
   type SimulationSummary
 } from "./types";
+import { bootstrapGameWorld, type GameWorldV1 } from "./world-bootstrap.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -61,6 +71,7 @@ function fingerprint(state: SimulationStateV1): string {
 
 export class DeterministicSimulationEngine implements SimulationEngine {
   private state: SimulationStateV1;
+  private readonly world: GameWorldV1 | undefined;
 
   public constructor(input: NewSimulationInput) {
     if (input.simulationId.trim().length === 0) {
@@ -75,6 +86,14 @@ export class DeterministicSimulationEngine implements SimulationEngine {
       seed,
       randomState: seed
     };
+    this.world = input.scenario === undefined ? undefined : bootstrapGameWorld(input.scenario);
+  }
+
+  private requireWorld(): GameWorldV1 {
+    if (this.world === undefined) {
+      throw new Error("Simulation world is not initialized; provide scenario on initialize.");
+    }
+    return this.world;
   }
 
   public advance(tickCount: number): AdvanceResult {
@@ -103,6 +122,27 @@ export class DeterministicSimulationEngine implements SimulationEngine {
       seed: this.state.seed,
       stateFingerprint: fingerprint(this.state)
     };
+  }
+
+  public queryProvincePopulation(provinceId: ProvinceId): ProvincePopulationQueryResult {
+    const world = this.requireWorld();
+    return {
+      summary: getProvincePopulationSummary(world.population, provinceId),
+      demographics: aggregateProvinceDemographics(world.population, provinceId)
+    };
+  }
+
+  public queryCountryPopulation(countryId: CountryId): CountryPopulationSummary {
+    const world = this.requireWorld();
+    return getCountryPopulationSummary(world.population, world.provinceOwnership, countryId);
+  }
+
+  public queryProvinceOwner(provinceId: ProvinceId): CountryId | undefined {
+    return this.requireWorld().provinceOwnership.get(provinceId);
+  }
+
+  public queryOwnershipTable(): Readonly<Record<ProvinceId, CountryId>> {
+    return Object.fromEntries(this.requireWorld().provinceOwnership);
   }
 
   public createSnapshot(): SimulationSnapshot {

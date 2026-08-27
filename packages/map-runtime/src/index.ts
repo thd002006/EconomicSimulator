@@ -1,5 +1,6 @@
 export { inspectFeatureCollection } from "./types.js";
 export type {
+  CountryAggregate,
   CountryNameEntry,
   CountryNameTable,
   GeoJsonGeometry,

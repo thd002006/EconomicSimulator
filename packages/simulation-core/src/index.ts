@@ -4,16 +4,25 @@ export {
   MAX_ADVANCE_TICKS,
   SIMULATION_SNAPSHOT_VERSION,
   type AdvanceResult,
+  type CountryId,
   type NewSimulationInput,
+  type ProvinceId,
+  type ProvincePopulationQueryResult,
+  type ScenarioBootstrap,
+  type ScenarioProvinceBootstrap,
+  type ScenarioProvinceDemographics,
   type SimulationEngine,
   type SimulationSnapshot,
   type SimulationStateV1,
   type SimulationSummary
 } from "./types";
+export { bootstrapGameWorld, type GameWorldV1 } from "./world-bootstrap";
 export {
   applyClassIncomeEvent,
   applyExogenousMigrationCommand,
+  aggregateProvinceDemographics,
   createPopulationWorld,
+  getCountryPopulationSummary,
   getPopulationInvariantReport,
   getProvinceLaborMarket,
   getProvincePopulationSummary,
@@ -21,7 +30,9 @@ export {
   runMonthlyPopulationStep,
   setEmployer,
   upsertJobDemand,
-  validatePopulationStaticData
+  validatePopulationStaticData,
+  type CountryPopulationSummary,
+  type ProvinceDemographicBreakdown
 } from "./population/index";
 export type {
   ClassConsumptionPlan,

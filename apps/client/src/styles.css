@@ -129,7 +129,7 @@ button[aria-pressed="true"] {
 
 .game-main {
   display: grid;
-  grid-template-columns: 1fr minmax(16rem, 20rem);
+  grid-template-columns: minmax(16rem, 22rem) 1fr;
   min-height: 0;
   min-width: 0;
 }
@@ -259,7 +259,7 @@ button[aria-pressed="true"] {
   left: 1rem;
   bottom: 1rem;
   display: grid;
-  gap: 0.15rem;
+  gap: 0.12rem;
   padding: 0.55rem 0.75rem;
   border: 1px solid #5a4838;
   border-radius: 0.35rem;
@@ -270,7 +270,7 @@ button[aria-pressed="true"] {
 
 .map-tooltip strong {
   color: #2a1810;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-family: "EB Garamond", "Times New Roman", Times, serif;
 }
 
@@ -292,9 +292,47 @@ button[aria-pressed="true"] {
   gap: 1rem;
   min-height: 0;
   padding: 1rem;
-  border-left: 1px solid #24364a;
+  border-right: 1px solid #24364a;
   background: rgb(11 18 28 / 94%);
   overflow: auto;
+}
+
+.inspector-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.inspector-close {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
+}
+
+.inspector-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.inspector-tab {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #2a4054;
+  border-radius: 0.35rem;
+  background: rgb(16 26 38 / 90%);
+  color: #9eb4c8;
+  font-size: 0.8rem;
+}
+
+.inspector-tab.is-active,
+.inspector-tab[aria-selected="true"] {
+  border-color: #4a7ea8;
+  background: rgb(28 48 68 / 95%);
+  color: #e8f2ff;
+}
+
+.inspector-tab-panel {
+  min-height: 0;
 }
 
 .inspector-header h2 {
@@ -316,6 +354,11 @@ button[aria-pressed="true"] {
 .inspector-section {
   padding-top: 0.75rem;
   border-top: 1px solid #24364a;
+}
+
+.inspector-section:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .inspector-stats {
@@ -353,11 +396,11 @@ button[aria-pressed="true"] {
 
   .game-main {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr minmax(12rem, 40%);
+    grid-template-rows: minmax(12rem, 40%) 1fr;
   }
 
   .inspector {
-    border-left: 0;
-    border-top: 1px solid #24364a;
+    border-right: 0;
+    border-bottom: 1px solid #24364a;
   }
 }

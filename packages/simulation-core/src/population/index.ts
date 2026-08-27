@@ -25,6 +25,8 @@ export { validatePopulationStaticData } from "./static-data";
 export { DEFAULT_CLASS_POPULATION_SHARES } from "./state";
 export type { ObservedProvinceDemographics } from "./state";
 import {
+  AGE_BANDS,
+  type AgeBandId,
   type ClassConsumptionPlan,
   type EmployerId,
   type EmployerState,
@@ -464,4 +466,52 @@ export function getProvinceLaborMarket(
     unfilledVacancyFteByJobType,
     referenceWageCentsByJobType
   };
+}
+
+export interface ProvinceDemographicBreakdown {
+  readonly provinceId: ProvinceId;
+  readonly male: number;
+  readonly female: number;
+  readonly age: Readonly<Record<AgeBandId, number>>;
+}
+
+export interface CountryPopulationSummary {
+  readonly countryId: string;
+  readonly provinceCount: number;
+  readonly populationPersons: number;
+}
+
+export function aggregateProvinceDemographics(
+  world: PopulationWorld,
+  provinceId: ProvinceId
+): ProvinceDemographicBreakdown {
+  const classes = world.classStatesByProvince.get(provinceId);
+  const age = Object.fromEntries(AGE_BANDS.map((band) => [band, 0])) as Record<AgeBandId, number>;
+  let male = 0;
+  let female = 0;
+  if (classes !== undefined) {
+    for (const state of classes.values()) {
+      male += state.genderCounts.male;
+      female += state.genderCounts.female;
+      for (const band of AGE_BANDS) {
+        age[band] += state.ageCounts[band];
+      }
+    }
+  }
+  return { provinceId, male, female, age };
+}
+
+export function getCountryPopulationSummary(
+  world: PopulationWorld,
+  ownership: ReadonlyMap<ProvinceId, string>,
+  countryId: string
+): CountryPopulationSummary {
+  let provinceCount = 0;
+  let populationPersons = 0;
+  for (const [provinceId, ownerCountryId] of ownership) {
+    if (ownerCountryId !== countryId) continue;
+    provinceCount += 1;
+    populationPersons += getProvincePopulationSummary(world, provinceId).populationPersons;
+  }
+  return { countryId, provinceCount, populationPersons };
 }

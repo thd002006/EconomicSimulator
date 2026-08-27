@@ -1,5 +1,7 @@
 import {
   DeterministicSimulationEngine,
+  type NewSimulationInput,
+  type ScenarioBootstrap,
   type SimulationEngine,
   type SimulationSummary
 } from "@economic-simulator/simulation-core";
@@ -39,7 +41,15 @@ export class SimulationRequestHandler {
 
     try {
       if (request.kind === "initialize") {
-        this.engine = new DeterministicSimulationEngine(request.payload);
+        const input: NewSimulationInput =
+          request.payload.scenario === undefined
+            ? { simulationId: request.payload.simulationId, seed: request.payload.seed }
+            : {
+                simulationId: request.payload.simulationId,
+                seed: request.payload.seed,
+                scenario: request.payload.scenario as ScenarioBootstrap
+              };
+        this.engine = new DeterministicSimulationEngine(input);
         return this.result(request.requestId, this.engine.getSummary());
       }
 
@@ -58,6 +68,23 @@ export class SimulationRequestHandler {
           return this.result(request.requestId, engine.advance(request.payload.tickCount));
         case "query-summary":
           return this.result(request.requestId, engine.getSummary());
+        case "query-province-population":
+          return this.result(
+            request.requestId,
+            engine.queryProvincePopulation(request.payload.provinceId)
+          );
+        case "query-country-population":
+          return this.result(
+            request.requestId,
+            engine.queryCountryPopulation(request.payload.countryId)
+          );
+        case "query-province-owner":
+          return this.result(
+            request.requestId,
+            { ownerCountryId: engine.queryProvinceOwner(request.payload.provinceId) }
+          );
+        case "query-ownership-table":
+          return this.result(request.requestId, engine.queryOwnershipTable());
         case "create-snapshot":
           return this.result(request.requestId, engine.createSnapshot());
         case "restore-snapshot":

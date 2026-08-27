@@ -44,6 +44,12 @@ export interface ProvinceDemographicsEntry {
 
 export type ProvinceDemographicsTable = Readonly<Record<string, ProvinceDemographicsEntry>>;
 
+export interface CountryAggregate {
+  readonly provinceCount: number;
+  readonly pop: number;
+  readonly gdpPpp: number;
+}
+
 export interface MapPackManifest {
   readonly schemaVersion: number;
   readonly format: string;
@@ -142,8 +148,6 @@ export interface MapViewModel {
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
   readonly countries: CountryNameTable;
-  hoveredProvinceId: string | undefined;
-  selectedProvinceId: string | undefined;
   readonly globeMesh: GlobeMeshData;
   readonly hooks: MapViewModelHooks;
 }

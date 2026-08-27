@@ -21,6 +21,7 @@ import {
   MapPanZoomController
 } from "./map-controls.js";
 import { buildCountryLabelAnchors, buildProvinceLabels, MapLabelLayer } from "./map-labels.js";
+import type { MapSelection } from "../ui/selection.js";
 
 const CLEAR = 0xc8b898;
 const OCEAN = 0x9eb5b0;
@@ -48,6 +49,7 @@ export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
   findProvince(id: string): ProvinceFeature | undefined;
   getProvinceOwner(provinceId: string): string | undefined;
+  getCountryName(ownerId: string): string | undefined;
 }
 
 export function showProvinceBorders(halfHeight: number): boolean {
@@ -195,13 +197,16 @@ function disposeWideLines(lines: LineSegments2): void {
   }
 }
 
-function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): THREE.ShaderMaterial {
+function createLandMaterial(
+  palette: THREE.DataTexture,
+  highlight: THREE.DataTexture,
+  paletteSize: number
+): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     uniforms: {
       palette: { value: palette },
+      highlight: { value: highlight },
       paletteSize: { value: paletteSize },
-      hoveredSlot: { value: -1 },
-      selectedSlot: { value: -1 },
       hoverColor: { value: HOVER_FILL },
       selectedColor: { value: SELECT_FILL },
       paperStrength: { value: 1 }
@@ -218,9 +223,8 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
     `,
     fragmentShader: `
       uniform sampler2D palette;
+      uniform sampler2D highlight;
       uniform float paletteSize;
-      uniform float hoveredSlot;
-      uniform float selectedSlot;
       uniform vec3 hoverColor;
       uniform vec3 selectedColor;
       uniform float paperStrength;
@@ -246,9 +250,10 @@ function createLandMaterial(palette: THREE.DataTexture, paletteSize: number): TH
       void main() {
         vec2 uv = vec2((vProvinceSlot + 0.5) / paletteSize, 0.5);
         vec3 color = texture2D(palette, uv).rgb;
-        if (abs(vProvinceSlot - selectedSlot) < 0.25) {
+        float mark = texture2D(highlight, uv).r * 255.0;
+        if (abs(mark - 2.0) < 0.5) {
           color = selectedColor;
-        } else if (abs(vProvinceSlot - hoveredSlot) < 0.25) {
+        } else if (abs(mark - 1.0) < 0.5) {
           color = hoverColor;
         }
         vec3 paper = vec3(0.82, 0.76, 0.65);
@@ -338,6 +343,8 @@ export class GlobeRenderer {
   private readonly pickPoint = new THREE.Vector3();
   private readonly paletteBytes: Uint8Array;
   private readonly palette: THREE.DataTexture;
+  private readonly highlightBytes: Uint8Array;
+  private readonly highlight: THREE.DataTexture;
   private readonly material: THREE.ShaderMaterial;
   private readonly oceanMaterial: THREE.ShaderMaterial;
   private readonly landMesh: THREE.Mesh;
@@ -350,6 +357,8 @@ export class GlobeRenderer {
   private countryLines: LineSegments2;
   private provinceLineHasGeometry = false;
   private ownerLookup: (provinceId: string) => string | undefined;
+  private hoveredSelection: MapSelection | undefined;
+  private selectedSelection: MapSelection | undefined;
   private readonly lineResolution = new THREE.Vector2();
 
   constructor(
@@ -397,8 +406,23 @@ export class GlobeRenderer {
     this.palette.magFilter = THREE.NearestFilter;
     this.palette.minFilter = THREE.NearestFilter;
     this.palette.generateMipmaps = false;
+    this.highlightBytes = new Uint8Array(model.globeMesh.provinceIds.length * 4);
+    this.highlight = new THREE.DataTexture(
+      this.highlightBytes,
+      model.globeMesh.provinceIds.length,
+      1,
+      THREE.RGBAFormat,
+      THREE.UnsignedByteType
+    );
+    this.highlight.magFilter = THREE.NearestFilter;
+    this.highlight.minFilter = THREE.NearestFilter;
+    this.highlight.generateMipmaps = false;
     model.globeMesh.provinceIds.forEach((id, slot) => this.slotByProvinceId.set(id, slot));
-    this.material = createLandMaterial(this.palette, model.globeMesh.provinceIds.length);
+    this.material = createLandMaterial(
+      this.palette,
+      this.highlight,
+      model.globeMesh.provinceIds.length
+    );
     this.rebuildPalette();
 
     const authoredLod = model.globeMesh.lods.at(-1);
@@ -601,20 +625,49 @@ export class GlobeRenderer {
     this.rebuildPalette(changedProvinceIds);
     this.rebuildBoundaries();
     this.rebuildLabels();
+    this.rebuildHighlight();
     this.updateDetailVisibility();
     this.requestRender();
   }
 
-  setHovered(provinceId: string | undefined): void {
-    this.material.uniforms.hoveredSlot!.value =
-      provinceId === undefined ? -1 : (this.slotByProvinceId.get(provinceId) ?? -1);
+  private applyMark(selection: MapSelection | undefined, value: number): void {
+    if (selection === undefined) return;
+    const write = (slot: number): void => {
+      this.highlightBytes[slot * 4] = value;
+    };
+    if (selection.kind === "province") {
+      const slot = this.slotByProvinceId.get(selection.id);
+      if (slot !== undefined) write(slot);
+      return;
+    }
+    for (const [provinceId, slot] of this.slotByProvinceId) {
+      if (this.ownerLookup(provinceId) === selection.id) {
+        write(slot);
+      }
+    }
+  }
+
+  private rebuildHighlight(): void {
+    this.highlightBytes.fill(0);
+    this.applyMark(this.hoveredSelection, 1);
+    this.applyMark(this.selectedSelection, 2);
+    this.highlight.needsUpdate = true;
+  }
+
+  setHovered(selection: MapSelection | undefined): void {
+    this.hoveredSelection = selection;
+    this.rebuildHighlight();
     this.requestRender();
   }
 
-  setSelected(provinceId: string | undefined): void {
-    this.material.uniforms.selectedSlot!.value =
-      provinceId === undefined ? -1 : (this.slotByProvinceId.get(provinceId) ?? -1);
+  setSelected(selection: MapSelection | undefined): void {
+    this.selectedSelection = selection;
+    this.rebuildHighlight();
     this.requestRender();
+  }
+
+  getHalfHeight(): number {
+    return this.panZoom.halfHeight;
   }
 
   beginDrag(x: number, y: number): void {
@@ -694,6 +747,7 @@ export class GlobeRenderer {
     this.landMesh.geometry.dispose();
     this.material.dispose();
     this.palette.dispose();
+    this.highlight.dispose();
     disposeWideLines(this.coastLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);

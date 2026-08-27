@@ -6,6 +6,9 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "dependencies": {
+    "@economic-simulator/game-data": "workspace:*"
+  },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"
   }

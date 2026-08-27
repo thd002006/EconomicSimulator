@@ -4,6 +4,11 @@ import {
   type WorkerResponse,
   type WorkerResultResponse
 } from "@economic-simulator/simulation-protocol";
+import type {
+  CountryPopulationSummary,
+  ProvincePopulationQueryResult,
+  ScenarioBootstrap
+} from "@economic-simulator/simulation-core";
 
 interface PendingRequest {
   readonly resolve: (response: WorkerResultResponse) => void;
@@ -23,13 +28,24 @@ export class SimulationWorkerClient {
     this.worker.addEventListener("error", this.onWorkerError);
   }
 
-  public initialize(simulationId: string, seed: number): Promise<WorkerResultResponse> {
-    return this.send({
+  public initialize(
+    simulationId: string,
+    seed: number,
+    scenario?: ScenarioBootstrap
+  ): Promise<WorkerResultResponse> {
+    const payload = {
       protocolVersion: PROTOCOL_VERSION,
       requestId: crypto.randomUUID(),
-      kind: "initialize",
-      payload: { simulationId, seed }
-    });
+      kind: "initialize" as const,
+      payload: {
+        simulationId,
+        seed,
+        ...(scenario === undefined
+          ? {}
+          : { scenario: structuredClone(scenario) as ScenarioBootstrap })
+      }
+    };
+    return this.send(payload as WorkerRequest);
   }
 
   public advance(
@@ -45,6 +61,57 @@ export class SimulationWorkerClient {
       kind: "advance",
       payload: { tickCount }
     });
+  }
+
+  public queryProvincePopulation(
+    simulationId: string,
+    provinceId: string
+  ): Promise<WorkerResultResponse<ProvincePopulationQueryResult>> {
+    return this.send({
+      protocolVersion: PROTOCOL_VERSION,
+      requestId: crypto.randomUUID(),
+      simulationId,
+      kind: "query-province-population",
+      payload: { provinceId }
+    }) as Promise<WorkerResultResponse<ProvincePopulationQueryResult>>;
+  }
+
+  public queryCountryPopulation(
+    simulationId: string,
+    countryId: string
+  ): Promise<WorkerResultResponse<CountryPopulationSummary>> {
+    return this.send({
+      protocolVersion: PROTOCOL_VERSION,
+      requestId: crypto.randomUUID(),
+      simulationId,
+      kind: "query-country-population",
+      payload: { countryId }
+    }) as Promise<WorkerResultResponse<CountryPopulationSummary>>;
+  }
+
+  public queryProvinceOwner(
+    simulationId: string,
+    provinceId: string
+  ): Promise<WorkerResultResponse<{ ownerCountryId: string | undefined }>> {
+    return this.send({
+      protocolVersion: PROTOCOL_VERSION,
+      requestId: crypto.randomUUID(),
+      simulationId,
+      kind: "query-province-owner",
+      payload: { provinceId }
+    }) as Promise<WorkerResultResponse<{ ownerCountryId: string | undefined }>>;
+  }
+
+  public queryOwnershipTable(
+    simulationId: string
+  ): Promise<WorkerResultResponse<Readonly<Record<string, string>>>> {
+    return this.send({
+      protocolVersion: PROTOCOL_VERSION,
+      requestId: crypto.randomUUID(),
+      simulationId,
+      kind: "query-ownership-table",
+      payload: {}
+    }) as Promise<WorkerResultResponse<Readonly<Record<string, string>>>>;
   }
 
   public createSnapshot(simulationId: string): Promise<WorkerResultResponse> {

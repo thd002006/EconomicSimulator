@@ -227,6 +227,36 @@ describe("map runtime validation", () => {
         AAA: { nameEn: "Alpha" },
         BBB: { nameEn: "Beta" }
       },
+      demographics: {
+        A: {
+          pop: 100,
+          male: 50,
+          female: 50,
+          age: {
+            child_0_14: 20,
+            youth_15_24: 20,
+            prime_25_44: 30,
+            mature_45_64: 20,
+            senior_65_plus: 10
+          },
+          education15Plus: { basic: 40, secondary: 30, tertiary: 20, advanced: 10 },
+          gdpPpp: 1000
+        },
+        B: {
+          pop: 50,
+          male: 25,
+          female: 25,
+          age: {
+            child_0_14: 10,
+            youth_15_24: 10,
+            prime_25_44: 15,
+            mature_45_64: 10,
+            senior_65_plus: 5
+          },
+          education15Plus: { basic: 20, secondary: 15, tertiary: 10, advanced: 5 },
+          gdpPpp: 500
+        }
+      },
       boundaries: [
         {
           id: "boundary-1",
@@ -261,6 +291,17 @@ describe("map runtime validation", () => {
     expect(model.getCountryName("AAA")).toBe("Alpha");
     expect(model.getCountryName("BBB")).toBe("Beta");
     expect(model.getCountryName("ZZZ")).toBeUndefined();
+    expect(model.getProvinceDemographics("A")?.pop).toBe(100);
+    expect(model.getCountryAggregate("AAA")).toEqual({
+      provinceCount: 1,
+      pop: 100,
+      gdpPpp: 1000
+    });
+    expect(model.getCountryAggregate("BBB")).toEqual({
+      provinceCount: 1,
+      pop: 50,
+      gdpPpp: 500
+    });
 
     const annexed = createMapViewModel(pack, {
       getProvinceOwner: (id) =>
@@ -268,5 +309,10 @@ describe("map runtime validation", () => {
     });
     expect(annexed.getProvinceOwner("A")).toBe("AAA");
     expect(annexed.getProvinceOwner("B")).toBe("AAA");
+    expect(annexed.getCountryAggregate("AAA")).toEqual({
+      provinceCount: 2,
+      pop: 150,
+      gdpPpp: 1500
+    });
   });
 });
