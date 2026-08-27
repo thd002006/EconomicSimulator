@@ -1,4 +1,13 @@
 import { POPULATION_DATA_PACK } from "@economic-simulator/game-data";
+import {
+  createCompanyWorld,
+  createExternalShareholderAccounts,
+  type CompanyWorld,
+  type ExternalShareholderAccounts
+} from "./company/index.js";
+import { createEquityWorld, type EquityWorld } from "./equity/index.js";
+import { createLedgerWorld, type LedgerWorld } from "./ledger/index.js";
+import { createOperatingUnitWorld, type OperatingUnitWorld } from "./operating-unit/index.js";
 import { createPopulationWorld, validatePopulationStaticData } from "./population/index.js";
 import type { ObservedProvinceDemographics } from "./population/state.js";
 import type { PopulationStaticData, PopulationWorld } from "./population/types.js";
@@ -13,6 +22,11 @@ export interface GameWorldV1 {
   readonly mapId: string;
   readonly population: PopulationWorld;
   readonly provinceOwnership: ReadonlyMap<ProvinceId, CountryId>;
+  readonly ledger: LedgerWorld;
+  readonly equity: EquityWorld;
+  readonly operatingUnits: OperatingUnitWorld;
+  readonly companies: CompanyWorld;
+  readonly externalShareholders: ExternalShareholderAccounts;
 }
 
 function toObservedDemographics(
@@ -49,6 +63,11 @@ export function bootstrapGameWorld(scenario: ScenarioBootstrap): GameWorldV1 {
   return {
     mapId: scenario.mapId,
     population,
-    provinceOwnership
+    provinceOwnership,
+    ledger: createLedgerWorld(),
+    equity: createEquityWorld(),
+    operatingUnits: createOperatingUnitWorld(),
+    companies: createCompanyWorld(),
+    externalShareholders: createExternalShareholderAccounts()
   };
 }

@@ -1,6 +1,8 @@
 export type ProvinceId = string;
-export type EconomicUnitId = string;
-export type EmployerId = EconomicUnitId;
+export type OperatingUnitId = string;
+/** @deprecated Use OperatingUnitId. Kept as alias for existing call sites. */
+export type EconomicUnitId = OperatingUnitId;
+export type EmployerId = OperatingUnitId;
 export type SocialClassId = string;
 export type JobTypeId = string;
 
