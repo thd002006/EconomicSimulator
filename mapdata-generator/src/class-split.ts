@@ -27,21 +27,13 @@ export const AGE_BANDS = [
 
 export const EDU_LEVELS = ["basic", "secondary", "tertiary", "advanced"] as const;
 
-const CLASS_CSV_HEADERS = [
-  "social_class_id",
-  "population_persons",
-  "male",
-  "female",
-  "age_child_0_14",
-  "age_youth_15_24",
-  "age_prime_25_44",
-  "age_mature_45_64",
-  "age_senior_65_plus",
-  "edu_basic",
-  "edu_secondary",
-  "edu_tertiary",
-  "edu_advanced"
-] as const;
+export const CLASS_CSV_HEADERS = ["dimension", "key", "value"] as const;
+
+export interface DimensionItem {
+  readonly dimension: string;
+  readonly key: string;
+  readonly value: number;
+}
 
 /** Largest-remainder allocation so parts sum exactly to total. */
 export function allocateByShares(
@@ -75,29 +67,26 @@ export function allocateByShares(
   return result;
 }
 
-function fixComponentSum(
-  parts: Record<string, number>,
-  target: number
-): Record<string, number> {
-  const ids = Object.keys(parts);
-  const sum = ids.reduce((total, id) => total + (parts[id] ?? 0), 0);
-  if (sum === target || ids.length === 0) return parts;
-  const result = { ...parts };
-  const ordered = [...ids].sort(
-    (a, b) => (result[b] ?? 0) - (result[a] ?? 0) || a.localeCompare(b)
-  );
-  const pivot = ordered[0]!;
-  result[pivot] = Math.max(0, (result[pivot] ?? 0) + (target - sum));
-  return result;
-}
-
 export interface ClassSeedRow {
   readonly socialClassId: string;
   readonly populationPersons: number;
-  readonly male: number;
-  readonly female: number;
-  readonly age: Record<(typeof AGE_BANDS)[number], number>;
-  readonly education15Plus: Record<(typeof EDU_LEVELS)[number], number>;
+  readonly maleShare: number;
+  readonly femaleShare: number;
+  readonly ageShares: Record<number, number>;
+  readonly education15PlusShares: Record<(typeof EDU_LEVELS)[number], number>;
+  readonly cashCents?: number;
+}
+
+export function buildDefaultSingleYearAgeShares(): Record<number, number> {
+  const shares: Record<number, number> = {};
+  for (let a = 0; a <= 14; a += 1) shares[a] = 0.20 / 15;
+  for (let a = 15; a <= 24; a += 1) shares[a] = 0.15 / 10;
+  for (let a = 25; a <= 44; a += 1) shares[a] = 0.30 / 20;
+  for (let a = 45; a <= 64; a += 1) shares[a] = 0.23 / 20;
+  for (let a = 65; a <= 100; a += 1) shares[a] = 0.12 / 36;
+  const sum = Object.values(shares).reduce((acc, v) => acc + v, 0);
+  for (let a = 0; a <= 100; a += 1) shares[a] = (shares[a] ?? 0) / sum;
+  return shares;
 }
 
 export function splitDemographicsIntoClasses(
@@ -105,48 +94,43 @@ export function splitDemographicsIntoClasses(
 ): ClassSeedRow[] {
   const classPop = allocateByShares(Math.max(0, Math.round(demo.pop)), DEFAULT_CLASS_POPULATION_SHARES);
   const classIds = Object.keys(DEFAULT_CLASS_POPULATION_SHARES).sort();
-  const maleByClass = allocateByShares(Math.max(0, Math.round(demo.male)), DEFAULT_CLASS_POPULATION_SHARES);
-  const ageByBand = Object.fromEntries(
-    AGE_BANDS.map((band) => [
-      band,
-      allocateByShares(Math.max(0, Math.round(demo.age[band] ?? 0)), DEFAULT_CLASS_POPULATION_SHARES)
-    ])
-  ) as Record<(typeof AGE_BANDS)[number], Record<string, number>>;
-  const eduByLevel = Object.fromEntries(
-    EDU_LEVELS.map((level) => [
-      level,
-      allocateByShares(
-        Math.max(0, Math.round(demo.education15Plus[level] ?? 0)),
-        DEFAULT_CLASS_POPULATION_SHARES
-      )
-    ])
-  ) as Record<(typeof EDU_LEVELS)[number], Record<string, number>>;
+
+  const totalPop = demo.pop > 0 ? demo.pop : 1;
+  const maleShare = totalPop > 0 && typeof demo.male === "number" ? demo.male / totalPop : 0.5;
+  const femaleShare = 1 - maleShare;
+
+  const eduTotal = EDU_LEVELS.reduce((sum, lvl) => sum + (demo.education15Plus[lvl] ?? 0), 0) || 1;
+  const eduShares = Object.fromEntries(
+    EDU_LEVELS.map((lvl) => [lvl, (demo.education15Plus[lvl] ?? 0) / eduTotal])
+  ) as Record<(typeof EDU_LEVELS)[number], number>;
+
+  const ageShares: Record<number, number> = {};
+  const childTotal = (demo.age.child_0_14 ?? 0) / totalPop;
+  const youthTotal = (demo.age.youth_15_24 ?? 0) / totalPop;
+  const primeTotal = (demo.age.prime_25_44 ?? 0) / totalPop;
+  const matureTotal = (demo.age.mature_45_64 ?? 0) / totalPop;
+  const seniorTotal = (demo.age.senior_65_plus ?? 0) / totalPop;
+
+  for (let a = 0; a <= 14; a += 1) ageShares[a] = childTotal / 15;
+  for (let a = 15; a <= 24; a += 1) ageShares[a] = youthTotal / 10;
+  for (let a = 25; a <= 44; a += 1) ageShares[a] = primeTotal / 20;
+  for (let a = 45; a <= 64; a += 1) ageShares[a] = matureTotal / 20;
+  for (let a = 65; a <= 100; a += 1) ageShares[a] = seniorTotal / 36;
+
+  const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0) || 1;
+  for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
 
   return classIds.map((socialClassId) => {
     const populationPersons = classPop[socialClassId] ?? 0;
-    const male = Math.min(populationPersons, maleByClass[socialClassId] ?? 0);
-    const female = populationPersons - male;
-    let age = Object.fromEntries(
-      AGE_BANDS.map((band) => [band, ageByBand[band]?.[socialClassId] ?? 0])
-    ) as Record<(typeof AGE_BANDS)[number], number>;
-    age = fixComponentSum(age, populationPersons) as typeof age;
-    const education15Plus = Object.fromEntries(
-      EDU_LEVELS.map((level) => [level, eduByLevel[level]?.[socialClassId] ?? 0])
-    ) as Record<(typeof EDU_LEVELS)[number], number>;
     return {
       socialClassId,
       populationPersons,
-      male,
-      female,
-      age,
-      education15Plus
+      maleShare,
+      femaleShare,
+      ageShares: { ...ageShares },
+      education15PlusShares: { ...eduShares }
     };
   });
-}
-
-function csvEscape(value: string): string {
-  if (/[",\n\r]/.test(value)) return `"${value.replaceAll('"', '""')}"`;
-  return value;
 }
 
 export function parseCsvLine(line: string): string[] {
@@ -181,6 +165,25 @@ export function parseCsvLine(line: string): string[] {
   return cells;
 }
 
+export function serializeClassCsv(row: ClassSeedRow): string {
+  const lines: string[] = ["dimension,key,value"];
+  lines.push(`meta,population_persons,${row.populationPersons}`);
+  if (row.cashCents !== undefined) {
+    lines.push(`meta,cash_cents,${row.cashCents}`);
+  }
+  lines.push(`gender,male,${row.maleShare.toFixed(5)}`);
+  lines.push(`gender,female,${row.femaleShare.toFixed(5)}`);
+  for (let a = 0; a <= 100; a += 1) {
+    const share = row.ageShares[a] ?? 0;
+    lines.push(`age,${a},${share.toFixed(5)}`);
+  }
+  for (const lvl of EDU_LEVELS) {
+    const share = row.education15PlusShares[lvl] ?? 0;
+    lines.push(`education_15plus,${lvl},${share.toFixed(5)}`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
 export async function writeClassSeedRows(
   provinceDir: string,
   rows: readonly ClassSeedRow[]
@@ -190,19 +193,10 @@ export async function writeClassSeedRows(
   let written = 0;
   for (const row of rows) {
     if (row.populationPersons <= 0) continue;
-    const line = [
-      row.socialClassId,
-      String(row.populationPersons),
-      String(row.male),
-      String(row.female),
-      ...AGE_BANDS.map((band) => String(row.age[band])),
-      ...EDU_LEVELS.map((level) => String(row.education15Plus[level]))
-    ]
-      .map(csvEscape)
-      .join(",");
+    const content = serializeClassCsv(row);
     await writeFile(
       join(classesDir, `${row.socialClassId}.csv`),
-      `${CLASS_CSV_HEADERS.join(",")}\n${line}\n`,
+      content,
       "utf8"
     );
     written += 1;
@@ -216,6 +210,149 @@ export async function writeProvinceClassCsvs(
 ): Promise<number> {
   if (Math.round(demo.pop) <= 0) return 0;
   return writeClassSeedRows(provinceDir, splitDemographicsIntoClasses(demo));
+}
+
+export function parseClassCsvText(socialClassId: string, text: string): ClassSeedRow {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) {
+    return {
+      socialClassId,
+      populationPersons: 0,
+      maleShare: 0.5,
+      femaleShare: 0.5,
+      ageShares: buildDefaultSingleYearAgeShares(),
+      education15PlusShares: { basic: 0.5, secondary: 0.3, tertiary: 0.15, advanced: 0.05 }
+    };
+  }
+  const headers = parseCsvLine(lines[0]!);
+  if (headers.includes("dimension") && headers.includes("key") && headers.includes("value")) {
+    const dimIdx = headers.indexOf("dimension");
+    const keyIdx = headers.indexOf("key");
+    const valIdx = headers.indexOf("value");
+
+    let populationPersons = 0;
+    let cashCents: number | undefined;
+    let maleShare = 0.5;
+    let femaleShare = 0.5;
+    const ageShares: Record<number, number> = {};
+    const eduShares: Record<string, number> = {};
+
+    for (let i = 1; i < lines.length; i += 1) {
+      const line = lines[i]!.trim();
+      if (!line) continue;
+      const cells = parseCsvLine(line);
+      const dim = cells[dimIdx] ?? "";
+      const key = cells[keyIdx] ?? "";
+      const val = Number(cells[valIdx] ?? 0);
+      if (!Number.isFinite(val)) continue;
+
+      if (dim === "meta") {
+        if (key === "population_persons") populationPersons = Math.round(val);
+        else if (key === "cash_cents") cashCents = Math.round(val);
+      } else if (dim === "gender") {
+        if (key === "male") maleShare = val;
+        else if (key === "female") femaleShare = val;
+      } else if (dim === "age") {
+        const ageNum = Number(key);
+        if (Number.isInteger(ageNum) && ageNum >= 0 && ageNum <= 100) {
+          ageShares[ageNum] = val;
+        }
+      } else if (dim === "education_15plus" || dim === "education") {
+        eduShares[key] = val;
+      }
+    }
+
+    for (let a = 0; a <= 100; a += 1) {
+      if (ageShares[a] === undefined) ageShares[a] = 0;
+    }
+    const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0);
+    if (ageSum > 0) {
+      for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
+    } else {
+      Object.assign(ageShares, buildDefaultSingleYearAgeShares());
+    }
+
+    const eduSum = EDU_LEVELS.reduce((acc, lvl) => acc + (eduShares[lvl] ?? 0), 0);
+    const finalEduShares: Record<(typeof EDU_LEVELS)[number], number> = {
+      basic: 0,
+      secondary: 0,
+      tertiary: 0,
+      advanced: 0
+    };
+    if (eduSum > 0) {
+      for (const lvl of EDU_LEVELS) finalEduShares[lvl] = (eduShares[lvl] ?? 0) / eduSum;
+    } else {
+      finalEduShares.basic = 1.0;
+    }
+
+    const genderSum = maleShare + femaleShare;
+    if (genderSum > 0) {
+      maleShare /= genderSum;
+      femaleShare = 1 - maleShare;
+    } else {
+      maleShare = 0.5;
+      femaleShare = 0.5;
+    }
+
+    return {
+      socialClassId,
+      populationPersons,
+      maleShare,
+      femaleShare,
+      ageShares,
+      education15PlusShares: finalEduShares,
+      ...(cashCents !== undefined ? { cashCents } : {})
+    };
+  }
+
+  // Fallback for wide row
+  const cells = parseCsvLine(lines[1]!);
+  const value = (name: string): number => {
+    const index = headers.indexOf(name);
+    if (index < 0) return 0;
+    const parsed = Number(cells[index] ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const pop = value("population_persons");
+  const male = value("male");
+  const female = value("female");
+  const maleShare = pop > 0 ? male / (male + female || 1) : 0.5;
+  const femaleShare = 1 - maleShare;
+
+  const ageShares: Record<number, number> = {};
+  const c014 = pop > 0 ? value("age_child_0_14") / pop : 0.2;
+  const y1524 = pop > 0 ? value("age_youth_15_24") / pop : 0.15;
+  const p2544 = pop > 0 ? value("age_prime_25_44") / pop : 0.3;
+  const m4564 = pop > 0 ? value("age_mature_45_64") / pop : 0.23;
+  const s65p = pop > 0 ? value("age_senior_65_plus") / pop : 0.12;
+
+  for (let a = 0; a <= 14; a += 1) ageShares[a] = c014 / 15;
+  for (let a = 15; a <= 24; a += 1) ageShares[a] = y1524 / 10;
+  for (let a = 25; a <= 44; a += 1) ageShares[a] = p2544 / 20;
+  for (let a = 45; a <= 64; a += 1) ageShares[a] = m4564 / 20;
+  for (let a = 65; a <= 100; a += 1) ageShares[a] = s65p / 36;
+  const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0) || 1;
+  for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
+
+  const eduRaw = {
+    basic: value("edu_basic"),
+    secondary: value("edu_secondary"),
+    tertiary: value("edu_tertiary"),
+    advanced: value("edu_advanced")
+  };
+  const eduTotal = Object.values(eduRaw).reduce((acc, v) => acc + v, 0) || 1;
+  const education15PlusShares = Object.fromEntries(
+    EDU_LEVELS.map((lvl) => [lvl, eduRaw[lvl] / eduTotal])
+  ) as Record<(typeof EDU_LEVELS)[number], number>;
+
+  return {
+    socialClassId,
+    populationPersons: pop,
+    maleShare,
+    femaleShare,
+    ageShares,
+    education15PlusShares
+  };
 }
 
 export async function readProvinceClassCsvs(provinceDir: string): Promise<ClassSeedRow[]> {
@@ -233,76 +370,112 @@ export async function readProvinceClassCsvs(provinceDir: string): Promise<ClassS
   for (const fileName of files) {
     const socialClassId = fileName.slice(0, -".csv".length);
     const text = await readFile(join(classesDir, fileName), "utf8");
-    const lines = text.trim().split(/\r?\n/);
-    if (lines.length < 2) continue;
-    const headers = parseCsvLine(lines[0]!);
-    const cells = parseCsvLine(lines[1]!);
-    const value = (name: string): number => {
-      const index = headers.indexOf(name);
-      if (index < 0) return 0;
-      const parsed = Number(cells[index] ?? 0);
-      return Number.isFinite(parsed) ? parsed : 0;
-    };
-    rows.push({
-      socialClassId,
-      populationPersons: value("population_persons"),
-      male: value("male"),
-      female: value("female"),
-      age: Object.fromEntries(AGE_BANDS.map((band) => [band, value(`age_${band}`)])) as ClassSeedRow["age"],
-      education15Plus: Object.fromEntries(
-        EDU_LEVELS.map((level) => [level, value(`edu_${level}`)])
-      ) as ClassSeedRow["education15Plus"]
-    });
+    rows.push(parseClassCsvText(socialClassId, text));
   }
   return rows;
 }
 
 export function sumClassSeedRows(groups: readonly (readonly ClassSeedRow[])[]): ClassSeedRow[] {
-  const byId = new Map<string, ClassSeedRow>();
+  const byId = new Map<
+    string,
+    {
+      socialClassId: string;
+      populationPersons: number;
+      maleWeightedSum: number;
+      ageWeightedSum: Record<number, number>;
+      eduWeightedSum: Record<(typeof EDU_LEVELS)[number], number>;
+      cashCentsSum: number;
+      hasCash: boolean;
+    }
+  >();
+
   for (const rows of groups) {
     for (const row of rows) {
-      const existing = byId.get(row.socialClassId);
+      let existing = byId.get(row.socialClassId);
       if (existing === undefined) {
-        byId.set(row.socialClassId, {
+        existing = {
           socialClassId: row.socialClassId,
-          populationPersons: row.populationPersons,
-          male: row.male,
-          female: row.female,
-          age: { ...row.age },
-          education15Plus: { ...row.education15Plus }
-        });
-        continue;
+          populationPersons: 0,
+          maleWeightedSum: 0,
+          ageWeightedSum: {},
+          eduWeightedSum: { basic: 0, secondary: 0, tertiary: 0, advanced: 0 },
+          cashCentsSum: 0,
+          hasCash: false
+        };
+        for (let a = 0; a <= 100; a += 1) existing.ageWeightedSum[a] = 0;
+        byId.set(row.socialClassId, existing);
       }
-      const age = { ...existing.age };
-      for (const band of AGE_BANDS) age[band] += row.age[band];
-      const education15Plus = { ...existing.education15Plus };
-      for (const level of EDU_LEVELS) education15Plus[level] += row.education15Plus[level];
-      byId.set(row.socialClassId, {
-        socialClassId: row.socialClassId,
-        populationPersons: existing.populationPersons + row.populationPersons,
-        male: existing.male + row.male,
-        female: existing.female + row.female,
-        age,
-        education15Plus
-      });
+      existing.populationPersons += row.populationPersons;
+      existing.maleWeightedSum += row.populationPersons * row.maleShare;
+      for (let a = 0; a <= 100; a += 1) {
+        existing.ageWeightedSum[a] = (existing.ageWeightedSum[a] ?? 0) + row.populationPersons * (row.ageShares[a] ?? 0);
+      }
+      for (const lvl of EDU_LEVELS) {
+        existing.eduWeightedSum[lvl] += row.populationPersons * (row.education15PlusShares[lvl] ?? 0);
+      }
+      if (row.cashCents !== undefined) {
+        existing.cashCentsSum += row.cashCents;
+        existing.hasCash = true;
+      }
     }
   }
-  return [...byId.values()].sort((a, b) => a.socialClassId.localeCompare(b.socialClassId));
+
+  const result: ClassSeedRow[] = [];
+  for (const entry of byId.values()) {
+    const pop = entry.populationPersons;
+    const maleShare = pop > 0 ? entry.maleWeightedSum / pop : 0.5;
+    const femaleShare = 1 - maleShare;
+
+    const ageShares: Record<number, number> = {};
+    for (let a = 0; a <= 100; a += 1) {
+      ageShares[a] = pop > 0 ? (entry.ageWeightedSum[a] ?? 0) / pop : 1 / 101;
+    }
+    const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0) || 1;
+    for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
+
+    const education15PlusShares: Record<(typeof EDU_LEVELS)[number], number> = {
+      basic: 0,
+      secondary: 0,
+      tertiary: 0,
+      advanced: 0
+    };
+    for (const lvl of EDU_LEVELS) {
+      education15PlusShares[lvl] = pop > 0 ? entry.eduWeightedSum[lvl] / pop : 0.25;
+    }
+    const eduSum = EDU_LEVELS.reduce((acc, lvl) => acc + education15PlusShares[lvl], 0) || 1;
+    for (const lvl of EDU_LEVELS) education15PlusShares[lvl] /= eduSum;
+
+    result.push({
+      socialClassId: entry.socialClassId,
+      populationPersons: pop,
+      maleShare,
+      femaleShare,
+      ageShares,
+      education15PlusShares,
+      ...(entry.hasCash ? { cashCents: entry.cashCentsSum } : {})
+    });
+  }
+  return result.sort((a, b) => a.socialClassId.localeCompare(b.socialClassId));
 }
 
-/** Seed L2 `provinces/<sourceId>/classes/*.csv` from L1 demographics.json. */
-export async function seedProjectClassesFromBase(
-  projectDir: string,
-  baseRoot: string
-): Promise<number> {
-  const demographicsPath = join(baseRoot, "demographics.json");
-  const demographics = JSON.parse(await readFile(demographicsPath, "utf8")) as Record<
-    string,
-    ProvinceDemographicsEntry
-  >;
-  let files = 0;
-  for (const [provinceId, demo] of Object.entries(demographics)) {
-    files += await writeProvinceClassCsvs(join(projectDir, "provinces", provinceId), demo);
+export function validateClassSeedRows(rows: readonly ClassSeedRow[]): string[] {
+  const errors: string[] = [];
+  for (const row of rows) {
+    const label = `class ${row.socialClassId}`;
+    if (!Number.isInteger(row.populationPersons) || row.populationPersons < 0) {
+      errors.push(`${label}: populationPersons must be a non-negative integer.`);
+    }
+    if (Math.abs(row.maleShare + row.femaleShare - 1.0) > 0.01) {
+      errors.push(`${label}: gender shares must sum to 1.0.`);
+    }
+    const ageSum = Object.values(row.ageShares).reduce((acc, v) => acc + v, 0);
+    if (Math.abs(ageSum - 1.0) > 0.01) {
+      errors.push(`${label}: age shares must sum to 1.0 (got ${ageSum.toFixed(4)}).`);
+    }
+    const eduSum = EDU_LEVELS.reduce((acc, lvl) => acc + (row.education15PlusShares[lvl] ?? 0), 0);
+    if (Math.abs(eduSum - 1.0) > 0.01) {
+      errors.push(`${label}: education shares must sum to 1.0 (got ${eduSum.toFixed(4)}).`);
+    }
   }
-  return files;
+  return errors;
 }

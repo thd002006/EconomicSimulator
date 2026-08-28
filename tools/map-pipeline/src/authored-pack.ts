@@ -195,7 +195,90 @@ export function parseProvinceOverviewCsv(
 }
 
 export function parseClassCsv(text: string, expectedClassId: string, label: string): AuthoredClassSeed {
-  const { rows } = parseCsv(text);
+  const { headers, rows } = parseCsv(text);
+  if (!SOCIAL_CLASS_IDS.has(expectedClassId)) {
+    throw new Error(`${label}: unknown social_class_id ${expectedClassId}.`);
+  }
+
+  // Format 1: Longitudinal 3-column table: dimension,key,value
+  if (headers.includes("dimension") && headers.includes("key") && headers.includes("value")) {
+    let populationPersons = 0;
+    let cashCents: number | undefined;
+    let maleShare = 0.5;
+    let femaleShare = 0.5;
+    const ageShares: Record<number, number> = {};
+    const eduShares: Record<string, number> = {};
+
+    for (const [index, row] of rows.entries()) {
+      const rowLabel = `${label} row ${index + 2}`;
+      const dim = requireCsvField(row, "dimension", rowLabel);
+      const key = requireCsvField(row, "key", rowLabel);
+      const val = parseCsvNumber(row, "value", rowLabel);
+
+      if (dim === "meta") {
+        if (key === "population_persons") {
+          if (!Number.isInteger(val) || val < 0) {
+            throw new Error(`${rowLabel}: population_persons must be a non-negative integer.`);
+          }
+          populationPersons = val;
+        } else if (key === "cash_cents") {
+          cashCents = val;
+        }
+      } else if (dim === "gender") {
+        if (key === "male") maleShare = val;
+        else if (key === "female") femaleShare = val;
+      } else if (dim === "age") {
+        const ageNum = Number(key);
+        if (!Number.isInteger(ageNum) || ageNum < 0 || ageNum > 100) {
+          throw new Error(`${rowLabel}: invalid age key "${key}" (expected 0..100).`);
+        }
+        ageShares[ageNum] = val;
+      } else if (dim === "education_15plus" || dim === "education") {
+        eduShares[key] = val;
+      }
+    }
+
+    // Normalize gender
+    const genderSum = maleShare + femaleShare;
+    if (genderSum > 0) {
+      maleShare /= genderSum;
+      femaleShare = 1 - maleShare;
+    }
+
+    // Single year 0..100 age counts
+    const age: Record<string, number> = {};
+    const ageSharesSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0);
+    let nonChild = 0;
+    for (let a = 0; a <= 100; a += 1) {
+      const share = ageSharesSum > 0 ? (ageShares[a] ?? 0) / ageSharesSum : 1 / 101;
+      const count = populationPersons * share;
+      age[String(a)] = count;
+      if (a >= 15) {
+        nonChild += count;
+      }
+    }
+
+    // Education shares -> calculate headcounts
+    const eduSum = EDU_CSV_FIELDS.reduce((acc, f) => acc + (eduShares[f.slice("edu_".length)] ?? eduShares[f] ?? 0), 0);
+    const education15Plus: Record<string, number> = {};
+    for (const field of EDU_CSV_FIELDS) {
+      const lvl = field.slice("edu_".length);
+      const share = eduSum > 0 ? (eduShares[lvl] ?? eduShares[field] ?? 0) / eduSum : (lvl === "basic" ? 1 : 0);
+      education15Plus[lvl] = nonChild * share;
+    }
+
+    return {
+      socialClassId: expectedClassId,
+      populationPersons,
+      male: populationPersons * maleShare,
+      female: populationPersons * femaleShare,
+      age,
+      education15Plus,
+      ...(cashCents === undefined ? {} : { cashCents })
+    };
+  }
+
+  // Format 2 (legacy): wide 1-row table
   if (rows.length !== 1) {
     throw new Error(`${label} must contain exactly one data row.`);
   }
@@ -203,9 +286,6 @@ export function parseClassCsv(text: string, expectedClassId: string, label: stri
   const socialClassId = requireCsvField(row, "social_class_id", label);
   if (socialClassId !== expectedClassId) {
     throw new Error(`${label}: social_class_id ${socialClassId} does not match file name.`);
-  }
-  if (!SOCIAL_CLASS_IDS.has(socialClassId)) {
-    throw new Error(`${label}: unknown social_class_id ${socialClassId}.`);
   }
   const age: Record<string, number> = {};
   for (const field of AGE_CSV_FIELDS) {

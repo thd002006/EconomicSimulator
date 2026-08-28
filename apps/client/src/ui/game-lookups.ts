@@ -116,6 +116,58 @@ export function dimensionLabel(dimension: string, key: string): string {
   }
 }
 
+export function ageCountsToBandRecord(
+  age: readonly number[] | Readonly<Record<string, number>> | undefined
+): Record<string, number> | undefined {
+  if (age === undefined) return undefined;
+  if (Array.isArray(age)) {
+    let child = 0;
+    let youth = 0;
+    let prime = 0;
+    let mature = 0;
+    let senior = 0;
+    for (let a = 0; a < age.length; a += 1) {
+      const val = age[a] ?? 0;
+      if (a <= 14) child += val;
+      else if (a <= 24) youth += val;
+      else if (a <= 44) prime += val;
+      else if (a <= 64) mature += val;
+      else senior += val;
+    }
+    return {
+      child_0_14: child,
+      youth_15_24: youth,
+      prime_25_44: prime,
+      mature_45_64: mature,
+      senior_65_plus: senior
+    };
+  }
+  const entries = Object.entries(age);
+  if (entries.some(([k]) => Number.isInteger(Number(k)))) {
+    let child = 0;
+    let youth = 0;
+    let prime = 0;
+    let mature = 0;
+    let senior = 0;
+    for (const [k, val] of entries) {
+      const a = Number(k);
+      if (a <= 14) child += val;
+      else if (a <= 24) youth += val;
+      else if (a <= 44) prime += val;
+      else if (a <= 64) mature += val;
+      else senior += val;
+    }
+    return {
+      child_0_14: child,
+      youth_15_24: youth,
+      prime_25_44: prime,
+      mature_45_64: mature,
+      senior_65_plus: senior
+    };
+  }
+  return age as Record<string, number>;
+}
+
 export function countryDisplayName(lookups: MapDisplayLookups, countryId: string): string {
   return lookups.getCountryName(countryId) ?? countryId;
 }

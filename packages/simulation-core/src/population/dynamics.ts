@@ -1,15 +1,15 @@
 import {
-  AGE_BANDS,
   BALANCE_SHEET_FIELDS,
   EDUCATION_LEVELS,
   SKILL_LEVELS,
-  type AgeBandId,
+  MAX_SINGLE_YEAR_AGE,
   type ClassTransitionRuleDefinition,
   type EducationLevelId,
   type EquityReclassificationEvent,
   type ExogenousMigrationCommand,
   type InheritanceEvent,
   type PopulationClassState,
+  type PopulationRatesDefinition,
   type PopulationWorld,
   type SkillLevelId,
   type SocialClassId
@@ -29,13 +29,6 @@ function clamp(value: number, minimum: number, maximum: number): number {
 function skillLevelIndex(level: SkillLevelId): number {
   return SKILL_LEVELS.indexOf(level);
 }
-
-const AGE_BAND_TRANSITIONS: readonly (readonly [AgeBandId, AgeBandId])[] = [
-  ["child_0_14", "youth_15_24"],
-  ["youth_15_24", "prime_25_44"],
-  ["prime_25_44", "mature_45_64"],
-  ["mature_45_64", "senior_65_plus"]
-];
 
 const SKILL_MINIMUM_EDUCATION_INDEX: Readonly<Record<SkillLevelId, number>> = {
   low: 0,
@@ -452,6 +445,34 @@ export function runClassTransitions(world: PopulationWorld): EquityReclassificat
   return equityReclassifications;
 }
 
+function getAnnualMortalityRateForAge(
+  rates: PopulationRatesDefinition,
+  age: number
+): number {
+  if (age <= 14) return rates.annualMortalityRateByAgeBand.child_0_14;
+  if (age <= 24) return rates.annualMortalityRateByAgeBand.youth_15_24;
+  if (age <= 44) return rates.annualMortalityRateByAgeBand.prime_25_44;
+  if (age <= 64) return rates.annualMortalityRateByAgeBand.mature_45_64;
+  return rates.annualMortalityRateByAgeBand.senior_65_plus;
+}
+
+function getMonthlyAgingRateForAge(
+  rates: PopulationRatesDefinition,
+  age: number
+): number {
+  let duration: number;
+  if (age <= 14) duration = rates.ageBandDurationMonths.child_0_14;
+  else if (age <= 24) duration = rates.ageBandDurationMonths.youth_15_24;
+  else if (age <= 44) duration = rates.ageBandDurationMonths.prime_25_44;
+  else if (age <= 64) duration = rates.ageBandDurationMonths.mature_45_64;
+  else duration = rates.ageBandDurationMonths.senior_65_plus;
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    return 0;
+  }
+  return 1 / 12;
+}
+
 export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
   const inheritanceEvents: InheritanceEvent[] = [];
   for (const provinceId of sortedProvinceIds(world)) {
@@ -484,22 +505,23 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
         for (const religion of Object.keys(state.religionCounts)) {
           state.religionCounts[religion] = (state.religionCounts[religion] ?? 0) * birthFactor;
         }
-        state.ageCounts.child_0_14 += births;
+        state.ageCounts[0] = (state.ageCounts[0] ?? 0) + births;
         state.employmentStatusCounts.not_in_labor_force += births;
         state.populationPersons += births;
       }
 
       let totalDeaths = 0;
       let workingAgeDeaths = 0;
-      for (const band of AGE_BANDS) {
-        const deaths =
-          state.ageCounts[band] * (world.staticData.rates.annualMortalityRateByAgeBand[band] / 12);
-        state.ageCounts[band] -= deaths;
+      for (let a = 0; a < state.ageCounts.length; a += 1) {
+        const rate = getAnnualMortalityRateForAge(world.staticData.rates, a);
+        const deaths = (state.ageCounts[a] ?? 0) * (rate / 12);
+        state.ageCounts[a] = Math.max(0, (state.ageCounts[a] ?? 0) - deaths);
         totalDeaths += deaths;
-        if (band !== "child_0_14" && band !== "senior_65_plus") {
+        if (a >= 15 && a <= 64) {
           workingAgeDeaths += deaths;
         }
       }
+
       if (totalDeaths > 1e-12) {
         state.populationPersons -= totalDeaths;
         const populationBeforeDeaths = state.populationPersons + totalDeaths;
@@ -584,62 +606,65 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
         }
       }
 
-      for (const [band, nextBand] of AGE_BAND_TRANSITIONS) {
-        const duration = world.staticData.rates.ageBandDurationMonths[band];
-        if (!Number.isFinite(duration)) {
-          continue;
-        }
-        const movers = state.ageCounts[band] / duration;
-        if (movers <= 0) {
-          continue;
-        }
-        const workingAgeBefore = band === "mature_45_64" ? workingAgePopulation(state) : 0;
-        const laborForceBefore = band === "mature_45_64" ? laborForcePopulation(state) : 0;
-        state.ageCounts[band] -= movers;
-        state.ageCounts[nextBand] += movers;
-
-        if (band === "child_0_14") {
-          state.employmentStatusCounts.not_in_labor_force -= movers;
-          state.employmentStatusCounts.student += movers;
-          state.workingAgeEducationCounts.basic += movers;
-        } else if (band === "mature_45_64") {
-          if (workingAgeBefore > 0) {
-            const educationFactor = (workingAgeBefore - movers) / workingAgeBefore;
-            for (const level of EDUCATION_LEVELS) {
-              state.workingAgeEducationCounts[level] *= educationFactor;
-            }
+      // Aging lifecourse transitions
+      const rate64to65 = getMonthlyAgingRateForAge(world.staticData.rates, 64);
+      const movers64to65 = (state.ageCounts[64] ?? 0) * rate64to65;
+      if (movers64to65 > 0) {
+        const workingAgeBefore = workingAgePopulation(state);
+        const laborForceBefore = laborForcePopulation(state);
+        if (workingAgeBefore > 0) {
+          const educationFactor = (workingAgeBefore - movers64to65) / workingAgeBefore;
+          for (const level of EDUCATION_LEVELS) {
+            state.workingAgeEducationCounts[level] *= educationFactor;
           }
-          const nonLaborForceBefore =
-            state.employmentStatusCounts.student +
-            state.employmentStatusCounts.retired +
-            state.employmentStatusCounts.not_in_labor_force;
-          if (laborForceBefore > 0 && workingAgeBefore > 0 && state.populationPersons > 0) {
-            const laborLoss = Math.min(movers * (laborForceBefore / workingAgeBefore), movers);
-            const laborFactor = (laborForceBefore - laborLoss) / laborForceBefore;
-            state.employmentStatusCounts.employed *= laborFactor;
-            state.employmentStatusCounts.unemployed *= laborFactor;
-            for (const level of SKILL_LEVELS) {
-              state.laborForceSkillCounts[level] *= laborFactor;
-            }
-            scaleClassAllocations(world, provinceId, socialClassId, laborFactor);
-            const nonLaborLoss = movers - laborLoss;
-            if (nonLaborForceBefore > 1e-12 && nonLaborLoss > 0) {
-              const nonLaborFactor = (nonLaborForceBefore - nonLaborLoss) / nonLaborForceBefore;
-              state.employmentStatusCounts.student *= nonLaborFactor;
-              state.employmentStatusCounts.retired *= nonLaborFactor;
-              state.employmentStatusCounts.not_in_labor_force *= nonLaborFactor;
-            }
-          } else if (nonLaborForceBefore > 1e-12 && movers <= nonLaborForceBefore) {
-            const nonLaborFactor = (nonLaborForceBefore - movers) / nonLaborForceBefore;
+        }
+        const nonLaborForceBefore =
+          state.employmentStatusCounts.student +
+          state.employmentStatusCounts.retired +
+          state.employmentStatusCounts.not_in_labor_force;
+        if (laborForceBefore > 0 && workingAgeBefore > 0 && state.populationPersons > 0) {
+          const laborLoss = Math.min(movers64to65 * (laborForceBefore / workingAgeBefore), movers64to65);
+          const laborFactor = (laborForceBefore - laborLoss) / laborForceBefore;
+          state.employmentStatusCounts.employed *= laborFactor;
+          state.employmentStatusCounts.unemployed *= laborFactor;
+          for (const level of SKILL_LEVELS) {
+            state.laborForceSkillCounts[level] *= laborFactor;
+          }
+          scaleClassAllocations(world, provinceId, socialClassId, laborFactor);
+          const nonLaborLoss = movers64to65 - laborLoss;
+          if (nonLaborForceBefore > 1e-12 && nonLaborLoss > 0) {
+            const nonLaborFactor = (nonLaborForceBefore - nonLaborLoss) / nonLaborForceBefore;
             state.employmentStatusCounts.student *= nonLaborFactor;
             state.employmentStatusCounts.retired *= nonLaborFactor;
             state.employmentStatusCounts.not_in_labor_force *= nonLaborFactor;
-          } else {
-            state.employmentStatusCounts.student = 0;
-            state.employmentStatusCounts.retired = 0;
-            state.employmentStatusCounts.not_in_labor_force = 0;
           }
-          state.employmentStatusCounts.retired += movers;
+        } else if (nonLaborForceBefore > 1e-12 && movers64to65 <= nonLaborForceBefore) {
+          const nonLaborFactor = (nonLaborForceBefore - movers64to65) / nonLaborForceBefore;
+          state.employmentStatusCounts.student *= nonLaborFactor;
+          state.employmentStatusCounts.retired *= nonLaborFactor;
+          state.employmentStatusCounts.not_in_labor_force *= nonLaborFactor;
+        } else {
+          state.employmentStatusCounts.student = 0;
+          state.employmentStatusCounts.retired = 0;
+          state.employmentStatusCounts.not_in_labor_force = 0;
+        }
+        state.employmentStatusCounts.retired += movers64to65;
+      }
+
+      const rate14to15 = getMonthlyAgingRateForAge(world.staticData.rates, 14);
+      const movers14to15 = (state.ageCounts[14] ?? 0) * rate14to15;
+      if (movers14to15 > 0) {
+        state.employmentStatusCounts.not_in_labor_force -= movers14to15;
+        state.employmentStatusCounts.student += movers14to15;
+        state.workingAgeEducationCounts.basic += movers14to15;
+      }
+
+      for (let a = MAX_SINGLE_YEAR_AGE - 1; a >= 0; a -= 1) {
+        const rate = getMonthlyAgingRateForAge(world.staticData.rates, a);
+        const movers = (state.ageCounts[a] ?? 0) * rate;
+        if (movers > 0) {
+          state.ageCounts[a] = (state.ageCounts[a] ?? 0) - movers;
+          state.ageCounts[a + 1] = (state.ageCounts[a + 1] ?? 0) + movers;
         }
       }
     }

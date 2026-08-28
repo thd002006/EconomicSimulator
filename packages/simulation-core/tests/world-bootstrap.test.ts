@@ -89,13 +89,7 @@ describe("world bootstrap", () => {
     const world = bootstrapGameWorld(scenario);
     const demo = aggregateProvinceDemographics(world.population, "A");
     expect(demo.male + demo.female).toBe(1000);
-    expect(
-      demo.age.child_0_14 +
-        demo.age.youth_15_24 +
-        demo.age.prime_25_44 +
-        demo.age.mature_45_64 +
-        demo.age.senior_65_plus
-    ).toBe(1000);
+    expect(demo.age.reduce((sum, v) => sum + v, 0)).toBeCloseTo(1000, 5);
   });
 
   it("applies explicit classSeeds instead of default class shares", () => {
@@ -146,7 +140,7 @@ describe("world bootstrap", () => {
     expect(farmer?.populationPersons).toBe(100);
     expect(farmer?.genderCounts.male).toBe(60);
     expect(farmer?.genderCounts.female).toBe(40);
-    expect(farmer?.ageCounts.prime_25_44).toBe(40);
+    expect(farmer?.ageCounts.slice(25, 45).reduce((a, b) => a + b, 0)).toBeCloseTo(40, 5);
     expect(world.population.classStatesByProvince.get("A")?.get("worker")).toBeUndefined();
   });
 });
@@ -191,7 +185,7 @@ describe("DeterministicSimulationEngine queries", () => {
       (sum, value) => sum + value,
       0
     );
-    expect(employmentTotal).toBe(100);
+    expect(employmentTotal).toBeCloseTo(100, 5);
     expect(engine.queryCountryPopulation("AAA").populationPersons).toBe(100);
   });
 });

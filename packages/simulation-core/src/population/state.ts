@@ -1,13 +1,12 @@
 import {
-  AGE_BANDS,
   BALANCE_SHEET_FIELDS,
   INVESTMENT_BALANCE_SHEET_FIELDS,
   EDUCATION_LEVELS,
   EMPLOYMENT_STATUSES,
   GENDERS,
   SKILL_LEVELS,
-  WORKING_AGE_BANDS,
-  type AgeBandId,
+  MAX_SINGLE_YEAR_AGE,
+  SINGLE_YEAR_AGE_COUNT,
   type BalanceSheetFieldId,
   type EducationLevelId,
   type EmploymentStatusId,
@@ -20,13 +19,18 @@ import {
   type SocialClassId
 } from "./types";
 
-const DEFAULT_AGE_SHARES: Readonly<Record<AgeBandId, number>> = {
-  child_0_14: 0.24,
-  youth_15_24: 0.12,
-  prime_25_44: 0.3,
-  mature_45_64: 0.22,
-  senior_65_plus: 0.12
-};
+export function buildDefaultSingleYearAgeShares(): readonly number[] {
+  const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT);
+  for (let a = 0; a <= 14; a += 1) shares[a] = 0.24 / 15;
+  for (let a = 15; a <= 24; a += 1) shares[a] = 0.12 / 10;
+  for (let a = 25; a <= 44; a += 1) shares[a] = 0.30 / 20;
+  for (let a = 45; a <= 64; a += 1) shares[a] = 0.22 / 20;
+  for (let a = 65; a <= 100; a += 1) shares[a] = 0.12 / 36;
+  const sum = shares.reduce((acc, v) => acc + v, 0);
+  return shares.map((v) => v / sum);
+}
+
+export const DEFAULT_SINGLE_YEAR_AGE_SHARES: readonly number[] = buildDefaultSingleYearAgeShares();
 
 const DEFAULT_EDUCATION_SHARES: Readonly<Record<EducationLevelId, number>> = {
   basic: 0.4,
@@ -75,10 +79,7 @@ export function createEmptyClassState(
   provinceId: ProvinceId,
   socialClassId: SocialClassId
 ): PopulationClassState {
-  const ageCounts = {} as Record<AgeBandId, number>;
-  for (const band of AGE_BANDS) {
-    ageCounts[band] = 0;
-  }
+  const ageCounts = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
   const genderCounts = {} as Record<GenderId, number>;
   for (const gender of GENDERS) {
     genderCounts[gender] = 0;
@@ -125,8 +126,54 @@ export interface ObservedProvinceDemographics {
   readonly pop: number;
   readonly male: number;
   readonly female: number;
-  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly age: Readonly<Record<string | number, number>> | readonly number[];
   readonly education15Plus: Readonly<Record<EducationLevelId, number>>;
+}
+
+function extractSingleYearAgeShares(
+  rawAge: Readonly<Record<string | number, number>> | readonly number[] | undefined,
+  defaultShares: readonly number[]
+): number[] {
+  if (rawAge === undefined) return [...defaultShares];
+  if (Array.isArray(rawAge)) {
+    const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
+    for (let i = 0; i < SINGLE_YEAR_AGE_COUNT; i += 1) {
+      shares[i] = rawAge[i] ?? 0;
+    }
+    const sum = shares.reduce((acc, v) => acc + v, 0);
+    return sum > 0 ? shares.map((v) => v / sum) : [...defaultShares];
+  }
+  const entries = Object.entries(rawAge);
+  if (entries.length === 0) return [...defaultShares];
+
+  const hasNumeric = entries.some(([k]) => Number.isInteger(Number(k)));
+  if (hasNumeric) {
+    const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
+    for (const [k, v] of entries) {
+      const ageNum = Number(k);
+      if (Number.isInteger(ageNum) && ageNum >= 0 && ageNum <= MAX_SINGLE_YEAR_AGE) {
+        shares[ageNum] = v;
+      }
+    }
+    const sum = shares.reduce((acc, v) => acc + v, 0);
+    return sum > 0 ? shares.map((v) => v / sum) : [...defaultShares];
+  }
+
+  // Legacy age bands
+  const record = rawAge as Record<string, number>;
+  const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
+  const c14 = (record.child_0_14 ?? 0) / 15;
+  const y24 = (record.youth_15_24 ?? 0) / 10;
+  const p44 = (record.prime_25_44 ?? 0) / 20;
+  const m64 = (record.mature_45_64 ?? 0) / 20;
+  const s100 = (record.senior_65_plus ?? 0) / 36;
+  for (let a = 0; a <= 14; a += 1) shares[a] = c14;
+  for (let a = 15; a <= 24; a += 1) shares[a] = y24;
+  for (let a = 25; a <= 44; a += 1) shares[a] = p44;
+  for (let a = 45; a <= 64; a += 1) shares[a] = m64;
+  for (let a = 65; a <= 100; a += 1) shares[a] = s100;
+  const sum = shares.reduce((acc, v) => acc + v, 0);
+  return sum > 0 ? shares.map((v) => v / sum) : [...defaultShares];
 }
 
 export function seedClassState(
@@ -140,17 +187,15 @@ export function seedClassState(
   state.populationPersons = populationPersons;
 
   if (observed && observed.pop > 0) {
-    const totalAge = AGE_BANDS.reduce((sum, band) => sum + (observed.age[band] ?? 0), 0) || observed.pop;
+    const ageShares = extractSingleYearAgeShares(observed.age, DEFAULT_SINGLE_YEAR_AGE_SHARES);
     let remainingAge = populationPersons;
-    for (let index = 0; index < AGE_BANDS.length; index += 1) {
-      const band = AGE_BANDS[index] as AgeBandId;
-      const isLast = index === AGE_BANDS.length - 1;
+    for (let index = 0; index < SINGLE_YEAR_AGE_COUNT; index += 1) {
+      const isLast = index === SINGLE_YEAR_AGE_COUNT - 1;
       if (isLast) {
-        state.ageCounts[band] = remainingAge;
+        state.ageCounts[index] = Math.max(0, remainingAge);
       } else {
-        const share = (observed.age[band] ?? 0) / totalAge;
-        const count = populationPersons * share;
-        state.ageCounts[band] = count;
+        const count = populationPersons * ageShares[index]!;
+        state.ageCounts[index] = count;
         remainingAge -= count;
       }
     }
@@ -159,7 +204,6 @@ export function seedClassState(
     state.genderCounts.female = populationPersons - state.genderCounts.male;
 
     // Education: observed is 15+; apply its shares to working-age (15-64) only.
-    // Senior 65+ share is intentionally not distributed here (separate age band).
     const totalEducation15Plus = EDUCATION_LEVELS.reduce(
       (sum, level) => sum + (observed.education15Plus[level] ?? 0),
       0
@@ -188,10 +232,10 @@ export function seedClassState(
     }
   } else {
     let remainingAge = populationPersons;
-    for (const band of AGE_BANDS) {
-      const isLast = band === AGE_BANDS[AGE_BANDS.length - 1];
-      const count = isLast ? remainingAge : populationPersons * DEFAULT_AGE_SHARES[band];
-      state.ageCounts[band] = count;
+    for (let index = 0; index < SINGLE_YEAR_AGE_COUNT; index += 1) {
+      const isLast = index === SINGLE_YEAR_AGE_COUNT - 1;
+      const count = isLast ? Math.max(0, remainingAge) : populationPersons * DEFAULT_SINGLE_YEAR_AGE_SHARES[index]!;
+      state.ageCounts[index] = count;
       remainingAge -= count;
     }
 
@@ -215,9 +259,9 @@ export function seedClassState(
   const workingAge = workingAgePopulation(state);
   const participating = workingAge * laborParticipationBaseRate;
   state.employmentStatusCounts.unemployed = participating;
-  state.employmentStatusCounts.retired = state.ageCounts.senior_65_plus;
+  state.employmentStatusCounts.retired = seniorPopulation(state);
   state.employmentStatusCounts.not_in_labor_force =
-    state.ageCounts.child_0_14 + (workingAge - participating);
+    childPopulation(state) + (workingAge - participating);
 
   let remainingSkill = laborForcePopulation(state);
   for (let index = 0; index < SKILL_LEVELS.length; index += 1) {
@@ -238,10 +282,24 @@ export function seedClassState(
   return state;
 }
 
+export function childPopulation(state: PopulationClassState): number {
+  return sumAges(state.ageCounts, 0, 14);
+}
+
 export function workingAgePopulation(state: PopulationClassState): number {
+  return sumAges(state.ageCounts, 15, 64);
+}
+
+export function seniorPopulation(state: PopulationClassState): number {
+  return sumAges(state.ageCounts, 65, MAX_SINGLE_YEAR_AGE);
+}
+
+export function sumAges(ageCounts: readonly number[], minAge: number, maxAge: number): number {
   let total = 0;
-  for (const band of WORKING_AGE_BANDS) {
-    total += state.ageCounts[band];
+  const start = Math.max(0, minAge);
+  const end = Math.min(ageCounts.length - 1, maxAge);
+  for (let age = start; age <= end; age += 1) {
+    total += ageCounts[age] ?? 0;
   }
   return total;
 }
@@ -258,10 +316,18 @@ export function sumRecord(values: Record<string, number>): number {
   return total;
 }
 
+export function sumArray(values: readonly number[]): number {
+  let total = 0;
+  for (let i = 0; i < values.length; i += 1) {
+    total += values[i] ?? 0;
+  }
+  return total;
+}
+
 export function scaleDistributions(state: PopulationClassState, factor: number): void {
   state.populationPersons *= factor;
-  for (const band of AGE_BANDS) {
-    state.ageCounts[band] *= factor;
+  for (let a = 0; a < state.ageCounts.length; a += 1) {
+    state.ageCounts[a] = (state.ageCounts[a] ?? 0) * factor;
   }
   for (const gender of GENDERS) {
     state.genderCounts[gender] *= factor;
@@ -304,8 +370,8 @@ export function moveProportion(
   movedBalanceSheetFields: readonly BalanceSheetFieldId[] = BALANCE_SHEET_FIELDS
 ): void {
   target.populationPersons += source.populationPersons * share;
-  for (const band of AGE_BANDS) {
-    target.ageCounts[band] += source.ageCounts[band] * share;
+  for (let a = 0; a < source.ageCounts.length; a += 1) {
+    target.ageCounts[a] = (target.ageCounts[a] ?? 0) + (source.ageCounts[a] ?? 0) * share;
   }
   for (const gender of GENDERS) {
     target.genderCounts[gender] += source.genderCounts[gender] * share;

@@ -457,7 +457,7 @@ describe("population system", () => {
     expect(summary.populationPersons).toBeCloseTo(10_000, 5);
     const state = world.classStatesByProvince.get("p1")!.values().next().value!;
     // Age/gender/education totals must match the seeded population within tolerance.
-    const ageSum = Object.values(state.ageCounts).reduce((sum, value) => sum + value, 0);
+    const ageSum = state.ageCounts.reduce((sum, value) => sum + value, 0);
     expect(ageSum).toBeCloseTo(state.populationPersons, 5);
     const genderSum = state.genderCounts.male + state.genderCounts.female;
     expect(genderSum).toBeCloseTo(state.populationPersons, 5);
@@ -466,7 +466,7 @@ describe("population system", () => {
       (sum, value) => sum + value,
       0
     );
-    const workingAge = state.ageCounts.youth_15_24 + state.ageCounts.prime_25_44 + state.ageCounts.mature_45_64;
+    const workingAge = state.ageCounts.slice(15, 65).reduce((sum, value) => sum + value, 0);
     expect(educationSum).toBeCloseTo(workingAge, 5);
     expect(getPopulationInvariantReport(world).valid).toBe(true);
   });

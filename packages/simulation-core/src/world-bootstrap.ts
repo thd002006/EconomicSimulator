@@ -59,9 +59,29 @@ function applyClassSeedDetails(
         `Scenario class seed missing population state: ${seed.provinceId}|${seed.socialClassId}.`
       );
     }
-    for (const [band, value] of Object.entries(seed.age)) {
-      if (band in state.ageCounts) {
-        state.ageCounts[band as keyof typeof state.ageCounts] = value;
+    const ageEntries = Object.entries(seed.age);
+    if (ageEntries.length > 0) {
+      const hasNumeric = ageEntries.some(([k]) => Number.isInteger(Number(k)));
+      if (hasNumeric) {
+        state.ageCounts.fill(0);
+        for (const [key, value] of ageEntries) {
+          const ageNum = Number(key);
+          if (Number.isInteger(ageNum) && ageNum >= 0 && ageNum < state.ageCounts.length) {
+            state.ageCounts[ageNum] = value;
+          }
+        }
+      } else {
+        state.ageCounts.fill(0);
+        const c14 = (seed.age.child_0_14 ?? 0) / 15;
+        const y24 = (seed.age.youth_15_24 ?? 0) / 10;
+        const p44 = (seed.age.prime_25_44 ?? 0) / 20;
+        const m64 = (seed.age.mature_45_64 ?? 0) / 20;
+        const s100 = (seed.age.senior_65_plus ?? 0) / 36;
+        for (let a = 0; a <= 14; a += 1) state.ageCounts[a] = c14;
+        for (let a = 15; a <= 24; a += 1) state.ageCounts[a] = y24;
+        for (let a = 25; a <= 44; a += 1) state.ageCounts[a] = p44;
+        for (let a = 45; a <= 64; a += 1) state.ageCounts[a] = m64;
+        for (let a = 65; a <= 100; a += 1) state.ageCounts[a] = s100;
       }
     }
     state.genderCounts.male = seed.male;
@@ -113,14 +133,20 @@ export function bootstrapGameWorld(scenario: ScenarioBootstrap): GameWorldV1 {
     applyClassSeedDetails(population, scenario.seed.classSeeds);
   }
 
+  const ledger = createLedgerWorld();
+  const equity = createEquityWorld();
+  const operatingUnits = createOperatingUnitWorld();
+  const companies = createCompanyWorld();
+  const externalShareholders = createExternalShareholderAccounts();
+
   return {
     mapId: scenario.mapId,
     population,
     provinceOwnership,
-    ledger: createLedgerWorld(),
-    equity: createEquityWorld(),
-    operatingUnits: createOperatingUnitWorld(),
-    companies: createCompanyWorld(),
-    externalShareholders: createExternalShareholderAccounts()
+    ledger,
+    equity,
+    operatingUnits,
+    companies,
+    externalShareholders
   };
 }

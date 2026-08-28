@@ -16,6 +16,7 @@ import {
   DEFAULT_CLASS_POPULATION_SHARES,
   laborForcePopulation,
   seedClassState,
+  sumArray,
   sumRecord,
   workingAgePopulation,
   type ObservedProvinceDemographics
@@ -25,9 +26,8 @@ export { validatePopulationStaticData } from "./static-data";
 export { DEFAULT_CLASS_POPULATION_SHARES } from "./state";
 export type { ObservedProvinceDemographics } from "./state";
 import {
-  AGE_BANDS,
   EMPLOYMENT_STATUSES,
-  type AgeBandId,
+  SINGLE_YEAR_AGE_COUNT,
   type ClassConsumptionPlan,
   type EducationLevelId,
   type EmployerId,
@@ -328,7 +328,7 @@ export function getPopulationInvariantReport(world: PopulationWorld): Population
       const label = `${provinceId}|${socialClassId}`;
       const values = [
         state.populationPersons,
-        ...Object.values(state.ageCounts),
+        ...state.ageCounts,
         ...Object.values(state.genderCounts),
         ...Object.values(state.workingAgeEducationCounts),
         ...Object.values(state.laborForceSkillCounts),
@@ -345,7 +345,7 @@ export function getPopulationInvariantReport(world: PopulationWorld): Population
       if (state.populationPersons < -tolerance) {
         violations.push(`${label}: negative population.`);
       }
-      const ageSum = sumRecord(state.ageCounts);
+      const ageSum = sumArray(state.ageCounts);
       if (Math.abs(ageSum - state.populationPersons) > tolerance) {
         violations.push(`${label}: ageCounts ${ageSum} != ${state.populationPersons}.`);
       }
@@ -478,14 +478,14 @@ export interface ProvinceDemographicBreakdown {
   readonly provinceId: ProvinceId;
   readonly male: number;
   readonly female: number;
-  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly age: readonly number[];
   readonly employment: Readonly<Record<EmploymentStatusId, number>>;
 }
 
 export interface ProvinceClassPopulationBreakdown {
   readonly socialClassId: SocialClassId;
   readonly populationPersons: number;
-  readonly age: Readonly<Record<AgeBandId, number>>;
+  readonly age: readonly number[];
   readonly gender: Readonly<Record<GenderId, number>>;
   readonly education: Readonly<Record<EducationLevelId, number>>;
   readonly skill: Readonly<Record<SkillLevelId, number>>;
@@ -498,8 +498,8 @@ export interface CountryPopulationSummary {
   readonly populationPersons: number;
 }
 
-function zeroAge(): Record<AgeBandId, number> {
-  return Object.fromEntries(AGE_BANDS.map((band) => [band, 0])) as Record<AgeBandId, number>;
+function zeroAge(): number[] {
+  return new Array(SINGLE_YEAR_AGE_COUNT).fill(0);
 }
 
 function zeroEmployment(): Record<EmploymentStatusId, number> {
@@ -513,7 +513,7 @@ function classBreakdownFromState(state: PopulationClassState): ProvinceClassPopu
   return {
     socialClassId: state.socialClassId,
     populationPersons: state.populationPersons,
-    age: { ...state.ageCounts },
+    age: [...state.ageCounts],
     gender: { ...state.genderCounts },
     education: { ...state.workingAgeEducationCounts },
     skill: { ...state.laborForceSkillCounts },
@@ -534,8 +534,8 @@ export function aggregateProvinceDemographics(
     for (const state of classes.values()) {
       male += state.genderCounts.male;
       female += state.genderCounts.female;
-      for (const band of AGE_BANDS) {
-        age[band] += state.ageCounts[band];
+      for (let a = 0; a < SINGLE_YEAR_AGE_COUNT; a += 1) {
+        age[a] = (age[a] ?? 0) + (state.ageCounts[a] ?? 0);
       }
       for (const status of EMPLOYMENT_STATUSES) {
         employment[status] += state.employmentStatusCounts[status];

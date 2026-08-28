@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { formatGdp, mergeGameUiLookups } from "./game-lookups.js";
+import { formatGdp, mergeGameUiLookups, ageCountsToBandRecord } from "./game-lookups.js";
 
 describe("mergeGameUiLookups", () => {
   it("reads population from simulation cache, not map demographics", () => {
+    const ageArray = new Array(101).fill(0);
+    ageArray[5] = 10;
+    ageArray[20] = 8;
+    ageArray[30] = 12;
+    ageArray[50] = 8;
+    ageArray[70] = 4;
+
     const lookups = mergeGameUiLookups(
       {
         findProvince: () => undefined,
@@ -27,13 +34,7 @@ describe("mergeGameUiLookups", () => {
             provinceId: "p1",
             male: 21,
             female: 21,
-            age: {
-              child_0_14: 10,
-              youth_15_24: 8,
-              prime_25_44: 12,
-              mature_45_64: 8,
-              senior_65_plus: 4
-            },
+            age: ageArray,
             employment: {
               employed: 18,
               unemployed: 2,
@@ -46,13 +47,7 @@ describe("mergeGameUiLookups", () => {
             {
               socialClassId: "worker",
               populationPersons: 42,
-              age: {
-                child_0_14: 10,
-                youth_15_24: 8,
-                prime_25_44: 12,
-                mature_45_64: 8,
-                senior_65_plus: 4
-              },
+              age: ageArray,
               gender: { male: 21, female: 21 },
               education: { basic: 10, secondary: 20, tertiary: 8, advanced: 4 },
               skill: { low: 10, medium: 20, high: 8, expert: 4 },
@@ -95,5 +90,12 @@ describe("mergeGameUiLookups", () => {
     expect(lookups.getProvinceGdpPpp("p1")).toBe(1_500_000_000);
     expect(lookups.getCountryGdpPpp("AAA")).toBe(1_500_000_000);
     expect(formatGdp(1_500_000_000)).toBe("$1.50B");
+
+    const bandRecord = ageCountsToBandRecord(ageArray);
+    expect(bandRecord?.child_0_14).toBe(10);
+    expect(bandRecord?.youth_15_24).toBe(8);
+    expect(bandRecord?.prime_25_44).toBe(12);
+    expect(bandRecord?.mature_45_64).toBe(8);
+    expect(bandRecord?.senior_65_plus).toBe(4);
   });
 });

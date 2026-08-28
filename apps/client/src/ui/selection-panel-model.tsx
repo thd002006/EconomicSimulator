@@ -6,6 +6,7 @@ import { EntityList } from "./EntityList.js";
 import { SelectionPanel, type EntityPanelTab } from "./EntityPanel.js";
 import { countsToSlices, PieChart } from "./PieChart.js";
 import {
+  ageCountsToBandRecord,
   countryDisplayName,
   dimensionLabel,
   formatAreaKm2,
@@ -55,7 +56,7 @@ function classDetailBody(entry: ProvinceClassPopulationBreakdown): React.JSX.Ele
           },
           {
             title: "Age",
-            slices: countsToSlices(entry.age, (key) => dimensionLabel("age", key))
+            slices: countsToSlices(ageCountsToBandRecord(entry.age), (key) => dimensionLabel("age", key))
           },
           {
             title: "Education",
@@ -137,7 +138,7 @@ export function buildSelectionPanelModel(
                 },
                 {
                   title: "Age",
-                  slices: countsToSlices(demo?.age, (key) => dimensionLabel("age", key))
+                  slices: countsToSlices(ageCountsToBandRecord(demo?.age), (key) => dimensionLabel("age", key))
                 },
                 {
                   title: "Employment",

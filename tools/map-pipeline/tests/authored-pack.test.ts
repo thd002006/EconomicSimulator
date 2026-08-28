@@ -31,7 +31,32 @@ describe("authored csv schema", () => {
     expect(overview.resourcePotentialByResourceId.coal).toBe(0.2);
   });
 
-  it("parses class seed rows", () => {
+  it("parses longitudinal dimension class seed rows", () => {
+    const lines = [
+      "dimension,key,value",
+      "meta,population_persons,1000",
+      "gender,male,0.5",
+      "gender,female,0.5"
+    ];
+    for (let a = 0; a <= 100; a += 1) {
+      lines.push(`age,${a},${(1 / 101).toFixed(5)}`);
+    }
+    lines.push("education_15plus,basic,0.4");
+    lines.push("education_15plus,secondary,0.3");
+    lines.push("education_15plus,tertiary,0.2");
+    lines.push("education_15plus,advanced,0.1");
+
+    const seed = parseClassCsv(lines.join("\n"), "farmer", "farmer.csv");
+    expect(seed.socialClassId).toBe("farmer");
+    expect(seed.populationPersons).toBe(1000);
+    expect(seed.male).toBe(500);
+    expect(seed.female).toBe(500);
+    expect(seed.age["0"]).toBeGreaterThan(0);
+    expect(seed.age["100"]).toBeGreaterThan(0);
+    expect(seed.education15Plus.basic).toBeGreaterThan(0);
+  });
+
+  it("parses legacy class seed rows", () => {
     const seed = parseClassCsv(
       [
         "social_class_id,population_persons,male,female,age_child_0_14,age_youth_15_24,age_prime_25_44,age_mature_45_64,age_senior_65_plus,edu_basic,edu_secondary,edu_tertiary,edu_advanced",

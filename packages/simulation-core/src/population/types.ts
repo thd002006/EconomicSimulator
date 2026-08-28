@@ -40,6 +40,9 @@ export const AGE_BANDS = [
 
 export type AgeBandId = (typeof AGE_BANDS)[number];
 
+export const MAX_SINGLE_YEAR_AGE = 100;
+export const SINGLE_YEAR_AGE_COUNT = 101;
+
 export const WORKING_AGE_BANDS = ["youth_15_24", "prime_25_44", "mature_45_64"] as const;
 export type WorkingAgeBandId = (typeof WORKING_AGE_BANDS)[number];
 
@@ -124,7 +127,7 @@ export interface PopulationClassState {
 
   populationPersons: number;
 
-  ageCounts: NumberById<AgeBandId>;
+  ageCounts: number[];
   genderCounts: NumberById<GenderId>;
   workingAgeEducationCounts: NumberById<EducationLevelId>;
   laborForceSkillCounts: NumberById<SkillLevelId>;
