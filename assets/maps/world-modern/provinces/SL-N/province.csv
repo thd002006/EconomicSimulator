@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SL-N,Northern,Northern,SLE,35890,3267,0.47,0.807,tropical,tropical,1428370003,,Makeni,Makeni
+SL-N,Northern,Northern,SLE,35890,3267,0.815,0.82,tropical,tropical,1428370003,,Makeni,Makeni

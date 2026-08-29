@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ESP-Melilla,Melilla,Melilla,ESP,19,6,0.492,0.581,temperate,temperate,3426912000,,Melilla,Melilla
+ESP-Melilla,Melilla,Melilla,ESP,19,6,0.438,0.671,subtropical,subtropical,3426912000,,Melilla,Melilla

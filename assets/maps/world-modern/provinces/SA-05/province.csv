@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SA-05,Al Quassim,Al-Qassim,SAU,54478,707,0.551,0.648,subtropical,subtropical,31505537996,,Buraydah,Buraidah
+SA-05,Al Quassim,Al-Qassim,SAU,54478,707,0.162,0.323,tropical,tropical,31505537996,,Buraydah,Buraidah

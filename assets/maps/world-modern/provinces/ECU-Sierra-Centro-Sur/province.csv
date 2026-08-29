@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ECU-Sierra-Centro-Sur,Sierra Centro-Sur,Central-South Highlands,ECU,46782,2455,0.365,0.859,tropical,tropical,13815937580,,Cuenca,Cuenca
+ECU-Sierra-Centro-Sur,Sierra Centro-Sur,Central-South Highlands,ECU,46782,2455,0.83,0.884,temperate,temperate,13815937580,,Cuenca,Cuenca

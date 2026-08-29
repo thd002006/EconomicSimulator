@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CA-AB,Alberta,Alberta,CAN,660654,52581,0.358,0.576,temperate,temperate,150655715559,,Edmonton,Edmonton
+CA-AB,Alberta,Alberta,CAN,660654,52581,0.129,0.329,boreal,boreal,150655715559,,Edmonton,Edmonton

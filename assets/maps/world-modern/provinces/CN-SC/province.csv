@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CN-SC,Sichuan,Sichuan,CHN,485293,47603,0.525,0.611,subtropical,subtropical,396430865463,,Chengdu,Chengdu
+CN-SC,Sichuan,Sichuan,CHN,485293,47603,0.534,0.773,temperate,temperate,396430865463,,Chengdu,Chengdu

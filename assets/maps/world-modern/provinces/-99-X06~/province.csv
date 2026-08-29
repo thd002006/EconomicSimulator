@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
--99-X06~,Kashmir,Kashmir,KAS,2094,0,0.49,0.579,temperate,temperate,-288,,,
+-99-X06~,Kashmir,Kashmir,KAS,2094,0,0.05,0.024,arctic,arctic,-288,,,

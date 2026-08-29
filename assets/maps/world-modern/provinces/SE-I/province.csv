@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SE-I,Gotland,Gotland,SWE,3079,344,0.3,0.624,boreal,boreal,1384106681,,Visby,Visby
+SE-I,Gotland,Gotland,SWE,3079,344,0.428,0.655,temperate,temperate,1384106681,,Visby,Visby

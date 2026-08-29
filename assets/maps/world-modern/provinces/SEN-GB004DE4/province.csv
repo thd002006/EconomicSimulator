@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SEN-GB004DE4,Western Senegal,Western Senegal,SEN,30312,5211,0.532,0.758,tropical,tropical,9969750263,,Dakar,Dakar
+SEN-GB004DE4,Western Senegal,Western Senegal,SEN,30312,5211,0.722,0.719,tropical,tropical,9969750263,,Dakar,Dakar

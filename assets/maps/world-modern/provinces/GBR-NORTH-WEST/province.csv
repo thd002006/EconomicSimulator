@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-NORTH-WEST,North West,North West,GBR,14209,963,0.335,0.593,temperate,temperate,182370251880,,,
+GBR-NORTH-WEST,North West,North West,GBR,14209,963,0.571,0.842,temperate,temperate,182370251880,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MA-13,Souss - Massa - Draâ,Suss-Massa-Draa,MAR,72015,2898,0.527,0.613,subtropical,subtropical,16442302434,,Agadir,Agadir
+MA-13,Souss - Massa - Draâ,Suss-Massa-Draa,MAR,72015,2898,0.234,0.457,temperate,temperate,16442302434,,Agadir,Agadir

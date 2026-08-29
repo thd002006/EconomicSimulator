@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PE-PUN,Puno,Puno,PER,72038,699,0.541,0.748,tropical,tropical,4005953718,,Puno,Puno
+PE-PUN,Puno,Puno,PER,72038,699,0.626,0.903,temperate,temperate,4005953718,,Puno,Puno

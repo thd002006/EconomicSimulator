@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-Baden-Wurttemberg,Baden-Wurttemberg,Baden-Wurttemberg,DEU,36009,9248,0.384,0.563,temperate,temperate,446990796023,,Stuttgart,Stuttgart
+DEU-Baden-Wurttemberg,Baden-Wurttemberg,Baden-Wurttemberg,DEU,36009,9248,0.565,0.898,temperate,temperate,446990796023,,Stuttgart,Stuttgart

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-EST-G235FC61,Southern Estonia,Southern Estonia,EST,16987,1828,0.294,0.631,boreal,boreal,3708242330,,,
+EST-G235FC61,Southern Estonia,Southern Estonia,EST,16987,1828,0.392,0.586,temperate,temperate,3708242330,,,

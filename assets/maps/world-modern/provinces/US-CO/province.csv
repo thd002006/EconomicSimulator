@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-CO,Colorado,Colorado,USA,269031,12300,0.463,0.564,temperate,temperate,227389227080,,Denver,Denver
+US-CO,Colorado,Colorado,USA,269031,12300,0.304,0.63,temperate,temperate,227389227080,,Denver,Denver

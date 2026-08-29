@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-ARK,Arkhangel'sk,Arkhangelsk,RUS,401184,978,0.157,0.427,arctic,arctic,20603374333,,Archangel,Arkhangelsk
+RU-ARK,Arkhangel'sk,Arkhangelsk,RUS,401184,978,0.081,0.22,boreal,boreal,20603374333,,Archangel,Arkhangelsk

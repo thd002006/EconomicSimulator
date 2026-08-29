@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CHE-M269,Valais–Genève–Vaud,Valais–Geneva–Vaud,CHE,8878,507,0.404,0.557,temperate,temperate,61125973533,,Geneva,Geneva
+CHE-M269,Valais–Genève–Vaud,Valais–Geneva–Vaud,CHE,8878,507,0.346,0.57,boreal,boreal,61125973533,,Geneva,Geneva

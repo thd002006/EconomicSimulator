@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IS-7,Austurland,Austurland,ISL,21289,34,0.23,0.403,boreal,boreal,359810062,,Egilsstaðir,Egilsstaðir
+IS-7,Austurland,Austurland,ISL,21289,34,0.188,0.385,boreal,boreal,359810062,,Egilsstaðir,Egilsstaðir

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZ-32,El Bayadh,El Bayadh,DZA,68417,75,0.508,0.593,subtropical,subtropical,12262746952,,,
+DZ-32,El Bayadh,El Bayadh,DZA,68417,75,0.139,0.286,subtropical,subtropical,12262746952,,,

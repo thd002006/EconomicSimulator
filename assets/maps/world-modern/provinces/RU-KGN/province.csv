@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-KGN,Kurgan,Kurgan,RUS,71830,7748,0.321,0.604,boreal,boreal,8263383333,,Kurgan,Kurgan
+RU-KGN,Kurgan,Kurgan,RUS,71830,7748,0.14,0.378,boreal,boreal,8263383333,,Kurgan,Kurgan

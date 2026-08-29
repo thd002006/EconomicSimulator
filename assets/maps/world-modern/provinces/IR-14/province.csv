@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IR-14,Fars,Fars,IRN,125872,7499,0.532,0.619,subtropical,subtropical,34399315176,,Shiraz,Shiraz
+IR-14,Fars,Fars,IRN,125872,7499,0.239,0.463,subtropical,subtropical,34399315176,,Shiraz,Shiraz

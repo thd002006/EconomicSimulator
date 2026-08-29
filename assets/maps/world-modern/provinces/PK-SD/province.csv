@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PK-SD,Sind,Sindh,PAK,140889,31845,0.555,0.656,subtropical,subtropical,135164469797,,Karachi,Karachi
+PK-SD,Sind,Sindh,PAK,140889,31845,0.16,0.337,tropical,tropical,135164469797,,Karachi,Karachi

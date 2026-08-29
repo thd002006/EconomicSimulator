@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FRA-Île-de-France,Île-de-France,Île-de-France,FRA,12074,2460,0.384,0.563,temperate,temperate,599013950704,,Paris,Paris
+FRA-Île-de-France,Île-de-France,Île-de-France,FRA,12074,2460,0.647,0.816,temperate,temperate,599013950704,,Paris,Paris

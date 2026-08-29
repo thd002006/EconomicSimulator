@@ -197,10 +197,7 @@ export async function exportProjectToL3L4(options: {
   await ensureProjectClassesFromBase(projectDir, baseRoot, allMemberIds);
 
   const mapsRoot = join(options.repoRoot, "assets/maps");
-  const mapId = await allocateMapId(
-    mapsRoot,
-    options.requestedMapId ?? project.meta.suggestedMapId
-  );
+  const mapId = (options.requestedMapId ?? project.meta.suggestedMapId).trim().toLowerCase();
   const outDir = join(mapsRoot, mapId);
   const stagingDir = join(mapsRoot, `.${mapId}.exporting-${process.pid}-${Date.now()}`);
   await mkdir(stagingDir, { recursive: true });
@@ -339,6 +336,7 @@ export async function exportProjectToL3L4(options: {
     });
 
     let renameError: unknown;
+    await rm(outDir, { recursive: true, force: true });
     for (let attempt = 0; attempt < 10; attempt += 1) {
       try {
         await rename(stagingDir, outDir);
@@ -352,15 +350,8 @@ export async function exportProjectToL3L4(options: {
       }
     }
     if (renameError !== undefined) {
-      const stagedManifest = join(stagingDir, "map.json");
-      const installingManifest = join(outDir, ".map.json.installing");
-      await mkdir(outDir);
-      await cp(stagingDir, outDir, {
-        recursive: true,
-        filter: (source) => source !== stagedManifest
-      });
-      await copyFile(stagedManifest, installingManifest);
-      await rename(installingManifest, join(outDir, "map.json"));
+      await mkdir(outDir, { recursive: true });
+      await cp(stagingDir, outDir, { recursive: true });
       await rm(stagingDir, { recursive: true, force: true });
     }
     installed = true;
@@ -381,6 +372,7 @@ function parseArgs(args: readonly string[]): { projectId: string; mapId?: string
   let mapId: string | undefined;
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]!;
+    if (argument === "--") continue;
     if (argument === "--project") {
       projectId = args[++index];
       continue;

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LY-JU,Al Jufrah,Jufra,LBY,115214,52,0.54,0.63,subtropical,subtropical,949728759,,Hun,Hun
+LY-JU,Al Jufrah,Jufra,LBY,115214,52,0.059,0,subtropical,subtropical,949728759,,Hun,Hun

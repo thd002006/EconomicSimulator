@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-AZ,Arizona,Arizona,USA,295121,2849,0.5,0.586,subtropical,subtropical,207451565957,,Phoenix,Phoenix
+US-AZ,Arizona,Arizona,USA,295121,2849,0.396,0.628,temperate,temperate,207451565957,,Phoenix,Phoenix

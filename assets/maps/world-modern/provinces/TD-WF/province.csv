@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TD-WF,Wadi Fira,Wadi Fira,TCD,55067,19,0.54,0.75,tropical,tropical,260055563,,Biltine,Biltine
+TD-WF,Wadi Fira,Wadi Fira,TCD,55067,19,0.183,0.38,tropical,tropical,260055563,,Biltine,Biltine

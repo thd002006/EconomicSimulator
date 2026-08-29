@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CRI-GB0385E3,Southern Costa Rica,Southern Costa Rica,CRI,28698,1046,0.48,0.8,tropical,tropical,24136033252,,Cartago,Cartago
+CRI-GB0385E3,Southern Costa Rica,Southern Costa Rica,CRI,28698,1046,0.826,0.84,tropical,tropical,24136033252,,Cartago,Cartago

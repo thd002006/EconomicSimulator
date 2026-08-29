@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-YEM-GE182F43,Southern Yemen,Southern Yemen,YEM,98615,1185,0.532,0.759,tropical,tropical,12428612436,,,
+YEM-GE182F43,Southern Yemen,Southern Yemen,YEM,98615,1185,0.15,0.277,tropical,tropical,12428612436,,,

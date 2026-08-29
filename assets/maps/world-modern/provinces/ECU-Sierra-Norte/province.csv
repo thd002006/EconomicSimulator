@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ECU-Sierra-Norte,Sierra Norte,North Highlands,ECU,23720,1545,0.334,0.872,tropical,tropical,26516295824,,Tulcán,Tulcán
+ECU-Sierra-Norte,Sierra Norte,North Highlands,ECU,23720,1545,0.852,0.903,temperate,temperate,26516295824,,Tulcán,Tulcán

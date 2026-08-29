@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BR-PA,Pará,Pará,BRA,1236020,20256,0.351,0.865,tropical,tropical,58486397282,,Belém,Belém
+BR-PA,Pará,Pará,BRA,1236020,20256,0.864,0.835,tropical,tropical,58486397282,,Belém,Belém

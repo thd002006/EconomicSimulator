@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CN-GS,Gansu,Gansu,CHN,405368,20410,0.485,0.576,temperate,temperate,69426741619,,Lanzhou,Lanzhou
+CN-GS,Gansu,Gansu,CHN,405368,20410,0.17,0.433,temperate,temperate,69426741619,,Lanzhou,Lanzhou

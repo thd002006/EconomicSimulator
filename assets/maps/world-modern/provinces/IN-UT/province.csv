@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-UT,Uttarakhand,Uttarakhand,IND,52696,9181,0.528,0.614,subtropical,subtropical,14452363539,,Dehra Dun,Dehradun
+IN-UT,Uttarakhand,Uttarakhand,IND,52696,9181,0.789,0.903,temperate,temperate,14452363539,,Dehra Dun,Dehradun

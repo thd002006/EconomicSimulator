@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SDN-Northern,Northern,Northern,SDN,491121,1126,0.561,0.706,tropical,tropical,1917109355,,Dongola,Karma
+SDN-Northern,Northern,Northern,SDN,491121,1126,0.061,0.018,tropical,tropical,1917109355,,Dongola,Karma

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IR-12,Semnan,Semnan,IRN,90481,1288,0.488,0.578,temperate,temperate,6549508010,,Semnan,Semnan
+IR-12,Semnan,Semnan,IRN,90481,1288,0.183,0.394,temperate,temperate,6549508010,,Semnan,Semnan

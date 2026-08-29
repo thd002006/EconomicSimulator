@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CA-NL,Newfoundland and Labrador,Newfoundland and Labrador,CAN,401614,236,0.347,0.584,temperate,temperate,14231730647,,St. John's,St. John's
+CA-NL,Newfoundland and Labrador,Newfoundland and Labrador,CAN,401614,236,0.127,0.295,boreal,boreal,14231730647,,St. John's,St. John's

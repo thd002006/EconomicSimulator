@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HUN-Northern-Great-Plain,Northern Great Plain,Northern Great Plain,HUN,17510,4680,0.394,0.56,temperate,temperate,19178047657,,Debrecen,Debrecen
+HUN-Northern-Great-Plain,Northern Great Plain,Northern Great Plain,HUN,17510,4680,0.561,0.795,temperate,temperate,19178047657,,Debrecen,Debrecen

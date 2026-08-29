@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RUS-G3B40363,Smolensk–Bryansk,Smolensk–Bryansk,RUS,85178,5821,0.334,0.593,temperate,temperate,21186291876,,Bryansk,Bryansk
+RUS-G3B40363,Smolensk–Bryansk,Smolensk–Bryansk,RUS,85178,5821,0.384,0.578,boreal,boreal,21186291876,,Bryansk,Bryansk

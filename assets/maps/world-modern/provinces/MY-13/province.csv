@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MY-13,Sarawak,Sarawak,MYS,123091,6988,0.37,0.857,tropical,tropical,29277420414,,Kuching,Kuching
+MY-13,Sarawak,Sarawak,MYS,123091,6988,0.777,0.772,tropical,tropical,29277420414,,Kuching,Kuching

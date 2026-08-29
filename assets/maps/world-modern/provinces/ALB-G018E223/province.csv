@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ALB-G018E223,Albania,Albania,ALB,28295,2579,0.447,0.559,temperate,temperate,17032320298,,Berat,Berat
+ALB-G018E223,Albania,Albania,ALB,28295,2579,0.732,0.9,temperate,temperate,17032320298,,Berat,Berat

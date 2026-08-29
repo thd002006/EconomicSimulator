@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BO-B,El Beni,Beni,BOL,211024,988,0.518,0.772,tropical,tropical,1506039369,,Trinidad,Trinidad
+BO-B,El Beni,Beni,BOL,211024,988,0.864,0.831,tropical,tropical,1506039369,,Trinidad,Trinidad

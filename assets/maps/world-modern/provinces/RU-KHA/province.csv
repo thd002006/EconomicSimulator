@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-KHA,Khabarovsk,Khabarovsk Krai,RUS,783661,2096,0.329,0.597,temperate,temperate,25133373874,,Khabarovsk,Khabarovsk
+RU-KHA,Khabarovsk,Khabarovsk Krai,RUS,783661,2096,0.081,0.173,arctic,arctic,25133373874,,Khabarovsk,Khabarovsk

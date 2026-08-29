@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BHS-M023,Exuma–Rum Cay–Black Point–San Salvador–Cat Island–Central Eleuthera–South Eleuthera,Exuma–Rum Cay–Black Point–San Salvador Island–Cat Island–Central Eleuthera–South Eleuthera,BHS,1303,2,0.557,0.663,subtropical,subtropical,234346130,,,
+BHS-M023,Exuma–Rum Cay–Black Point–San Salvador–Cat Island–Central Eleuthera–South Eleuthera,Exuma–Rum Cay–Black Point–San Salvador Island–Cat Island–Central Eleuthera–South Eleuthera,BHS,1303,2,0.885,0.835,tropical,tropical,234346130,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BR-MT,Mato Grosso,Mato Grosso,BRA,906630,41091,0.525,0.765,tropical,tropical,23210964115,,Cuiabá,Cuiabá
+BR-MT,Mato Grosso,Mato Grosso,BRA,906630,41091,0.903,0.852,tropical,tropical,23210964115,,Cuiabá,Cuiabá

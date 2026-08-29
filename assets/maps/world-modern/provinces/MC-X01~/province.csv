@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MC-X01~,Monaco,Monaco,MCO,19,0,0.426,0.555,temperate,temperate,0,,Monaco,Monaco
+MC-X01~,Monaco,Monaco,MCO,19,0,0.835,0.855,temperate,temperate,0,,Monaco,Monaco

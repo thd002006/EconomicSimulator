@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CN-JX,Jiangxi,Jiangxi,CHN,168072,29604,0.544,0.636,subtropical,subtropical,96969480440,,Nanchang,Nanchang
+CN-JX,Jiangxi,Jiangxi,CHN,168072,29604,0.903,0.903,temperate,temperate,96969480440,,Nanchang,Nanchang

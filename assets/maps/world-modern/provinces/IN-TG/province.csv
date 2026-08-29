@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-TG,Telangana,Telangana,IND,115206,44019,0.556,0.723,tropical,tropical,94830224698,,Hyderabad,Hyderabad
+IN-TG,Telangana,Telangana,IND,115206,44019,0.807,0.795,tropical,tropical,94830224698,,Hyderabad,Hyderabad

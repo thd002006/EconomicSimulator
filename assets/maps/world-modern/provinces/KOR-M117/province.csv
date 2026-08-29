@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KOR-M117,North Jeolla–South Jeolla–Gwangju,North Jeolla–South Jeolla–Gwangju,KOR,19752,2550,0.493,0.582,subtropical,subtropical,95457623756,,Gwangju,Gwangju
+KOR-M117,North Jeolla–South Jeolla–Gwangju,North Jeolla–South Jeolla–Gwangju,KOR,19752,2550,0.774,0.903,temperate,temperate,95457623756,,Gwangju,Gwangju

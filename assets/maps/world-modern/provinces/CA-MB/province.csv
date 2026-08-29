@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CA-MB,Manitoba,Manitoba,CAN,625034,19346,0.334,0.593,temperate,temperate,37435631341,,Winnipeg,Winnipeg
+CA-MB,Manitoba,Manitoba,CAN,625034,19346,0.088,0.238,boreal,boreal,37435631341,,Winnipeg,Winnipeg

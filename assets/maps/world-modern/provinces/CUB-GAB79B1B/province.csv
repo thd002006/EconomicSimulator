@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CUB-GAB79B1B,Western Cuba,Western Cuba,CUB,33570,2997,0.561,0.679,tropical,tropical,50264243757,,Pinar del Rio,Pinar del Rio
+CUB-GAB79B1B,Western Cuba,Western Cuba,CUB,33570,2997,0.9,0.851,tropical,tropical,50264243757,,Pinar del Rio,Pinar del Rio

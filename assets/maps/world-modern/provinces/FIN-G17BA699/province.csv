@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FIN-G17BA699,Eastern Finland,Eastern Finland,FIN,65381,1082,0.242,0.401,boreal,boreal,11796650905,,,
+FIN-G17BA699,Eastern Finland,Eastern Finland,FIN,65381,1082,0.228,0.403,boreal,boreal,11796650905,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FI-10,Lapland,Lapland,FIN,97587,209,0.204,0.409,arctic,arctic,4737050123,,Rovaniemi,Rovaniemi
+FI-10,Lapland,Lapland,FIN,97587,209,0.107,0.27,boreal,boreal,4737050123,,Rovaniemi,Rovaniemi
