@@ -479,3 +479,21 @@ export function validateClassSeedRows(rows: readonly ClassSeedRow[]): string[] {
   }
   return errors;
 }
+
+/** Seed L2 `provinces/<sourceId>/classes/*.csv` from L1 demographics.json. */
+export async function seedProjectClassesFromBase(
+  projectDir: string,
+  baseRoot: string
+): Promise<number> {
+  const demographicsPath = join(baseRoot, "demographics.json");
+  const demographics = JSON.parse(await readFile(demographicsPath, "utf8")) as Record<
+    string,
+    ProvinceDemographicsEntry
+  >;
+  let files = 0;
+  for (const [provinceId, demo] of Object.entries(demographics)) {
+    files += await writeProvinceClassCsvs(join(projectDir, "provinces", provinceId), demo);
+  }
+  return files;
+}
+

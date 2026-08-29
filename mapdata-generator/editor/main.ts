@@ -1,22 +1,11 @@
-import maplibregl from "maplibre-gl";
-
-interface ProjectGroup {
-  id: string;
-  countryId: string;
-  members: string[];
-  name: string;
-  nameEn: string;
-}
-
-interface EditorProject {
-  meta: {
-    projectId: string;
-    baseMapId: string;
-    suggestedMapId: string;
-    name: string;
-  };
-  groups: ProjectGroup[];
-}
+import {
+  computeBBox,
+  EditorMapRenderer,
+  type BaseProvinceFeature,
+  type EditorBaseData,
+  type EditorProject,
+  type ProjectGroup
+} from "./renderer.js";
 
 const baseSelect = document.querySelector<HTMLSelectElement>("#baseSelect")!;
 const projectSelect = document.querySelector<HTMLSelectElement>("#projectSelect")!;
@@ -24,60 +13,15 @@ const countrySelect = document.querySelector<HTMLSelectElement>("#countrySelect"
 const groupsEl = document.querySelector<HTMLDivElement>("#groups")!;
 const statusEl = document.querySelector<HTMLDivElement>("#status")!;
 const exportMapId = document.querySelector<HTMLInputElement>("#exportMapId")!;
+const selectedCountEl = document.querySelector<HTMLSpanElement>("#selectedCount")!;
+const tooltipEl = document.querySelector<HTMLDivElement>("#tooltip")!;
+const canvas = document.querySelector<HTMLCanvasElement>("canvas#map-canvas")!;
 
-let project: EditorProject | null = null;
-let selected = new Set<string>();
+const renderer = new EditorMapRenderer(canvas);
 
-const map = new maplibregl.Map({
-  container: "map",
-  style: {
-    version: 8,
-    sources: {
-      osm: {
-        type: "raster",
-        tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-        tileSize: 256,
-        attribution: "© OpenStreetMap"
-      }
-    },
-    layers: [{ id: "osm", type: "raster", source: "osm" }]
-  },
-  center: [10, 30],
-  zoom: 2
-});
-
-map.on("load", () => {
-  map.addSource("provinces", {
-    type: "geojson",
-    data: { type: "FeatureCollection", features: [] }
-  });
-  map.addLayer({
-    id: "province-fill",
-    type: "fill",
-    source: "provinces",
-    paint: {
-      "fill-color": "#3498db",
-      "fill-opacity": 0.45
-    }
-  });
-  map.addLayer({
-    id: "province-line",
-    type: "line",
-    source: "provinces",
-    paint: { "line-color": "#1a5276", "line-width": 1 }
-  });
-  map.on("click", "province-fill", (event) => {
-    const feature = event.features?.[0];
-    if (feature === undefined || project === null) return;
-    const sourceId = String(feature.id ?? "");
-    if (sourceId === "") return;
-    const group = project.groups.find((entry) => entry.members.includes(sourceId));
-    if (group === undefined) return;
-    if (selected.has(group.id)) selected.delete(group.id);
-    else selected.add(group.id);
-    renderGroups();
-  });
-});
+let currentProject: EditorProject | null = null;
+let currentBaseData: EditorBaseData | null = null;
+const selectedGroupIds = new Set<string>();
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -93,166 +37,469 @@ function setStatus(text: string): void {
   statusEl.textContent = text;
 }
 
+function updateSelectedCount(): void {
+  selectedCountEl.textContent = String(selectedGroupIds.size);
+}
+
+function findGroupByProvinceId(provinceId: string): ProjectGroup | undefined {
+  if (!currentProject) return undefined;
+  return currentProject.groups.find((g) => g.members.includes(provinceId));
+}
+
+function getCountryDisplayName(countryId: string): string {
+  if (!countryId) return "";
+  const entry = currentBaseData?.countryNames?.[countryId];
+  if (entry) {
+    if (entry.name && entry.nameEn && entry.name !== entry.nameEn) {
+      return `${entry.name} (${entry.nameEn}, ${countryId})`;
+    }
+    return `${entry.name || entry.nameEn} (${countryId})`;
+  }
+  return countryId;
+}
+
+function renderGroups(): void {
+  const groupStatsEl = document.querySelector<HTMLDivElement>("#groupStats");
+  if (!currentProject) {
+    groupsEl.innerHTML = "";
+    if (groupStatsEl) groupStatsEl.textContent = "";
+    updateSelectedCount();
+    return;
+  }
+  const country = countrySelect.value;
+  const visible = currentProject.groups
+    .filter((g) => country === "" || g.countryId === country)
+    .sort((a, b) => a.nameEn.localeCompare(b.nameEn));
+
+  if (groupStatsEl) {
+    const totalMemberCount = visible.reduce((sum, g) => sum + g.members.length, 0);
+    groupStatsEl.textContent = country
+      ? `${getCountryDisplayName(country)}: 共 ${visible.length} 组 / ${totalMemberCount} 省`
+      : `全球所有国家: 共 ${visible.length} 组 / ${totalMemberCount} 省`;
+  }
+
+  groupsEl.innerHTML = visible
+    .map((g) => {
+      const isSelected = selectedGroupIds.has(g.id);
+      const title = g.nameEn && g.name && g.name !== g.nameEn
+        ? `${g.nameEn} (${g.name})`
+        : g.nameEn || g.name || g.id;
+      return `
+        <div class="group-item ${isSelected ? "selected" : ""}" data-id="${g.id}">
+          <input type="checkbox" data-id="${g.id}" ${isSelected ? "checked" : ""} />
+          <div class="group-info">
+            <div class="group-title">${title}</div>
+            <div class="group-meta">${g.id} · ${g.members.length}省</div>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  groupsEl.querySelectorAll<HTMLDivElement>(".group-item").forEach((el) => {
+    const gid = el.dataset.id!;
+    el.addEventListener("click", (e) => {
+      if ((e.target as HTMLElement).tagName === "INPUT") return;
+      if (e.shiftKey) {
+        if (selectedGroupIds.has(gid)) selectedGroupIds.delete(gid);
+        else selectedGroupIds.add(gid);
+      } else {
+        selectedGroupIds.clear();
+        selectedGroupIds.add(gid);
+      }
+      onSelectionChanged();
+      focusGroup(gid);
+    });
+
+    const checkbox = el.querySelector<HTMLInputElement>("input[type=checkbox]")!;
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) selectedGroupIds.add(gid);
+      else selectedGroupIds.delete(gid);
+      onSelectionChanged();
+    });
+  });
+
+  updateSelectedCount();
+}
+
+function onSelectionChanged(): void {
+  renderer.selectedGroupIds = selectedGroupIds;
+  renderer.rebuildHighlight();
+  renderer.render();
+  renderGroups();
+}
+
+function focusGroup(groupId: string): void {
+  if (!currentProject || !currentBaseData) return;
+  const group = currentProject.groups.find((g) => g.id === groupId);
+  if (!group) return;
+
+  const memberFeatures = currentBaseData.provinces.filter((p) => group.members.includes(p.id));
+  if (memberFeatures.length === 0) return;
+
+  let minLon = Infinity;
+  let minLat = Infinity;
+  let maxLon = -Infinity;
+  let maxLat = -Infinity;
+
+  for (const f of memberFeatures) {
+    if (f.bbox.minLon < minLon) minLon = f.bbox.minLon;
+    if (f.bbox.maxLon > maxLon) maxLon = f.bbox.maxLon;
+    if (f.bbox.minLat < minLat) minLat = f.bbox.minLat;
+    if (f.bbox.maxLat > maxLat) maxLat = f.bbox.maxLat;
+  }
+
+  renderer.focusBBox({ minLon, minLat, maxLon, maxLat });
+}
+
+function focusCountry(countryId: string): void {
+  if (!currentBaseData || !countryId) return;
+  const countryProvinces = currentBaseData.provinces.filter((p) => p.countryId === countryId);
+  if (countryProvinces.length === 0) return;
+
+  let minLon = Infinity;
+  let minLat = Infinity;
+  let maxLon = -Infinity;
+  let maxLat = -Infinity;
+
+  for (const f of countryProvinces) {
+    if (f.bbox.minLon < minLon) minLon = f.bbox.minLon;
+    if (f.bbox.maxLon > maxLon) maxLon = f.bbox.maxLon;
+    if (f.bbox.minLat < minLat) minLat = f.bbox.minLat;
+    if (f.bbox.maxLat > maxLat) maxLat = f.bbox.maxLat;
+  }
+
+  renderer.focusBBox({ minLon, minLat, maxLon, maxLat });
+}
+
+async function loadBase(baseMapId: string): Promise<void> {
+  setStatus(`正在加载基础地图 ${baseMapId}...`);
+  const raw = await api<{
+    provinces: GeoJSON.FeatureCollection;
+    coastlines: GeoJSON.FeatureCollection;
+    boundaries: { type: string; features: unknown[] };
+    demographics: Record<string, { pop?: number; gdpPpp?: number }>;
+    countryNames?: Record<string, { name?: string; nameEn: string }>;
+  }>(`/api/bases/${encodeURIComponent(baseMapId)}/full`);
+
+  const provinces: BaseProvinceFeature[] = raw.provinces.features.map((f) => {
+    const props = (f.properties ?? {}) as Record<string, unknown>;
+    const id = String(f.id ?? props.id ?? "");
+    const geom = f.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
+    const capitalRaw = props.capital as { name?: string | undefined; coordinates: [number, number] } | undefined;
+    const capital = capitalRaw
+      ? {
+          name: capitalRaw.name,
+          coordinates: capitalRaw.coordinates
+        }
+      : undefined;
+    return {
+      id,
+      countryId: String(props.adm0A3 ?? "UNK"),
+      name: String(props.name ?? id),
+      nameEn: String(props.nameEn ?? id),
+      geometry: geom,
+      bbox: computeBBox(geom),
+      capital
+    };
+  });
+
+  const coastlines = (raw.coastlines?.features ?? []).map((f: unknown) => {
+    const feature = f as {
+      id?: string | number;
+      geometry?: GeoJSON.LineString | GeoJSON.MultiLineString;
+      coordinates?: [number, number][];
+    };
+    let coords: [number, number][] = [];
+    if (feature.coordinates && Array.isArray(feature.coordinates)) {
+      coords = feature.coordinates;
+    } else if (feature.geometry) {
+      coords =
+        feature.geometry.type === "LineString"
+          ? (feature.geometry.coordinates as [number, number][])
+          : ((feature.geometry.coordinates as [number, number][][]).flat() as [number, number][]);
+    }
+    return {
+      id: String(feature.id ?? ""),
+      coordinates: coords
+    };
+  });
+
+  const boundaries = (raw.boundaries?.features ?? []).map((f: unknown) => {
+    const feature = f as {
+      id?: string | number;
+      leftProvinceId?: string;
+      rightProvinceId?: string | null;
+      coordinates?: [number, number][];
+      properties?: Record<string, unknown>;
+      geometry?: GeoJSON.LineString;
+    };
+    const leftProvinceId = String(
+      feature.leftProvinceId ?? feature.properties?.leftProvinceId ?? ""
+    );
+    const rightProvinceId =
+      feature.rightProvinceId !== undefined
+        ? feature.rightProvinceId !== null
+          ? String(feature.rightProvinceId)
+          : null
+        : feature.properties?.rightProvinceId !== undefined && feature.properties?.rightProvinceId !== null
+          ? String(feature.properties.rightProvinceId)
+          : null;
+    const coordinates = (feature.coordinates ??
+      feature.geometry?.coordinates ??
+      []) as [number, number][];
+
+    return {
+      id: String(feature.id ?? ""),
+      leftProvinceId,
+      rightProvinceId,
+      coordinates
+    };
+  });
+
+  const countries = [...new Set(provinces.map((p) => p.countryId))].sort((a, b) => {
+    const nameA = raw.countryNames?.[a]?.nameEn ?? a;
+    const nameB = raw.countryNames?.[b]?.nameEn ?? b;
+    return nameA.localeCompare(nameB);
+  });
+
+  currentBaseData = {
+    provinces,
+    boundaries,
+    coastlines,
+    demographics: raw.demographics ?? {},
+    countries,
+    countryNames: raw.countryNames ?? {}
+  };
+
+  renderer.setBaseData(currentBaseData);
+  countrySelect.innerHTML =
+    `<option value="">（全球总览 / 选择国家聚焦）</option>` +
+    countries
+      .map((c) => {
+        const displayName = getCountryDisplayName(c);
+        return `<option value="${c}">${displayName}</option>`;
+      })
+      .join("");
+}
+
+async function openProject(projectId: string): Promise<void> {
+  const project = await api<EditorProject>(`/api/projects/${encodeURIComponent(projectId)}`);
+  if (!currentBaseData || currentProject?.meta.baseMapId !== project.meta.baseMapId) {
+    await loadBase(project.meta.baseMapId);
+  }
+  currentProject = project;
+  selectedGroupIds.clear();
+  exportMapId.value = project.meta.suggestedMapId || project.meta.projectId;
+  if (currentProject) {
+    renderer.setProject(currentProject);
+  }
+
+  setStatus(
+    `已打开 ${project.meta.projectId}\nbase=${project.meta.baseMapId}\n总组数=${project.groups.length}`
+  );
+  renderGroups();
+  onSelectionChanged();
+}
+
 async function refreshLists(): Promise<void> {
   const bases = await api<{ bases: string[] }>("/api/bases");
-  baseSelect.innerHTML = bases.bases
-    .map((id) => `<option value="${id}">${id}</option>`)
-    .join("");
+  baseSelect.innerHTML = bases.bases.map((id) => `<option value="${id}">${id}</option>`).join("");
   if (bases.bases.includes("world-admin1")) baseSelect.value = "world-admin1";
+
   const projects = await api<{ projects: string[] }>("/api/projects");
   projectSelect.innerHTML = projects.projects
     .map((id) => `<option value="${id}">${id}</option>`)
     .join("");
 }
 
-function renderGroups(): void {
-  if (project === null) {
-    groupsEl.innerHTML = "";
-    return;
-  }
-  const country = countrySelect.value;
-  const visible = project.groups
-    .filter((group) => country === "" || group.countryId === country)
-    .sort((a, b) => a.nameEn.localeCompare(b.nameEn));
-  groupsEl.innerHTML = visible
-    .map((group) => {
-      const checked = selected.has(group.id) ? "checked" : "";
-      return `<label><input type="checkbox" data-id="${group.id}" ${checked}/> <span><strong>${group.nameEn}</strong> <span class="muted">(${group.id}, ${group.members.length})</span></span></label>`;
-    })
-    .join("");
-  groupsEl.querySelectorAll<HTMLInputElement>("input[type=checkbox]").forEach((input) => {
-    input.addEventListener("change", () => {
-      const id = input.dataset.id!;
-      if (input.checked) selected.add(id);
-      else selected.delete(id);
-    });
-  });
-}
+// Map Click & Hover
+let mouseDownPos = { x: 0, y: 0 };
+canvas.addEventListener("pointerdown", (e) => {
+  mouseDownPos = { x: e.clientX, y: e.clientY };
+});
 
-async function loadCountryGeojson(): Promise<void> {
-  if (project === null) return;
-  const country = countrySelect.value;
-  if (country === "") {
-    (map.getSource("provinces") as maplibregl.GeoJSONSource).setData({
-      type: "FeatureCollection",
-      features: []
-    });
-    return;
+canvas.addEventListener("pointerup", (e) => {
+  const dx = e.clientX - mouseDownPos.x;
+  const dy = e.clientY - mouseDownPos.y;
+  if (Math.abs(dx) > 4 || Math.abs(dy) > 4) return; // was dragging
+
+  const [lon, lat] = renderer.screenToLonLat(e.clientX, e.clientY);
+  const hit = renderer.spatialIndex?.hitTest(lon, lat);
+  if (!hit || !currentProject) return;
+
+  const group = findGroupByProvinceId(hit.id);
+  if (!group) return;
+
+  if (e.shiftKey) {
+    if (selectedGroupIds.has(group.id)) selectedGroupIds.delete(group.id);
+    else selectedGroupIds.add(group.id);
+  } else {
+    selectedGroupIds.clear();
+    selectedGroupIds.add(group.id);
   }
-  const data = await api<GeoJSON.FeatureCollection>(
-    `/api/bases/${encodeURIComponent(project.meta.baseMapId)}/geojson?country=${encodeURIComponent(country)}`
-  );
-  for (const feature of data.features) {
-    if (feature.id === undefined && feature.properties && "id" in feature.properties) {
-      feature.id = String((feature.properties as { id: string }).id);
+
+  // Auto set country filter or keep
+  if (countrySelect.value !== "" && countrySelect.value !== group.countryId) {
+    countrySelect.value = group.countryId;
+  }
+
+  onSelectionChanged();
+
+  // Scroll into view in list
+  const activeEl = groupsEl.querySelector(`[data-id="${group.id}"]`);
+  activeEl?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+});
+
+canvas.addEventListener("pointermove", (e) => {
+  const [lon, lat] = renderer.screenToLonLat(e.clientX, e.clientY);
+  const hit = renderer.spatialIndex?.hitTest(lon, lat);
+
+  if (hit) {
+    renderer.hoveredProvinceId = hit.id;
+    renderer.rebuildHighlight();
+    renderer.render();
+
+    const group = findGroupByProvinceId(hit.id);
+    const demo = currentBaseData?.demographics[hit.id];
+    const popStr = demo?.pop ? `${(demo.pop / 10000).toFixed(1)}万人` : "暂无人口";
+    const gdpStr = demo?.gdpPpp ? `$${(demo.gdpPpp / 1e9).toFixed(2)}B` : "";
+
+    const countryName = getCountryDisplayName(hit.countryId);
+    tooltipEl.style.display = "block";
+    tooltipEl.style.left = `${e.clientX}px`;
+    tooltipEl.style.top = `${e.clientY}px`;
+    tooltipEl.innerHTML = `
+      <strong>${hit.nameEn} (${hit.name})</strong>
+      <div>国家: ${countryName} | 省份代码: ${hit.id}</div>
+      <div>所属合并组: ${group ? `${group.nameEn} (${group.id}, 包含${group.members.length}省)` : "未分组"}</div>
+      <div class="muted">人口: ${popStr} ${gdpStr ? `| GDP: ${gdpStr}` : ""}</div>
+    `;
+  } else {
+    if (renderer.hoveredProvinceId !== undefined) {
+      delete renderer.hoveredProvinceId;
+      renderer.rebuildHighlight();
+      renderer.render();
     }
+    tooltipEl.style.display = "none";
   }
-  (map.getSource("provinces") as maplibregl.GeoJSONSource).setData(data);
-}
+});
 
-async function openProject(projectId: string): Promise<void> {
-  project = await api<EditorProject>(`/api/projects/${encodeURIComponent(projectId)}`);
-  selected = new Set();
-  exportMapId.value = project.meta.suggestedMapId;
-  const index = await api<{ countries: string[] }>(
-    `/api/bases/${encodeURIComponent(project.meta.baseMapId)}/index`
-  );
-  countrySelect.innerHTML =
-    `<option value="">（选择国家以预览）</option>` +
-    index.countries.map((id) => `<option value="${id}">${id}</option>`).join("");
-  setStatus(
-    `已打开 ${project.meta.projectId}\nbase=${project.meta.baseMapId}\n组数=${project.groups.length}`
-  );
+canvas.addEventListener("pointerleave", () => {
+  tooltipEl.style.display = "none";
+  if (renderer.hoveredProvinceId !== undefined) {
+    delete renderer.hoveredProvinceId;
+    renderer.rebuildHighlight();
+    renderer.render();
+  }
+});
+
+// UI Controls
+countrySelect.addEventListener("change", () => {
   renderGroups();
-  await loadCountryGeojson();
-}
+  focusCountry(countrySelect.value);
+});
 
 document.querySelector("#btnRefresh")!.addEventListener("click", () => {
-  void refreshLists().catch((error) => setStatus(String(error)));
+  void refreshLists().catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnNew")!.addEventListener("click", () => {
   void (async () => {
     const baseMapId = baseSelect.value;
-    if (!baseMapId) throw new Error("没有可用的 L1 基础图，请先 pnpm generate:base");
+    if (!baseMapId) throw new Error("请先选择 L1 基础图");
     const created = await api<EditorProject>("/api/projects", {
       method: "POST",
       body: JSON.stringify({
         baseMapId,
-        suggestedMapId: "exported-map",
+        suggestedMapId: "world-modern",
         name: `from ${baseMapId}`
       })
     });
     await refreshLists();
     projectSelect.value = created.meta.projectId;
     await openProject(created.meta.projectId);
-  })().catch((error) => setStatus(String(error)));
+  })().catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnOpen")!.addEventListener("click", () => {
-  void openProject(projectSelect.value).catch((error) => setStatus(String(error)));
+  void openProject(projectSelect.value).catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnSave")!.addEventListener("click", () => {
   void (async () => {
-    if (project === null) throw new Error("无工程");
-    await api(`/api/projects/${encodeURIComponent(project.meta.projectId)}`, {
+    if (!currentProject) throw new Error("无打开的工程");
+    await api(`/api/projects/${encodeURIComponent(currentProject.meta.projectId)}`, {
       method: "PUT",
-      body: JSON.stringify(project)
+      body: JSON.stringify(currentProject)
     });
-    setStatus(`已保存 ${project.meta.projectId}`);
-  })().catch((error) => setStatus(String(error)));
-});
-
-countrySelect.addEventListener("change", () => {
-  selected = new Set();
-  renderGroups();
-  void loadCountryGeojson().catch((error) => setStatus(String(error)));
+    setStatus(`已成功保存工程 ${currentProject.meta.projectId}`);
+  })().catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnMerge")!.addEventListener("click", () => {
   void (async () => {
-    if (project === null) throw new Error("无工程");
-    const groupIds = [...selected];
-    if (groupIds.length < 2) throw new Error("请至少勾选两个组");
-    project = await api<EditorProject>(
-      `/api/projects/${encodeURIComponent(project.meta.projectId)}/merge`,
+    if (!currentProject) throw new Error("无打开的工程");
+    const groupIds = [...selectedGroupIds];
+    if (groupIds.length < 2) throw new Error("请在地图上或列表中至少选择 2 个组进行合并");
+
+    const parts = currentProject.groups.filter((g) => groupIds.includes(g.id));
+    const firstCountry = parts[0]?.countryId;
+    if (parts.some((g) => g.countryId !== firstCountry)) {
+      throw new Error("只能合并同一个国家内的省份/组！");
+    }
+
+    currentProject = await api<EditorProject>(
+      `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/merge`,
       { method: "POST", body: JSON.stringify({ groupIds }) }
     );
-    selected = new Set();
-    setStatus(`已合并 → ${project.groups.length} 组`);
-    renderGroups();
-  })().catch((error) => setStatus(String(error)));
+    selectedGroupIds.clear();
+    renderer.setProject(currentProject);
+    setStatus(`已成功合并 → 剩余 ${currentProject.groups.length} 组`);
+    onSelectionChanged();
+  })().catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnSplit")!.addEventListener("click", () => {
   void (async () => {
-    if (project === null) throw new Error("无工程");
-    if (selected.size !== 1) throw new Error("请只勾选一个要拆分的组");
-    const groupId = [...selected][0]!;
-    project = await api<EditorProject>(
-      `/api/projects/${encodeURIComponent(project.meta.projectId)}/split`,
+    if (!currentProject) throw new Error("无打开的工程");
+    if (selectedGroupIds.size !== 1) throw new Error("请只选择一个要拆分的组");
+    const groupId = [...selectedGroupIds][0]!;
+    const group = currentProject.groups.find((g) => g.id === groupId);
+    if (!group || group.members.length <= 1) throw new Error("该组仅含单个原子省份，无法进一步拆分");
+
+    currentProject = await api<EditorProject>(
+      `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/split`,
       { method: "POST", body: JSON.stringify({ groupId }) }
     );
-    selected = new Set();
-    setStatus(`已拆分 → ${project.groups.length} 组`);
-    renderGroups();
-  })().catch((error) => setStatus(String(error)));
+    selectedGroupIds.clear();
+    renderer.setProject(currentProject);
+    setStatus(`已拆分组 ${groupId} → 现有 ${currentProject.groups.length} 组`);
+    onSelectionChanged();
+  })().catch((e) => setStatus(String(e)));
 });
 
 document.querySelector("#btnExport")!.addEventListener("click", () => {
   void (async () => {
-    if (project === null) throw new Error("无工程");
-    setStatus("导出中（dissolve + publish）…");
+    if (!currentProject) throw new Error("无打开的工程");
+    setStatus("正在导出中（dissolve 几何合并 + L3 资产生成 + publish 自动编译）...");
     const result = await api<{ mapId: string; provinceCount: number }>(
-      `/api/projects/${encodeURIComponent(project.meta.projectId)}/export`,
+      `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/export`,
       {
         method: "POST",
-        body: JSON.stringify({ mapId: exportMapId.value || project.meta.suggestedMapId })
+        body: JSON.stringify({ mapId: exportMapId.value.trim() || currentProject.meta.suggestedMapId })
       }
     );
-    setStatus(`导出完成\nmapId=${result.mapId}\nprovinces=${result.provinceCount}`);
-  })().catch((error) => setStatus(String(error)));
+    setStatus(`✅ 导出完成！\nmapId = ${result.mapId}\n包含省份数 = ${result.provinceCount}\n已自动发布至 assets/maps/`);
+  })().catch((e) => setStatus(String(e)));
 });
 
-void refreshLists().catch((error) => setStatus(String(error)));
+// Init
+void (async () => {
+  await refreshLists();
+  if (projectSelect.value) {
+    await openProject(projectSelect.value);
+  } else if (baseSelect.value) {
+    await loadBase(baseSelect.value);
+  }
+})().catch((e) => setStatus(String(e)));

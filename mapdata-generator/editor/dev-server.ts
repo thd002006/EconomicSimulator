@@ -13,7 +13,7 @@ const vite = await createViteServer({
   appType: "spa",
   plugins: [mapEditorApiPlugin()],
   optimizeDeps: {
-    include: ["maplibre-gl"]
+    include: ["three", "earcut"]
   }
 });
 

@@ -1,5 +1,7 @@
 packages:
   - "."
+  - "editor"
 
 allowBuilds:
   esbuild: true
+

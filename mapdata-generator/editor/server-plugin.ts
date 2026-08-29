@@ -112,13 +112,66 @@ export function mapEditorApiPlugin(): Plugin {
           }
           if (req.method === "GET" && url.pathname.startsWith("/api/bases/")) {
             const parts = url.pathname.split("/").filter(Boolean);
-            // /api/bases/:id/index or /api/bases/:id/geojson?country=
+            // /api/bases/:id/index, /api/bases/:id/full, or /api/bases/:id/geojson?country=
             const baseMapId = decodeURIComponent(parts[2] ?? "");
             if (parts[3] === "index") {
               const index = await loadBaseIndex(baseMapId);
               return sendJson(res, 200, {
                 provinces: index.provinces,
                 countries: index.countries
+              });
+            }
+            if (parts[3] === "full") {
+              const baseRoot = join(generatorRoot, "base", baseMapId);
+              const provincesJson = JSON.parse(
+                await readFile(join(baseRoot, "geometry/provinces.geojson"), "utf8")
+              ) as unknown;
+              let coastlinesJson: unknown = { type: "FeatureCollection", features: [] };
+              try {
+                coastlinesJson = JSON.parse(
+                  await readFile(join(baseRoot, "geometry/coastlines.geojson"), "utf8")
+                );
+              } catch {
+                // optional
+              }
+              let boundariesJson: unknown = { type: "BoundaryCollection", features: [] };
+              try {
+                boundariesJson = JSON.parse(
+                  await readFile(join(baseRoot, "geometry/boundaries.json"), "utf8")
+                );
+              } catch {
+                // optional
+              }
+              let demographics: Record<string, unknown> = {};
+              try {
+                demographics = JSON.parse(
+                  await readFile(join(baseRoot, "demographics.json"), "utf8")
+                );
+              } catch {
+                // optional
+              }
+              const countryNames: Record<string, { name?: string; nameEn: string }> = {};
+              try {
+                const csv = await readFile(join(baseRoot, "countries.csv"), "utf8");
+                const lines = csv.split(/\r?\n/).filter(Boolean);
+                for (let i = 1; i < lines.length; i++) {
+                  const parts = lines[i]!.split(",");
+                  const id = parts[0]?.trim();
+                  const name = parts[2]?.trim();
+                  if (id) {
+                    const nameEn = parts[1]?.trim() || id;
+                    countryNames[id] = { nameEn, ...(name ? { name } : {}) };
+                  }
+                }
+              } catch {
+                // optional
+              }
+              return sendJson(res, 200, {
+                provinces: provincesJson,
+                coastlines: coastlinesJson,
+                boundaries: boundariesJson,
+                demographics,
+                countryNames
               });
             }
             if (parts[3] === "geojson") {

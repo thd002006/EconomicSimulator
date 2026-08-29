@@ -3740,22 +3740,6 @@
       "nameEn": "Suez Canal"
     },
     {
-      "id": "EGY-DELTA",
-      "countryId": "EGY",
-      "members": [
-        "EG-BH",
-        "EG-DK",
-        "EG-DT",
-        "EG-GH",
-        "EG-KB",
-        "EG-KFS",
-        "EG-MNF",
-        "EG-SHR"
-      ],
-      "name": "Nile Delta",
-      "nameEn": "Nile Delta"
-    },
-    {
       "id": "EGY-G-REMAIN-79BC59",
       "countryId": "EGY",
       "members": [
@@ -14891,6 +14875,62 @@
       ],
       "name": "Matabeleland South–Bulawayo",
       "nameEn": "Matabeleland South–Bulawayo"
+    },
+    {
+      "id": "EG-DK",
+      "countryId": "EGY",
+      "members": [
+        "EG-DK"
+      ],
+      "name": "Ad Daqahliyah",
+      "nameEn": "Dakahlia"
+    },
+    {
+      "id": "EG-DT",
+      "countryId": "EGY",
+      "members": [
+        "EG-DT"
+      ],
+      "name": "Dumyat",
+      "nameEn": "Damietta"
+    },
+    {
+      "id": "EG-KB",
+      "countryId": "EGY",
+      "members": [
+        "EG-KB"
+      ],
+      "name": "Al Qalyubiyah",
+      "nameEn": "Qalyubia"
+    },
+    {
+      "id": "EG-KFS",
+      "countryId": "EGY",
+      "members": [
+        "EG-KFS"
+      ],
+      "name": "Kafr ash Shaykh",
+      "nameEn": "Kafr el-Sheikh"
+    },
+    {
+      "id": "EG-SHR",
+      "countryId": "EGY",
+      "members": [
+        "EG-SHR"
+      ],
+      "name": "Ash Sharqiyah",
+      "nameEn": "Al Sharqia"
+    },
+    {
+      "id": "EGY-G579EECB",
+      "countryId": "EGY",
+      "members": [
+        "EG-BH",
+        "EG-GH",
+        "EG-MNF"
+      ],
+      "name": "Al Buhayrah–Al Gharbiyah–Al Minufiyah",
+      "nameEn": "Beheira–Gharbia–Monufia"
     }
   ]
 }

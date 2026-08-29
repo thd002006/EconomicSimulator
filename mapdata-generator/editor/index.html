@@ -3,65 +3,190 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>地图编辑器</title>
-    <link href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <title>Economic Simulator - 地图编辑器</title>
     <style>
       :root {
-        font-family: "Segoe UI", system-ui, sans-serif;
-        color: #1a1a1a;
-        background: #f4f4f1;
+        font-family: "EB Garamond", Georgia, serif, "Segoe UI", system-ui, sans-serif;
+        color: #2b2219;
+        background: #e8ded1;
       }
       * { box-sizing: border-box; }
-      body { margin: 0; }
+      body { margin: 0; overflow: hidden; }
       #app {
         display: grid;
-        grid-template-columns: 340px 1fr;
+        grid-template-columns: 360px 1fr;
         height: 100vh;
+        width: 100vw;
       }
       aside {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.6rem;
         padding: 1rem;
-        border-right: 1px solid #ccc;
+        border-right: 2px solid #a89a84;
         overflow: auto;
-        background: #fff;
+        background: #f4ede2;
+        box-shadow: 2px 0 8px rgba(40, 28, 18, 0.08);
+        z-index: 10;
       }
-      h1 { font-size: 1.1rem; margin: 0; }
-      label { display: block; font-size: 0.8rem; color: #555; margin-bottom: 0.2rem; }
+      h1 { font-size: 1.25rem; margin: 0; color: #3a2a1a; letter-spacing: 0.05em; font-weight: 700; }
+      label { display: block; font-size: 0.85rem; color: #5a4a3a; margin-bottom: 0.15rem; font-weight: 600; }
       select, input, button {
         width: 100%;
         padding: 0.4rem 0.5rem;
         margin-bottom: 0.4rem;
+        font-family: inherit;
+        border: 1px solid #b8aa94;
+        border-radius: 4px;
+        background: #fffdfa;
+        color: #2a1c12;
       }
-      button { cursor: pointer; }
+      button {
+        cursor: pointer;
+        background: #dfd3c3;
+        font-weight: 600;
+        transition: background 0.15s;
+      }
+      button:hover {
+        background: #cfc1af;
+      }
+      button.primary {
+        background: #a07840;
+        color: #fff;
+        border-color: #7a5828;
+      }
+      button.primary:hover {
+        background: #8b6632;
+      }
       .row { display: flex; gap: 0.4rem; }
       .row > * { flex: 1; }
-      #status { font-size: 0.8rem; color: #333; white-space: pre-wrap; }
+      #status {
+        font-size: 0.8rem;
+        color: #4a3a2a;
+        white-space: pre-wrap;
+        background: #ece3d5;
+        padding: 0.4rem 0.6rem;
+        border-radius: 4px;
+        border: 1px solid #d5c8b5;
+        font-family: monospace;
+      }
       #groups {
         flex: 1;
-        min-height: 200px;
-        overflow: auto;
-        border: 1px solid #ddd;
-        padding: 0.4rem;
+        min-height: 220px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border: 1px solid #cfc1af;
+        border-radius: 4px;
+        padding: 0.3rem;
         font-size: 0.85rem;
+        background: #fffdfa;
       }
-      #groups label {
+      .group-item {
         display: flex;
-        gap: 0.4rem;
+        flex-direction: row;
         align-items: flex-start;
+        gap: 0.5rem;
         margin: 0.2rem 0;
-        color: inherit;
+        padding: 0.3rem 0.4rem;
+        border-radius: 4px;
+        cursor: pointer;
+        user-select: none;
+        width: 100%;
+        box-sizing: border-box;
       }
-      #map { height: 100%; }
-      .muted { color: #777; font-size: 0.75rem; }
+      .group-item input[type="checkbox"] {
+        margin: 0.15rem 0 0 0;
+        padding: 0;
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      .group-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        line-height: 1.25;
+      }
+      .group-title {
+        font-weight: 700;
+        color: #2b1f14;
+        word-break: break-word;
+      }
+      .group-meta {
+        font-size: 0.75rem;
+        color: #7a6a5a;
+        word-break: break-all;
+      }
+      .group-item:hover {
+        background: #f0e6d6;
+      }
+      .group-item.selected {
+        background: #ebd8ba;
+      }
+      .group-color-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+        border: 1px solid rgba(0,0,0,0.2);
+      }
+      #map-container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background: #9eb5b0;
+      }
+      #map-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .muted { color: #7a6a5a; font-size: 0.75rem; line-height: 1.3; }
+      .map-tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(254, 250, 240, 0.95);
+        color: #2b1f14;
+        border: 1px solid #7a5828;
+        border-radius: 4px;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.82rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        display: none;
+        z-index: 100;
+        transform: translate(12px, 12px);
+        white-space: nowrap;
+      }
+      .map-tooltip strong {
+        display: block;
+        font-size: 0.9rem;
+        color: #3a2010;
+        margin-bottom: 2px;
+      }
+      .map-help {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(254, 250, 240, 0.88);
+        border: 1px solid #b8aa94;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        color: #4a3a2a;
+        pointer-events: none;
+      }
     </style>
   </head>
   <body>
     <div id="app">
       <aside>
         <h1>地图编辑器 (L1→L2→L3)</h1>
-        <p class="muted">导入基础图，合并/拆分后保存工程；导出写入 assets/maps（不覆盖，撞名加后缀）并自动编译。</p>
+        <p class="muted">复用客户端 Three.js 渲染引擎。支持全球直接点选、Shift 多选合并/拆分并导出。</p>
 
         <label>基础地图 L1</label>
         <select id="baseSelect"></select>
@@ -73,26 +198,31 @@
         <label>工程 L2</label>
         <select id="projectSelect"></select>
         <div class="row">
-          <button id="btnOpen" type="button">打开</button>
-          <button id="btnSave" type="button">保存</button>
+          <button id="btnOpen" type="button">打开工程</button>
+          <button id="btnSave" type="button">保存工程</button>
         </div>
 
-        <label>国家（地图预览）</label>
+        <label>国家快捷聚焦（可选）</label>
         <select id="countrySelect"></select>
 
         <div class="row">
-          <button id="btnMerge" type="button">合并所选</button>
+          <button id="btnMerge" class="primary" type="button">合并所选 (<span id="selectedCount">0</span>)</button>
           <button id="btnSplit" type="button">拆分所选</button>
         </div>
 
         <label>导出 mapId（建议名）</label>
-        <input id="exportMapId" placeholder="my-map" />
-        <button id="btnExport" type="button">导出 L3+L4</button>
+        <input id="exportMapId" placeholder="world-modern" />
+        <button id="btnExport" class="primary" type="button">导出 L3+L4</button>
 
         <div id="status">未加载工程</div>
+        <div id="groupStats" class="muted" style="margin-top: 0.2rem;"></div>
         <div id="groups"></div>
       </aside>
-      <div id="map"></div>
+      <div id="map-container">
+        <canvas id="map-canvas"></canvas>
+        <div id="tooltip" class="map-tooltip"></div>
+        <div class="map-help">拖拽平移 | 滚轮缩放 | 点击选择省份 | Shift + 点击多选</div>
+      </div>
     </div>
     <script type="module" src="/main.ts"></script>
   </body>
