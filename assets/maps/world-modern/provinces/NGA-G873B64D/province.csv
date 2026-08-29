@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NGA-G873B64D,ABG Region,ABG Region,NGA,101219,34573,0.43,0.531,tropical,tropical,16865896619,"Merged from Adamawa State, Bauchi State and Gombe State. ABG Region in Nigeria, Savanna, Niger Delta and coast, agriculture and food processing.",Bauchi,Bauchi
+NGA-G873B64D,ABG Region,ABG Region,NGA,101232,26919,0.488,0.795,tropical,tropical,16865896619,,Yola,Yola

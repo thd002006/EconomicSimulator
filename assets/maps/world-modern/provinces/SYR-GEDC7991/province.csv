@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SYR-GEDC7991,Hasaka (Al Haksa)–Dayr Az Zawr,Al-Hasakah–Deir ez-Zor,SYR,49073,14823,0.489,0.445,temperate,temperate,9024061989,"Merged from Al-Hasakah and Deir ez-Zor. Al-Hasakah–Deir ez-Zor in Syria, varied lowlands and uplands, industrial and service hub.",Dayr az Zawr,Deir ez-Zor
+SYR-GEDC7991,Hasaka (Al Haksa)–Dayr Az Zawr,Al-Hasakah–Deir ez-Zor,SYR,49076,6778,0.488,0.578,temperate,temperate,9024061989,,Dayr az Zawr,Deir ez-Zor

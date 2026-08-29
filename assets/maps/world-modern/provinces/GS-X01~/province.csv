@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GS-X01~,South Georgia and the South Sandwich Islands,South Georgia and the South Sandwich Islands,SGS,3918,1547,0.762,0.779,temperate_cold,temperate,-693,"South Georgia and the South Sandwich Islands, island and coastal waters, tourism and fishing.",Grytviken,Grytviken
+GS-X01~,South Georgia and the South Sandwich Islands,South Georgia and the South Sandwich Islands,SGS,3904,0,0.325,0.601,boreal,boreal,-720,,Grytviken,Grytviken

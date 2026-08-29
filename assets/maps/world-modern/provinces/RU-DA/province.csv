@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-DA,Dagestan,Republic of Dagestan,RUS,50023,4312,0.566,0.406,temperate,temperate,7561729959,"Republic of Dagestan in Russia, boreal forest and steppe, tourism and fishing.",Makhachkala,Makhachkala
+RU-DA,Dagestan,Republic of Dagestan,RUS,50014,6144,0.431,0.556,temperate,temperate,7561729959,,Makhachkala,Makhachkala

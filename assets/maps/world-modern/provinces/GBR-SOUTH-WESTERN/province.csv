@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-SOUTH-WESTERN,South Western,South Western,GBR,12723,3643,0.784,0.741,temperate_cold,continental,66661337556,"Merged from Dumfries and Galloway, East Ayrshire, East Dunbartonshire and 9 others. South Western in United Kingdom, temperate maritime lowlands, industrial and service hub.",,
+GBR-SOUTH-WESTERN,South Western,South Western,GBR,12733,375,0.322,0.602,boreal,boreal,66841329509,,,

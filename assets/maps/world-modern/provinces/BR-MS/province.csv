@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BR-MS,Mato Grosso do Sul,Mato Grosso do Sul,BRA,357051,37211,0.564,0.605,tropical,tropical,18995689612,"Mato Grosso do Sul in Brazil, Amazon basin and Atlantic coast, smallholder farming and markets.",Campo Grande,Campo Grande
+BR-MS,Mato Grosso do Sul,Mato Grosso do Sul,BRA,357050,30782,0.562,0.7,tropical,tropical,18995689612,,Campo Grande,Campo Grande

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-G3FD0626,Sachsen–Sachsen-Anhalt,Saxony–Saxony-Anhalt,DEU,38675,18240,0.811,0.857,temperate_cold,temperate,222147714280,"Merged from Saxony and Saxony-Anhalt. Saxony–Saxony-Anhalt in Germany, Central European lowlands and uplands, tourism and fishing.",Dresden,Dresden
+DEU-G3FD0626,Sachsen–Sachsen-Anhalt,Saxony–Saxony-Anhalt,DEU,38661,14299,0.359,0.576,temperate,temperate,222339638616,,Dresden,Dresden

@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+RU-ROS,Rostov,Rostov,RUS,101185,7505,0.531,0.367,temperate_cold,temperate,35348698948,"Rostov in Russia, boreal forest and steppe, farming and market towns.",Rostov,Rostov-on-Don

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-MN,Minnesota,Minnesota,USA,217318,51952,0.817,0.73,temperate,temperate,245265218500,"Minnesota, temperate plains and urban corridors, forestry and highland farming.",St.  Paul,Saint Paul
+US-MN,Minnesota,Minnesota,USA,217329,31769,0.399,0.558,temperate,temperate,245265218500,,St.  Paul,Saint Paul

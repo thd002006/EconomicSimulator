@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LAO-GDF56C09,Central Laos,Central Laos,LAO,43957,3872,0.511,0.561,tropical,tropical,1934301761,"Merged from Bolikhamsai, Khammouane and Xiangkhouang. Central Laos in Laos, varied lowlands and uplands, services and light industry.",Thakhek,Thakhek
+LAO-GDF56C09,Central Laos,Central Laos,LAO,43982,1222,0.557,0.718,tropical,tropical,1934301760,,,

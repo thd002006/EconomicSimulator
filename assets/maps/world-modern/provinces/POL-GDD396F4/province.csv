@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-POL-GDD396F4,Southern Poland,Southern Poland,POL,64193,35432,0.818,0.707,temperate_cold,temperate,168464445469,"Merged from Lesser Poland Voivodeship, Podkarpackie Voivodeship, Silesian Voivodeship and Łódź Voivodeship. Southern Poland in Poland, Central European plains, mining and energy.",Katowice,Katowice
+POL-GDD396F4,Southern Poland,Southern Poland,POL,64194,11656,0.369,0.57,temperate,temperate,169160713629,,Łódź,Łódź

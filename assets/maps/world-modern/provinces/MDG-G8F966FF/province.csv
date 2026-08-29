@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDG-G8F966FF,MAA Region,MAA Region,MDG,66533,3695,0.374,0.499,tropical,tropical,1680067124,"Merged from Antananarivo and Melaky. MAA Region in Madagascar, varied lowlands and uplands, agriculture and food processing.",,
+MDG-G8F966FF,MAA Region,MAA Region,MDG,66533,1180,0.557,0.72,tropical,tropical,1680067124,,,

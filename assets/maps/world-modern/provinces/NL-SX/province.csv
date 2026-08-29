@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NL-SX,Sint Maarten,Sint Maarten,SXM,23,3,0.427,0.338,tropical,tropical,496979712,"National territory in Sint Maarten, varied lowlands and uplands, farming and market towns.",,
+NL-SX,Sint Maarten,Sint Maarten,SXM,23,0,0.556,0.722,tropical,tropical,496979712,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FRA-Grand-Est,Grand Est,Grand Est,FRA,57196,34522,0.95,0.889,temperate_cold,temperate,167835471975,"Merged from Ardennes, Aube, Bas-Rhin and 7 others. Grand Est in France, temperate lowlands and uplands, port trade and logistics.",Strasbourg,Strasbourg
+FRA-Grand-Est,Grand Est,Grand Est,FRA,57181,9588,0.384,0.563,temperate,temperate,165579012947,,,

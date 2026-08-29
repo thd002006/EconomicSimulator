@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GIN-Mamou,Mamou,Mamou,GIN,15977,715,0.367,0.487,tropical,tropical,844064343,"Merged from Dalaba Prefecture, Mamou Prefecture and Pita Prefecture. Mamou in Guinea, varied lowlands and uplands, pastoral herding and oasis farming.",Mamou,Mamou
+GIN-Mamou,Mamou,Mamou,GIN,15965,1650,0.495,0.79,tropical,tropical,844064344,,Dalaba,Dalaba

@@ -1,7 +1,7 @@
 dimension,key,value
-meta,population_persons,47138
-gender,male,0.49699
-gender,female,0.50301
+meta,population_persons,47105
+gender,male,0.49698
+gender,female,0.50302
 age,0,0.02967
 age,1,0.02967
 age,2,0.02967

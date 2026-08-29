@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RUS-G9CBF58E,Leningrad–City of St. Petersburg,Leningrad–Saint Petersburg,RUS,75665,4840,0.536,0.393,temperate_cold,continental,89687440505,"Merged from Leningrad and Saint Petersburg. Leningrad–Saint Petersburg in Russia, boreal forest and steppe, mining and energy.",St.  Petersburg,Saint Petersburg
+RUS-G9CBF58E,Leningrad–City of St. Petersburg,Leningrad–Saint Petersburg,RUS,75663,856,0.277,0.65,boreal,boreal,89691680537,,,

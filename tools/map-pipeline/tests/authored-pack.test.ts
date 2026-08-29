@@ -56,19 +56,6 @@ describe("authored csv schema", () => {
     expect(seed.education15Plus.basic).toBeGreaterThan(0);
   });
 
-  it("parses legacy class seed rows", () => {
-    const seed = parseClassCsv(
-      [
-        "social_class_id,population_persons,male,female,age_child_0_14,age_youth_15_24,age_prime_25_44,age_mature_45_64,age_senior_65_plus,edu_basic,edu_secondary,edu_tertiary,edu_advanced",
-        "farmer,100,50,50,20,10,30,25,15,40,30,20,10"
-      ].join("\n"),
-      "farmer",
-      "farmer.csv"
-    );
-    expect(seed.populationPersons).toBe(100);
-    expect(seed.age.child_0_14).toBe(20);
-  });
-
   it("builds population-only scenario seed from authored content", () => {
     const content: AuthoredMapContent = {
       countries: [{ id: "USA", nameEn: "United States" }],
@@ -93,13 +80,9 @@ describe("authored csv schema", () => {
                 populationPersons: 100,
                 male: 50,
                 female: 50,
-                age: {
-                  child_0_14: 20,
-                  youth_15_24: 10,
-                  prime_25_44: 30,
-                  mature_45_64: 25,
-                  senior_65_plus: 15
-                },
+                age: Object.fromEntries(
+                  Array.from({ length: 101 }, (_, age) => [String(age), 100 / 101])
+                ),
                 education15Plus: { basic: 40, secondary: 30, tertiary: 20, advanced: 10 }
               }
             ],

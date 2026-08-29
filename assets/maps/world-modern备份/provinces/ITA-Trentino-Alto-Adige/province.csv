@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ITA-Trentino-Alto-Adige,Trentino-Alto Adige,Trentino-Alto Adige,ITA,13485,4872,0.777,0.776,temperate_cold,temperate,43106632904,"Merged from Trentino and Trentino-South Tyrol. Trentino-Alto Adige in Italy, Alpine north and Mediterranean south, forestry and highland farming.",Trento,Trento

@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+THA-Southern,Southern,Southern,THA,71215,32603,0.642,0.646,tropical,tropical,50973128152,"Merged from Chumphon, Krabi, Nakhon Si Thammarat and 11 others. Southern in Thailand, tropical plains and uplands, smallholder farming and markets.",Nakhon Si Thammarat,Nakhon Si Thammarat

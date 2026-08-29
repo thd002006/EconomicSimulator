@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SRB-EAST,East Serbia,East Serbia,SRB,15448,9326,0.818,0.722,temperate,temperate,7768631328,"Merged from Bor, Braničevo, Podunavlje, Pomoravski and Zaječar. East Serbia in Republic of Serbia, varied lowlands and uplands, farming and market towns.",,
+SRB-EAST,East Serbia,East Serbia,SRB,15456,2599,0.423,0.555,temperate,temperate,7968166928,,,

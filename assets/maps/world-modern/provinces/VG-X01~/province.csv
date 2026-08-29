@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VG-X01~,British Virgin Islands,British Virgin Islands,VGB,146,19,0.511,0.522,tropical,tropical,0,"National territory in British Virgin Islands, varied lowlands and uplands, mining and energy.",,
+VG-X01~,British Virgin Islands,British Virgin Islands,VGB,145,0,0.558,0.718,tropical,tropical,0,,,

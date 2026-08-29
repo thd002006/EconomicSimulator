@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FRA-Guyane-française,Guyane française,Guyane française,FRA,83524,41324,0.819,0.846,tropical,tropical,574633906,"Guyane française in France, temperate lowlands and uplands, port trade and logistics.",Cayenne,Cayenne
+FRA-Guyane-française,Guyane française,Guyane française,FRA,83526,61,0.39,0.848,tropical,tropical,574633906,,Cayenne,Cayenne

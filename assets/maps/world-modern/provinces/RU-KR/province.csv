@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-KR,Karelia,Karelia,RUS,164267,9103,0.405,0.375,boreal,continental,10833071633,"Karelia in Russia, boreal forest and steppe, mining and energy.",Petrozavodsk,Petrozavodsk
+RU-KR,Karelia,Karelia,RUS,164259,567,0.243,0.401,boreal,boreal,10833071633,,Petrozavodsk,Petrozavodsk

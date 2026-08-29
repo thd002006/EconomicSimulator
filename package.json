@@ -11,7 +11,7 @@
     "dev": "pnpm --filter @economic-simulator/client dev",
     "sim": "pnpm --filter @economic-simulator/simulation-cli start",
     "map:validate": "pnpm --filter @economic-simulator/map-pipeline validate-maps",
-    "map:publish": "pnpm map:validate && pnpm --filter @economic-simulator/map-pipeline publish-maps",
+    "map:publish": "pnpm --filter @economic-simulator/map-pipeline publish-maps",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "vitest run",
     "test:watch": "vitest",

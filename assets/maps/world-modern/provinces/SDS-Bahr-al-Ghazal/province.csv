@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SDS-Bahr-al-Ghazal,Bahr al Ghazal,Bahr al Ghazal,SDS,199185,2877,0.134,0.213,tropical,tropical,7491947799,"Merged from Lakes, Northern Bahr el Ghazal, Warrap and Western Bahr el Ghazal. Bahr al Ghazal in S. Sudan, varied lowlands and uplands, agriculture and food processing.",,
+SDS-Bahr-al-Ghazal,Bahr al Ghazal,Bahr al Ghazal,SDS,199179,2651,0.457,0.814,tropical,tropical,7491947798,,,

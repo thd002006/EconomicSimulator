@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ESP-Cataluña,Cataluña,Cataluña,ESP,31929,12358,0.699,0.743,temperate,temperate,227024682042,"Merged from Barcelona, Girona, Lleida and Tarragona. Cataluña in Spain, Meseta and Mediterranean coast, tourism and fishing.",Barcelona,Barcelona

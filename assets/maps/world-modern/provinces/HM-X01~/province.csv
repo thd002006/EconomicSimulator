@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HM-X01~,Heard Island and McDonald Islands,Heard Island and McDonald Islands,HMD,393,156,0.761,0.817,temperate_cold,temperate,-72,"National territory, varied lowlands and uplands, smallholder farming and markets.",,
+HM-X01~,Heard Island and McDonald Islands,Heard Island and McDonald Islands,HMD,394,0,0.344,0.585,temperate,temperate,-72,,,

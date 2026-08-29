@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IR-30,Razavi Khorasan,Razavi Khorasan,IRN,136927,16267,0.42,0.433,temperate,temperate,38924719507,"Razavi Khorasan in Iran, plateau, mountains and desert basins, smallholder farming and markets.",Mashhad,Mashhad
+IR-30,Razavi Khorasan,Razavi Khorasan,IRN,136936,8556,0.487,0.577,temperate,temperate,38924719507,,Mashhad,Mashhad

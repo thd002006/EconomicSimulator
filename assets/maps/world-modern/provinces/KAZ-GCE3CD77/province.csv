@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KAZ-GCE3CD77,Qyzylorda,Kyzylorda,KAZ,225441,30248,0.544,0.395,temperate,temperate,3844438329,"Merged from Baikonur and Kyzylorda. Kyzylorda in Kazakhstan, steppe and semi-desert, agriculture and food processing.",Qyzylorda,Kyzylorda
+KAZ-GCE3CD77,Qyzylorda,Kyzylorda,KAZ,225453,3403,0.41,0.556,temperate,temperate,3844043431,,,

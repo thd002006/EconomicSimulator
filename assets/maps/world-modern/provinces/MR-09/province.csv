@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MR-09,Tagant,Tagant,MRT,95223,175,0.092,0.09,tropical,tropical,251197720,"Tagant in Mauritania, varied lowlands and uplands, forestry and highland farming.",Tidjikdja,Tidjikja
+MR-09,Tagant,Tagant,MRT,95226,4,0.556,0.722,tropical,tropical,251197720,,Tidjikdja,Tidjikja

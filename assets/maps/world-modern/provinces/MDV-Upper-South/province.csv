@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDV-Upper-South,Upper South,Upper South,MDV,13,1,0.33,0.174,tropical,tropical,0,"Merged from Laamu Atoll and Thaa Atoll. Upper South in Maldives, varied lowlands and uplands, port trade and logistics.",,
+MDV-Upper-South,Upper South,Upper South,MDV,13,0,0.362,0.861,tropical,tropical,0,,,

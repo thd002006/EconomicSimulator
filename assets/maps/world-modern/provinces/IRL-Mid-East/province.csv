@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IRL-Mid-East,Mid-East,Mid-East,IRL,6026,1192,0.664,0.771,temperate_cold,temperate,35169663762,"Merged from Kildare, Meath and Wicklow. Mid-East in Ireland, temperate maritime greenfields, farming and market towns.",,
+IRL-Mid-East,Mid-East,Mid-East,IRL,6029,360,0.342,0.587,temperate,temperate,35169663762,,,

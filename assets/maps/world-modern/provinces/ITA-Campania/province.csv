@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Campania,Campania,Campania,ITA,13499,4802,0.776,0.739,temperate,temperate,127446438899,"Merged from Avellino, Benevento, Caserta, Naples and Salerno. Campania in Italy, Alpine north and Mediterranean south, mining and energy.",Naples,Naples
+ITA-Campania,Campania,Campania,ITA,13503,2128,0.449,0.559,temperate,temperate,128227309643,,,

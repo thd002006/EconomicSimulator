@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CN-SD,Shandong,Shandong,CHN,155879,31456,0.659,0.577,temperate,temperate,440730351551,"Shandong in China, monsoon plains and highlands, tourism and fishing.",Jinan,Jinan
+CN-SD,Shandong,Shandong,CHN,155897,61346,0.483,0.574,temperate,temperate,440730351551,,Jinan,Jinan

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatGdp, mergeGameUiLookups, ageCountsToBandRecord } from "./game-lookups.js";
+import { formatGdp, mergeGameUiLookups, ageCountsToSingleYearRecord } from "./game-lookups.js";
 
 describe("mergeGameUiLookups", () => {
   it("reads population from simulation cache, not map demographics", () => {
@@ -70,13 +70,7 @@ describe("mergeGameUiLookups", () => {
           pop: 42,
           male: 21,
           female: 21,
-          age: {
-            child_0_14: 10,
-            youth_15_24: 8,
-            prime_25_44: 12,
-            mature_45_64: 8,
-            senior_65_plus: 4
-          },
+          age: Object.fromEntries(Array.from({ length: 101 }, (_, age) => [age, age])),
           education15Plus: { basic: 10, secondary: 20, tertiary: 8, advanced: 4 },
           gdpPpp: 1_500_000_000
         }
@@ -91,11 +85,11 @@ describe("mergeGameUiLookups", () => {
     expect(lookups.getCountryGdpPpp("AAA")).toBe(1_500_000_000);
     expect(formatGdp(1_500_000_000)).toBe("$1.50B");
 
-    const bandRecord = ageCountsToBandRecord(ageArray);
-    expect(bandRecord?.child_0_14).toBe(10);
-    expect(bandRecord?.youth_15_24).toBe(8);
-    expect(bandRecord?.prime_25_44).toBe(12);
-    expect(bandRecord?.mature_45_64).toBe(8);
-    expect(bandRecord?.senior_65_plus).toBe(4);
+    const ageRecord = ageCountsToSingleYearRecord(ageArray);
+    expect(ageRecord?.["5"]).toBe(10);
+    expect(ageRecord?.["20"]).toBe(8);
+    expect(ageRecord?.["30"]).toBe(12);
+    expect(ageRecord?.["50"]).toBe(8);
+    expect(ageRecord?.["70"]).toBe(4);
   });
 });

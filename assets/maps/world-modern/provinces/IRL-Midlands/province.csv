@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IRL-Midlands,Midlands,Midlands,IRL,6670,1482,0.699,0.719,temperate_cold,temperate,11383908405,"Merged from Laois, Longford, Offaly and Westmeath. Midlands in Ireland, temperate maritime greenfields, agriculture and food processing.",,
+IRL-Midlands,Midlands,Midlands,IRL,6682,203,0.342,0.587,temperate,temperate,11383908405,,,

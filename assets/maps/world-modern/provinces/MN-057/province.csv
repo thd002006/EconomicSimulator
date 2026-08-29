@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MN-057,Dzavhan,Zavkhan,MNG,81731,370,0.229,0.26,temperate_cold,temperate,149996405,"Zavkhan in Mongolia, steppe and Gobi desert, farming and market towns.",Uliastay,Uliastai
+MN-057,Dzavhan,Zavkhan,MNG,81745,4,0.386,0.562,temperate,temperate,149996405,,Uliastay,Uliastai

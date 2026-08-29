@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-THA-Northern,Northern,Northern,THA,96446,43982,0.674,0.63,tropical,tropical,28136353432,"Merged from Chiang Mai, Chiang Rai, Lampang and 6 others. Northern in Thailand, tropical plains and uplands, agriculture and food processing.",Chiang Mai,Chiang Mai
+THA-Northern,Northern,Northern,THA,96418,9568,0.558,0.716,tropical,tropical,28136353432,,Chiang Mai,Chiang Mai

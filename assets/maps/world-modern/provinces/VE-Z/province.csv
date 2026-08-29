@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VE-Z,Amazonas,Amazonas,VEN,180660,8343,0.408,0.571,tropical,tropical,694436827,"Amazonas in Venezuela, Orinoco basin and Caribbean coast, agriculture and food processing.",Puerto Ayacucho,Puerto Ayacucho
+VE-Z,Amazonas,Amazonas,VEN,180642,15,0.388,0.849,tropical,tropical,694398114,,Puerto Ayacucho,Puerto Ayacucho

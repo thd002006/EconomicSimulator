@@ -17,6 +17,14 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
+export function sanitizeProvinceId(id: string): string {
+  return id
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/[. ]+$/g, "")
+    .replace(/^[. ]+/g, "");
+}
+
 export async function loadManualOverrides(path: string): Promise<ManualOverrides | undefined> {
   let text: string;
   try {
@@ -36,11 +44,14 @@ export async function loadManualOverrides(path: string): Promise<ManualOverrides
   for (let i = 0; i < rawGroups.length; i++) {
     const raw = rawGroups[i] as unknown;
     if (!isRecord(raw)) throw new Error(`manualGroups[${i}] must be an object.`);
-    const id = raw.id;
+    const rawId = raw.id;
     const countryId = raw.countryId;
     const members = raw.members;
-    if (typeof id !== "string" || id.trim() === "")
+    if (typeof rawId !== "string" || rawId.trim() === "")
       throw new Error(`manualGroups[${i}].id must be a non-empty string.`);
+    const id = sanitizeProvinceId(rawId);
+    if (!id)
+      throw new Error(`manualGroups[${i}].id must be a valid non-empty identifier.`);
     if (typeof countryId !== "string" || countryId.trim() === "")
       throw new Error(`manualGroups[${i}].countryId must be a string.`);
     if (!Array.isArray(members) || members.length === 0)

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AF-HER,Hirat,Herat,AFG,55425,11758,0.543,0.615,subtropical,subtropical,1649426378,"Herat in Afghanistan, Hindu Kush highlands and valleys, forestry and highland farming.",Herat,Herat
+AF-HER,Hirat,Herat,AFG,55421,1986,0.5,0.587,subtropical,subtropical,1649426378,,Herat,Herat

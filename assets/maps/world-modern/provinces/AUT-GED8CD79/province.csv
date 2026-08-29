@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AUT-GED8CD79,Western Austria,Western Austria,AUT,43934,9998,0.768,0.748,temperate_cold,temperate,135656545075,"Merged from Carinthia, Salzburg, Tyrol, Upper Austria and Vorarlberg. Western Austria in Austria, Alpine and Danube valley, services and light industry.",Linz,Linz
+AUT-GED8CD79,Western Austria,Western Austria,AUT,43932,2070,0.395,0.559,temperate,temperate,135649838205,,Klagenfurt,Klagenfurt

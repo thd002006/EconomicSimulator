@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+FRA-Centre-Val-de-Loire,Centre-Val de Loire,Centre-Val de Loire,FRA,39245,24711,0.95,0.89,temperate_cold,temperate,77452182062,"Merged from Cher, Eure-et-Loir, Indre and 3 others. Centre-Val de Loire in France, temperate lowlands and uplands, smallholder farming and markets.",Orléans,Orléans

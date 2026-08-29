@@ -7,10 +7,7 @@ import {
   parseProvinceDescription
 } from "./schema.js";
 import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
-import {
-  AGE_BAND_IDS,
-  EDUCATION_LEVEL_IDS
-} from "./types.js";
+import { EDUCATION_LEVEL_IDS } from "./types.js";
 import type {
   CountryNameEntry,
   CountryNameTable,
@@ -160,9 +157,7 @@ function parseManifest(input: unknown): MapPackManifest {
 
   const coastlines = asString(input.assets.coastlines);
   const countries = asString(input.assets.countries);
-  const demographics = asString(
-    (input.assets as Record<string, unknown>).demographics
-  );
+  const demographics = asString((input.assets as Record<string, unknown>).demographics);
   const provinceDefinitions = asString(
     (input.assets as Record<string, unknown>).provinceDefinitions
   );
@@ -310,7 +305,6 @@ function parseCountryNames(input: unknown): CountryNameTable {
   return result;
 }
 
-const ALLOWED_AGE_BANDS = new Set<string>(AGE_BAND_IDS as readonly string[]);
 const ALLOWED_EDUCATION_LEVELS = new Set<string>(EDUCATION_LEVEL_IDS as readonly string[]);
 
 function parseProvinceDemographics(input: unknown): ProvinceDemographicsTable {
@@ -321,7 +315,11 @@ function parseProvinceDemographics(input: unknown): ProvinceDemographicsTable {
   const result: Record<string, ProvinceDemographicsEntry> = {};
   for (const [provinceId, entry] of Object.entries(input)) {
     if (!isRecord(entry)) {
-      throw new MapSchemaError(`Demographics ${provinceId} entry invalid.`, "demographics", provinceId);
+      throw new MapSchemaError(
+        `Demographics ${provinceId} entry invalid.`,
+        "demographics",
+        provinceId
+      );
     }
     const pop = asFiniteNumber(entry.pop);
     const male = asFiniteNumber(entry.male);
@@ -343,11 +341,20 @@ function parseProvinceDemographics(input: unknown): ProvinceDemographicsTable {
     }
     const ageKeys = Object.keys(entry.age);
     if (ageKeys.length === 0) {
-      throw new MapSchemaError(`Demographics ${provinceId} age must not be empty.`, "demographics", provinceId);
+      throw new MapSchemaError(
+        `Demographics ${provinceId} age must not be empty.`,
+        "demographics",
+        provinceId
+      );
     }
     for (const [key, value] of Object.entries(entry.age)) {
-      if (!ALLOWED_AGE_BANDS.has(key)) {
-        throw new MapSchemaError(`Demographics ${provinceId}.age.${key} is not a known age band.`, "demographics", provinceId);
+      const age = Number(key);
+      if (!Number.isInteger(age) || age < 0 || age > 100) {
+        throw new MapSchemaError(
+          `Demographics ${provinceId}.age.${key} is not a single-year age from 0 to 100.`,
+          "demographics",
+          provinceId
+        );
       }
       if (asFiniteNumber(value) === undefined) {
         throw new MapSchemaError(
@@ -489,10 +496,7 @@ function assertLodCount(manifest: MapPackManifest, provinces: readonly ProvinceF
   }
 }
 
-function parseFiniteRecord(
-  value: unknown,
-  label: string
-): Record<string, number> {
+function parseFiniteRecord(value: unknown, label: string): Record<string, number> {
   if (!isRecord(value) || Object.keys(value).length === 0) {
     throw new MapSchemaError(`${label} must be a non-empty object.`, "scenarioSeed");
   }
@@ -514,7 +518,10 @@ function parseScenarioSeed(input: unknown): ScenarioSeedData | undefined {
   }
   const mapId = asString(input.mapId);
   if (mapId === undefined || !Array.isArray(input.provinces) || !Array.isArray(input.classSeeds)) {
-    throw new MapSchemaError("scenario-seed requires mapId, provinces, and classSeeds.", "scenarioSeed");
+    throw new MapSchemaError(
+      "scenario-seed requires mapId, provinces, and classSeeds.",
+      "scenarioSeed"
+    );
   }
   const provinces: Array<{ id: string; ownerCountryId: string }> = [];
   for (const [index, raw] of input.provinces.entries()) {

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IR-10,Khuzestan,Khuzestan,IRN,63872,7679,0.424,0.429,subtropical,subtropical,111576516907,"Khuzestan in Iran, plateau, mountains and desert basins, services and light industry.",Ahvaz,Ahwaz
+IR-10,Khuzestan,Khuzestan,IRN,63859,5492,0.524,0.609,subtropical,subtropical,111576516907,,Ahvaz,Ahwaz

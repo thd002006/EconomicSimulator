@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NOR-M175,Aust-Agder–Vest-Agder–Rogaland–Hordaland,Aust-Agder–Vest-Agder–Rogaland–Hordaland,NOR,40426,795,0.26,0.58,boreal,continental,52666088644,"Merged from Aust-Agder, Hordaland, Rogaland and Vest-Agder. Aust-Agder area in Norway, fjords and boreal uplands, agriculture and food processing.",Bergen,Bergen
+NOR-M175,Aust-Agder–Vest-Agder–Rogaland–Hordaland,Aust-Agder–Vest-Agder–Rogaland–Hordaland,NOR,40399,514,0.283,0.552,boreal,boreal,52712254279,,Arendal,Arendal

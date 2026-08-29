@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+CA-NT,Northwest Territories,Northwest Territories,CAN,1280825,1295,0.082,0.133,boreal,continental,2331111835,"Northwest Territories in Canada, boreal forest and prairie, tourism and fishing.",Yellowknife,Yellowknife

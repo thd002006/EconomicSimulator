@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BEL-Walloon,Walloon,Walloon,BEL,16936,8126,0.827,0.805,temperate_cold,temperate,95787308985,"Merged from Hainaut, Liège, Luxembourg, Namur and Walloon Brabant. Wallonia uplands and Meuse valley, steel heritage and logistics hubs.",Liège,Liège
+BEL-Walloon,Walloon,Walloon,BEL,16931,2521,0.37,0.569,temperate,temperate,100188459962,,,

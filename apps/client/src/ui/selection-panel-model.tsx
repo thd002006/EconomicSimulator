@@ -6,7 +6,7 @@ import { EntityList } from "./EntityList.js";
 import { SelectionPanel, type EntityPanelTab } from "./EntityPanel.js";
 import { countsToSlices, PieChart } from "./PieChart.js";
 import {
-  ageCountsToBandRecord,
+  ageCountsToSingleYearRecord,
   countryDisplayName,
   dimensionLabel,
   formatAreaKm2,
@@ -19,7 +19,9 @@ import {
 } from "./game-lookups.js";
 import type { MapSelection } from "./selection.js";
 
-function Stats(props: { readonly rows: readonly (readonly [string, string])[] }): React.JSX.Element {
+function Stats(props: {
+  readonly rows: readonly (readonly [string, string])[];
+}): React.JSX.Element {
   return (
     <dl className="inspector-stats">
       {props.rows.map(([label, value]) => (
@@ -33,7 +35,10 @@ function Stats(props: { readonly rows: readonly (readonly [string, string])[] })
 }
 
 function DimensionPies(props: {
-  readonly charts: readonly { readonly title: string; readonly slices: ReturnType<typeof countsToSlices> }[];
+  readonly charts: readonly {
+    readonly title: string;
+    readonly slices: ReturnType<typeof countsToSlices>;
+  }[];
 }): React.JSX.Element {
   return (
     <div className="pie-chart-grid">
@@ -56,7 +61,9 @@ function classDetailBody(entry: ProvinceClassPopulationBreakdown): React.JSX.Ele
           },
           {
             title: "Age",
-            slices: countsToSlices(ageCountsToBandRecord(entry.age), (key) => dimensionLabel("age", key))
+            slices: countsToSlices(ageCountsToSingleYearRecord(entry.age), (key) =>
+              dimensionLabel("age", key)
+            )
           },
           {
             title: "Education",
@@ -138,7 +145,9 @@ export function buildSelectionPanelModel(
                 },
                 {
                   title: "Age",
-                  slices: countsToSlices(ageCountsToBandRecord(demo?.age), (key) => dimensionLabel("age", key))
+                  slices: countsToSlices(ageCountsToSingleYearRecord(demo?.age), (key) =>
+                    dimensionLabel("age", key)
+                  )
                 },
                 {
                   title: "Employment",
@@ -245,9 +254,9 @@ export function EntitySelectionPanel(props: EntitySelectionPanelProps): React.JS
   const classEntry =
     openClassId === undefined || props.selection?.kind !== "province"
       ? undefined
-      : props.lookups?.getProvincePopulation(props.selection.id)?.classes.find(
-          (entry) => entry.socialClassId === openClassId
-        );
+      : props.lookups
+          ?.getProvincePopulation(props.selection.id)
+          ?.classes.find((entry) => entry.socialClassId === openClassId);
 
   return (
     <>

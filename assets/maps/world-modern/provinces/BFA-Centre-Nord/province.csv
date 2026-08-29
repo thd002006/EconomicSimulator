@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BFA-Centre-Nord,Centre-Nord,Centre-Nord,BFA,20012,3669,0.296,0.39,tropical,tropical,1479948217,"Merged from Bam, Namentenga and Sanmatenga. Centre-Nord in Burkina Faso, varied lowlands and uplands, port trade and logistics.",Kaya,Kaya
+BFA-Centre-Nord,Centre-Nord,Centre-Nord,BFA,20021,1826,0.522,0.768,tropical,tropical,1479948218,,,

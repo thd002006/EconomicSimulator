@@ -104,6 +104,6 @@ age,98,0.00365
 age,99,0.00365
 age,100,0.00365
 education_15plus,basic,0.54131
-education_15plus,secondary,0.42022
-education_15plus,tertiary,0.03847
-education_15plus,advanced,0.00000
+education_15plus,secondary,0.41901
+education_15plus,tertiary,0.03898
+education_15plus,advanced,0.00070

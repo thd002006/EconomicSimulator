@@ -17,14 +17,6 @@ export const DEFAULT_CLASS_POPULATION_SHARES: Readonly<Record<string, number>> =
   rentier: 0.01
 };
 
-export const AGE_BANDS = [
-  "child_0_14",
-  "youth_15_24",
-  "prime_25_44",
-  "mature_45_64",
-  "senior_65_plus"
-] as const;
-
 export const EDU_LEVELS = ["basic", "secondary", "tertiary", "advanced"] as const;
 
 export const CLASS_CSV_HEADERS = ["dimension", "key", "value"] as const;
@@ -79,9 +71,9 @@ export interface ClassSeedRow {
 
 export function buildDefaultSingleYearAgeShares(): Record<number, number> {
   const shares: Record<number, number> = {};
-  for (let a = 0; a <= 14; a += 1) shares[a] = 0.20 / 15;
+  for (let a = 0; a <= 14; a += 1) shares[a] = 0.2 / 15;
   for (let a = 15; a <= 24; a += 1) shares[a] = 0.15 / 10;
-  for (let a = 25; a <= 44; a += 1) shares[a] = 0.30 / 20;
+  for (let a = 25; a <= 44; a += 1) shares[a] = 0.3 / 20;
   for (let a = 45; a <= 64; a += 1) shares[a] = 0.23 / 20;
   for (let a = 65; a <= 100; a += 1) shares[a] = 0.12 / 36;
   const sum = Object.values(shares).reduce((acc, v) => acc + v, 0);
@@ -89,10 +81,11 @@ export function buildDefaultSingleYearAgeShares(): Record<number, number> {
   return shares;
 }
 
-export function splitDemographicsIntoClasses(
-  demo: ProvinceDemographicsEntry
-): ClassSeedRow[] {
-  const classPop = allocateByShares(Math.max(0, Math.round(demo.pop)), DEFAULT_CLASS_POPULATION_SHARES);
+export function splitDemographicsIntoClasses(demo: ProvinceDemographicsEntry): ClassSeedRow[] {
+  const classPop = allocateByShares(
+    Math.max(0, Math.round(demo.pop)),
+    DEFAULT_CLASS_POPULATION_SHARES
+  );
   const classIds = Object.keys(DEFAULT_CLASS_POPULATION_SHARES).sort();
 
   const totalPop = demo.pop > 0 ? demo.pop : 1;
@@ -104,18 +97,9 @@ export function splitDemographicsIntoClasses(
     EDU_LEVELS.map((lvl) => [lvl, (demo.education15Plus[lvl] ?? 0) / eduTotal])
   ) as Record<(typeof EDU_LEVELS)[number], number>;
 
-  const ageShares: Record<number, number> = {};
-  const childTotal = (demo.age.child_0_14 ?? 0) / totalPop;
-  const youthTotal = (demo.age.youth_15_24 ?? 0) / totalPop;
-  const primeTotal = (demo.age.prime_25_44 ?? 0) / totalPop;
-  const matureTotal = (demo.age.mature_45_64 ?? 0) / totalPop;
-  const seniorTotal = (demo.age.senior_65_plus ?? 0) / totalPop;
-
-  for (let a = 0; a <= 14; a += 1) ageShares[a] = childTotal / 15;
-  for (let a = 15; a <= 24; a += 1) ageShares[a] = youthTotal / 10;
-  for (let a = 25; a <= 44; a += 1) ageShares[a] = primeTotal / 20;
-  for (let a = 45; a <= 64; a += 1) ageShares[a] = matureTotal / 20;
-  for (let a = 65; a <= 100; a += 1) ageShares[a] = seniorTotal / 36;
+  const ageShares: Record<number, number> = Object.fromEntries(
+    Array.from({ length: 101 }, (_, age) => [age, (demo.age[age] ?? 0) / totalPop])
+  );
 
   const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0) || 1;
   for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
@@ -194,11 +178,7 @@ export async function writeClassSeedRows(
   for (const row of rows) {
     if (row.populationPersons <= 0) continue;
     const content = serializeClassCsv(row);
-    await writeFile(
-      join(classesDir, `${row.socialClassId}.csv`),
-      content,
-      "utf8"
-    );
+    await writeFile(join(classesDir, `${row.socialClassId}.csv`), content, "utf8");
     written += 1;
   }
   return written;
@@ -305,54 +285,9 @@ export function parseClassCsvText(socialClassId: string, text: string): ClassSee
     };
   }
 
-  // Fallback for wide row
-  const cells = parseCsvLine(lines[1]!);
-  const value = (name: string): number => {
-    const index = headers.indexOf(name);
-    if (index < 0) return 0;
-    const parsed = Number(cells[index] ?? 0);
-    return Number.isFinite(parsed) ? parsed : 0;
-  };
-  const pop = value("population_persons");
-  const male = value("male");
-  const female = value("female");
-  const maleShare = pop > 0 ? male / (male + female || 1) : 0.5;
-  const femaleShare = 1 - maleShare;
-
-  const ageShares: Record<number, number> = {};
-  const c014 = pop > 0 ? value("age_child_0_14") / pop : 0.2;
-  const y1524 = pop > 0 ? value("age_youth_15_24") / pop : 0.15;
-  const p2544 = pop > 0 ? value("age_prime_25_44") / pop : 0.3;
-  const m4564 = pop > 0 ? value("age_mature_45_64") / pop : 0.23;
-  const s65p = pop > 0 ? value("age_senior_65_plus") / pop : 0.12;
-
-  for (let a = 0; a <= 14; a += 1) ageShares[a] = c014 / 15;
-  for (let a = 15; a <= 24; a += 1) ageShares[a] = y1524 / 10;
-  for (let a = 25; a <= 44; a += 1) ageShares[a] = p2544 / 20;
-  for (let a = 45; a <= 64; a += 1) ageShares[a] = m4564 / 20;
-  for (let a = 65; a <= 100; a += 1) ageShares[a] = s65p / 36;
-  const ageSum = Object.values(ageShares).reduce((acc, v) => acc + v, 0) || 1;
-  for (let a = 0; a <= 100; a += 1) ageShares[a] = (ageShares[a] ?? 0) / ageSum;
-
-  const eduRaw = {
-    basic: value("edu_basic"),
-    secondary: value("edu_secondary"),
-    tertiary: value("edu_tertiary"),
-    advanced: value("edu_advanced")
-  };
-  const eduTotal = Object.values(eduRaw).reduce((acc, v) => acc + v, 0) || 1;
-  const education15PlusShares = Object.fromEntries(
-    EDU_LEVELS.map((lvl) => [lvl, eduRaw[lvl] / eduTotal])
-  ) as Record<(typeof EDU_LEVELS)[number], number>;
-
-  return {
-    socialClassId,
-    populationPersons: pop,
-    maleShare,
-    femaleShare,
-    ageShares,
-    education15PlusShares
-  };
+  throw new Error(
+    `${socialClassId} must use dimension,key,value rows with single-year ages 0..100.`
+  );
 }
 
 export async function readProvinceClassCsvs(provinceDir: string): Promise<ClassSeedRow[]> {
@@ -408,10 +343,12 @@ export function sumClassSeedRows(groups: readonly (readonly ClassSeedRow[])[]): 
       existing.populationPersons += row.populationPersons;
       existing.maleWeightedSum += row.populationPersons * row.maleShare;
       for (let a = 0; a <= 100; a += 1) {
-        existing.ageWeightedSum[a] = (existing.ageWeightedSum[a] ?? 0) + row.populationPersons * (row.ageShares[a] ?? 0);
+        existing.ageWeightedSum[a] =
+          (existing.ageWeightedSum[a] ?? 0) + row.populationPersons * (row.ageShares[a] ?? 0);
       }
       for (const lvl of EDU_LEVELS) {
-        existing.eduWeightedSum[lvl] += row.populationPersons * (row.education15PlusShares[lvl] ?? 0);
+        existing.eduWeightedSum[lvl] +=
+          row.populationPersons * (row.education15PlusShares[lvl] ?? 0);
       }
       if (row.cashCents !== undefined) {
         existing.cashCentsSum += row.cashCents;
@@ -480,6 +417,50 @@ export function validateClassSeedRows(rows: readonly ClassSeedRow[]): string[] {
   return errors;
 }
 
+/** Ensure all required province classes exist in L2 projectDir, seeding any missing ones from L1 demographics. */
+export async function ensureProjectClassesFromBase(
+  projectDir: string,
+  baseRoot: string,
+  requiredProvinceIds?: ReadonlySet<string>
+): Promise<{ created: number; existing: number }> {
+  const demographicsPath = join(baseRoot, "demographics.json");
+  const demographics = JSON.parse(await readFile(demographicsPath, "utf8")) as Record<
+    string,
+    ProvinceDemographicsEntry
+  >;
+  let created = 0;
+  let existing = 0;
+  const targetProvinceIds =
+    requiredProvinceIds !== undefined ? [...requiredProvinceIds] : Object.keys(demographics);
+
+  for (const provinceId of targetProvinceIds) {
+    const provinceClassesDir = join(projectDir, "provinces", provinceId, "classes");
+    let hasCsv = false;
+    try {
+      const files = await readdir(provinceClassesDir);
+      hasCsv = files.some((f) => f.endsWith(".csv"));
+    } catch {
+      hasCsv = false;
+    }
+
+    if (hasCsv) {
+      existing += 1;
+      continue;
+    }
+
+    const demo = demographics[provinceId];
+    if (demo === undefined) {
+      throw new Error(
+        `Missing L1 demographics data for province: ${provinceId} in ${demographicsPath}`
+      );
+    }
+    await writeProvinceClassCsvs(join(projectDir, "provinces", provinceId), demo);
+    created += 1;
+  }
+
+  return { created, existing };
+}
+
 /** Seed L2 `provinces/<sourceId>/classes/*.csv` from L1 demographics.json. */
 export async function seedProjectClassesFromBase(
   projectDir: string,
@@ -496,4 +477,3 @@ export async function seedProjectClassesFromBase(
   }
   return files;
 }
-

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NO-X01~,Bouvet Island,Bouvet Island,NOR,55,2,0.38,0.567,temperate_cold,temperate,0,"Bouvet Island in Norway, island and coastal waters, tourism and fishing.",,
+NO-X01~,Bouvet Island,Bouvet Island,NOR,54,0,0.331,0.595,temperate,temperate,0,,,

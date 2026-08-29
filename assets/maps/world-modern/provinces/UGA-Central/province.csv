@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-UGA-Central,Central,Central,UGA,40963,17833,0.533,0.547,tropical,tropical,7593147954,"Merged from Buikwe, Bukomansimbi, Butambala and 21 others. Central in Uganda, varied lowlands and uplands, industrial and service hub.",Kampala,Kampala
+UGA-Central,Central,Central,UGA,40963,7520,0.337,0.871,tropical,tropical,7593147957,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-USA-G07E0CF1,New England,New England,USA,85419,24968,0.869,0.774,temperate,temperate,707690143623,"Merged from Connecticut, Massachusetts, New Hampshire, Rhode Island and Vermont. New England in United States of America, temperate plains and urban corridors, mining and energy.",Boston,Boston
+USA-G07E0CF1,New England,New England,USA,85391,958,0.433,0.556,temperate,temperate,709970038364,,Hartford,Hartford

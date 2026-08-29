@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-KIR,Kirov,Kirov,RUS,119653,6194,0.478,0.399,temperate_cold,continental,13061252450,"Kirov in Russia, boreal forest and steppe, industrial and service hub.",Kirov,Kirov
+RU-KIR,Kirov,Kirov,RUS,119658,4248,0.294,0.631,boreal,boreal,13045426558,,Kirov,Kirov

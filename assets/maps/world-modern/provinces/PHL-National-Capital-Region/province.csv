@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PHL-National-Capital-Region,National Capital Region,National Capital Region,PHL,732,189,0.627,0.582,tropical,tropical,98390829184,"Merged from Caloocan, Makati, Malabon and 13 others. National Capital Region, tropical archipelago and rice plains, smallholder farming and markets.",Manila,Manila
+PHL-National-Capital-Region,National Capital Region,National Capital Region,PHL,730,53,0.535,0.755,tropical,tropical,98390829184,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GEO-G0A00339,Eastern Georgia,Eastern Georgia,GEO,25662,10050,0.754,0.717,temperate,temperate,7700953662,"Merged from Imereti, Mtskheta-Mtianeti, Samtskhe–Javakheti, Shida Kartli and Tbilisi. Eastern Georgia in Georgia, varied lowlands and uplands, services and light industry.",Tbilisi,Tbilisi
+GEO-G0A00339,Eastern Georgia,Eastern Georgia,GEO,25662,813,0.44,0.557,temperate,temperate,7700953662,,,

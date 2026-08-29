@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TF-X01~,Archipel des Kerguelen,Kerguelen Islands,ATF,6939,3670,0.89,0.798,temperate_cold,temperate,-45,"Uninhabited islet or reef in the French Southern and Antarctic Lands zone, no permanent settlement.",,
+TF-X01~,Archipel des Kerguelen,Kerguelen Islands,ATF,6933,0,0.38,0.565,temperate,temperate,-45,,,

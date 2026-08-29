@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MN-041,Hövsgöl,Khövsgöl,MNG,100052,479,0.244,0.26,temperate_cold,temperate,218452214,"Khövsgöl in Mongolia, steppe and Gobi desert, services and light industry.",Mörön,Mörön
+MN-041,Hövsgöl,Khövsgöl,MNG,100052,87,0.373,0.568,temperate,temperate,218452214,,Mörön,Mörön

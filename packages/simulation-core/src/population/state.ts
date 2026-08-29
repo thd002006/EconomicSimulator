@@ -23,7 +23,7 @@ export function buildDefaultSingleYearAgeShares(): readonly number[] {
   const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT);
   for (let a = 0; a <= 14; a += 1) shares[a] = 0.24 / 15;
   for (let a = 15; a <= 24; a += 1) shares[a] = 0.12 / 10;
-  for (let a = 25; a <= 44; a += 1) shares[a] = 0.30 / 20;
+  for (let a = 25; a <= 44; a += 1) shares[a] = 0.3 / 20;
   for (let a = 45; a <= 64; a += 1) shares[a] = 0.22 / 20;
   for (let a = 65; a <= 100; a += 1) shares[a] = 0.12 / 36;
   const sum = shares.reduce((acc, v) => acc + v, 0);
@@ -146,32 +146,13 @@ function extractSingleYearAgeShares(
   const entries = Object.entries(rawAge);
   if (entries.length === 0) return [...defaultShares];
 
-  const hasNumeric = entries.some(([k]) => Number.isInteger(Number(k)));
-  if (hasNumeric) {
-    const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
-    for (const [k, v] of entries) {
-      const ageNum = Number(k);
-      if (Number.isInteger(ageNum) && ageNum >= 0 && ageNum <= MAX_SINGLE_YEAR_AGE) {
-        shares[ageNum] = v;
-      }
-    }
-    const sum = shares.reduce((acc, v) => acc + v, 0);
-    return sum > 0 ? shares.map((v) => v / sum) : [...defaultShares];
-  }
-
-  // Legacy age bands
-  const record = rawAge as Record<string, number>;
   const shares = new Array<number>(SINGLE_YEAR_AGE_COUNT).fill(0);
-  const c14 = (record.child_0_14 ?? 0) / 15;
-  const y24 = (record.youth_15_24 ?? 0) / 10;
-  const p44 = (record.prime_25_44 ?? 0) / 20;
-  const m64 = (record.mature_45_64 ?? 0) / 20;
-  const s100 = (record.senior_65_plus ?? 0) / 36;
-  for (let a = 0; a <= 14; a += 1) shares[a] = c14;
-  for (let a = 15; a <= 24; a += 1) shares[a] = y24;
-  for (let a = 25; a <= 44; a += 1) shares[a] = p44;
-  for (let a = 45; a <= 64; a += 1) shares[a] = m64;
-  for (let a = 65; a <= 100; a += 1) shares[a] = s100;
+  for (const [key, value] of entries) {
+    const age = Number(key);
+    if (Number.isInteger(age) && age >= 0 && age <= MAX_SINGLE_YEAR_AGE) {
+      shares[age] = value;
+    }
+  }
   const sum = shares.reduce((acc, v) => acc + v, 0);
   return sum > 0 ? shares.map((v) => v / sum) : [...defaultShares];
 }
@@ -234,7 +215,9 @@ export function seedClassState(
     let remainingAge = populationPersons;
     for (let index = 0; index < SINGLE_YEAR_AGE_COUNT; index += 1) {
       const isLast = index === SINGLE_YEAR_AGE_COUNT - 1;
-      const count = isLast ? Math.max(0, remainingAge) : populationPersons * DEFAULT_SINGLE_YEAR_AGE_SHARES[index]!;
+      const count = isLast
+        ? Math.max(0, remainingAge)
+        : populationPersons * DEFAULT_SINGLE_YEAR_AGE_SHARES[index]!;
       state.ageCounts[index] = count;
       remainingAge -= count;
     }

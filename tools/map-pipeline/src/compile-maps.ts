@@ -58,6 +58,7 @@ async function readJson(path: string): Promise<unknown> {
 async function writeJson(path: string, value: unknown): Promise<{ text: string; hash: string }> {
   const text = `${JSON.stringify(value)}\n`;
   await mkdir(dirname(path), { recursive: true });
+  await rm(path, { force: true }).catch(() => {});
   await writeFile(path, text, "utf8");
   return { text, hash: sha256(text) };
 }
@@ -405,45 +406,44 @@ export async function compilePack(
   console.log(`Compiled authored map: ${entry.id} (${provinces.length} provinces)`);
 }
 
-export async function compileAllMaps(
+export async function compileSingleMap(
   sourceRoot: string,
-  options: { mapId?: string } = {}
+  mapId: string
 ): Promise<void> {
-  const mapDirectories = (await readdir(sourceRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
-  const selected =
-    options.mapId === undefined
-      ? mapDirectories
-      : mapDirectories.filter((name) => name === options.mapId);
-  if (options.mapId !== undefined && selected.length === 0) {
-    throw new Error(`Map not found under ${sourceRoot}: ${options.mapId}`);
+  if (!mapId || mapId.trim() === "") {
+    throw new Error("compileSingleMap requires a valid non-empty mapId.");
   }
-  for (const directory of selected) {
-    await compilePack(sourceRoot, sourceRoot, { id: directory, path: directory });
-  }
+  await compilePack(sourceRoot, sourceRoot, { id: mapId, path: mapId });
 }
 
 function repoRootFromCompile(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 }
 
-function parseCompileArgs(args: readonly string[]): { mapId?: string } {
+export function parseCompileArgs(args: readonly string[]): { mapId: string } {
   let mapId: string | undefined;
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]!;
+    if (argument === "--") {
+      continue;
+    }
     if (argument === "--map") {
       mapId = args[index + 1];
-      if (mapId === undefined) throw new Error("--map requires a map id.");
+      if (mapId === undefined || mapId.startsWith("-")) {
+        throw new Error("--map requires a non-empty map id.");
+      }
       index += 1;
       continue;
     }
     if (argument.startsWith("--map=")) {
       mapId = argument.slice("--map=".length);
+      if (!mapId) throw new Error("--map= requires a non-empty map id.");
       continue;
     }
     throw new Error(`Unknown compile argument: ${argument}`);
+  }
+  if (mapId === undefined || mapId.trim() === "") {
+    throw new Error("Missing required argument: --map <mapId>");
   }
   return { mapId };
 }
@@ -452,5 +452,5 @@ const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(toolRoot, "../..");
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { mapId } = parseCompileArgs(process.argv.slice(2));
-  await compileAllMaps(join(repoRoot, "assets/maps"), { mapId });
+  await compileSingleMap(join(repoRoot, "assets/maps"), mapId);
 }

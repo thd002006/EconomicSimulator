@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CA-ON,Ontario,Ontario,CAN,983445,52767,0.449,0.488,temperate_cold,temperate,469242998174,"Ontario in Canada, boreal forest and prairie, tourism and fishing.",Ottawa,Ottawa
+CA-ON,Ontario,Ontario,CAN,983393,11811,0.396,0.559,temperate,temperate,469407709936,,Ottawa,Ottawa

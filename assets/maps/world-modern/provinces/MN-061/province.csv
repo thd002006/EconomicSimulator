@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MN-061,Dornod,Dornod,MNG,122288,554,0.225,0.303,temperate_cold,temperate,112392091,"Dornod in Mongolia, steppe and Gobi desert, forestry and highland farming.",Choibalsan,Choibalsan
+MN-061,Dornod,Dornod,MNG,122288,281,0.392,0.56,temperate,temperate,112387226,,Choibalsan,Choibalsan

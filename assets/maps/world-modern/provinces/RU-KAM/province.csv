@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-KAM,Kamchatka,Kamchatka Krai,RUS,461327,32908,0.47,0.398,temperate_cold,temperate,7378958682,"Kamchatka Krai in Russia, boreal forest and steppe, smallholder farming and markets.",Petropavlovsk-Kamchatsky,Petropavlovsk-Kamchatsky
+RU-KAM,Kamchatka,Kamchatka Krai,RUS,461317,10,0.281,0.646,boreal,boreal,7381594021,,Petropavlovsk-Kamchatsky,Petropavlovsk-Kamchatsky

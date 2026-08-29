@@ -173,29 +173,6 @@ function clamp(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, v));
 }
 
-function fallbackCultivationCondition(lat: number): number {
-  const absLat = Math.abs(lat);
-  const tropical = sigmoid((absLat - 10) / 12) * sigmoid((22 - absLat) / 10);
-  const temperate = sigmoid((absLat - 30) / 15) * sigmoid((55 - absLat) / 15);
-  return clamp(tropical * 0.9 + temperate * 0.7, 0.05, 0.95);
-}
-
-function fallbackHabitability(lat: number): number {
-  const absLat = Math.abs(lat);
-  const warm = sigmoid((absLat - 20) / 15) * sigmoid((65 - absLat) / 10);
-  const polarPenalty = absLat > 60 ? sigmoid((absLat - 60) / 10) * 0.5 : 0;
-  return clamp(1 - warm * 0.6 - polarPenalty, 0.05, 0.95);
-}
-
-function fallbackClassifyClimate(lat: number): { terrainProfileId: string; climateProfileId: string } {
-  const absLat = Math.abs(lat);
-  if (absLat < 23.5) return { terrainProfileId: "tropical", climateProfileId: "tropical" };
-  if (absLat < 35) return { terrainProfileId: "subtropical", climateProfileId: "subtropical" };
-  if (absLat < 55) return { terrainProfileId: "temperate", climateProfileId: "temperate" };
-  if (absLat < 66) return { terrainProfileId: "boreal", climateProfileId: "boreal" };
-  return { terrainProfileId: "arctic", climateProfileId: "arctic" };
-}
-
 function computeCultivationConditionFromClimate(meanTempC: number, meanPrecipMm: number): number {
   let tempFactor: number;
   if (meanTempC < 0) {
@@ -325,42 +302,29 @@ async function aggregateForProvinces(
   const bio1Raster = await ClimateRaster.open(join(bioDir, "bio_1.tif"));
   const bio12Raster = await ClimateRaster.open(join(bioDir, "bio_12.tif"));
 
-  if (bio1Raster !== undefined && bio12Raster !== undefined) {
-    console.log("  [ok] Loaded WorldClim bio_1.tif & bio_12.tif rasters for climate calculation.");
-  } else {
-    console.log("  [notice] WorldClim rasters not found in cache/agrarian/bio; falling back to latitude model.");
+  if (bio1Raster === undefined || bio12Raster === undefined) {
+    throw new Error(
+      "Missing WorldClim rasters (bio_1.tif, bio_12.tif) under cache/agrarian/bio. " +
+        "Run fetch:agrarian first to download required climate datasets."
+    );
   }
+
+  console.log("  [ok] Loaded WorldClim bio_1.tif & bio_12.tif rasters for climate calculation.");
 
   for (const [, prov] of provinces) {
     const lat = meanCentroidLat(prov.geometry);
-    let meanTempC: number | undefined;
-    let meanPrecipMm: number | undefined;
+    const meanTempC = await bio1Raster.samplePolygonMean(prov.geometry, prov.bbox);
+    const meanPrecipMm = await bio12Raster.samplePolygonMean(prov.geometry, prov.bbox);
 
-    if (bio1Raster !== undefined) {
-      meanTempC = await bio1Raster.samplePolygonMean(prov.geometry, prov.bbox);
-    }
-    if (bio12Raster !== undefined) {
-      meanPrecipMm = await bio12Raster.samplePolygonMean(prov.geometry, prov.bbox);
+    if (meanTempC === undefined || meanPrecipMm === undefined) {
+      throw new Error(`Failed to sample climate for province ${prov.id}.`);
     }
 
-    let cultivationCondition: number;
-    let habitability: number;
-    let terrainProfileId: string;
-    let climateProfileId: string;
-
-    if (meanTempC !== undefined && meanPrecipMm !== undefined) {
-      cultivationCondition = computeCultivationConditionFromClimate(meanTempC, meanPrecipMm);
-      habitability = computeHabitabilityFromClimate(meanTempC, meanPrecipMm);
-      const classified = classifyClimateFromTemp(meanTempC);
-      terrainProfileId = classified.terrainProfileId;
-      climateProfileId = classified.climateProfileId;
-    } else {
-      cultivationCondition = Math.round(fallbackCultivationCondition(lat) * 1000) / 1000;
-      habitability = Math.round(fallbackHabitability(lat) * 1000) / 1000;
-      const classified = fallbackClassifyClimate(lat);
-      terrainProfileId = classified.terrainProfileId;
-      climateProfileId = classified.climateProfileId;
-    }
+    const cultivationCondition = computeCultivationConditionFromClimate(meanTempC, meanPrecipMm);
+    const habitability = computeHabitabilityFromClimate(meanTempC, meanPrecipMm);
+    const classified = classifyClimateFromTemp(meanTempC);
+    const terrainProfileId = classified.terrainProfileId;
+    const climateProfileId = classified.climateProfileId;
 
     results.set(prov.id, {
       province: prov,

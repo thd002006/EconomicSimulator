@@ -3,12 +3,16 @@ import test from "node:test";
 import {
   allocateByShares,
   DEFAULT_CLASS_POPULATION_SHARES,
+  ensureProjectClassesFromBase,
   parseClassCsvText,
   serializeClassCsv,
   splitDemographicsIntoClasses,
   sumClassSeedRows,
   validateClassSeedRows
 } from "../src/class-split.js";
+
+const singleYearAges = (population: number) =>
+  Object.fromEntries(Array.from({ length: 101 }, (_, age) => [age, population / 101]));
 
 test("allocateByShares sums to the requested total", () => {
   const parts = allocateByShares(1000, DEFAULT_CLASS_POPULATION_SHARES);
@@ -22,13 +26,7 @@ test("splitDemographicsIntoClasses preserves province population totals and vali
     pop: 10_000,
     male: 5_100,
     female: 4_900,
-    age: {
-      child_0_14: 2_400,
-      youth_15_24: 1_200,
-      prime_25_44: 3_000,
-      mature_45_64: 2_200,
-      senior_65_plus: 1_200
-    },
+    age: singleYearAges(10_000),
     education15Plus: {
       basic: 3_000,
       secondary: 2_500,
@@ -51,13 +49,7 @@ test("serializeClassCsv and parseClassCsvText round-trip longitudinal dimension 
     pop: 1000,
     male: 520,
     female: 480,
-    age: {
-      child_0_14: 200,
-      youth_15_24: 150,
-      prime_25_44: 300,
-      mature_45_64: 230,
-      senior_65_plus: 120
-    },
+    age: singleYearAges(1000),
     education15Plus: {
       basic: 300,
       secondary: 300,
@@ -81,7 +73,9 @@ test("serializeClassCsv and parseClassCsvText round-trip longitudinal dimension 
   assert.equal(parsed.populationPersons, farmer.populationPersons);
   assert.ok(Math.abs(parsed.maleShare - farmer.maleShare) < 0.001);
   assert.ok(Math.abs(parsed.ageShares[0]! - farmer.ageShares[0]!) < 0.001);
-  assert.ok(Math.abs(parsed.education15PlusShares.basic - farmer.education15PlusShares.basic) < 0.001);
+  assert.ok(
+    Math.abs(parsed.education15PlusShares.basic - farmer.education15PlusShares.basic) < 0.001
+  );
 });
 
 test("sumClassSeedRows adds member class populations and weights shares", () => {
@@ -89,13 +83,7 @@ test("sumClassSeedRows adds member class populations and weights shares", () => 
     pop: 100,
     male: 50,
     female: 50,
-    age: {
-      child_0_14: 20,
-      youth_15_24: 20,
-      prime_25_44: 20,
-      mature_45_64: 20,
-      senior_65_plus: 20
-    },
+    age: singleYearAges(100),
     education15Plus: { basic: 40, secondary: 30, tertiary: 20, advanced: 10 },
     gdpPpp: 0
   });
@@ -103,13 +91,7 @@ test("sumClassSeedRows adds member class populations and weights shares", () => 
     pop: 50,
     male: 25,
     female: 25,
-    age: {
-      child_0_14: 10,
-      youth_15_24: 10,
-      prime_25_44: 10,
-      mature_45_64: 10,
-      senior_65_plus: 10
-    },
+    age: singleYearAges(50),
     education15Plus: { basic: 20, secondary: 15, tertiary: 10, advanced: 5 },
     gdpPpp: 0
   });
@@ -119,4 +101,46 @@ test("sumClassSeedRows adds member class populations and weights shares", () => 
     150
   );
   assert.deepEqual(validateClassSeedRows(merged), []);
+});
+
+test("ensureProjectClassesFromBase generates missing class CSVs from L1 demographics", async () => {
+  const { mkdtemp, rm, writeFile, mkdir } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+
+  const tempRoot = await mkdtemp(join(tmpdir(), "ensure-classes-"));
+  const baseDir = join(tempRoot, "base");
+  const projectDir = join(tempRoot, "project");
+  await mkdir(baseDir, { recursive: true });
+  await mkdir(projectDir, { recursive: true });
+
+  const mockDemographics = {
+    "PROV-1": {
+      pop: 1000,
+      male: 500,
+      female: 500,
+      age: singleYearAges(1000),
+      education15Plus: { basic: 400, secondary: 300, tertiary: 200, advanced: 100 },
+      gdpPpp: 100
+    },
+    "PROV-2": {
+      pop: 500,
+      male: 250,
+      female: 250,
+      age: singleYearAges(500),
+      education15Plus: { basic: 200, secondary: 150, tertiary: 100, advanced: 50 },
+      gdpPpp: 50
+    }
+  };
+  await writeFile(join(baseDir, "demographics.json"), JSON.stringify(mockDemographics));
+
+  const result1 = await ensureProjectClassesFromBase(projectDir, baseDir);
+  assert.equal(result1.created, 2);
+  assert.equal(result1.existing, 0);
+
+  const result2 = await ensureProjectClassesFromBase(projectDir, baseDir);
+  assert.equal(result2.created, 0);
+  assert.equal(result2.existing, 2);
+
+  await rm(tempRoot, { recursive: true, force: true });
 });

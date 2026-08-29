@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FRA-Bourgogne-Franche-Comté,Bourgogne-Franche-Comté,Bourgogne-Franche-Comté,FRA,47874,27977,0.95,0.824,temperate_cold,temperate,84553143348,"Merged from Côte-d’Or, Doubs, Haute-Saône and 5 others. Bourgogne-Franche-Comté, temperate lowlands and uplands, pastoral herding and oasis farming.",Dijon,Dijon
+FRA-Bourgogne-Franche-Comté,Bourgogne-Franche-Comté,Bourgogne-Franche-Comté,FRA,47861,6384,0.397,0.559,temperate,temperate,84545500536,,Dijon,Dijon

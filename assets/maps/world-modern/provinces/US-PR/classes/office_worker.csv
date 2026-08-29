@@ -103,7 +103,7 @@ age,97,0.00325
 age,98,0.00325
 age,99,0.00325
 age,100,0.00325
-education_15plus,basic,0.75088
-education_15plus,secondary,0.19205
-education_15plus,tertiary,0.03572
-education_15plus,advanced,0.02134
+education_15plus,basic,0.47666
+education_15plus,secondary,0.40502
+education_15plus,tertiary,0.07634
+education_15plus,advanced,0.04198

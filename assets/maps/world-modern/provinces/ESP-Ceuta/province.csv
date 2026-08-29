@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ESP-Ceuta,Ceuta,Ceuta,ESP,43,6,0.473,0.455,temperate,temperate,0,"Ceuta in Spain, Meseta and Mediterranean coast, pastoral herding and oasis farming.",Ceuta,Ceuta
+ESP-Ceuta,Ceuta,Ceuta,ESP,43,0,0.487,0.577,temperate,temperate,0,,Ceuta,Ceuta

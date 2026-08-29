@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-MO,Missouri,Missouri,USA,180322,50666,0.81,0.751,temperate,temperate,238148437616,"Missouri, temperate plains and urban corridors, industrial and service hub.",Jefferson City,Jefferson City
+US-MO,Missouri,Missouri,USA,180308,36022,0.467,0.566,temperate,temperate,238148437616,,Jefferson City,Jefferson City

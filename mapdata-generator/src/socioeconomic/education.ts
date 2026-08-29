@@ -123,7 +123,16 @@ export async function loadEducationTables(
   const rows = parseCsv(await readFile(csvPath, "utf8"));
   const header = rows[0]!.map((value) => value.trim());
   const columnIndex = new Map(header.map((name, index) => [name, index]));
-  const required = ["country", "year", "agefrom", "ageto", ...BL_COLUMNS, "pop", "WBcode", "region_code"];
+  const required = [
+    "country",
+    "year",
+    "agefrom",
+    "ageto",
+    ...BL_COLUMNS,
+    "pop",
+    "WBcode",
+    "region_code"
+  ];
   for (const name of required) {
     if (!columnIndex.has(name)) throw new Error(`Barro-Lee CSV lacks column ${name}.`);
   }
@@ -154,8 +163,7 @@ export async function loadEducationTables(
       const totalPop = existing.pop + pop;
       const blended = {} as Record<EducationLevelId, number>;
       for (const tier of Object.keys(shares) as EducationLevelId[]) {
-        blended[tier] =
-          (existing.shares[tier]! * existing.pop + shares[tier]! * pop) / totalPop;
+        blended[tier] = (existing.shares[tier]! * existing.pop + shares[tier]! * pop) / totalPop;
       }
       let total = 0;
       for (const value of Object.values(blended)) total += value;
@@ -201,10 +209,7 @@ export async function loadEducationTables(
       const byAgeBand = new Map<string, Record<EducationLevelId, number>>();
       for (const [bandKey, accumulator] of bands) {
         if (accumulator.left === undefined || accumulator.right === undefined) continue;
-        byAgeBand.set(
-          bandKey,
-          mixShares(accumulator.left.shares, accumulator.right.shares, t)
-        );
+        byAgeBand.set(bandKey, mixShares(accumulator.left.shares, accumulator.right.shares, t));
       }
       if (byAgeBand.size > 0) resolved.set(key, { byAgeBand });
     }
@@ -219,9 +224,7 @@ export async function loadEducationTables(
     regionByCountry,
     fallback: {
       byRegion: new Map([...fallbackRegions].map(([key, value]) => [key, value])),
-      world:
-        fallbackWorld ??
-        ({ byAgeBand: new Map() } satisfies CountryEducation)
+      world: fallbackWorld ?? ({ byAgeBand: new Map() } satisfies CountryEducation)
     }
   };
 }
@@ -233,11 +236,7 @@ export function educationForBand(
   ageFrom: number,
   ageTo: number
 ): Record<EducationLevelId, number> {
-  const candidates = [
-    `${ageFrom}-${ageTo}`,
-    // Seniors have no dedicated Barro-Lee band; reuse the oldest working-age band.
-    ...(ageFrom >= 65 ? [`60-64`] : [])
-  ];
+  const candidates = [`${ageFrom}-${ageTo}`, ...(ageFrom >= 65 ? [`60-64`] : [])];
   const source = education?.byAgeBand ?? undefined;
   for (const key of candidates) {
     const direct = source?.get(key);

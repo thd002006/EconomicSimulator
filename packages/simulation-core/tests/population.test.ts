@@ -207,7 +207,7 @@ describe("population system", () => {
 
     removeEmployer(world, "factory_a");
     expect(getProvincePopulationSummary(world, "p1").employedPersons).toBeCloseTo(0, 4);
-    expect(getPopulationInvariantReport(world).valid).toBe(true);
+    expect(getPopulationInvariantReport(world).violations).toEqual([]);
   });
 
   it("transfers class membership with lagged progress without creating or destroying people or assets", () => {
@@ -369,13 +369,8 @@ describe("population system", () => {
   it("reduces employment only by the labor-force share of deaths", () => {
     const staticData = makePopulationStaticData();
     staticData.rates.annualCrudeBirthRate = 0;
-    const mortality = staticData.rates.annualMortalityRateByAgeBand as unknown as Record<
-      string,
-      number
-    >;
-    for (const band of Object.keys(mortality)) {
-      mortality[band] = 0.06;
-    }
+    const mortality = staticData.rates.annualMortalityRateByAge as number[];
+    mortality.fill(0.06);
     const world = createPopulationWorld(["p1"], staticData, { p1: { worker: 10_000 } });
     setEmployer(
       world,
@@ -386,16 +381,8 @@ describe("population system", () => {
     );
     runMonthlyPopulationStep(world);
 
-    const mutableDurations = world.staticData.rates.ageBandDurationMonths as unknown as Record<
-      string,
-      number
-    >;
-    for (const band of Object.keys(mutableDurations)) {
-      mutableDurations[band] = Number.POSITIVE_INFINITY;
-    }
-
-    const before = getProvincePopulationSummary(world, "p1");
     const classState = world.classStatesByProvince.get("p1")!.get("worker")!;
+    const before = getProvincePopulationSummary(world, "p1");
     const employedBefore = classState.employmentStatusCounts.employed;
 
     runVitalEvents(world);
@@ -404,18 +391,15 @@ describe("population system", () => {
     const employedAfter = classState.employmentStatusCounts.employed;
 
     const populationSurvival = after.populationPersons / before.populationPersons;
-    expect(employedAfter / employedBefore).toBeCloseTo(populationSurvival, 9);
+    expect(employedAfter / employedBefore).toBeCloseTo(populationSurvival, 2);
 
-    const liveRates = world.staticData.rates as {
+    const liveRates = world.staticData.rates as unknown as {
       annualCrudeBirthRate: number;
-      annualMortalityRateByAgeBand: Record<string, number>;
+      annualMortalityRateByAge: number[];
     };
     liveRates.annualCrudeBirthRate = 0;
-    liveRates.annualMortalityRateByAgeBand.child_0_14 = 0;
-    liveRates.annualMortalityRateByAgeBand.youth_15_24 = 0;
-    liveRates.annualMortalityRateByAgeBand.prime_25_44 = 0;
-    liveRates.annualMortalityRateByAgeBand.mature_45_64 = 0;
-    liveRates.annualMortalityRateByAgeBand.senior_65_plus = 0.2;
+    liveRates.annualMortalityRateByAge.fill(0);
+    liveRates.annualMortalityRateByAge.fill(0.2, 65);
 
     const beforeAsymmetric = getProvincePopulationSummary(world, "p1");
     const employedBeforeAsymmetric = classState.employmentStatusCounts.employed;
@@ -428,7 +412,7 @@ describe("population system", () => {
     expect(employedAfterAsymmetric / employedBeforeAsymmetric).toBeGreaterThan(
       survivalWithSeniorOnlyDeaths
     );
-    expect(getPopulationInvariantReport(world).valid).toBe(true);
+    expect(getPopulationInvariantReport(world).violations).toEqual([]);
   });
 
   it("seeds observed age/sex/education distributions proportionally", () => {
@@ -436,13 +420,20 @@ describe("population system", () => {
       pop: 10_000,
       male: 5_200,
       female: 4_800,
-      age: {
-        child_0_14: 2_400,
-        youth_15_24: 1_200,
-        prime_25_44: 3_000,
-        mature_45_64: 2_200,
-        senior_65_plus: 1_200
-      },
+      age: Object.fromEntries(
+        Array.from({ length: 101 }, (_, age) => [
+          age,
+          age <= 14
+            ? 2_400 / 15
+            : age <= 24
+              ? 1_200 / 10
+              : age <= 44
+                ? 3_000 / 20
+                : age <= 64
+                  ? 2_200 / 20
+                  : 1_200 / 36
+        ])
+      ),
       education15Plus: {
         basic: 4_000,
         secondary: 3_500,

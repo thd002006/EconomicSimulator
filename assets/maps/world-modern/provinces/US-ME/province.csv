@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-ME,Maine,Maine,USA,84050,21481,0.832,0.762,temperate,temperate,51790450961,"Maine in United States of America, temperate plains and urban corridors, industrial and service hub.",Augusta,Augusta
+US-ME,Maine,Maine,USA,84040,602,0.42,0.555,temperate,temperate,51810110732,,Augusta,Augusta

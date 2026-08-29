@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RWA-G5A0388A,Rwanda,Rwanda,RWA,25424,16438,0.559,0.524,tropical,tropical,6814162272,"Merged from Eastern, Kigali, Northern, Southern and Western. National territory in Rwanda, varied lowlands and uplands, port trade and logistics.",Kigali,Kigali
+RWA-G5A0388A,Rwanda,Rwanda,RWA,25423,9129,0.36,0.861,tropical,tropical,6814162272,,Kigali,Kigali

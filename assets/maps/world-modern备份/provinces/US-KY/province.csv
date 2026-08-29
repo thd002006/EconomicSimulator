@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+US-KY,Kentucky,Kentucky,USA,104507,26100,0.775,0.768,temperate,temperate,158695169290,"Kentucky, temperate plains and urban corridors, services and light industry.",Frankfort,Frankfort

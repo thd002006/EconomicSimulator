@@ -127,21 +127,57 @@ export async function validatePack(
   };
 }
 
-export async function validateAllMaps(mapsRoot: string): Promise<void> {
+export function parseValidateArgs(args: readonly string[]): { mapId?: string } {
+  let mapId: string | undefined;
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    if (argument === "--") {
+      continue;
+    }
+    if (argument === "--map") {
+      mapId = args[index + 1];
+      if (mapId === undefined || mapId.startsWith("-")) {
+        throw new Error("--map requires a non-empty map id.");
+      }
+      index += 1;
+      continue;
+    }
+    if (argument.startsWith("--map=")) {
+      mapId = argument.slice("--map=".length);
+      if (!mapId) throw new Error("--map= requires a non-empty map id.");
+      continue;
+    }
+    throw new Error(`Unknown validate argument: ${argument}`);
+  }
+  return { mapId };
+}
+
+export async function validateMaps(mapsRoot: string, options: { mapId?: string } = {}): Promise<void> {
   const reports: Record<string, Record<string, number>> = {};
-  const mapDirectories = (await readdir(mapsRoot, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
-  for (const directory of mapDirectories) {
-    const entry = { id: directory, path: directory };
+  if (options.mapId !== undefined) {
+    const entry = { id: options.mapId, path: options.mapId };
     reports[entry.id] = await validatePack(mapsRoot, entry);
     console.log(`Validated authored map: ${entry.id}`);
+  } else {
+    const mapDirectories = (await readdir(mapsRoot, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
+    for (const directory of mapDirectories) {
+      // Ignore backup directories
+      if (directory.includes("备份") || directory.toLowerCase().includes("backup")) {
+        continue;
+      }
+      const entry = { id: directory, path: directory };
+      reports[entry.id] = await validatePack(mapsRoot, entry);
+      console.log(`Validated authored map: ${entry.id}`);
+    }
   }
   console.log(JSON.stringify({ validated: reports }, null, 2));
 }
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  await validateAllMaps(resolve(toolRoot, "../../assets/maps"));
+  const { mapId } = parseValidateArgs(process.argv.slice(2));
+  await validateMaps(resolve(toolRoot, "../../assets/maps"), { mapId });
 }

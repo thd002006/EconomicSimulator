@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-NM,New Mexico,New Mexico,USA,315077,6541,0.258,0.426,temperate,temperate,70220487282,"New Mexico, temperate plains and urban corridors, port trade and logistics.",Santa Fe,Santa Fe
+US-NM,New Mexico,New Mexico,USA,315078,3071,0.508,0.593,subtropical,subtropical,70220487282,,Santa Fe,Santa Fe

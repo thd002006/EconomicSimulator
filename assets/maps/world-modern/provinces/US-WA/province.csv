@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-WA,Washington,Washington,USA,173579,49468,0.866,0.722,temperate_cold,temperate,269273560067,"Washington, temperate plains and urban corridors, agriculture and food processing.",Olympia,Olympia
+US-WA,Washington,Washington,USA,173552,8818,0.394,0.559,temperate,temperate,268638688185,,Olympia,Olympia

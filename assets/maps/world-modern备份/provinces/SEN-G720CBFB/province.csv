@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+SEN-G720CBFB,Southern Senegal,Southern Senegal,SEN,47273,8711,0.37,0.407,tropical,tropical,2817989806,"Merged from Kolda, Kédougou, Sédhiou and Ziguinchor. Southern Senegal in Senegal, varied lowlands and uplands, pastoral herding and oasis farming.",Ziguinchor,Ziguinchor

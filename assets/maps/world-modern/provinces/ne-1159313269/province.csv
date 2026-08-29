@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ne-1159313269,Lord Howe Island,Lord Howe Island,AUS,14,1,0.343,0.183,subtropical,subtropical,0,"Lord Howe Island in Australia, island and coastal waters, tourism and fishing.",,
+ne-1159313269,Lord Howe Island,Lord Howe Island,AUS,14,0,0.519,0.604,subtropical,subtropical,0,,,

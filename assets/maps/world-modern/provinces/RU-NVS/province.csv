@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-NVS,Novosibirsk,Novosibirsk,RUS,177091,11405,0.534,0.428,temperate_cold,continental,29249624647,"Novosibirsk in Russia, boreal forest and steppe, industrial and service hub.",Novosibirsk,Novosibirsk
+RU-NVS,Novosibirsk,Novosibirsk,RUS,177084,17623,0.326,0.6,boreal,boreal,29250252466,,Novosibirsk,Novosibirsk

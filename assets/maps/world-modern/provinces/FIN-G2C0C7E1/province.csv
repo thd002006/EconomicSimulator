@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FIN-G2C0C7E1,Western Finland,Western Finland,FIN,49163,1412,0.217,0.3,boreal,continental,16514109241,"Merged from Central Ostrobothnia, Northern Ostrobothnia and Ostrobothnia. Western Finland in Finland, lake district and boreal forest, industrial and service hub.",Oulu,Oulu
+FIN-G2C0C7E1,Western Finland,Western Finland,FIN,49154,1671,0.232,0.402,boreal,boreal,16535838156,,,

@@ -13,14 +13,6 @@ import {
 const SOCIAL_CLASS_IDS = new Set(POPULATION_DATA_PACK.socialClasses.map((entry) => entry.id));
 const OPERATING_UNIT_KIND_IDS = new Set<string>(OPERATING_UNIT_KINDS);
 
-const AGE_CSV_FIELDS = [
-  "age_child_0_14",
-  "age_youth_15_24",
-  "age_prime_25_44",
-  "age_mature_45_64",
-  "age_senior_65_plus"
-] as const;
-
 const EDU_CSV_FIELDS = ["edu_basic", "edu_secondary", "edu_tertiary", "edu_advanced"] as const;
 
 export interface AuthoredCountry {
@@ -194,13 +186,16 @@ export function parseProvinceOverviewCsv(
   };
 }
 
-export function parseClassCsv(text: string, expectedClassId: string, label: string): AuthoredClassSeed {
+export function parseClassCsv(
+  text: string,
+  expectedClassId: string,
+  label: string
+): AuthoredClassSeed {
   const { headers, rows } = parseCsv(text);
   if (!SOCIAL_CLASS_IDS.has(expectedClassId)) {
     throw new Error(`${label}: unknown social_class_id ${expectedClassId}.`);
   }
 
-  // Format 1: Longitudinal 3-column table: dimension,key,value
   if (headers.includes("dimension") && headers.includes("key") && headers.includes("value")) {
     let populationPersons = 0;
     let cashCents: number | undefined;
@@ -259,11 +254,15 @@ export function parseClassCsv(text: string, expectedClassId: string, label: stri
     }
 
     // Education shares -> calculate headcounts
-    const eduSum = EDU_CSV_FIELDS.reduce((acc, f) => acc + (eduShares[f.slice("edu_".length)] ?? eduShares[f] ?? 0), 0);
+    const eduSum = EDU_CSV_FIELDS.reduce(
+      (acc, f) => acc + (eduShares[f.slice("edu_".length)] ?? eduShares[f] ?? 0),
+      0
+    );
     const education15Plus: Record<string, number> = {};
     for (const field of EDU_CSV_FIELDS) {
       const lvl = field.slice("edu_".length);
-      const share = eduSum > 0 ? (eduShares[lvl] ?? eduShares[field] ?? 0) / eduSum : (lvl === "basic" ? 1 : 0);
+      const share =
+        eduSum > 0 ? (eduShares[lvl] ?? eduShares[field] ?? 0) / eduSum : lvl === "basic" ? 1 : 0;
       education15Plus[lvl] = nonChild * share;
     }
 
@@ -278,33 +277,7 @@ export function parseClassCsv(text: string, expectedClassId: string, label: stri
     };
   }
 
-  // Format 2 (legacy): wide 1-row table
-  if (rows.length !== 1) {
-    throw new Error(`${label} must contain exactly one data row.`);
-  }
-  const row = rows[0]!;
-  const socialClassId = requireCsvField(row, "social_class_id", label);
-  if (socialClassId !== expectedClassId) {
-    throw new Error(`${label}: social_class_id ${socialClassId} does not match file name.`);
-  }
-  const age: Record<string, number> = {};
-  for (const field of AGE_CSV_FIELDS) {
-    age[field.slice("age_".length)] = parseCsvNumber(row, field, label);
-  }
-  const education15Plus: Record<string, number> = {};
-  for (const field of EDU_CSV_FIELDS) {
-    education15Plus[field.slice("edu_".length)] = parseCsvNumber(row, field, label);
-  }
-  const cashCents = optionalCsvNumber(row, "cash_cents", label);
-  return {
-    socialClassId,
-    populationPersons: parseCsvNumber(row, "population_persons", label),
-    male: parseCsvNumber(row, "male", label),
-    female: parseCsvNumber(row, "female", label),
-    age,
-    education15Plus,
-    ...(cashCents === undefined ? {} : { cashCents })
-  };
+  throw new Error(`${label} must use dimension,key,value rows with single-year ages 0..100.`);
 }
 
 export function parseOperatingUnitsCsv(text: string, provinceId: string): AuthoredOperatingUnit[] {
@@ -337,7 +310,10 @@ export function parseOperatingUnitsCsv(text: string, provinceId: string): Author
   return units;
 }
 
-export function parseCompanyCsv(text: string, expectedId: string): Omit<AuthoredCompany, "shareholders"> {
+export function parseCompanyCsv(
+  text: string,
+  expectedId: string
+): Omit<AuthoredCompany, "shareholders"> {
   const { rows } = parseCsv(text);
   if (rows.length !== 1) {
     throw new Error(`companies/${expectedId}/company.csv must contain exactly one data row.`);
@@ -406,7 +382,10 @@ export function parseShareholdersCsv(text: string, companyId: string): AuthoredS
   return shareholders;
 }
 
-async function loadProvincePack(provincesDir: string, provinceId: string): Promise<AuthoredProvincePack> {
+async function loadProvincePack(
+  provincesDir: string,
+  provinceId: string
+): Promise<AuthoredProvincePack> {
   const dir = join(provincesDir, provinceId);
   const overview = parseProvinceOverviewCsv(
     await readFile(join(dir, "province.csv"), "utf8"),
@@ -426,7 +405,11 @@ async function loadProvincePack(provincesDir: string, provinceId: string): Promi
   for (const fileName of classEntries) {
     const socialClassId = fileName.slice(0, -".csv".length);
     classes.push(
-      parseClassCsv(await readFile(join(classesDir, fileName), "utf8"), socialClassId, `provinces/${provinceId}/classes/${fileName}`)
+      parseClassCsv(
+        await readFile(join(classesDir, fileName), "utf8"),
+        socialClassId,
+        `provinces/${provinceId}/classes/${fileName}`
+      )
     );
   }
   let operatingUnits: AuthoredOperatingUnit[] = [];

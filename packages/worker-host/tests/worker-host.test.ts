@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { PROTOCOL_VERSION } from "@economic-simulator/simulation-protocol";
 import { SimulationRequestHandler } from "../src";
 
+const singleYearAges = (population: number) =>
+  Object.fromEntries(Array.from({ length: 101 }, (_, age) => [String(age), population / 101]));
+
 const miniScenario = {
   mapId: "test",
   provinces: [
@@ -12,13 +15,7 @@ const miniScenario = {
         pop: 1000,
         male: 500,
         female: 500,
-        age: {
-          child_0_14: 240,
-          youth_15_24: 120,
-          prime_25_44: 300,
-          mature_45_64: 220,
-          senior_65_plus: 120
-        },
+        age: singleYearAges(1000),
         education15Plus: { basic: 400, secondary: 350, tertiary: 180, advanced: 70 }
       }
     },
@@ -29,13 +26,7 @@ const miniScenario = {
         pop: 200,
         male: 100,
         female: 100,
-        age: {
-          child_0_14: 48,
-          youth_15_24: 24,
-          prime_25_44: 60,
-          mature_45_64: 44,
-          senior_65_plus: 24
-        },
+        age: singleYearAges(200),
         education15Plus: { basic: 80, secondary: 70, tertiary: 36, advanced: 14 }
       }
     }
@@ -110,9 +101,9 @@ describe("SimulationRequestHandler", () => {
     });
     expect(province.kind).toBe("result");
     if (province.kind === "result") {
-      expect((province.payload as { summary: { populationPersons: number } }).summary.populationPersons).toBe(
-        1000
-      );
+      expect(
+        (province.payload as { summary: { populationPersons: number } }).summary.populationPersons
+      ).toBe(1000);
     }
 
     const country = host.handle({

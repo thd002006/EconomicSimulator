@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-EGY-CANAL,Suez Canal,Suez Canal,EGY,15158,215,0.217,0.208,subtropical,subtropical,16582183185,"Merged from Ismailia, Port Said and Suez. Suez Canal corridor, world shipping artery with port logistics.",Ismaïlia,Ismailia
+EGY-CANAL,Suez Canal,Suez Canal,EGY,15163,1346,0.528,0.614,subtropical,subtropical,16550295480,,Ismaïlia,Ismailia

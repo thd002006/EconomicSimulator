@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-NIR,Northern Ireland,Northern Ireland,GBR,14192,4520,0.715,0.75,temperate_cold,temperate,42356189983,"Merged from Antrim, Ards, Armagh and 23 others. Northern Ireland in United Kingdom, temperate maritime lowlands, pastoral herding and oasis farming.",Belfast,Belfast
+GBR-NIR,Northern Ireland,Northern Ireland,GBR,14187,449,0.33,0.597,temperate,temperate,42470359457,,,

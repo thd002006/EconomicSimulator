@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CHL-G1BEF6FC,Central Chile,Central Chile,CHL,87011,3325,0.389,0.586,subtropical,subtropical,150697610785,"Merged from Coquimbo, O'Higgins, Santiago and Valparaíso. Central Chile in Chile, Andes, desert north and temperate south, services and light industry.",Santiago,Santiago
+CHL-G1BEF6FC,Central Chile,Central Chile,CHL,87011,2548,0.514,0.6,subtropical,subtropical,150697639760,,La Serena,La Serena

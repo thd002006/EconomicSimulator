@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+EGY-UPPER,Upper Nile,Upper Nile,EGY,24452,338,0.21,0.207,subtropical,subtropical,57858063855,"Merged from Aswan, Asyut, Luxor, Qena and Sohag. Upper Nile valley with ancient towns, irrigated farming and stone quarries.",Sohag,Sohag

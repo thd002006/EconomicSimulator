@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-YAN,Yamal-Nenets,Yamalo-Nenets Autonomous Okrug,RUS,681779,15919,0.204,0.24,tundra,polar,34220635650,"Yamalo-Nenets Autonomous Okrug in Russia, boreal forest and steppe, farming and market towns.",Salekhard,Salekhard
+RU-YAN,Yamal-Nenets,Yamalo-Nenets Autonomous Okrug,RUS,681747,3,0.196,0.411,arctic,arctic,34224652500,,Salekhard,Salekhard

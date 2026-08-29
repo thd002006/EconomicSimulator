@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+HUN-Southern-Transdanubia,Southern Transdanubia,Southern Transdanubia,HUN,14214,9239,0.894,0.757,temperate_cold,temperate,13261361752,"Merged from Baranya, Kaposvár, Pécs and 3 others. Southern Transdanubia in Hungary, varied lowlands and uplands, forestry and highland farming.",Pécs,Pécs

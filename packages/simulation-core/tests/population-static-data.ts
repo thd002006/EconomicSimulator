@@ -361,20 +361,9 @@ export function makePopulationStaticData(): Mutable<PopulationStaticData> {
     ],
     rates: {
       annualCrudeBirthRate: 0.014,
-      annualMortalityRateByAgeBand: {
-        child_0_14: 0.004,
-        youth_15_24: 0.002,
-        prime_25_44: 0.003,
-        mature_45_64: 0.008,
-        senior_65_plus: 0.05
-      },
-      ageBandDurationMonths: {
-        child_0_14: 180,
-        youth_15_24: 120,
-        prime_25_44: 240,
-        mature_45_64: 240,
-        senior_65_plus: Number.POSITIVE_INFINITY
-      },
+      annualMortalityRateByAge: Array.from({ length: 101 }, (_, age) =>
+        age <= 14 ? 0.004 : age <= 24 ? 0.002 : age <= 44 ? 0.003 : age <= 64 ? 0.008 : 0.05
+      ),
       monthlyEnrollmentRate: 0.01,
       educationCompletionRate: 0.9,
       monthlyTrainingRate: 0.01,

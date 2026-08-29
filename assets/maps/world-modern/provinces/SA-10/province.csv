@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SA-10,Najran,Najran,SAU,89767,458,0.1,0.122,tropical,tropical,12545848993,"Najran in Saudi Arabia, desert plateau and Red Sea coast, mining and energy.",Najran,Najran
+SA-10,Najran,Najran,SAU,89760,46,0.556,0.723,tropical,tropical,12545848993,,Najran,Najran

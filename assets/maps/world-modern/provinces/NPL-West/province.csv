@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NPL-West,West,West,NPL,28852,4339,0.438,0.453,subtropical,subtropical,6973163616,"Merged from Dhaulagiri Zone, Gandaki Zone and Lumbini Zone. West in Nepal, varied lowlands and uplands, agriculture and food processing.",Pokhara,Pokhara
+NPL-West,West,West,NPL,28853,4452,0.54,0.629,subtropical,subtropical,6973044538,,Baglung,Baglung

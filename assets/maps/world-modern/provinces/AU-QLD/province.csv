@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AU-QLD,Queensland,Queensland,AUS,1734194,112913,0.443,0.601,subtropical,subtropical,116106817466,"Queensland in Australia, arid outback and coastal fringe, industrial and service hub.",Brisbane,Brisbane
+AU-QLD,Queensland,Queensland,AUS,1734169,32710,0.561,0.706,tropical,tropical,116110999094,,Brisbane,Brisbane

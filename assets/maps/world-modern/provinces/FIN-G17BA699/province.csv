@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FIN-G17BA699,Eastern Finland,Eastern Finland,FIN,65389,1755,0.182,0.51,boreal,continental,11796650905,"Merged from Kainuu, North Karelia and Northern Savonia. Eastern Finland in Finland, lake district and boreal forest, farming and market towns.",Kuopio,Kuopio
+FIN-G17BA699,Eastern Finland,Eastern Finland,FIN,65381,1082,0.242,0.401,boreal,boreal,11796650905,,,

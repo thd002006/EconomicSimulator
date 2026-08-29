@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ESP-Galicia,Galicia,Galicia,ESP,29559,11605,0.704,0.743,temperate,temperate,56181112270,"Merged from A Coruña, Lugo, Ourense and Pontevedra. Galicia in Spain, Meseta and Mediterranean coast, farming and market towns.",Santiago de Compostela,Santiago de Compostela
+ESP-Galicia,Galicia,Galicia,ESP,29568,2561,0.434,0.556,temperate,temperate,56011877755,,Santiago de Compostela,Santiago de Compostela

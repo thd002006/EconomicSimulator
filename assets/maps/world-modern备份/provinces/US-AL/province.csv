@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+US-AL,Alabama,Alabama,USA,133897,36639,0.801,0.763,subtropical,subtropical,165869702039,"Alabama, temperate plains and urban corridors, agriculture and food processing.",Montgomery,Montgomery

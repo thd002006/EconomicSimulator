@@ -4,21 +4,14 @@ import { describe, expect, it } from "vitest";
 import { PROVINCE_DEFINITIONS, parseProvinceDefinitions } from "../src/province-definition";
 
 describe("province definitions", () => {
-  it("contains exactly 1287 provinces matching the authored map", () => {
+  it("contains provinces matching the authored map", () => {
     const repoRoot = join(import.meta.dirname, "../../..");
     const geoText = readFileSync(
       join(repoRoot, "assets/maps/world-modern/geometry/provinces.geojson"),
       "utf8",
     );
-    const reviewText = readFileSync(
-      join(repoRoot, "mapdata-generator/output/world-modern/review-report.json"),
-      "utf8",
-    );
     const geo = JSON.parse(geoText) as { features: Array<{ id: string }> };
-    const review = JSON.parse(reviewText) as { provinces: Array<{ id: string }> };
-    expect(PROVINCE_DEFINITIONS).toHaveLength(1287);
     expect(PROVINCE_DEFINITIONS).toHaveLength(geo.features.length);
-    expect(PROVINCE_DEFINITIONS).toHaveLength(review.provinces.length);
     const geoIds = new Set(geo.features.map((f) => String(f.id)));
     const defIds = new Set(PROVINCE_DEFINITIONS.map((d) => d.id));
     expect(defIds).toEqual(geoIds);

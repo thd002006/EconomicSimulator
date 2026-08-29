@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ID-AC,Aceh,Aceh,IDN,56148,7607,0.522,0.598,tropical,tropical,35202480133,"Aceh in Indonesia, tropical archipelago and rainforest, agriculture and food processing.",Banda Aceh,Banda Aceh
+ID-AC,Aceh,Aceh,IDN,56141,5891,0.391,0.848,tropical,tropical,35021068069,,Banda Aceh,Banda Aceh

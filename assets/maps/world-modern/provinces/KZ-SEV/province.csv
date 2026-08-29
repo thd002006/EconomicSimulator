@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KZ-SEV,North Kazakhstan,North Kazakhstan,KAZ,98171,11960,0.474,0.361,temperate_cold,temperate,2779780182,"North Kazakhstan in Kazakhstan, steppe and semi-desert, agriculture and food processing.",Petropavlovsk,Petropavl
+KZ-SEV,North Kazakhstan,North Kazakhstan,KAZ,98173,18157,0.335,0.593,temperate,temperate,2779780182,,Petropavlovsk,Petropavl

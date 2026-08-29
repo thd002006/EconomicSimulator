@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KR-42,Gangwon,Gangwon,KOR,19167,4269,0.706,0.673,temperate,temperate,25518852239,"Gangwon in South Korea, mountainous peninsula and coastal plains, farming and market towns.",Chuncheon,Chuncheon
+KR-42,Gangwon,Gangwon,KOR,19162,494,0.475,0.57,temperate,temperate,25518852239,,Chuncheon,Chuncheon

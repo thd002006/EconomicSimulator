@@ -67,6 +67,14 @@ export function validatePartition(
   return errors;
 }
 
+export function sanitizeProvinceId(id: string): string {
+  return id
+    .trim()
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/[. ]+$/g, "")
+    .replace(/^[. ]+/g, "");
+}
+
 export function mergeGroups(
   groups: readonly ProjectGroup[],
   groupIds: readonly string[],
@@ -81,10 +89,12 @@ export function mergeGroups(
   }
   const members = parts.flatMap((group) => group.members);
   const remainder = groups.filter((group) => !selected.has(group.id));
+  const sanitizedId = sanitizeProvinceId(merged.id);
+  if (!sanitizedId) throw new Error("Merged group id cannot be empty after sanitization.");
   return [
     ...remainder,
     {
-      id: merged.id,
+      id: sanitizedId,
       countryId,
       members,
       name: merged.name,

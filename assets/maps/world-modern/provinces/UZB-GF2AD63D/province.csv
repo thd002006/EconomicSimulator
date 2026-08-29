@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-UZB-GF2AD63D,Eastern Uzbekistan,Eastern Uzbekistan,UZB,60014,5606,0.348,0.385,temperate,temperate,35295161715,"Merged from Andijan, Fergana, Jizzakh and 3 others. Eastern Uzbekistan in Uzbekistan, varied lowlands and uplands, mining and energy.",Tashkent,Tashkent
+UZB-GF2AD63D,Eastern Uzbekistan,Eastern Uzbekistan,UZB,60014,10015,0.451,0.559,temperate,temperate,35177962853,,Andijan,Andijan

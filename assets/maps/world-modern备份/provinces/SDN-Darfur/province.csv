@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+SDN-Darfur,Darfur,Darfur,SDN,512714,17216,0.248,0.347,tropical,tropical,9437301094,"Merged from Central Darfur, East Darfur, North Darfur and West Soudan. Darfur in Sudan, Nile-Sahel savanna and desert, smallholder farming and markets.",Nyala,Nyala

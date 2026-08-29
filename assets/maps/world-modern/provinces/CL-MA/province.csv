@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CL-MA,Magallanes y Antártica Chilena,Magellan and the Chilean Antarctic,CHL,121099,4384,0.382,0.519,temperate_cold,temperate,1892823101,"Magellan and the Chilean Antarctic, Andes, desert north, smallholder farming and markets.",Punta Arenas,Punta Arenas
+CL-MA,Magallanes y Antártica Chilena,Magellan and the Chilean Antarctic,CHL,120889,190,0.349,0.582,temperate,temperate,1892563829,,Punta Arenas,Punta Arenas

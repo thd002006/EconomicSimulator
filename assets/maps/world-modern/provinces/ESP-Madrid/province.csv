@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ESP-Madrid,Madrid,Madrid,ESP,7986,2722,0.668,0.711,temperate,temperate,231198915885,"Madrid in Spain, Meseta and Mediterranean coast, industrial and service hub.",Madrid,Madrid
+ESP-Madrid,Madrid,Madrid,ESP,7978,733,0.453,0.56,temperate,temperate,230542654189,,Madrid,Madrid

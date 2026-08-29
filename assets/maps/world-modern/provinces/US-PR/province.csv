@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-PR,Puerto Rico,Puerto Rico,PRI,9017,1123,0.493,0.548,tropical,tropical,123930140421,"National territory in Puerto Rico, varied lowlands and uplands, forestry and highland farming.",San Juan,San Juan
+US-PR,Puerto Rico,Puerto Rico,PRI,9018,294,0.557,0.721,tropical,tropical,123930140421,,San Juan,San Juan

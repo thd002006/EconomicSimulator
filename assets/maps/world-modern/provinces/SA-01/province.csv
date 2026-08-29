@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SA-01,Ar Riyad,Riyadh,SAU,378066,2033,0.115,0.101,subtropical,subtropical,160920160089,"Riyadh in Saudi Arabia, desert plateau and Red Sea coast, tourism and fishing.",Riyadh,Riyadh
+SA-01,Ar Riyad,Riyadh,SAU,378058,1022,0.556,0.66,subtropical,subtropical,160920160089,,Riyadh,Riyadh

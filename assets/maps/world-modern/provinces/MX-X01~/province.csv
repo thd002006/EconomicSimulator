@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MX-X01~,MX-X01~,MX-X01~,MEX,131,19,0.529,0.621,tropical,tropical,-18,"MX-X01~ in Mexico, plateau and tropical lowlands, smallholder farming and markets.",,
+MX-X01~,MX-X01~,MX-X01~,MEX,127,0,0.561,0.68,tropical,tropical,-18,,,

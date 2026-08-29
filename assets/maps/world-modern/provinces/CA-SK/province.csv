@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CA-SK,Saskatchewan,Saskatchewan,CAN,648188,25451,0.321,0.486,temperate_cold,temperate,36833372976,"Saskatchewan in Canada, boreal forest and prairie, pastoral herding and oasis farming.",Regina,Regina
+CA-SK,Saskatchewan,Saskatchewan,CAN,648188,72731,0.35,0.581,temperate,temperate,36833372976,,Regina,Regina

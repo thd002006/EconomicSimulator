@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+GA-6,Ogooué-Ivindo,Ogooué-Ivindo,GAB,43025,824,0.317,0.45,tropical,tropical,1067629967,"Ogooué-Ivindo in Gabon, varied lowlands and uplands, forestry and highland farming.",Makokou,Makokou

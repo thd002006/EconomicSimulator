@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+KOR-M117,North Jeolla–South Jeolla–Gwangju,North Jeolla–South Jeolla–Gwangju,KOR,19802,4604,0.717,0.69,temperate,temperate,93131487880,"Merged from Gwangju, North Jeolla and South Jeolla. North Jeolla–South Jeolla–Gwangju, mountainous peninsula and coastal plains, mining and energy.",Gwangju,Gwangju

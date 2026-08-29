@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DNK-GBBCC5CF,Northern Denmark,Northern Denmark,DNK,32822,20451,0.815,0.802,temperate_cold,continental,86054775970,"Merged from Central Denmark, North Denmark and Southern Denmark. Northern Denmark in Denmark, varied lowlands and uplands, tourism and fishing.",Aalborg,Aalborg
+DNK-GBBCC5CF,Northern Denmark,Northern Denmark,DNK,32808,10394,0.315,0.609,boreal,boreal,86643897870,,Aalborg,Aalborg

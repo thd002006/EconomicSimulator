@@ -232,13 +232,7 @@ describe("map runtime validation", () => {
           pop: 100,
           male: 50,
           female: 50,
-          age: {
-            child_0_14: 20,
-            youth_15_24: 20,
-            prime_25_44: 30,
-            mature_45_64: 20,
-            senior_65_plus: 10
-          },
+          age: Object.fromEntries(Array.from({ length: 101 }, (_, age) => [age, 100 / 101])),
           education15Plus: { basic: 40, secondary: 30, tertiary: 20, advanced: 10 },
           gdpPpp: 1000
         },
@@ -246,13 +240,7 @@ describe("map runtime validation", () => {
           pop: 50,
           male: 25,
           female: 25,
-          age: {
-            child_0_14: 10,
-            youth_15_24: 10,
-            prime_25_44: 15,
-            mature_45_64: 10,
-            senior_65_plus: 5
-          },
+          age: Object.fromEntries(Array.from({ length: 101 }, (_, age) => [age, 50 / 101])),
           education15Plus: { basic: 20, secondary: 15, tertiary: 10, advanced: 5 },
           gdpPpp: 500
         }

@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+RUS-G7E8E77A,Orel–Kaluga,Oryol–Kaluga,RUS,53922,4749,0.529,0.362,temperate_cold,temperate,19414125283,"Merged from Kaluga and Oryol. Oryol–Kaluga in Russia, boreal forest and steppe, industrial and service hub.",Kaluga,Kaluga

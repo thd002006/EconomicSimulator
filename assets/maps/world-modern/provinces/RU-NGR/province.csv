@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-NGR,Novgorod,Novgorod,RUS,54874,3008,0.497,0.362,temperate_cold,continental,8544322616,"Novgorod in Russia, boreal forest and steppe, farming and market towns.",Velikiy Novgorod,Veliky Novgorod
+RU-NGR,Novgorod,Novgorod,RUS,54868,964,0.293,0.633,boreal,boreal,8542570001,,Velikiy Novgorod,Veliky Novgorod

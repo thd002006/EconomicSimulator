@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+TUR-GDF9CA09,Central East Turkey,Central East Turkey,TUR,100410,40892,0.678,0.648,temperate,temperate,56276865688,"Merged from Adıyaman, Gaziantep, Kilis and 6 others. Central East Turkey in Turkey, Anatolian plateau and coasts, industrial and service hub.",Gaziantep,Gaziantep

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-COK-G80B574D,Cook Islands,Cook Islands,COK,176,26,0.534,0.572,tropical,tropical,-9,"Merged from Aitutaki, Atiu, Mangaia and 4 others. National territory in Cook Islands, varied lowlands and uplands, forestry and highland farming.",Avarua,Avarua
+COK-G80B574D,Cook Islands,Cook Islands,COK,176,0,0.561,0.696,tropical,tropical,-9,,,

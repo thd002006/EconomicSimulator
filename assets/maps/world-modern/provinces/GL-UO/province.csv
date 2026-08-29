@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GL-UO,Nationalparken,Northeast Greenland National Park,GRL,869285,457,0.06,0.052,tundra,polar,-1017,"Northeast Greenland National Park, varied lowlands and uplands, pastoral herding and oasis farming.",,
+GL-UO,Nationalparken,Northeast Greenland National Park,GRL,869271,0,0.123,0.445,arctic,arctic,-1053,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NLD-GA010F21,St. Eustatius–Saba,Sint Eustatius–Saba,NLD,27,4,0.54,0.496,tropical,tropical,0,"Merged from Saba and Sint Eustatius. Sint Eustatius–Saba in Netherlands, low-lying delta and coast, tourism and fishing.",,
+NLD-GA010F21,St. Eustatius–Saba,Sint Eustatius–Saba,NLD,27,0,0.554,0.727,tropical,tropical,0,,,

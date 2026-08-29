@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TV-X01~,Tuvalu,Tuvalu,TUV,24,3,0.356,0.333,tropical,tropical,0,"National territory in Tuvalu, varied lowlands and uplands, port trade and logistics.",Funafuti,Funafuti
+TV-X01~,Tuvalu,Tuvalu,TUV,24,0,0.451,0.818,tropical,tropical,0,,Funafuti,Funafuti

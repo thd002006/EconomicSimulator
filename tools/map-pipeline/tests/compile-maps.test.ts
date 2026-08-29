@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   compilePack,
   LOD_TOLERANCES,
+  parseCompileArgs,
   polygonGeometryArea,
   resolveTriangulatableLods,
   simplifyGeometry
@@ -256,5 +257,14 @@ describe("map compiler", () => {
         })
       })
     ).not.toThrow();
+  });
+
+  it("parseCompileArgs requires --map and handles '--' separator", () => {
+    expect(() => parseCompileArgs([])).toThrow(/Missing required argument: --map/);
+    expect(parseCompileArgs(["--map", "world-modern"])).toEqual({ mapId: "world-modern" });
+    expect(parseCompileArgs(["--", "--map", "world-modern"])).toEqual({ mapId: "world-modern" });
+    expect(parseCompileArgs(["--map=world-modern"])).toEqual({ mapId: "world-modern" });
+    expect(() => parseCompileArgs(["--map"])).toThrow(/requires a non-empty map id/);
+    expect(() => parseCompileArgs(["--unknown"])).toThrow(/Unknown compile argument/);
   });
 });

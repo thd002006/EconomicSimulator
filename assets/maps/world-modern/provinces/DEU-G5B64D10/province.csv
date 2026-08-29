@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-G5B64D10,Northwest Germany,Northwest Germany,DEU,48549,30096,0.884,0.874,temperate_cold,temperate,397401334969,"Merged from Free Hanseatic Bremen, Hamburg and Lower Saxony. Northwest Germany in Germany, Central European lowlands and uplands, forestry and highland farming.",Hamburg,Hamburg
+DEU-G5B64D10,Northwest Germany,Northwest Germany,DEU,48544,16659,0.348,0.583,temperate,temperate,399333211321,,Bremen,Bremen

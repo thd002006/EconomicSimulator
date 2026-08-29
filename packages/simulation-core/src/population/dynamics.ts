@@ -445,32 +445,12 @@ export function runClassTransitions(world: PopulationWorld): EquityReclassificat
   return equityReclassifications;
 }
 
-function getAnnualMortalityRateForAge(
-  rates: PopulationRatesDefinition,
-  age: number
-): number {
-  if (age <= 14) return rates.annualMortalityRateByAgeBand.child_0_14;
-  if (age <= 24) return rates.annualMortalityRateByAgeBand.youth_15_24;
-  if (age <= 44) return rates.annualMortalityRateByAgeBand.prime_25_44;
-  if (age <= 64) return rates.annualMortalityRateByAgeBand.mature_45_64;
-  return rates.annualMortalityRateByAgeBand.senior_65_plus;
+function getAnnualMortalityRateForAge(rates: PopulationRatesDefinition, age: number): number {
+  return rates.annualMortalityRateByAge[age] ?? 0;
 }
 
-function getMonthlyAgingRateForAge(
-  rates: PopulationRatesDefinition,
-  age: number
-): number {
-  let duration: number;
-  if (age <= 14) duration = rates.ageBandDurationMonths.child_0_14;
-  else if (age <= 24) duration = rates.ageBandDurationMonths.youth_15_24;
-  else if (age <= 44) duration = rates.ageBandDurationMonths.prime_25_44;
-  else if (age <= 64) duration = rates.ageBandDurationMonths.mature_45_64;
-  else duration = rates.ageBandDurationMonths.senior_65_plus;
-
-  if (!Number.isFinite(duration) || duration <= 0) {
-    return 0;
-  }
-  return 1 / 12;
+function getMonthlyAgingRateForAge(age: number): number {
+  return age < 100 ? 1 / 12 : 0;
 }
 
 export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
@@ -607,7 +587,7 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
       }
 
       // Aging lifecourse transitions
-      const rate64to65 = getMonthlyAgingRateForAge(world.staticData.rates, 64);
+      const rate64to65 = getMonthlyAgingRateForAge(64);
       const movers64to65 = (state.ageCounts[64] ?? 0) * rate64to65;
       if (movers64to65 > 0) {
         const workingAgeBefore = workingAgePopulation(state);
@@ -623,7 +603,10 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
           state.employmentStatusCounts.retired +
           state.employmentStatusCounts.not_in_labor_force;
         if (laborForceBefore > 0 && workingAgeBefore > 0 && state.populationPersons > 0) {
-          const laborLoss = Math.min(movers64to65 * (laborForceBefore / workingAgeBefore), movers64to65);
+          const laborLoss = Math.min(
+            movers64to65 * (laborForceBefore / workingAgeBefore),
+            movers64to65
+          );
           const laborFactor = (laborForceBefore - laborLoss) / laborForceBefore;
           state.employmentStatusCounts.employed *= laborFactor;
           state.employmentStatusCounts.unemployed *= laborFactor;
@@ -651,7 +634,7 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
         state.employmentStatusCounts.retired += movers64to65;
       }
 
-      const rate14to15 = getMonthlyAgingRateForAge(world.staticData.rates, 14);
+      const rate14to15 = getMonthlyAgingRateForAge(14);
       const movers14to15 = (state.ageCounts[14] ?? 0) * rate14to15;
       if (movers14to15 > 0) {
         state.employmentStatusCounts.not_in_labor_force -= movers14to15;
@@ -660,7 +643,7 @@ export function runVitalEvents(world: PopulationWorld): InheritanceEvent[] {
       }
 
       for (let a = MAX_SINGLE_YEAR_AGE - 1; a >= 0; a -= 1) {
-        const rate = getMonthlyAgingRateForAge(world.staticData.rates, a);
+        const rate = getMonthlyAgingRateForAge(a);
         const movers = (state.ageCounts[a] ?? 0) * rate;
         if (movers > 0) {
           state.ageCounts[a] = (state.ageCounts[a] ?? 0) - movers;

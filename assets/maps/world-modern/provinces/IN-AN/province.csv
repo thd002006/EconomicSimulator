@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-AN,Andaman and Nicobar,Andaman and Nicobar Islands,IND,7103,4617,0.711,0.606,tropical,tropical,1417956771,"Andaman and Nicobar Islands in India, island and coastal waters, tourism and fishing.",Port Blair,Port Blair
+IN-AN,Andaman and Nicobar,Andaman and Nicobar Islands,IND,7126,61,0.496,0.79,tropical,tropical,1050495171,,Port Blair,Port Blair

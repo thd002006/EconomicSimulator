@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ROU-West-Transylvania,West Transylvania,West Transylvania,ROU,12805,8117,0.856,0.741,temperate_cold,temperate,10839436271,"Merged from Alba and Mureș. West Transylvania in Romania, varied lowlands and uplands, pastoral herding and oasis farming.",Tirgu Mures,Târgu Mureș
+ROU-West-Transylvania,West Transylvania,West Transylvania,ROU,12816,1851,0.405,0.557,temperate,temperate,10839436270,,Alba Lulia,Alba Iulia

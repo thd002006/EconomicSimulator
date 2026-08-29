@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HUN-Western-Transdanubia,Western Transdanubia,Western Transdanubia,HUN,10996,7147,0.847,0.731,temperate_cold,temperate,18207467734,"Merged from Győr, Győr-Moson-Sopron, Nagykanizsa and 5 others. Western Transdanubia in Hungary, varied lowlands and uplands, agriculture and food processing.",Győr,Győr
+HUN-Western-Transdanubia,Western Transdanubia,Western Transdanubia,HUN,11006,2505,0.397,0.558,temperate,temperate,18292181008,,,

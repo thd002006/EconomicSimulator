@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CN-GX,Guangxi,Guangxi,CHN,237816,45656,0.645,0.579,tropical,tropical,106430262561,"Guangxi in China, monsoon plains and highlands, forestry and highland farming.",Nanning,Nanning
+CN-GX,Guangxi,Guangxi,CHN,237861,26791,0.56,0.67,tropical,tropical,106406420027,,Nanning,Nanning

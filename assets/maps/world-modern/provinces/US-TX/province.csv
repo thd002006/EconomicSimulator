@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-TX,Texas,Texas,USA,685937,173157,0.777,0.777,subtropical,subtropical,885604672551,"Texas, temperate plains and urban corridors, services and light industry.",Austin,Austin
+US-TX,Texas,Texas,USA,685888,71692,0.532,0.618,subtropical,subtropical,885441918733,,Austin,Austin

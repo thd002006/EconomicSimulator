@@ -1,10 +1,8 @@
 import {
-  AGE_BANDS,
   EDUCATION_LEVELS,
   INCOME_CATEGORIES,
   JOB_CATEGORIES,
   SKILL_LEVELS,
-  type AgeBandId,
   type ClassTransitionRuleDefinition,
   type IncomeCategoryId,
   type JobCategoryId,
@@ -330,32 +328,13 @@ export function validatePopulationStaticData(input: unknown): PopulationStaticDa
   );
 
   const rates = expectObject(data.rates, "rates");
-  const mortality = expectObject(
-    rates.annualMortalityRateByAgeBand,
-    "rates.annualMortalityRateByAgeBand"
+  const mortality = expectArray(rates.annualMortalityRateByAge, "rates.annualMortalityRateByAge");
+  if (mortality.length !== 101) {
+    fail("rates.annualMortalityRateByAge must contain ages 0 through 100.");
+  }
+  const annualMortalityRateByAge = mortality.map((value, age) =>
+    expectProbability(value, `rates.annualMortalityRateByAge.${age}`)
   );
-  const annualMortalityRateByAgeBand = {} as Record<AgeBandId, number>;
-  for (const band of AGE_BANDS) {
-    annualMortalityRateByAgeBand[band] = expectProbability(
-      mortality[band],
-      `rates.annualMortalityRateByAgeBand.${band}`
-    );
-    if (annualMortalityRateByAgeBand[band] > 0.5) {
-      fail(`rates.annualMortalityRateByAgeBand.${band} has an unreasonable upper bound.`);
-    }
-  }
-  const durations = expectObject(rates.ageBandDurationMonths, "rates.ageBandDurationMonths");
-  const ageBandDurationMonths = {} as Record<AgeBandId, number>;
-  for (const band of AGE_BANDS) {
-    const months = durations[band];
-    if (typeof months !== "number" || (!Number.isFinite(months) && band !== "senior_65_plus")) {
-      fail(`rates.ageBandDurationMonths.${band} must be a finite month count.`);
-    }
-    if (months <= 0 && Number.isFinite(months)) {
-      fail(`rates.ageBandDurationMonths.${band} must be positive.`);
-    }
-    ageBandDurationMonths[band] = months;
-  }
 
   const parameters = expectObject(data.laborMarketParameters, "laborMarketParameters");
   const legalMinimumWageCentsPerMonth = expectPositive(
@@ -383,8 +362,7 @@ export function validatePopulationStaticData(input: unknown): PopulationStaticDa
         rates.annualCrudeBirthRate,
         "rates.annualCrudeBirthRate"
       ),
-      annualMortalityRateByAgeBand,
-      ageBandDurationMonths,
+      annualMortalityRateByAge,
       monthlyEnrollmentRate: expectProbability(
         rates.monthlyEnrollmentRate,
         "rates.monthlyEnrollmentRate"

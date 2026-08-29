@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PRT-G9C07822,Faro–Beja–Setúbal,Faro–Beja–Setúbal,PRT,20323,4114,0.551,0.664,temperate,temperate,40572068086,"Merged from Beja, Faro and Setúbal. Faro–Beja–Setúbal in Portugal, Atlantic coast and hill country, mining and energy.",Setúbal,Setúbal
+PRT-G9C07822,Faro–Beja–Setúbal,Faro–Beja–Setúbal,PRT,20318,2446,0.473,0.568,temperate,temperate,40572068086,,Beja,Beja

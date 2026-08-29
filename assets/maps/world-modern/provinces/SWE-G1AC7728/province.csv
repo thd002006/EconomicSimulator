@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SWE-G1AC7728,East Central Sweden,East Central Sweden,SWE,62296,3617,0.464,0.634,temperate_cold,continental,119144676669,"Merged from Gävleborg, Stockholm, Södermanland, Uppsala and Västernorrland. East Central Sweden in Sweden, boreal forest and Baltic coast, smallholder farming and markets.",Stockholm,Stockholm
+SWE-G1AC7728,East Central Sweden,East Central Sweden,SWE,62293,2284,0.264,0.452,boreal,boreal,119142231042,,Stockholm,Stockholm

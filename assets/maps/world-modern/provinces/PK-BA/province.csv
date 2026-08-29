@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PK-BA,Baluchistan,Balochistan,PAK,348514,110012,0.513,0.501,subtropical,subtropical,24277598949,"Balochistan in Pakistan, Indus plain and uplands, port trade and logistics.",Quetta,Quetta
+PK-BA,Baluchistan,Balochistan,PAK,348501,8986,0.541,0.631,subtropical,subtropical,24276331258,,Quetta,Quetta

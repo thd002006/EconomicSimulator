@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-TYU,Tyumen',Tyumen,RUS,158997,8374,0.483,0.4,temperate_cold,continental,96213353101,"Tyumen in Russia, boreal forest and steppe, industrial and service hub.",Tyumen,Tyumen
+RU-TYU,Tyumen',Tyumen,RUS,159005,4548,0.304,0.621,boreal,boreal,96213653734,,Tyumen,Tyumen

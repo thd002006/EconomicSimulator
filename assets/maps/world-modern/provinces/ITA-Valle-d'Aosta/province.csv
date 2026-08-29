@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Valle-d'Aosta,Valle d'Aosta,Valle d'Aosta,ITA,3295,1261,0.799,0.724,temperate_cold,temperate,6695963676,"Valle d'Aosta in Italy, Alpine north and Mediterranean south, smallholder farming and markets.",Aosta,Aosta
+ITA-Valle-d'Aosta,Valle d'Aosta,Valle d'Aosta,ITA,3295,152,0.41,0.556,temperate,temperate,6695963676,,Aosta,Aosta

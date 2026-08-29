@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-WEST-MID,West Midlands,West Midlands,GBR,12912,4793,0.755,0.75,temperate_cold,temperate,157042670670,"Merged from Birmingham, Coventry, Dudley and 11 others. West Midlands in United Kingdom, temperate maritime lowlands, industrial and service hub.",,
+GBR-WEST-MID,West Midlands,West Midlands,GBR,12902,2494,0.35,0.582,temperate,temperate,157084156054,,,

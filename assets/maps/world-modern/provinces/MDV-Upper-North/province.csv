@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDV-Upper-North,Upper North,Upper North,MDV,20,2,0.387,0.31,tropical,tropical,0,"Merged from Haa Alif Atoll, Haa Dhaalu Atoll and Shaviyani Atoll. Upper North in Maldives, varied lowlands and uplands, forestry and highland farming.",,
+MDV-Upper-North,Upper North,Upper North,MDV,20,0,0.437,0.826,tropical,tropical,0,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MX-TAM,Tamaulipas,Tamaulipas,MEX,79743,13982,0.58,0.622,subtropical,subtropical,50267680757,"Tamaulipas in Mexico, plateau and tropical lowlands, smallholder farming and markets.",Ciudad Victoria,Ciudad Victoria
+MX-TAM,Tamaulipas,Tamaulipas,MEX,79761,8625,0.556,0.658,subtropical,subtropical,49978652485,,Ciudad Victoria,Ciudad Victoria

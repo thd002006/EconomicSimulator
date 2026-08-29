@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NZ-X03~,Three Kings Islands,Three Kings Islands,NZL,6,0,0.431,0.253,subtropical,subtropical,0,"Three Kings Islands in New Zealand, island and coastal waters, tourism and fishing.",,
+NZ-X03~,Three Kings Islands,Three Kings Islands,NZL,6,0,0.5,0.587,subtropical,subtropical,0,,,

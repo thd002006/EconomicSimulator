@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+THA-Western,Western,Western,THA,55402,21367,0.628,0.637,tropical,tropical,18139769329,"Merged from Kanchanaburi, Phetchaburi, Prachuap Khiri Khan, Ratchaburi and Tak. Western in Thailand, tropical plains and uplands, farming and market towns.",Ratchaburi,Ratchaburi

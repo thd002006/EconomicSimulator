@@ -15,7 +15,7 @@ import {
   type EditorProject
 } from "../src/project.js";
 import { exportProjectToL3L4 } from "../src/export-map.js";
-import { seedProjectClassesFromBase } from "../src/class-split.js";
+import { ensureProjectClassesFromBase, seedProjectClassesFromBase } from "../src/class-split.js";
 
 const generatorRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(generatorRoot, "..");
@@ -107,7 +107,11 @@ export function mapEditorApiPlugin(): Plugin {
           }
           if (req.method === "GET" && url.pathname.startsWith("/api/projects/")) {
             const projectId = decodeURIComponent(url.pathname.slice("/api/projects/".length));
-            const project = await loadProject(join(generatorRoot, "projects", projectId));
+            const projectDir = join(generatorRoot, "projects", projectId);
+            const project = await loadProject(projectDir);
+            const baseRoot = join(generatorRoot, "base", project.meta.baseMapId);
+            // Ensure any missing province class data in L2 is automatically generated from L1
+            await ensureProjectClassesFromBase(projectDir, baseRoot);
             return sendJson(res, 200, project);
           }
           if (req.method === "GET" && url.pathname.startsWith("/api/bases/")) {

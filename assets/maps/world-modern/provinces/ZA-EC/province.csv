@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ZA-EC,Eastern Cape,Eastern Cape,ZAF,169470,18778,0.474,0.585,subtropical,subtropical,63218603267,"Eastern Cape in South Africa, Plateau and coastal lowlands, smallholder farming and markets.",Bhisho,Bhisho
+ZA-EC,Eastern Cape,Eastern Cape,ZAF,169477,3619,0.518,0.603,subtropical,subtropical,63218603267,,Bhisho,Bhisho

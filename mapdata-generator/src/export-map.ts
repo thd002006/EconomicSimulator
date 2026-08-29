@@ -1,21 +1,24 @@
 import { spawn } from "node:child_process";
-import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeProvinceCsvSkeleton, writeMapManifest } from "./build-world-modern.js";
 import {
+  writeProvinceCsvSkeleton,
+  writeMapManifest,
+  type ProvinceAgrarianOverview
+} from "./build-world-modern.js";
+import {
+  ensureProjectClassesFromBase,
   parseCsvLine,
   readProvinceClassCsvs,
+  splitDemographicsIntoClasses,
   sumClassSeedRows,
-  writeClassSeedRows
+  writeClassSeedRows,
+  type ClassSeedRow
 } from "./class-split.js";
-import { interiorPoint } from "./geo.js";
-import {
-  allocateMapId,
-  loadProject,
-  validatePartition,
-  type ProjectGroup
-} from "./project.js";
+import type { ProvinceDemographicsEntry } from "./socioeconomic/aggregate.js";
+import { interiorPoint, pointInGeometry } from "./geo.js";
+import { allocateMapId, loadProject, validatePartition, type ProjectGroup } from "./project.js";
 import {
   buildTopology,
   extractTopologyLines,
@@ -34,6 +37,16 @@ interface BaseProvince {
   readonly nameEn: string;
   readonly geometry: AreaGeometry;
   readonly capital?: { coordinates: [number, number]; name?: string; nameEn?: string };
+}
+
+interface SourceProvinceOverview {
+  readonly arableLandKm2: number;
+  readonly landAreaKm2: number;
+  readonly cultivationCondition: number;
+  readonly habitability: number;
+  readonly terrainProfileId: string;
+  readonly climateProfileId: string;
+  readonly gdpPpp: number;
 }
 
 async function loadBaseProvinces(baseRoot: string): Promise<Map<string, BaseProvince>> {
@@ -61,8 +74,10 @@ async function loadBaseProvinces(baseRoot: string): Promise<Map<string, BaseProv
   return map;
 }
 
-async function loadGdpBySourceId(baseRoot: string): Promise<Map<string, number>> {
-  const result = new Map<string, number>();
+async function loadSourceProvinceOverviewById(
+  baseRoot: string
+): Promise<Map<string, SourceProvinceOverview>> {
+  const result = new Map<string, SourceProvinceOverview>();
   const provincesRoot = join(baseRoot, "provinces");
   let ids: string[] = [];
   try {
@@ -79,10 +94,27 @@ async function loadGdpBySourceId(baseRoot: string): Promise<Map<string, number>>
       if (lines.length < 2) continue;
       const headers = parseCsvLine(lines[0]!);
       const cells = parseCsvLine(lines[1]!);
-      const index = headers.indexOf("gdp_ppp");
-      if (index < 0) continue;
-      const value = Number(cells[index] ?? 0);
-      if (Number.isFinite(value)) result.set(id, value);
+      const getNum = (field: string, fallback = 0): number => {
+        const idx = headers.indexOf(field);
+        if (idx < 0) return fallback;
+        const n = Number(cells[idx]);
+        return Number.isFinite(n) ? n : fallback;
+      };
+      const getStr = (field: string, fallback = "temperate"): string => {
+        const idx = headers.indexOf(field);
+        if (idx < 0) return fallback;
+        const val = cells[idx]?.trim();
+        return val ? val : fallback;
+      };
+      result.set(id, {
+        arableLandKm2: getNum("arable_land_km2", 0),
+        landAreaKm2: Math.max(1, getNum("land_area_km2", 1)),
+        cultivationCondition: getNum("cultivation_condition", 0.5),
+        habitability: getNum("habitability", 0.5),
+        terrainProfileId: getStr("terrain_profile_id", "temperate"),
+        climateProfileId: getStr("climate_profile_id", "temperate"),
+        gdpPpp: getNum("gdp_ppp", 0)
+      });
     } catch {
       // skip missing province.csv
     }
@@ -115,14 +147,24 @@ async function writeJson(path: string, value: unknown): Promise<void> {
 async function publishMap(repoRoot: string, mapId: string): Promise<void> {
   await new Promise<void>((resolvePromise, reject) => {
     const child = spawn(
-      "pnpm",
-      ["--filter", "@economic-simulator/map-pipeline", "publish-maps", "--", "--map", mapId],
+      "corepack",
+      [
+        "pnpm",
+        "--filter",
+        "@economic-simulator/map-pipeline",
+        "publish-maps",
+        "--",
+        "--map",
+        mapId
+      ],
       { cwd: repoRoot, stdio: "inherit", shell: true }
     );
-    child.on("error", reject);
+    child.on("error", (err) => {
+      reject(new Error(`Failed to spawn publish-maps process: ${err.message}`));
+    });
     child.on("exit", (code) => {
       if (code === 0) resolvePromise();
-      else reject(new Error(`map:publish failed for ${mapId} with exit ${code}`));
+      else reject(new Error(`map:publish failed for ${mapId} with exit status ${code}`));
     });
   });
 }
@@ -139,6 +181,7 @@ export async function exportProjectToL3L4(options: {
   readonly projectId: string;
   readonly requestedMapId?: string;
   readonly retainedFraction?: number;
+  readonly skipPublish?: boolean;
 }): Promise<ExportResult> {
   const projectDir = join(options.generatorRoot, "projects", options.projectId);
   const project = await loadProject(projectDir);
@@ -149,111 +192,188 @@ export async function exportProjectToL3L4(options: {
     throw new Error(`Invalid L2 partition:\n${errors.slice(0, 20).join("\n")}`);
   }
 
+  // Ensure all member provinces have class data in L2 (auto-generate from L1 if missing)
+  const allMemberIds = new Set(project.groups.flatMap((g) => g.members));
+  await ensureProjectClassesFromBase(projectDir, baseRoot, allMemberIds);
+
   const mapsRoot = join(options.repoRoot, "assets/maps");
   const mapId = await allocateMapId(
     mapsRoot,
     options.requestedMapId ?? project.meta.suggestedMapId
   );
   const outDir = join(mapsRoot, mapId);
-  await rm(outDir, { recursive: true, force: true });
-  await mkdir(outDir, { recursive: true });
+  const stagingDir = join(mapsRoot, `.${mapId}.exporting-${process.pid}-${Date.now()}`);
+  await mkdir(stagingDir, { recursive: true });
+  let installed = false;
 
-  const sourceGdp = await loadGdpBySourceId(baseRoot);
-  const gdpById = new Map<string, number>();
-  const derivedFeatures: GeoJsonFeature<AreaGeometry>[] = [];
-  const classRowsByGroup = new Map<string, Awaited<ReturnType<typeof sumClassSeedRows>>>();
+  try {
+    const sourceOverviews = await loadSourceProvinceOverviewById(baseRoot);
+    const gdpById = new Map<string, number>();
+    const agrarianById = new Map<string, ProvinceAgrarianOverview>();
+    const derivedFeatures: GeoJsonFeature<AreaGeometry>[] = [];
+    const classRowsByGroup = new Map<string, Awaited<ReturnType<typeof sumClassSeedRows>>>();
 
-  for (const group of project.groups) {
-    const geometry = dissolveGroup(group, base);
-    const first = base.get(group.members[0]!)!;
-    const capital = first.capital ?? { coordinates: interiorPoint(geometry) };
-    const memberClassRows = await Promise.all(
-      group.members.map((memberId) =>
-        readProvinceClassCsvs(join(projectDir, "provinces", memberId))
-      )
-    );
-    const mergedClasses = sumClassSeedRows(memberClassRows);
-    classRowsByGroup.set(group.id, mergedClasses);
-    gdpById.set(
-      group.id,
-      group.members.reduce((sum, memberId) => sum + (sourceGdp.get(memberId) ?? 0), 0)
-    );
-    derivedFeatures.push(
-      makeAuthoredFeature(
-        group.id,
-        {
-          name: group.name,
-          nameEn: group.nameEn,
-          adm0A3: group.countryId,
-          type: "Game province",
-          capital
-        },
-        geometry
-      )
-    );
-  }
+    for (const group of project.groups) {
+      const geometry = dissolveGroup(group, base);
+      const first = base.get(group.members[0]!)!;
+      const capital = first.capital ?? { coordinates: interiorPoint(geometry) };
+      const memberClassRows = await Promise.all(
+        group.members.map((memberId) =>
+          readProvinceClassCsvs(join(projectDir, "provinces", memberId))
+        )
+      );
+      const mergedClasses = sumClassSeedRows(memberClassRows);
+      classRowsByGroup.set(group.id, mergedClasses);
 
-  const authoredTopology = buildTopology("provinces", {
-    type: "FeatureCollection",
-    features: derivedFeatures
-  });
-  const simplified = simplifyAuthoredTopology(
-    authoredTopology,
-    "provinces",
-    options.retainedFraction ?? 0.5
-  );
-  const provinces = authoredFeaturesFromTopology(simplified.topology, "provinces");
-  for (const feature of provinces.features) {
-    if (feature.geometry === null || feature.properties === null) continue;
-    const capital = feature.properties.capital as
-      | { coordinates: [number, number] }
-      | undefined;
-    if (capital === undefined) {
-      feature.properties.capital = { coordinates: interiorPoint(feature.geometry) };
+      let totalGdp = 0;
+      let totalArable = 0;
+      let totalLandArea = 0;
+      let weightedCultivation = 0;
+      let weightedHabitability = 0;
+      let primaryTerrain = "temperate";
+      let primaryClimate = "temperate";
+      let maxArea = -1;
+
+      for (const memberId of group.members) {
+        const src = sourceOverviews.get(memberId);
+        if (src === undefined) continue;
+        totalGdp += src.gdpPpp;
+        totalArable += src.arableLandKm2;
+        totalLandArea += src.landAreaKm2;
+        weightedCultivation += src.cultivationCondition * src.landAreaKm2;
+        weightedHabitability += src.habitability * src.landAreaKm2;
+        if (src.landAreaKm2 > maxArea) {
+          maxArea = src.landAreaKm2;
+          primaryTerrain = src.terrainProfileId;
+          primaryClimate = src.climateProfileId;
+        }
+      }
+
+      gdpById.set(group.id, totalGdp);
+      agrarianById.set(group.id, {
+        arableLandKm2: totalArable,
+        cultivationCondition:
+          totalLandArea > 0 ? Math.round((weightedCultivation / totalLandArea) * 1000) / 1000 : 0.5,
+        habitability:
+          totalLandArea > 0
+            ? Math.round((weightedHabitability / totalLandArea) * 1000) / 1000
+            : 0.5,
+        terrainProfileId: primaryTerrain,
+        climateProfileId: primaryClimate
+      });
+
+      derivedFeatures.push(
+        makeAuthoredFeature(
+          group.id,
+          {
+            name: group.name,
+            nameEn: group.nameEn,
+            adm0A3: group.countryId,
+            type: "Game province",
+            capital
+          },
+          geometry
+        )
+      );
     }
-  }
-  const lines = extractTopologyLines(simplified.topology, "provinces");
-  const geometryDir = join(outDir, "geometry");
-  await mkdir(geometryDir, { recursive: true });
-  await writeJson(join(geometryDir, "provinces.geojson"), provinces);
-  await writeJson(join(geometryDir, "boundaries.json"), {
-    type: "BoundaryCollection",
-    features: lines.boundaries
-  });
-  await writeJson(join(geometryDir, "coastlines.geojson"), lines.coastlines);
-  await writeFile(
-    join(outDir, "countries.csv"),
-    await readFile(join(baseRoot, "countries.csv"), "utf8")
-  );
-  await writeProvinceCsvSkeleton(outDir, provinces, {
-    unsetGameplayFields: true,
-    gdpById
-  });
-  let classFiles = 0;
-  for (const [provinceId, rows] of classRowsByGroup) {
-    classFiles += await writeClassSeedRows(join(outDir, "provinces", provinceId), rows);
-  }
-  await writeMapManifest(outDir, {
-    id: mapId,
-    version: "0.1.0",
-    nameKey: `map.${mapId}.name`,
-    attribution: {
-      source: "Natural Earth 1:10m via world-admin1 base",
+
+    const authoredTopology = buildTopology("provinces", {
+      type: "FeatureCollection",
+      features: derivedFeatures
+    });
+    const simplified = simplifyAuthoredTopology(
+      authoredTopology,
+      "provinces",
+      options.retainedFraction ?? 0.5
+    );
+    const provinces = authoredFeaturesFromTopology(simplified.topology, "provinces");
+    for (const feature of provinces.features) {
+      if (feature.geometry === null || feature.properties === null) continue;
+      const capital = feature.properties.capital as { coordinates: [number, number] } | undefined;
+      if (capital === undefined || !pointInGeometry(capital.coordinates, feature.geometry)) {
+        feature.properties.capital = {
+          ...capital,
+          coordinates: interiorPoint(feature.geometry)
+        };
+      }
+    }
+    const lines = extractTopologyLines(simplified.topology, "provinces");
+    const geometryDir = join(stagingDir, "geometry");
+    await mkdir(geometryDir, { recursive: true });
+    await writeJson(join(geometryDir, "provinces.geojson"), provinces);
+    await writeJson(join(geometryDir, "boundaries.json"), {
+      type: "BoundaryCollection",
+      features: lines.boundaries
+    });
+    await writeJson(join(geometryDir, "coastlines.geojson"), lines.coastlines);
+    await writeFile(
+      join(stagingDir, "countries.csv"),
+      await readFile(join(baseRoot, "countries.csv"), "utf8")
+    );
+    await writeProvinceCsvSkeleton(stagingDir, provinces, {
+      unsetGameplayFields: false,
+      gdpById,
+      agrarianById
+    });
+    let classFiles = 0;
+    for (const [provinceId, rows] of classRowsByGroup) {
+      classFiles += await writeClassSeedRows(join(stagingDir, "provinces", provinceId), rows);
+    }
+    await writeMapManifest(stagingDir, {
+      id: mapId,
+      version: "0.1.0",
+      nameKey: `map.${mapId}.name`,
+      attribution: {
+        source: "Natural Earth 1:10m via world-admin1 base",
+        baseMapId: project.meta.baseMapId,
+        projectId: project.meta.projectId
+      }
+    });
+    await writeJson(join(stagingDir, "export-report.json"), {
+      mapId,
+      projectId: project.meta.projectId,
       baseMapId: project.meta.baseMapId,
-      projectId: project.meta.projectId
-    }
-  });
-  await writeJson(join(outDir, "export-report.json"), {
-    mapId,
-    projectId: project.meta.projectId,
-    baseMapId: project.meta.baseMapId,
-    provinceCount: provinces.features.length,
-    sourceProvinceCount: base.size,
-    classFiles
-  });
+      provinceCount: provinces.features.length,
+      sourceProvinceCount: base.size,
+      classFiles
+    });
 
-  await publishMap(options.repoRoot, mapId);
-  return { mapId, outDir, provinceCount: provinces.features.length };
+    let renameError: unknown;
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      try {
+        await rename(stagingDir, outDir);
+        renameError = undefined;
+        break;
+      } catch (error) {
+        renameError = error;
+        const code = (error as NodeJS.ErrnoException).code;
+        if (code !== "EPERM" && code !== "EACCES") throw error;
+        await new Promise((resolvePromise) => setTimeout(resolvePromise, 100 * (attempt + 1)));
+      }
+    }
+    if (renameError !== undefined) {
+      const stagedManifest = join(stagingDir, "map.json");
+      const installingManifest = join(outDir, ".map.json.installing");
+      await mkdir(outDir);
+      await cp(stagingDir, outDir, {
+        recursive: true,
+        filter: (source) => source !== stagedManifest
+      });
+      await copyFile(stagedManifest, installingManifest);
+      await rename(installingManifest, join(outDir, "map.json"));
+      await rm(stagingDir, { recursive: true, force: true });
+    }
+    installed = true;
+
+    if (options.skipPublish !== true) {
+      await publishMap(options.repoRoot, mapId);
+    }
+    return { mapId, outDir, provinceCount: provinces.features.length };
+  } catch (error) {
+    await rm(stagingDir, { recursive: true, force: true });
+    if (!installed) await rm(outDir, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 function parseArgs(args: readonly string[]): { projectId: string; mapId?: string } {

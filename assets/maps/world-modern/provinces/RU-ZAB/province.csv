@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-ZAB,Chita,Zabaykalsky Krai,RUS,430673,30283,0.463,0.433,temperate_cold,temperate,10964224019,"Zabaykalsky Krai in Russia, boreal forest and steppe, farming and market towns.",Chita,Chita
+RU-ZAB,Chita,Zabaykalsky Krai,RUS,430668,11153,0.336,0.591,temperate,temperate,10965823247,,Chita,Chita

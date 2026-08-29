@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BEL-Capital-Region,Capital Region,Capital Region,BEL,163,85,0.85,0.817,temperate_cold,temperate,48309493760,"Brussels capital region, national admin hub and multilingual services core.",Brussels,Brussels
+BEL-Capital-Region,Capital Region,Capital Region,BEL,162,8,0.365,0.572,temperate,temperate,48309493760,,Brussels,Brussels

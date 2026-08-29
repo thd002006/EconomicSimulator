@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TUN-G31BEC31,Southern Tunisia,Southern Tunisia,TUN,38541,6952,0.386,0.414,subtropical,subtropical,14510171080,"Merged from Gabès, Gafsa, Kasserine, Medenine and Sidi Bouzid. Southern Tunisia in Tunisia, varied lowlands and uplands, smallholder farming and markets.",Gabès,Gabès
+TUN-G31BEC31,Southern Tunisia,Southern Tunisia,TUN,38535,5527,0.499,0.586,temperate,temperate,14510171081,,Kasserine,Kasserine

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BFA-Centre,Centre,Centre,BFA,2845,583,0.321,0.418,tropical,tropical,1804563398,"Centre in Burkina Faso, varied lowlands and uplands, pastoral herding and oasis farming.",Ouagadougou,Ouagadougou
+BFA-Centre,Centre,Centre,BFA,2842,575,0.513,0.776,tropical,tropical,1804563398,,Ouagadougou,Ouagadougou

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VUT-M264,Tafea,Tafea,VUT,1622,197,0.486,0.555,tropical,tropical,60974008,"Tafea in Vanuatu, varied lowlands and uplands, mining and energy.",,
+VUT-M264,Tafea,Tafea,VUT,1620,53,0.56,0.71,tropical,tropical,60974008,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-NEN,Nenets,Nenets Autonomous Okrug,RUS,176569,5313,0.273,0.19,tundra,polar,573679763,"Nenets Autonomous Okrug in Russia, boreal forest and steppe, farming and market towns.",Naryan Mar,Naryan-Mar
+RU-NEN,Nenets,Nenets Autonomous Okrug,RUS,176553,4,0.197,0.411,arctic,arctic,573679763,,Naryan Mar,Naryan-Mar

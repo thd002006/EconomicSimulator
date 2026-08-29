@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PYF-M201,Windward Islands–Leeward Islands–Austral Islands,Windward Islands–Leeward Islands–Austral Islands,PYF,1563,222,0.526,0.561,tropical,tropical,-180,"Merged from Austral Islands, Leeward Islands and Windward Islands. Windward Islands area in French Polynesia, island and coastal waters, tourism and fishing.",Papeete,Papeete
+PYF-M201,Windward Islands–Leeward Islands–Austral Islands,Windward Islands–Leeward Islands–Austral Islands,PYF,1542,0,0.553,0.724,tropical,tropical,-180,,Papeete,Papeete

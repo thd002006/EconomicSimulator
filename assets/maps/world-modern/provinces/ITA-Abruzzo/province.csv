@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Abruzzo,Abruzzo,Abruzzo,ITA,10874,3378,0.737,0.763,temperate,temperate,40102482815,"Merged from Chieti, L'Aquila, Pescara and Teramo. Abruzzo in Italy, Alpine north and Mediterranean south, forestry and highland farming.",L'Aquila,L’Aquila
+ITA-Abruzzo,Abruzzo,Abruzzo,ITA,10869,1305,0.438,0.557,temperate,temperate,40045543051,,L'Aquila,L’Aquila

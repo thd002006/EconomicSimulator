@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-NORTH-EAST,North East,North East,GBR,8642,2112,0.733,0.807,temperate_cold,continental,62036920077,"Merged from Darlington, Durham, Gateshead and 9 others. North East in United Kingdom, temperate maritime lowlands, pastoral herding and oasis farming.",,
+GBR-NORTH-EAST,North East,North East,GBR,8642,1018,0.325,0.6,boreal,boreal,62036920077,,,

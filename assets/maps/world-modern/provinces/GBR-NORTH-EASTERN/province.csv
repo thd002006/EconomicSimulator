@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GBR-NORTH-EASTERN,North Eastern,North Eastern,GBR,6543,1600,0.735,0.791,temperate_cold,continental,13987771174,"Merged from Aberdeen and Aberdeenshire. North Eastern in United Kingdom, temperate maritime lowlands, tourism and fishing.",,
+GBR-NORTH-EASTERN,North Eastern,North Eastern,GBR,6546,784,0.304,0.621,boreal,boreal,13987771174,,,

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MNG-G3146427,North Central Mongolia,North Central Mongolia,MNG,94240,424,0.228,0.257,temperate_cold,temperate,2655161123,"Merged from Bulgan, Darkhan-Uul, Orkhon and Selenge. North Central Mongolia in Mongolia, steppe and Gobi desert, port trade and logistics.",Erdenet,Erdenet
+MNG-G3146427,North Central Mongolia,North Central Mongolia,MNG,94242,391,0.38,0.565,temperate,temperate,2655161123,,Erdenet,Erdenet

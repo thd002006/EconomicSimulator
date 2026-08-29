@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-MH,Maharashtra,Maharashtra,IND,307450,199842,0.669,0.605,tropical,tropical,372398034621,"Maharashtra in India, monsoon plains and Deccan plateau, pastoral herding and oasis farming.",Mumbai,Mumbai
+IN-MH,Maharashtra,Maharashtra,IND,307433,98422,0.56,0.711,tropical,tropical,372375225442,,Mumbai,Mumbai

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SVK-G3B100D4,Žilinský–Prešov,Žilina–Prešov,SVK,15286,6712,0.81,0.739,temperate_cold,temperate,16409787587,"Merged from Prešov and Žilina. Žilina–Prešov in Slovakia, varied lowlands and uplands, forestry and highland farming.",Prešov,Prešov
+SVK-G3B100D4,Žilinský–Prešov,Žilina–Prešov,SVK,15280,1209,0.381,0.564,temperate,temperate,16409787587,,Prešov,Prešov

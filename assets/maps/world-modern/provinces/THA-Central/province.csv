@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-THA-Central,Central,Central,THA,89203,34127,0.626,0.635,tropical,tropical,362273986395,"Merged from Ang Thong, Bangkok, Chai Nat and 18 others. Central in Thailand, tropical plains and uplands, mining and energy.",Bangkok,Bangkok
+THA-Central,Central,Central,THA,89193,22428,0.543,0.744,tropical,tropical,361895583125,,Bangkok,Bangkok

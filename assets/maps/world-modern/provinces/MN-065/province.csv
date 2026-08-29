@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MN-065,Govi-Altay,Govi-Altai,MNG,142498,706,0.251,0.283,temperate_cold,temperate,186622110,"Govi-Altai in Mongolia, steppe and Gobi desert, tourism and fishing.",Altai,Altai
+MN-065,Govi-Altay,Govi-Altai,MNG,142495,24,0.41,0.556,temperate,temperate,186622110,,Altai,Altai

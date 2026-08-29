@@ -1,7 +1,7 @@
 dimension,key,value
-meta,population_persons,61823
-gender,male,0.46609
-gender,female,0.53391
+meta,population_persons,61839
+gender,male,0.46608
+gender,female,0.53392
 age,0,0.01169
 age,1,0.01169
 age,2,0.01169
@@ -104,6 +104,6 @@ age,98,0.00375
 age,99,0.00375
 age,100,0.00375
 education_15plus,basic,0.11086
-education_15plus,secondary,0.59610
+education_15plus,secondary,0.59609
 education_15plus,tertiary,0.19883
-education_15plus,advanced,0.09421
+education_15plus,advanced,0.09422

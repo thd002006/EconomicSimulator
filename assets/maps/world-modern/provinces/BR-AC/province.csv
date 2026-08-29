@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BR-AC,Acre,Acre,BRA,154669,13892,0.5,0.541,tropical,tropical,3998583664,"Acre in Brazil, Amazon basin and Atlantic coast, forestry and highland farming.",Rio Branco,Rio Branco
+BR-AC,Acre,Acre,BRA,154666,1316,0.48,0.801,tropical,tropical,3998583664,,Rio Branco,Rio Branco

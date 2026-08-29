@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZA-GDBC0E08,Central Algeria,Central Algeria,DZA,69117,981,0.193,0.206,temperate,temperate,32073390167,"Merged from Algiers, Biskra, Blida and 3 others. Central Algeria in Algeria, Saharan and Mediterranean fringe, mining and energy.",Algiers,Algiers
+DZA-GDBC0E08,Central Algeria,Central Algeria,DZA,69103,2510,0.494,0.582,subtropical,subtropical,33133329623,,Biskra,Biskra

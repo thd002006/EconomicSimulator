@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KE-500,North-Eastern,North Eastern,KEN,127211,14334,0.414,0.457,tropical,tropical,1074575464,"North Eastern in Kenya, Savanna and Great Rift highlands, industrial and service hub.",Garissa,Garissa
+KE-500,North-Eastern,North Eastern,KEN,127223,536,0.346,0.867,tropical,tropical,1074575464,,Garissa,Garissa

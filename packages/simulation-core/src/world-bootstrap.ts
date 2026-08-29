@@ -8,10 +8,7 @@ import {
 import { createEquityWorld, type EquityWorld } from "./equity/index.js";
 import { createLedgerWorld, type LedgerWorld } from "./ledger/index.js";
 import { createOperatingUnitWorld, type OperatingUnitWorld } from "./operating-unit/index.js";
-import {
-  createPopulationWorld,
-  validatePopulationStaticData
-} from "./population/index.js";
+import { createPopulationWorld, validatePopulationStaticData } from "./population/index.js";
 import type { ObservedProvinceDemographics } from "./population/state.js";
 import type { PopulationStaticData, PopulationWorld } from "./population/types.js";
 import type {
@@ -41,8 +38,7 @@ function toObservedDemographics(
     male: demographics.male,
     female: demographics.female,
     age: demographics.age as ObservedProvinceDemographics["age"],
-    education15Plus:
-      demographics.education15Plus as ObservedProvinceDemographics["education15Plus"]
+    education15Plus: demographics.education15Plus as ObservedProvinceDemographics["education15Plus"]
   };
 }
 
@@ -51,9 +47,7 @@ function applyClassSeedDetails(
   classSeeds: readonly ScenarioClassSeed[]
 ): void {
   for (const seed of classSeeds) {
-    const state = population.classStatesByProvince
-      .get(seed.provinceId)
-      ?.get(seed.socialClassId);
+    const state = population.classStatesByProvince.get(seed.provinceId)?.get(seed.socialClassId);
     if (state === undefined) {
       throw new Error(
         `Scenario class seed missing population state: ${seed.provinceId}|${seed.socialClassId}.`
@@ -61,27 +55,12 @@ function applyClassSeedDetails(
     }
     const ageEntries = Object.entries(seed.age);
     if (ageEntries.length > 0) {
-      const hasNumeric = ageEntries.some(([k]) => Number.isInteger(Number(k)));
-      if (hasNumeric) {
-        state.ageCounts.fill(0);
-        for (const [key, value] of ageEntries) {
-          const ageNum = Number(key);
-          if (Number.isInteger(ageNum) && ageNum >= 0 && ageNum < state.ageCounts.length) {
-            state.ageCounts[ageNum] = value;
-          }
+      state.ageCounts.fill(0);
+      for (const [key, value] of ageEntries) {
+        const age = Number(key);
+        if (Number.isInteger(age) && age >= 0 && age < state.ageCounts.length) {
+          state.ageCounts[age] = value;
         }
-      } else {
-        state.ageCounts.fill(0);
-        const c14 = (seed.age.child_0_14 ?? 0) / 15;
-        const y24 = (seed.age.youth_15_24 ?? 0) / 10;
-        const p44 = (seed.age.prime_25_44 ?? 0) / 20;
-        const m64 = (seed.age.mature_45_64 ?? 0) / 20;
-        const s100 = (seed.age.senior_65_plus ?? 0) / 36;
-        for (let a = 0; a <= 14; a += 1) state.ageCounts[a] = c14;
-        for (let a = 15; a <= 24; a += 1) state.ageCounts[a] = y24;
-        for (let a = 25; a <= 44; a += 1) state.ageCounts[a] = p44;
-        for (let a = 45; a <= 64; a += 1) state.ageCounts[a] = m64;
-        for (let a = 65; a <= 100; a += 1) state.ageCounts[a] = s100;
       }
     }
     state.genderCounts.male = seed.male;

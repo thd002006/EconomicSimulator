@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+MX-SLP,San Luis Potosí,San Luis Potosí,MEX,64360,10148,0.548,0.641,tropical,tropical,24343329395,"San Luis Potosí in Mexico, plateau and tropical lowlands, smallholder farming and markets.",San Luis Potosí,San Luis Potosí

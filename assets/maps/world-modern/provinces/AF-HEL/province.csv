@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AF-HEL,Hilmand,Helmand,AFG,57338,12100,0.54,0.634,subtropical,subtropical,904154908,"Helmand in Afghanistan, Hindu Kush highlands and valleys, pastoral herding and oasis farming.",Lashkar Gah,Lashkar Gah
+AF-HEL,Hilmand,Helmand,AFG,57347,792,0.516,0.601,subtropical,subtropical,904154908,,Lashkar Gah,Lashkar Gah

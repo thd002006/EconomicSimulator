@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ARG-GDB92257,Buenos Aires–Ciudad de Buenos Aires,Buenos Aires–Buenos Aires,ARG,306358,82415,0.851,0.726,subtropical,subtropical,254746441178,"Merged from  and Buenos Aires. Buenos Aires–Buenos Aires, Pampas and Andean foothills, agriculture and food processing.",Buenos Aires,Buenos Aires

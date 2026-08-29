@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ESP-Melilla,Melilla,Melilla,ESP,19,1,0.447,0.25,temperate,temperate,3426912000,"Melilla in Spain, Meseta and Mediterranean coast, port trade and logistics.",Melilla,Melilla

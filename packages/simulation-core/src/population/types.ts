@@ -30,21 +30,8 @@ export const INCOME_CATEGORIES = [
 
 export type IncomeCategoryId = (typeof INCOME_CATEGORIES)[number];
 
-export const AGE_BANDS = [
-  "child_0_14",
-  "youth_15_24",
-  "prime_25_44",
-  "mature_45_64",
-  "senior_65_plus"
-] as const;
-
-export type AgeBandId = (typeof AGE_BANDS)[number];
-
 export const MAX_SINGLE_YEAR_AGE = 100;
 export const SINGLE_YEAR_AGE_COUNT = 101;
-
-export const WORKING_AGE_BANDS = ["youth_15_24", "prime_25_44", "mature_45_64"] as const;
-export type WorkingAgeBandId = (typeof WORKING_AGE_BANDS)[number];
 
 export const EDUCATION_LEVELS = ["basic", "secondary", "tertiary", "advanced"] as const;
 export type EducationLevelId = (typeof EDUCATION_LEVELS)[number];
@@ -208,8 +195,7 @@ export interface ConsumptionProfileDefinition {
 
 export interface PopulationRatesDefinition {
   readonly annualCrudeBirthRate: number;
-  readonly annualMortalityRateByAgeBand: Readonly<Record<AgeBandId, number>>;
-  readonly ageBandDurationMonths: Readonly<Record<AgeBandId, number>>;
+  readonly annualMortalityRateByAge: readonly number[];
   readonly monthlyEnrollmentRate: number;
   readonly educationCompletionRate: number;
   readonly monthlyTrainingRate: number;

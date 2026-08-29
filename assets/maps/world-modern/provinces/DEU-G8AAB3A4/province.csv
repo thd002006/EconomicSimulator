@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-G8AAB3A4,Northeastern Germany,Northeastern Germany,DEU,69279,39032,0.857,0.867,temperate_cold,temperate,336126062149,"Merged from Berlin, Brandenburg, Mecklenburg-Western Pomerania and Schleswig-Holstein. Northeastern Germany in Germany, Central European lowlands and uplands, industrial and service hub.",Berlin,Berlin
+DEU-G8AAB3A4,Northeastern Germany,Northeastern Germany,DEU,69289,21293,0.341,0.588,temperate,temperate,334473176997,,Potsdam,Potsdam

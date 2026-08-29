@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-MT,Montana,Montana,USA,378417,106266,0.862,0.725,temperate_cold,temperate,34105823105,"Montana in United States of America, temperate plains and urban corridors, mining and energy.",Helena,Helena
+US-MT,Montana,Montana,USA,378412,15521,0.409,0.556,temperate,temperate,34105823105,,Helena,Helena

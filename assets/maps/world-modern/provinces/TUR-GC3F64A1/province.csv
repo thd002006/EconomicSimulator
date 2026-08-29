@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TUR-GC3F64A1,Northeast Turkey,Northeast Turkey,TUR,69856,27442,0.712,0.693,temperate,temperate,27674771583,"Merged from Ardahan, Artvin, Bayburt and 6 others. Northeast Turkey in Turkey, Anatolian plateau and coasts, pastoral herding and oasis farming.",Trabzon,Trabzon
+TUR-GC3F64A1,Northeast Turkey,Northeast Turkey,TUR,69856,5525,0.453,0.56,temperate,temperate,27464712912,,Artvin,Artvin

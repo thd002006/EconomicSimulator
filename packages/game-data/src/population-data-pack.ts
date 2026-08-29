@@ -66,8 +66,7 @@ export const ConsumptionProfileDefinitionSchema = z.object({
 
 export const PopulationRatesSchema = z.object({
   annualCrudeBirthRate: probabilitySchema,
-  annualMortalityRateByAgeBand: z.record(z.string(), z.number().min(0).max(0.5)),
-  ageBandDurationMonths: z.record(z.string(), z.number()),
+  annualMortalityRateByAge: z.array(z.number().min(0).max(0.5)).length(101),
   monthlyEnrollmentRate: probabilitySchema,
   educationCompletionRate: probabilitySchema,
   monthlyTrainingRate: probabilitySchema,
@@ -106,17 +105,6 @@ export const POPULATION_DATA_PACK_RAW = PopulationDataPackSchema.parse({
   laborMarketParameters: laborMarketParametersJson
 });
 
-export const POPULATION_DATA_PACK = {
-  ...POPULATION_DATA_PACK_RAW,
-  rates: {
-    ...POPULATION_DATA_PACK_RAW.rates,
-    ageBandDurationMonths: Object.fromEntries(
-      Object.entries(POPULATION_DATA_PACK_RAW.rates.ageBandDurationMonths).map(([band, months]) => [
-        band,
-        months < 0 ? Number.POSITIVE_INFINITY : months
-      ])
-    )
-  }
-};
+export const POPULATION_DATA_PACK = POPULATION_DATA_PACK_RAW;
 
 export type PopulationDataPack = z.infer<typeof PopulationDataPackSchema>;

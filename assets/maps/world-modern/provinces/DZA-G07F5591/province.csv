@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZA-G07F5591,Northwest Algeria,Northwest Algeria,DZA,60477,955,0.22,0.201,subtropical,subtropical,31290860489,"Merged from Aïn Témouchent, Mascara, Mostaganem and 4 others. Northwest Algeria in Algeria, Saharan and Mediterranean fringe, industrial and service hub.",Tlimcen,Tlemcen
+DZA-G07F5591,Northwest Algeria,Northwest Algeria,DZA,60470,4751,0.499,0.586,subtropical,subtropical,31290860489,,Tlimcen,Tlemcen

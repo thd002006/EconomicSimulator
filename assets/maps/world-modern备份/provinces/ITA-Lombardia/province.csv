@@ -1,0 +1,2 @@
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
+ITA-Lombardia,Lombardia,Lombardia,ITA,23915,7530,0.742,0.739,temperate_cold,temperate,429033532540,"Merged from Bergamo, Brescia, Como and 9 others. Lombardia in Italy, Alpine north and Mediterranean south, services and light industry.",Milan,Milan

@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BFA-Centre-Sud,Centre-Sud,Centre-Sud,BFA,11330,1981,0.284,0.399,tropical,tropical,699207212,"Merged from Bazèga, Nahouri and Zoundwéogo. Centre-Sud in Burkina Faso, varied lowlands and uplands, mining and energy.",Kombissiri,Kombissiri
+BFA-Centre-Sud,Centre-Sud,Centre-Sud,BFA,11324,1667,0.505,0.783,tropical,tropical,699207213,,Kombissiri,Kombissiri

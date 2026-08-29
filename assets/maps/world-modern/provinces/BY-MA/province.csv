@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BY-MA,Mogilev,Mahilioŭ,BLR,28623,9604,0.656,0.582,temperate_cold,temperate,10553693508,"Mahilioŭ in Belarus, forest and marsh lowlands, industrial and service hub.",Mahilyow,Mogilev
+BY-MA,Mogilev,Mahilioŭ,BLR,28619,4257,0.339,0.589,temperate,temperate,10553693508,,Mahilyow,Mogilev

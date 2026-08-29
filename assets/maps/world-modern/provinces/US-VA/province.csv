@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-VA,Virginia,Virginia,USA,103689,27785,0.793,0.787,temperate,temperate,349776052072,"Virginia in United States of America, temperate plains and urban corridors, mining and energy.",Richmond,Richmond
+US-VA,Virginia,Virginia,USA,103657,7461,0.474,0.569,temperate,temperate,344768602338,,Richmond,Richmond

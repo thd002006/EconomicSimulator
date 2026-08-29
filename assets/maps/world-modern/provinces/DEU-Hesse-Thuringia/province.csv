@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-Hesse-Thuringia,Hesse-Thuringia,Hesse-Thuringia,DEU,36947,17988,0.821,0.829,temperate_cold,temperate,336401472858,"Merged from Hesse and Thuringia. Hesse-Thuringia in Germany, Central European lowlands and uplands, port trade and logistics.",Wiesbaden,Wiesbaden
+DEU-Hesse-Thuringia,Hesse-Thuringia,Hesse-Thuringia,DEU,36958,10231,0.366,0.571,temperate,temperate,331307921050,,Wiesbaden,Wiesbaden

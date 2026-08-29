@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NZL-G3CDD16C,Outlying Islands,Outlying Islands,NZL,664,91,0.658,0.731,temperate_cold,temperate,0,"Merged from Auckland Islands, Campbell Islands and Snares Islands. Outlying Islands in New Zealand, island and coastal waters, tourism and fishing.",,
+NZL-G3CDD16C,Outlying Islands,Outlying Islands,NZL,654,0,0.363,0.573,temperate,temperate,0,,,

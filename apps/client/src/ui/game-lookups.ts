@@ -58,14 +58,6 @@ const SOCIAL_CLASS_LABELS: Readonly<Record<string, string>> = {
   rentier: "Rentier"
 };
 
-const AGE_LABELS: Readonly<Record<string, string>> = {
-  child_0_14: "0–14",
-  youth_15_24: "15–24",
-  prime_25_44: "25–44",
-  mature_45_64: "45–64",
-  senior_65_plus: "65+"
-};
-
 const EMPLOYMENT_LABELS: Readonly<Record<string, string>> = {
   employed: "Employed",
   unemployed: "Unemployed",
@@ -100,7 +92,7 @@ export function socialClassDisplayName(socialClassId: string): string {
 export function dimensionLabel(dimension: string, key: string): string {
   switch (dimension) {
     case "age":
-      return AGE_LABELS[key] ?? key;
+      return key;
     case "employment":
       return EMPLOYMENT_LABELS[key] ?? key;
     case "education":
@@ -116,54 +108,12 @@ export function dimensionLabel(dimension: string, key: string): string {
   }
 }
 
-export function ageCountsToBandRecord(
+export function ageCountsToSingleYearRecord(
   age: readonly number[] | Readonly<Record<string, number>> | undefined
 ): Record<string, number> | undefined {
   if (age === undefined) return undefined;
   if (Array.isArray(age)) {
-    let child = 0;
-    let youth = 0;
-    let prime = 0;
-    let mature = 0;
-    let senior = 0;
-    for (let a = 0; a < age.length; a += 1) {
-      const val = age[a] ?? 0;
-      if (a <= 14) child += val;
-      else if (a <= 24) youth += val;
-      else if (a <= 44) prime += val;
-      else if (a <= 64) mature += val;
-      else senior += val;
-    }
-    return {
-      child_0_14: child,
-      youth_15_24: youth,
-      prime_25_44: prime,
-      mature_45_64: mature,
-      senior_65_plus: senior
-    };
-  }
-  const entries = Object.entries(age);
-  if (entries.some(([k]) => Number.isInteger(Number(k)))) {
-    let child = 0;
-    let youth = 0;
-    let prime = 0;
-    let mature = 0;
-    let senior = 0;
-    for (const [k, val] of entries) {
-      const a = Number(k);
-      if (a <= 14) child += val;
-      else if (a <= 24) youth += val;
-      else if (a <= 44) prime += val;
-      else if (a <= 64) mature += val;
-      else senior += val;
-    }
-    return {
-      child_0_14: child,
-      youth_15_24: youth,
-      prime_25_44: prime,
-      mature_45_64: mature,
-      senior_65_plus: senior
-    };
+    return Object.fromEntries(age.map((value, age) => [String(age), value ?? 0]));
   }
   return age as Record<string, number>;
 }

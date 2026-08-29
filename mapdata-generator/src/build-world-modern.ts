@@ -933,12 +933,21 @@ async function writeCountriesCsv(
   return writeCsv(join(outDir, "countries.csv"), ["id", "name_en", "name"], rows);
 }
 
+export interface ProvinceAgrarianOverview {
+  readonly arableLandKm2?: number;
+  readonly cultivationCondition?: number;
+  readonly habitability?: number;
+  readonly terrainProfileId?: string;
+  readonly climateProfileId?: string;
+}
+
 export async function writeProvinceCsvSkeleton(
   outDir: string,
   provinces: GeoJsonFeatureCollection,
   options: {
     unsetGameplayFields?: boolean;
     gdpById?: ReadonlyMap<string, number>;
+    agrarianById?: ReadonlyMap<string, ProvinceAgrarianOverview>;
   } = {}
 ): Promise<number> {
   const unset = options.unsetGameplayFields === true;
@@ -958,6 +967,7 @@ export async function writeProvinceCsvSkeleton(
         ? 1
         : Math.max(1, Math.round(geometryAreaKm2(feature.geometry as AreaGeometry)));
     const gdp = options.gdpById?.get(id);
+    const agrarian = options.agrarianById?.get(id);
     bytes += await writeCsv(
       join(dir, "province.csv"),
       [
@@ -983,11 +993,13 @@ export async function writeProvinceCsvSkeleton(
           name_en: typeof props.nameEn === "string" ? props.nameEn : "",
           owner_country_id: typeof props.adm0A3 === "string" ? props.adm0A3 : "UNK",
           land_area_km2: String(areaKm2),
-          arable_land_km2: "0",
-          cultivation_condition: unset ? "0" : "0.5",
-          habitability: unset ? "0" : "0.5",
-          terrain_profile_id: "temperate",
-          climate_profile_id: "temperate",
+          arable_land_km2: String(agrarian?.arableLandKm2 ?? (unset ? "0" : "0")),
+          cultivation_condition: String(
+            agrarian?.cultivationCondition ?? (unset ? "0" : "0.5")
+          ),
+          habitability: String(agrarian?.habitability ?? (unset ? "0" : "0.5")),
+          terrain_profile_id: agrarian?.terrainProfileId ?? "temperate",
+          climate_profile_id: agrarian?.climateProfileId ?? "temperate",
           gdp_ppp: String(gdp ?? 0),
           description: typeof props.description === "string" ? props.description : "",
           capital_name: typeof capital.name === "string" ? capital.name : "",

@@ -7,6 +7,17 @@ import {
   type ScenarioBootstrap
 } from "../src/index.js";
 
+function singleYearAges(groups: readonly [number, number, number][]): Record<string, number> {
+  return Object.fromEntries(
+    groups.flatMap(([from, to, total]) =>
+      Array.from({ length: to - from + 1 }, (_, offset) => [
+        String(from + offset),
+        total / (to - from + 1)
+      ])
+    )
+  );
+}
+
 describe("world bootstrap", () => {
   const scenario: ScenarioBootstrap = {
     mapId: "test",
@@ -18,13 +29,13 @@ describe("world bootstrap", () => {
           pop: 1000,
           male: 510,
           female: 490,
-          age: {
-            child_0_14: 240,
-            youth_15_24: 120,
-            prime_25_44: 300,
-            mature_45_64: 220,
-            senior_65_plus: 120
-          },
+          age: singleYearAges([
+            [0, 14, 240],
+            [15, 24, 120],
+            [25, 44, 300],
+            [45, 64, 220],
+            [65, 100, 120]
+          ]),
           education15Plus: { basic: 400, secondary: 350, tertiary: 180, advanced: 70 }
         }
       },
@@ -35,13 +46,13 @@ describe("world bootstrap", () => {
           pop: 500,
           male: 250,
           female: 250,
-          age: {
-            child_0_14: 120,
-            youth_15_24: 60,
-            prime_25_44: 150,
-            mature_45_64: 110,
-            senior_65_plus: 60
-          },
+          age: singleYearAges([
+            [0, 14, 120],
+            [15, 24, 60],
+            [25, 44, 150],
+            [45, 64, 110],
+            [65, 100, 60]
+          ]),
           education15Plus: { basic: 200, secondary: 175, tertiary: 90, advanced: 35 }
         }
       },
@@ -52,13 +63,13 @@ describe("world bootstrap", () => {
           pop: 200,
           male: 100,
           female: 100,
-          age: {
-            child_0_14: 48,
-            youth_15_24: 24,
-            prime_25_44: 60,
-            mature_45_64: 44,
-            senior_65_plus: 24
-          },
+          age: singleYearAges([
+            [0, 14, 48],
+            [15, 24, 24],
+            [25, 44, 60],
+            [45, 64, 44],
+            [65, 100, 24]
+          ]),
           education15Plus: { basic: 80, secondary: 70, tertiary: 36, advanced: 14 }
         }
       }
@@ -103,13 +114,13 @@ describe("world bootstrap", () => {
             pop: 100,
             male: 60,
             female: 40,
-            age: {
-              child_0_14: 10,
-              youth_15_24: 10,
-              prime_25_44: 40,
-              mature_45_64: 20,
-              senior_65_plus: 20
-            },
+            age: singleYearAges([
+              [0, 14, 10],
+              [15, 24, 10],
+              [25, 44, 40],
+              [45, 64, 20],
+              [65, 100, 20]
+            ]),
             education15Plus: { basic: 25, secondary: 25, tertiary: 25, advanced: 25 }
           }
         }
@@ -124,13 +135,13 @@ describe("world bootstrap", () => {
             populationPersons: 100,
             male: 60,
             female: 40,
-            age: {
-              child_0_14: 10,
-              youth_15_24: 10,
-              prime_25_44: 40,
-              mature_45_64: 20,
-              senior_65_plus: 20
-            },
+            age: singleYearAges([
+              [0, 14, 10],
+              [15, 24, 10],
+              [25, 44, 40],
+              [45, 64, 20],
+              [65, 100, 20]
+            ]),
             education15Plus: { basic: 25, secondary: 25, tertiary: 25, advanced: 25 }
           }
         ]
@@ -161,13 +172,13 @@ describe("DeterministicSimulationEngine queries", () => {
               pop: 100,
               male: 50,
               female: 50,
-              age: {
-                child_0_14: 24,
-                youth_15_24: 12,
-                prime_25_44: 30,
-                mature_45_64: 22,
-                senior_65_plus: 12
-              },
+              age: singleYearAges([
+                [0, 14, 24],
+                [15, 24, 12],
+                [25, 44, 30],
+                [45, 64, 22],
+                [65, 100, 12]
+              ]),
               education15Plus: { basic: 40, secondary: 35, tertiary: 18, advanced: 7 }
             }
           }

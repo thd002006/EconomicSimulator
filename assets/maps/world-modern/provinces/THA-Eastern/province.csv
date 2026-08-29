@@ -1,2 +1,2 @@
 id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-THA-Eastern,Eastern,Eastern,THA,36026,16893,0.679,0.659,tropical,tropical,71251392890,"Merged from Chachoengsao, Chanthaburi, Chon Buri and 5 others. Eastern in Thailand, tropical plains and uplands, port trade and logistics.",Chon Buri,Chon Buri
+THA-Eastern,Eastern,Eastern,THA,36030,7233,0.524,0.767,tropical,tropical,71254746292,,Chon Buri,Chon Buri
