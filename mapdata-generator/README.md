@@ -20,7 +20,7 @@ L1 → 编辑器导入 → 保存 L2 projects/
 L2 → 导出 → L3 assets/maps/<mapId>/ → 自动 publish → L4 compiled/
 ```
 
-`habitability` / `cultivation_condition` / `arable_land_km2` 在 L1 中写 **0** 表示尚未制作，不是真实宜居度为零。
+`habitability` / `cultivation_condition` / `arable_land_km2` 在 L1 中写 **0** 表示尚未制作，不是真实宜居度为零。2026-08-29 已通过 `aggregate-agrarian.ts` 填入（见下方命令）。
 
 ## 命令
 
@@ -37,12 +37,24 @@ pnpm generate:base -- --retain 1
 # 对 L1 多边形跑社会经济（人口 / GDP），写入 demographics.json 与 province.csv 的 gdp_ppp
 pnpm generate:base:socioeconomic
 
-# 旧管线：合并版候选（仍写 output/world-modern，不进 L1）
-# world-modern-output 金标测试依赖该输出；缺报告会直接 fail
-pnpm generate:world-modern
+# L1 农业数据：下载 WorldClim BioClim 气候栅格（约 150 MB）
+pnpm fetch:agrarian
+# 注意：GAEZ Theme 5 作物收获面积栅格需从 FAO GAEZ 手动下载 27 种作物 GeoTIFF 放置到 cache/agrarian/gaez/
+
+# L1 农业数据：聚合 GAEZ 作物收获面积 + 基于 WorldClim 真实气候栅格计算耕作与宜居指数
+# 输出：base/world-admin1/provinces/*/province.csv 的 arable_land_km2 / cultivation_condition / habitability / terrain_profile_id / climate_profile_id
+pnpm aggregate:agrarian [--report output/agrarian-review.json] [--limit N]
+# 转换因子：GAEZ raw value × 5 km²/unit；校准依据印度小麦 ~30,000 km²
+
+# L2 编辑工程：生成 world-modern 分组（默认读取 output/world-modern/review-report.json 写入 projects/world-modern-editor）
+pnpm generate:l2-world-modern
 
 # 地图编辑器（导入 L1 / 编辑 / 存 L2 / 导出 L3+L4）
 pnpm editor
+
+# 旧管线：合并版候选（仍写 output/world-modern，不进 L1）
+# world-modern-output 金标测试依赖该输出；缺报告会直接 fail
+pnpm generate:world-modern
 ```
 
 导出 **禁止覆盖** 已有 `assets/maps/<mapId>/`；撞名时自动加 `-2`、`-3`… 后缀，并更新 `map.json` 的 `id`。
