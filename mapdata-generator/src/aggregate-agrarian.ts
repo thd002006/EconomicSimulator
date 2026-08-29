@@ -43,15 +43,17 @@ class ClimateRaster {
       } else if (typeof nodataTag === "number" && Number.isFinite(nodataTag)) {
         nodata = nodataTag;
       }
+      const rasters = await image.readRasters({ samples: [0] });
+      const data = rasters[0] as Float32Array | Float64Array | Int16Array | Uint16Array;
       return new ClimateRaster(
-        image,
         image.getWidth(),
         image.getHeight(),
         scale[0]!,
         Math.abs(scale[1]!),
         tie[3]!,
         tie[4]!,
-        nodata
+        nodata,
+        data
       );
     } catch {
       return undefined;
@@ -59,24 +61,24 @@ class ClimateRaster {
   }
 
   private constructor(
-    private readonly image: GeoTIFFImage,
     readonly width: number,
     readonly height: number,
     private readonly scaleX: number,
     private readonly scaleY: number,
     private readonly tieX: number,
     private readonly tieY: number,
-    private readonly nodata: number | undefined
+    private readonly nodata: number | undefined,
+    private readonly data: Float32Array | Float64Array | Int16Array | Uint16Array
   ) {}
 
-  async samplePolygonMean(
+  samplePolygonMean(
     geometry: AreaGeometry,
     bbox: [number, number, number, number]
-  ): Promise<number | undefined> {
+  ): number | undefined {
     const left = Math.max(0, Math.floor((bbox[0] - this.tieX) / this.scaleX));
-    const right = Math.min(this.width, Math.ceil((bbox[2] - this.tieX) / this.scaleX));
+    const right = Math.min(this.width, Math.max(left + 1, Math.ceil((bbox[2] - this.tieX) / this.scaleX)));
     const top = Math.max(0, Math.floor((this.tieY - bbox[3]) / this.scaleY));
-    const bottom = Math.min(this.height, Math.ceil((this.tieY - bbox[1]) / this.scaleY));
+    const bottom = Math.min(this.height, Math.max(top + 1, Math.ceil((this.tieY - bbox[1]) / this.scaleY)));
     if (left >= right || top >= bottom) return undefined;
 
     const windowWidth = right - left;
@@ -84,19 +86,16 @@ class ClimateRaster {
     const totalPixels = windowWidth * windowHeight;
     const step = totalPixels > 100_000 ? Math.ceil(Math.sqrt(totalPixels / 10_000)) : 1;
 
-    const rasters = await this.image.readRasters({
-      window: [left, top, right, bottom],
-      samples: [0]
-    });
-    const data = rasters[0] as Float32Array | Float64Array | Int16Array | Uint16Array;
     let sum = 0;
     let count = 0;
+    let bboxSum = 0;
+    let bboxCount = 0;
 
-    for (let r = 0; r < windowHeight; r += step) {
-      const rowOffset = r * windowWidth;
-      const lat = this.tieY - (top + r + 0.5) * this.scaleY;
-      for (let c = 0; c < windowWidth; c += step) {
-        const val = Number(data[rowOffset + c]);
+    for (let r = top; r < bottom; r += step) {
+      const rowOffset = r * this.width;
+      const lat = this.tieY - (r + 0.5) * this.scaleY;
+      for (let c = left; c < right; c += step) {
+        const val = Number(this.data[rowOffset + c]);
         if (!Number.isFinite(val)) continue;
         if (
           this.nodata !== undefined &&
@@ -105,14 +104,78 @@ class ClimateRaster {
           continue;
         }
         if (val < -100 || val > 100_000) continue;
-        const lon = this.tieX + (left + c + 0.5) * this.scaleX;
+        bboxSum += val;
+        bboxCount++;
+        const lon = this.tieX + (c + 0.5) * this.scaleX;
         if (pointInGeometry([lon, lat], geometry)) {
           sum += val;
           count++;
         }
       }
     }
-    return count > 0 ? sum / count : undefined;
+    if (count > 0) return sum / count;
+    if (bboxCount > 0) return bboxSum / bboxCount;
+
+    // Nearest search in expanding window around bbox center
+    const centerLon = (bbox[0] + bbox[2]) / 2;
+    const centerLat = (bbox[1] + bbox[3]) / 2;
+    const centerCol = Math.max(0, Math.min(this.width - 1, Math.floor((centerLon - this.tieX) / this.scaleX)));
+    const centerRow = Math.max(0, Math.min(this.height - 1, Math.floor((this.tieY - centerLat) / this.scaleY)));
+
+    const radius = 50;
+    const expLeft = Math.max(0, centerCol - radius);
+    const expRight = Math.min(this.width, centerCol + radius + 1);
+    const expTop = Math.max(0, centerRow - radius);
+    const expBottom = Math.min(this.height, centerRow + radius + 1);
+
+    let nearestDistSq = Infinity;
+    let nearestVal: number | undefined;
+
+    for (let r = expTop; r < expBottom; r++) {
+      const rowOffset = r * this.width;
+      for (let c = expLeft; c < expRight; c++) {
+        const val = Number(this.data[rowOffset + c]);
+        if (!Number.isFinite(val)) continue;
+        if (
+          this.nodata !== undefined &&
+          (Object.is(val, this.nodata) || Math.abs(val - this.nodata) < 1e-4)
+        ) {
+          continue;
+        }
+        if (val < -100 || val > 100_000) continue;
+        const dRow = r - centerRow;
+        const dCol = c - centerCol;
+        const distSq = dRow * dRow + dCol * dCol;
+        if (distSq < nearestDistSq) {
+          nearestDistSq = distSq;
+          nearestVal = val;
+        }
+      }
+    }
+    if (nearestVal !== undefined) return nearestVal;
+
+    for (let r = 0; r < this.height; r += 5) {
+      const rowOffset = r * this.width;
+      for (let c = 0; c < this.width; c += 5) {
+        const val = Number(this.data[rowOffset + c]);
+        if (!Number.isFinite(val)) continue;
+        if (
+          this.nodata !== undefined &&
+          (Object.is(val, this.nodata) || Math.abs(val - this.nodata) < 1e-4)
+        ) {
+          continue;
+        }
+        if (val < -100 || val > 100_000) continue;
+        const dRow = r - centerRow;
+        const dCol = c - centerCol;
+        const distSq = dRow * dRow + dCol * dCol;
+        if (distSq < nearestDistSq) {
+          nearestDistSq = distSq;
+          nearestVal = val;
+        }
+      }
+    }
+    return nearestVal;
   }
 }
 
@@ -201,32 +264,41 @@ function computeCultivationConditionFromClimate(meanTempC: number, meanPrecipMm:
   return clamp(Math.round(tempFactor * precipFactor * 1000) / 1000, 0.05, 0.95);
 }
 
-function computeHabitabilityFromClimate(meanTempC: number, meanPrecipMm: number): number {
+export function computeHabitabilityFromClimate(meanTempC: number, meanPrecipMm: number): number {
   let tempFactor: number;
-  if (meanTempC < -15) {
-    tempFactor = 0.05;
+  if (meanTempC <= -20) {
+    tempFactor = 0.0;
+  } else if (meanTempC < -10) {
+    tempFactor = 0.10 * ((meanTempC + 20) / 10);
   } else if (meanTempC < 0) {
-    tempFactor = 0.05 + 0.35 * ((meanTempC + 15) / 15);
-  } else if (meanTempC < 12) {
-    tempFactor = 0.40 + 0.55 * (meanTempC / 12);
+    tempFactor = 0.10 + 0.25 * ((meanTempC + 10) / 10);
+  } else if (meanTempC < 8) {
+    tempFactor = 0.35 + 0.50 * (meanTempC / 8);
   } else if (meanTempC <= 22) {
     tempFactor = 0.95;
   } else if (meanTempC <= 30) {
     tempFactor = 0.95 - 0.15 * ((meanTempC - 22) / 8);
+  } else if (meanTempC <= 38) {
+    tempFactor = 0.80 * (1 - (meanTempC - 30) / 8);
   } else {
-    tempFactor = 0.80 - 0.50 * Math.min(1, (meanTempC - 30) / 10);
+    tempFactor = 0.0;
   }
 
   let precipFactor: number;
-  if (meanPrecipMm < 100) {
-    precipFactor = 0.20 + 0.30 * (meanPrecipMm / 100);
+  if (meanPrecipMm <= 20) {
+    precipFactor = 0.0;
+  } else if (meanPrecipMm < 100) {
+    precipFactor = 0.25 * ((meanPrecipMm - 20) / 80);
   } else if (meanPrecipMm < 400) {
-    precipFactor = 0.50 + 0.40 * ((meanPrecipMm - 100) / 300);
+    precipFactor = 0.25 + 0.55 * ((meanPrecipMm - 100) / 300);
+  } else if (meanPrecipMm <= 2500) {
+    precipFactor = 0.80 + 0.15 * Math.min(1, (meanPrecipMm - 400) / 600);
   } else {
-    precipFactor = 0.90 + 0.05 * Math.min(1, (meanPrecipMm - 400) / 600);
+    precipFactor = 0.95 - 0.15 * Math.min(1, (meanPrecipMm - 2500) / 2000);
   }
 
-  return clamp(Math.round(tempFactor * (0.2 + 0.8 * precipFactor) * 1000) / 1000, 0.05, 0.95);
+  const score = tempFactor * precipFactor;
+  return clamp(Math.round(score * 1000) / 1000, 0, 0.95);
 }
 
 function classifyClimateFromTemp(meanTempC: number): { terrainProfileId: string; climateProfileId: string } {
@@ -313,8 +385,8 @@ async function aggregateForProvinces(
 
   for (const [, prov] of provinces) {
     const lat = meanCentroidLat(prov.geometry);
-    const meanTempC = await bio1Raster.samplePolygonMean(prov.geometry, prov.bbox);
-    const meanPrecipMm = await bio12Raster.samplePolygonMean(prov.geometry, prov.bbox);
+    const meanTempC = bio1Raster.samplePolygonMean(prov.geometry, prov.bbox);
+    const meanPrecipMm = bio12Raster.samplePolygonMean(prov.geometry, prov.bbox);
 
     if (meanTempC === undefined || meanPrecipMm === undefined) {
       throw new Error(`Failed to sample climate for province ${prov.id}.`);

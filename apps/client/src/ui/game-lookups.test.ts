@@ -83,6 +83,7 @@ describe("mergeGameUiLookups", () => {
     expect(lookups.getCountryName("AAA")).toBe("Alpha");
     expect(lookups.getProvinceGdpPpp("p1")).toBe(1_500_000_000);
     expect(lookups.getCountryGdpPpp("AAA")).toBe(1_500_000_000);
+    expect(lookups.getProvinceArableLandKm2("non-existent-province")).toBeUndefined();
     expect(formatGdp(1_500_000_000)).toBe("$1.50B");
 
     const ageRecord = ageCountsToSingleYearRecord(ageArray);

@@ -19,6 +19,7 @@ export interface GameUiLookups extends MapDisplayLookups {
   readonly getProvinceGdpPpp: (provinceId: string) => number | undefined;
   readonly getProvinceArableLandKm2: (provinceId: string) => number | undefined;
   readonly getProvinceLivability: (provinceId: string) => number | undefined;
+  readonly getProvinceLandAreaKm2: (provinceId: string) => number | undefined;
 }
 
 export function formatCount(value: number | undefined): string {
@@ -170,6 +171,7 @@ export function mergeGameUiLookups(
     getCountryPopulation: (countryId) => countryPopulation[countryId],
     getProvinceGdpPpp: (provinceId) => demographics?.[provinceId]?.gdpPpp,
     getProvinceArableLandKm2: (provinceId) => getProvinceDefinition(provinceId)?.arableLandKm2,
-    getProvinceLivability: (provinceId) => getProvinceDefinition(provinceId)?.habitability
+    getProvinceLivability: (provinceId) => getProvinceDefinition(provinceId)?.habitability,
+    getProvinceLandAreaKm2: (provinceId) => getProvinceDefinition(provinceId)?.landAreaKm2
   };
 }

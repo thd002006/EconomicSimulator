@@ -15,6 +15,14 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 html,
@@ -324,15 +332,21 @@ button[aria-pressed="true"] {
   background: #15202c;
 }
 
+.inspector-header {
+  flex-shrink: 0;
+}
+
 .inspector-tabs {
   display: flex;
   align-items: flex-end;
   flex-wrap: nowrap;
+  flex-shrink: 0;
   gap: 0.2rem;
   margin: 0 -0.15rem;
   padding: 0.35rem 0.15rem 0;
   border-bottom: 1px solid #2a4054;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .inspector-tab {
@@ -467,6 +481,49 @@ button[aria-pressed="true"] {
 
 .pie-chart-empty {
   color: #7d93a8;
+}
+
+.age-bar-chart {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.age-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.age-bar-body {
+  width: 100%;
+  padding: 0.5rem 0.6rem 0.25rem;
+  border: 1px solid #24364a;
+  border-radius: 0.45rem;
+  background: rgb(13 22 34 / 70%);
+}
+
+.age-bar-svg {
+  display: block;
+  width: 100%;
+  height: 6.5rem;
+  overflow: visible;
+}
+
+.age-bar-rect {
+  fill: #5eb8c9;
+  transition: fill 0.15s ease;
+  cursor: pointer;
+}
+
+.age-bar-rect:hover {
+  fill: #9ee6f5;
+}
+
+.age-bar-tick-label {
+  fill: #7d93a8;
+  font-size: 8.5px;
+  font-family: inherit;
+  user-select: none;
 }
 
 .entity-list {

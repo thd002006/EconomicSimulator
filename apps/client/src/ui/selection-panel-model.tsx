@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import type { ProvinceClassPopulationBreakdown } from "@economic-simulator/simulation-core";
 import terrainPlaceholder from "../assets/province-terrain-placeholder.svg";
+import { AgeBarChart } from "./AgeBarChart.js";
 import { EntityDetailModal } from "./EntityDetailModal.js";
 import { EntityList } from "./EntityList.js";
 import { SelectionPanel, type EntityPanelTab } from "./EntityPanel.js";
 import { countsToSlices, PieChart } from "./PieChart.js";
 import {
-  ageCountsToSingleYearRecord,
   countryDisplayName,
   dimensionLabel,
   formatAreaKm2,
@@ -53,17 +53,14 @@ function classDetailBody(entry: ProvinceClassPopulationBreakdown): React.JSX.Ele
   return (
     <>
       <Stats rows={[["Population", formatCount(entry.populationPersons)]]} />
+      <div className="inspector-section">
+        <AgeBarChart age={entry.age} />
+      </div>
       <DimensionPies
         charts={[
           {
             title: "Gender",
             slices: countsToSlices(entry.gender, (key) => dimensionLabel("gender", key))
-          },
-          {
-            title: "Age",
-            slices: countsToSlices(ageCountsToSingleYearRecord(entry.age), (key) =>
-              dimensionLabel("age", key)
-            )
           },
           {
             title: "Education",
@@ -120,7 +117,8 @@ export function buildSelectionPanelModel(
                 ["Population", formatCount(summary?.populationPersons)],
                 ["GDP", formatGdp(lookups.getProvinceGdpPpp(selection.id))],
                 ["Arable land", formatAreaKm2(lookups.getProvinceArableLandKm2(selection.id))],
-                ["Livability", formatLivability(lookups.getProvinceLivability(selection.id))]
+                ["Livability", formatLivability(lookups.getProvinceLivability(selection.id))],
+                ["Area", formatAreaKm2(lookups.getProvinceLandAreaKm2(selection.id))]
               ]}
             />
           </section>
@@ -133,7 +131,7 @@ export function buildSelectionPanelModel(
         label: "Population",
         content: (
           <section className="inspector-section">
-            <p className="label">Population</p>
+            <AgeBarChart age={demo?.age} />
             <DimensionPies
               charts={[
                 {
@@ -141,12 +139,6 @@ export function buildSelectionPanelModel(
                   slices: countsToSlices(
                     demo === undefined ? undefined : { male: demo.male, female: demo.female },
                     (key) => dimensionLabel("gender", key)
-                  )
-                },
-                {
-                  title: "Age",
-                  slices: countsToSlices(ageCountsToSingleYearRecord(demo?.age), (key) =>
-                    dimensionLabel("age", key)
                   )
                 },
                 {
