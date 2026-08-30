@@ -23,6 +23,7 @@ export interface AuthoredCountry {
 
 export interface AuthoredProvinceOverview {
   readonly id: string;
+  readonly coreProvinceId?: string;
   readonly name?: string;
   readonly nameEn?: string;
   readonly ownerCountryId: string;
@@ -164,8 +165,10 @@ export function parseProvinceOverviewCsv(
   const gdpPpp = optionalCsvNumber(row, "gdp_ppp", label);
   const capitalName = optionalCsvField(row, "capital_name");
   const capitalNameEn = optionalCsvField(row, "capital_name_en");
+  const coreProvinceId = optionalCsvField(row, "core_province_id");
   return {
     id,
+    ...(coreProvinceId === undefined ? {} : { coreProvinceId }),
     ...(name === undefined ? {} : { name }),
     ...(nameEn === undefined ? {} : { nameEn }),
     ownerCountryId: requireCsvField(row, "owner_country_id", label),
@@ -583,6 +586,7 @@ export function buildProvinceDefinitions(
 ): Array<{
   id: string;
   map: { mapId: string; featureId: string };
+  coreProvinceId?: string;
   landAreaKm2: number;
   arableLandKm2: number;
   cultivationCondition: number;
@@ -595,6 +599,9 @@ export function buildProvinceDefinitions(
     .map((pack) => ({
       id: pack.overview.id,
       map: { mapId, featureId: pack.overview.id },
+      ...(pack.overview.coreProvinceId !== undefined
+        ? { coreProvinceId: pack.overview.coreProvinceId }
+        : { coreProvinceId: pack.overview.id }),
       landAreaKm2: pack.overview.landAreaKm2,
       arableLandKm2: pack.overview.arableLandKm2,
       cultivationCondition: pack.overview.cultivationCondition,

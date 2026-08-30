@@ -16,3 +16,15 @@ src-tauri/gen/
 *.tmp
 *.bak
 apps/client/.chrome-tmp/
+assets/provincePics/
+
+# Python cache and generated artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*_log.txt
+run_log*.txt
+links_log*.txt
+

@@ -8,6 +8,7 @@ export const ProvinceDefinitionSchema = z.object({
     mapId: z.string().min(1),
     featureId: z.string().min(1),
   }),
+  coreProvinceId: z.string().min(1).optional(),
   landAreaKm2: z.number().positive().finite(),
   arableLandKm2: z.number().nonnegative().finite(),
   cultivationCondition: z.number().min(0).max(1).finite(),

@@ -155,7 +155,9 @@ function pickProperties(properties: RecordValue | null | undefined): RecordValue
     "iso_a2",
     "type",
     "scalerank",
-    "description"
+    "description",
+    "coreProvinceId",
+    "core_province_id"
   ];
   return Object.fromEntries(
     allowed.filter((key) => properties[key] !== undefined).map((key) => [key, properties[key]])
@@ -234,8 +236,16 @@ export async function compilePack(
     const description =
       overview?.description ??
       parseProvinceDescription(feature.properties?.description, "provinces", id);
+    const coreProvinceId =
+      overview?.coreProvinceId ??
+      (typeof feature.properties?.coreProvinceId === "string"
+        ? feature.properties.coreProvinceId
+        : typeof feature.properties?.core_province_id === "string"
+          ? feature.properties.core_province_id
+          : id);
     const properties = {
       ...pickProperties(feature.properties),
+      coreProvinceId,
       ...(overview?.name !== undefined ? { name: overview.name } : {}),
       ...(overview?.nameEn !== undefined ? { nameEn: overview.nameEn } : {}),
       ...(overview?.ownerCountryId !== undefined ? { adm0A3: overview.ownerCountryId } : {}),

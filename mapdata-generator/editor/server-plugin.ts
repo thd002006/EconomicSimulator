@@ -15,7 +15,11 @@ import {
   type EditorProject
 } from "../src/project.js";
 import { exportProjectToL3L4 } from "../src/export-map.js";
-import { ensureProjectClassesFromBase, seedProjectClassesFromBase } from "../src/class-split.js";
+import {
+  ensureProjectClassesFromBase,
+  readProvinceClassCsvs,
+  seedProjectClassesFromBase
+} from "../src/class-split.js";
 
 const generatorRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(generatorRoot, "..");
@@ -77,6 +81,53 @@ function mergedGroupId(countryId: string, members: readonly string[]): string {
     .slice(0, 7)
     .toUpperCase();
   return `${countryId}-G${hash}`;
+}
+
+export async function determineMergedGroupNames(options: {
+  projectDir: string;
+  baseRoot: string;
+  parts: readonly { id: string; members: readonly string[]; name: string; nameEn: string }[];
+  customName?: string | undefined;
+  customNameEn?: string | undefined;
+  fallbackId: string;
+}): Promise<{ name: string; nameEn: string }> {
+  let demographics: Record<string, { pop?: number }> = {};
+  try {
+    demographics = JSON.parse(
+      await readFile(join(options.baseRoot, "demographics.json"), "utf8")
+    ) as Record<string, { pop?: number }>;
+  } catch {
+    demographics = {};
+  }
+
+  const partsWithPop = await Promise.all(
+    options.parts.map(async (group) => {
+      let population = 0;
+      for (const mId of group.members) {
+        const rows = await readProvinceClassCsvs(join(options.projectDir, "provinces", mId));
+        if (rows.length > 0) {
+          population += rows.reduce((sum, r) => sum + r.populationPersons, 0);
+        } else {
+          population += demographics[mId]?.pop ?? 0;
+        }
+      }
+      return { group, population };
+    })
+  );
+
+  partsWithPop.sort((a, b) => b.population - a.population);
+  const namingParts = partsWithPop.slice(0, 2).map((item) => item.group);
+
+  const name =
+    options.customName?.trim() ||
+    namingParts.map((group) => group.name).join("–") ||
+    options.fallbackId;
+  const nameEn =
+    options.customNameEn?.trim() ||
+    namingParts.map((group) => group.nameEn).join("–") ||
+    options.fallbackId;
+
+  return { name, nameEn };
 }
 
 export function mapEditorApiPlugin(): Plugin {
@@ -274,26 +325,28 @@ export function mapEditorApiPlugin(): Plugin {
               name?: string;
               nameEn?: string;
             };
-            const project = await loadProject(join(generatorRoot, "projects", projectId));
+            const projectDir = join(generatorRoot, "projects", projectId);
+            const project = await loadProject(projectDir);
+            const baseRoot = join(generatorRoot, "base", project.meta.baseMapId);
             const parts = project.groups.filter((group) => body.groupIds.includes(group.id));
             const members = parts.flatMap((group) => group.members);
             const countryId = parts[0]?.countryId ?? "UNK";
             const mergedId = mergedGroupId(countryId, members);
-            const name =
-              body.name?.trim() ||
-              parts.map((group) => group.name).join("–") ||
-              mergedId;
-            const nameEn =
-              body.nameEn?.trim() ||
-              parts.map((group) => group.nameEn).join("–") ||
-              mergedId;
+            const { name, nameEn } = await determineMergedGroupNames({
+              projectDir,
+              baseRoot,
+              parts,
+              customName: body.name,
+              customNameEn: body.nameEn,
+              fallbackId: mergedId
+            });
             const groups = mergeGroups(project.groups, body.groupIds, {
               id: mergedId,
               name,
               nameEn
             });
             const next = { ...project, groups };
-            await saveProject(join(generatorRoot, "projects", projectId), next);
+            await saveProject(projectDir, next);
             return sendJson(res, 200, next);
           }
           if (req.method === "POST" && url.pathname.endsWith("/split")) {

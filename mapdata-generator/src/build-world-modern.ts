@@ -948,6 +948,7 @@ export async function writeProvinceCsvSkeleton(
     unsetGameplayFields?: boolean;
     gdpById?: ReadonlyMap<string, number>;
     agrarianById?: ReadonlyMap<string, ProvinceAgrarianOverview>;
+    coreProvinceIdById?: ReadonlyMap<string, string>;
   } = {}
 ): Promise<number> {
   const unset = options.unsetGameplayFields === true;
@@ -968,6 +969,9 @@ export async function writeProvinceCsvSkeleton(
         : Math.max(1, Math.round(geometryAreaKm2(feature.geometry as AreaGeometry)));
     const gdp = options.gdpById?.get(id);
     const agrarian = options.agrarianById?.get(id);
+    const coreProvinceId =
+      options.coreProvinceIdById?.get(id) ??
+      (typeof props.coreProvinceId === "string" ? props.coreProvinceId : id);
     bytes += await writeCsv(
       join(dir, "province.csv"),
       [
@@ -984,7 +988,8 @@ export async function writeProvinceCsvSkeleton(
         "gdp_ppp",
         "description",
         "capital_name",
-        "capital_name_en"
+        "capital_name_en",
+        "core_province_id"
       ],
       [
         {
@@ -1003,7 +1008,8 @@ export async function writeProvinceCsvSkeleton(
           gdp_ppp: String(gdp ?? 0),
           description: typeof props.description === "string" ? props.description : "",
           capital_name: typeof capital.name === "string" ? capital.name : "",
-          capital_name_en: typeof capital.nameEn === "string" ? capital.nameEn : ""
+          capital_name_en: typeof capital.nameEn === "string" ? capital.nameEn : "",
+          core_province_id: coreProvinceId
         }
       ]
     );

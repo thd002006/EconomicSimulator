@@ -207,6 +207,7 @@ export async function exportProjectToL3L4(options: {
     const sourceOverviews = await loadSourceProvinceOverviewById(baseRoot);
     const gdpById = new Map<string, number>();
     const agrarianById = new Map<string, ProvinceAgrarianOverview>();
+    const coreProvinceIdById = new Map<string, string>();
     const derivedFeatures: GeoJsonFeature<AreaGeometry>[] = [];
     const classRowsByGroup = new Map<string, Awaited<ReturnType<typeof sumClassSeedRows>>>();
 
@@ -221,6 +222,25 @@ export async function exportProjectToL3L4(options: {
       );
       const mergedClasses = sumClassSeedRows(memberClassRows);
       classRowsByGroup.set(group.id, mergedClasses);
+
+      let coreProvinceId = group.id;
+      if (group.members.length === 1) {
+        coreProvinceId = group.members[0]!;
+      } else if (group.members.length > 1) {
+        let maxMemberPop = -1;
+        let selectedMemberId = group.members[0]!;
+        for (let i = 0; i < group.members.length; i += 1) {
+          const mId = group.members[i]!;
+          const rows = memberClassRows[i] ?? [];
+          const totalPop = rows.reduce((sum, r) => sum + r.populationPersons, 0);
+          if (totalPop > maxMemberPop) {
+            maxMemberPop = totalPop;
+            selectedMemberId = mId;
+          }
+        }
+        coreProvinceId = selectedMemberId;
+      }
+      coreProvinceIdById.set(group.id, coreProvinceId);
 
       let totalGdp = 0;
       let totalArable = 0;
@@ -267,6 +287,7 @@ export async function exportProjectToL3L4(options: {
             nameEn: group.nameEn,
             adm0A3: group.countryId,
             type: "Game province",
+            coreProvinceId,
             capital
           },
           geometry
@@ -310,7 +331,8 @@ export async function exportProjectToL3L4(options: {
     await writeProvinceCsvSkeleton(stagingDir, provinces, {
       unsetGameplayFields: false,
       gdpById,
-      agrarianById
+      agrarianById,
+      coreProvinceIdById
     });
     let classFiles = 0;
     for (const [provinceId, rows] of classRowsByGroup) {

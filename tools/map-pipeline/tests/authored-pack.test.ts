@@ -22,12 +22,13 @@ describe("authored csv schema", () => {
     expect(countries).toEqual([{ id: "USA", nameEn: "United States", name: "US" }]);
     const overview = parseProvinceOverviewCsv(
       [
-        "id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,resource_coal,gdp_ppp,description",
-        "US-IA,Iowa,Iowa,USA,145000,80000,0.9,0.85,plains,temperate,0.2,100,A farm province"
+        "id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,resource_coal,gdp_ppp,description,core_province_id",
+        "US-IA,Iowa,Iowa,USA,145000,80000,0.9,0.85,plains,temperate,0.2,100,A farm province,US-CORE"
       ].join("\n"),
       "US-IA"
     );
     expect(overview.ownerCountryId).toBe("USA");
+    expect(overview.coreProvinceId).toBe("US-CORE");
     expect(overview.resourcePotentialByResourceId.coal).toBe(0.2);
   });
 
