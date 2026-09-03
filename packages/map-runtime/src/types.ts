@@ -52,6 +52,7 @@ export interface MapPackManifest {
     provinces: string;
     boundaries: string;
     coastlines?: string;
+    roads?: string;
     countries?: string;
     demographics?: string;
     provinceDefinitions?: string;
@@ -111,6 +112,45 @@ export interface MapBoundary {
   readonly coordinates: LonLat[];
 }
 
+export type RoadTypeId = string;
+export type RoadSegmentId = string;
+
+export interface RoadBendOverride {
+  readonly controlPoints: readonly LonLat[];
+}
+
+export interface RoadSegment {
+  readonly id: RoadSegmentId;
+  readonly typeId: RoadTypeId;
+  /** Normalized so provinceIdA < provinceIdB (lexicographic). */
+  readonly provinceIdA: string;
+  readonly provinceIdB: string;
+  readonly name?: string;
+  readonly nameEn?: string;
+  readonly bend?: RoadBendOverride;
+}
+
+export interface RoadCollection {
+  readonly schemaVersion: 1;
+  readonly segments: readonly RoadSegment[];
+}
+
+export interface RoadTypeDefinition {
+  readonly id: RoadTypeId;
+  readonly nameKey: string;
+  readonly drawOrder: number;
+  readonly laneIndex: number;
+  readonly laneSpacingScale: number;
+  readonly strokeColor: number;
+  readonly strokeOpacity: number;
+  readonly lineWidth: number;
+  readonly casingColor?: number;
+  readonly casingWidth?: number;
+  readonly dashSize?: number;
+  readonly gapSize?: number;
+  readonly maxVisibleHalfHeight: number;
+}
+
 export interface SpatialIndexData {
   readonly cellSizeDegrees: number;
   readonly cells: Readonly<Record<string, readonly string[]>>;
@@ -141,6 +181,7 @@ export interface MapViewModel {
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
+  readonly roads: RoadCollection;
   readonly countries: CountryNameTable;
   readonly globeMesh: GlobeMeshData;
   readonly hooks: MapViewModelHooks;

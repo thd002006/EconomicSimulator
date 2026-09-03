@@ -12,6 +12,11 @@ const vite = await createViteServer({
   server: { middlewareMode: true },
   appType: "spa",
   plugins: [mapEditorApiPlugin()],
+  resolve: {
+    alias: {
+      "@economic-simulator/map-runtime": resolve(editorRoot, "../../packages/map-runtime/src/index.ts")
+    }
+  },
   optimizeDeps: {
     include: ["three", "earcut"]
   }

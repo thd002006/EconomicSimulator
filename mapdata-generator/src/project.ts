@@ -19,6 +19,20 @@ export interface ProjectGroup {
   readonly nameEn: string;
 }
 
+export interface ProjectRoadSegment {
+  readonly id: string;
+  readonly typeId: string;
+  readonly provinceIdA: string;
+  readonly provinceIdB: string;
+  readonly name?: string;
+  readonly nameEn?: string;
+}
+
+export interface ProjectRoadsFile {
+  readonly schemaVersion: 1;
+  readonly segments: readonly ProjectRoadSegment[];
+}
+
 export interface ProjectGroupsFile {
   readonly groups: readonly ProjectGroup[];
 }
@@ -26,7 +40,13 @@ export interface ProjectGroupsFile {
 export interface EditorProject {
   readonly meta: ProjectMeta;
   readonly groups: readonly ProjectGroup[];
+  readonly roads: ProjectRoadsFile;
 }
+
+export const EMPTY_PROJECT_ROADS: ProjectRoadsFile = Object.freeze({
+  schemaVersion: 1,
+  segments: Object.freeze([])
+});
 
 export function identityGroupsFromIds(
   provinces: readonly { id: string; countryId: string; name: string; nameEn: string }[]
@@ -168,14 +188,64 @@ function parseGroups(value: unknown): ProjectGroup[] {
   });
 }
 
+function parseRoads(value: unknown): ProjectRoadsFile {
+  if (value === undefined || value === null) return EMPTY_PROJECT_ROADS;
+  if (!isRecord(value)) throw new Error("roads.json must be an object.");
+  if (value.schemaVersion !== 1) throw new Error("Unsupported roads schemaVersion.");
+  if (!Array.isArray(value.segments)) throw new Error("roads.json.segments must be an array.");
+  const segments: ProjectRoadSegment[] = [];
+  for (const [index, entry] of value.segments.entries()) {
+    if (!isRecord(entry)) throw new Error(`roads.segments[${index}] must be an object.`);
+    if (typeof entry.id !== "string" || entry.id === "") {
+      throw new Error(`roads.segments[${index}].id is required.`);
+    }
+    if (typeof entry.typeId !== "string" || entry.typeId === "") {
+      throw new Error(`roads.segments[${index}].typeId is required.`);
+    }
+    if (typeof entry.provinceIdA !== "string" || typeof entry.provinceIdB !== "string") {
+      throw new Error(`roads.segments[${index}] requires provinceIdA/B.`);
+    }
+    const a = entry.provinceIdA < entry.provinceIdB ? entry.provinceIdA : entry.provinceIdB;
+    const b = entry.provinceIdA < entry.provinceIdB ? entry.provinceIdB : entry.provinceIdA;
+    segments.push({
+      id: entry.id,
+      typeId: entry.typeId,
+      provinceIdA: a,
+      provinceIdB: b,
+      ...(typeof entry.name === "string" ? { name: entry.name } : {}),
+      ...(typeof entry.nameEn === "string" ? { nameEn: entry.nameEn } : {})
+    });
+  }
+  return { schemaVersion: 1, segments };
+}
+
+export function retainValidRoads(
+  roads: ProjectRoadsFile,
+  groupIds: ReadonlySet<string>
+): ProjectRoadsFile {
+  return {
+    schemaVersion: 1,
+    segments: roads.segments.filter(
+      (segment) => groupIds.has(segment.provinceIdA) && groupIds.has(segment.provinceIdB)
+    )
+  };
+}
+
 export async function loadProject(projectDir: string): Promise<EditorProject> {
   const [metaRaw, groupsRaw] = await Promise.all([
     readFile(join(projectDir, "project.json"), "utf8"),
     readFile(join(projectDir, "groups.json"), "utf8")
   ]);
+  let roadsRaw: string | undefined;
+  try {
+    roadsRaw = await readFile(join(projectDir, "roads.json"), "utf8");
+  } catch {
+    roadsRaw = undefined;
+  }
   return {
     meta: parseMeta(JSON.parse(metaRaw) as unknown),
-    groups: parseGroups(JSON.parse(groupsRaw) as unknown)
+    groups: parseGroups(JSON.parse(groupsRaw) as unknown),
+    roads: parseRoads(roadsRaw === undefined ? undefined : (JSON.parse(roadsRaw) as unknown))
   };
 }
 
@@ -185,6 +255,10 @@ export async function saveProject(projectDir: string, project: EditorProject): P
   await writeFile(
     join(projectDir, "groups.json"),
     `${JSON.stringify({ groups: project.groups }, null, 2)}\n`
+  );
+  await writeFile(
+    join(projectDir, "roads.json"),
+    `${JSON.stringify(project.roads ?? EMPTY_PROJECT_ROADS, null, 2)}\n`
   );
 }
 

@@ -17,6 +17,100 @@ const selectedCountEl = document.querySelector<HTMLSpanElement>("#selectedCount"
 const tooltipEl = document.querySelector<HTMLDivElement>("#tooltip")!;
 const canvas = document.querySelector<HTMLCanvasElement>("canvas#map-canvas")!;
 
+const roadTypeSelect = document.querySelector<HTMLSelectElement>("#roadTypeSelect")!;
+const roadListEl = document.querySelector<HTMLDivElement>("#roadList")!;
+
+let editMode: "select" | "addRoad" = "select";
+let roadPickFirstId: string | undefined;
+
+function ensureRoads(project: EditorProject): EditorProject {
+  if (project.roads?.schemaVersion === 1 && Array.isArray(project.roads.segments)) {
+    return project;
+  }
+  return { ...project, roads: { schemaVersion: 1, segments: [] } };
+}
+
+function groupAdjacencyKeys(): Set<string> {
+  const keys = new Set<string>();
+  if (!currentProject || !currentBaseData) return keys;
+  const memberToGroup = new Map<string, string>();
+  for (const group of currentProject.groups) {
+    for (const member of group.members) memberToGroup.set(member, group.id);
+  }
+  for (const boundary of currentBaseData.boundaries) {
+    if (!boundary.rightProvinceId) continue;
+    const a = memberToGroup.get(boundary.leftProvinceId);
+    const b = memberToGroup.get(boundary.rightProvinceId);
+    if (!a || !b || a === b) continue;
+    keys.add(a < b ? `${a}|${b}` : `${b}|${a}`);
+  }
+  return keys;
+}
+
+function renderRoadList(): void {
+  if (!currentProject) {
+    roadListEl.innerHTML = "";
+    return;
+  }
+  const segments = currentProject.roads.segments;
+  if (segments.length === 0) {
+    roadListEl.textContent = "暂无道路";
+    return;
+  }
+  roadListEl.innerHTML = segments
+    .slice(0, 80)
+    .map(
+      (segment) =>
+        `<div data-road-id="${segment.id}">${segment.typeId}: ${segment.provinceIdA} ↔ ${segment.provinceIdB}</div>`
+    )
+    .join("");
+  if (segments.length > 80) {
+    roadListEl.innerHTML += `<div>…另有 ${segments.length - 80} 条</div>`;
+  }
+}
+
+function addRoadBetween(groupA: string, groupB: string): void {
+  if (!currentProject) return;
+  if (groupA === groupB) {
+    setStatus("道路两端不能是同一组");
+    return;
+  }
+  const a = groupA < groupB ? groupA : groupB;
+  const b = groupA < groupB ? groupB : groupA;
+  const pair = `${a}|${b}`;
+  if (!groupAdjacencyKeys().has(pair)) {
+    setStatus("所选两组不相邻，无法添加道路");
+    return;
+  }
+  const typeId = roadTypeSelect.value;
+  const duplicate = currentProject.roads.segments.some(
+    (segment) =>
+      segment.typeId === typeId && segment.provinceIdA === a && segment.provinceIdB === b
+  );
+  if (duplicate) {
+    setStatus(`已存在 ${typeId} 道路 ${a} ↔ ${b}`);
+    return;
+  }
+  currentProject = {
+    ...currentProject,
+    roads: {
+      schemaVersion: 1,
+      segments: [
+        ...currentProject.roads.segments,
+        {
+          id: `road-${typeId}-${a}-${b}`,
+          typeId,
+          provinceIdA: a,
+          provinceIdB: b
+        }
+      ]
+    }
+  };
+  renderer.setProject(currentProject);
+  renderRoadList();
+  setStatus(`已添加 ${typeId}: ${a} ↔ ${b}（记得保存工程）`);
+}
+
 const renderer = new EditorMapRenderer(canvas);
 
 let currentProject: EditorProject | null = null;
@@ -288,8 +382,10 @@ async function openProject(projectId: string): Promise<void> {
   if (!currentBaseData || currentProject?.meta.baseMapId !== project.meta.baseMapId) {
     await loadBase(project.meta.baseMapId);
   }
-  currentProject = project;
+  currentProject = ensureRoads(project);
   selectedGroupIds.clear();
+  editMode = "select";
+  roadPickFirstId = undefined;
   exportMapId.value = project.meta.suggestedMapId || project.meta.projectId;
   if (currentProject) {
     renderer.setProject(currentProject);
@@ -299,6 +395,7 @@ async function openProject(projectId: string): Promise<void> {
     `已打开 ${project.meta.projectId}\nbase=${project.meta.baseMapId}\n总组数=${project.groups.length}`
   );
   renderGroups();
+  renderRoadList();
   onSelectionChanged();
 }
 
@@ -334,6 +431,19 @@ canvas.addEventListener("pointerup", (e) => {
   if (e.shiftKey) {
     if (selectedGroupIds.has(group.id)) selectedGroupIds.delete(group.id);
     else selectedGroupIds.add(group.id);
+  } else if (editMode === "addRoad") {
+    if (roadPickFirstId === undefined) {
+      roadPickFirstId = group.id;
+      selectedGroupIds.clear();
+      selectedGroupIds.add(group.id);
+      setStatus(`道路起点: ${group.id}，请再点选相邻终点`);
+    } else {
+      const first = roadPickFirstId;
+      roadPickFirstId = undefined;
+      addRoadBetween(first, group.id);
+      selectedGroupIds.clear();
+      selectedGroupIds.add(group.id);
+    }
   } else {
     selectedGroupIds.clear();
     selectedGroupIds.add(group.id);
@@ -449,12 +559,15 @@ document.querySelector("#btnMerge")!.addEventListener("click", () => {
       throw new Error("只能合并同一个国家内的省份/组！");
     }
 
-    currentProject = await api<EditorProject>(
-      `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/merge`,
-      { method: "POST", body: JSON.stringify({ groupIds }) }
+    currentProject = ensureRoads(
+      await api<EditorProject>(
+        `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/merge`,
+        { method: "POST", body: JSON.stringify({ groupIds }) }
+      )
     );
     selectedGroupIds.clear();
     renderer.setProject(currentProject);
+    renderRoadList();
     setStatus(`已成功合并 → 剩余 ${currentProject.groups.length} 组`);
     onSelectionChanged();
   })().catch((e) => setStatus(String(e)));
@@ -468,15 +581,62 @@ document.querySelector("#btnSplit")!.addEventListener("click", () => {
     const group = currentProject.groups.find((g) => g.id === groupId);
     if (!group || group.members.length <= 1) throw new Error("该组仅含单个原子省份，无法进一步拆分");
 
-    currentProject = await api<EditorProject>(
-      `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/split`,
-      { method: "POST", body: JSON.stringify({ groupId }) }
+    currentProject = ensureRoads(
+      await api<EditorProject>(
+        `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/split`,
+        { method: "POST", body: JSON.stringify({ groupId }) }
+      )
     );
     selectedGroupIds.clear();
     renderer.setProject(currentProject);
+    renderRoadList();
     setStatus(`已拆分组 ${groupId} → 现有 ${currentProject.groups.length} 组`);
     onSelectionChanged();
   })().catch((e) => setStatus(String(e)));
+});
+
+document.querySelector("#btnAddRoad")!.addEventListener("click", () => {
+  if (!currentProject) {
+    setStatus("请先打开工程");
+    return;
+  }
+  editMode = "addRoad";
+  roadPickFirstId = undefined;
+  setStatus("道路添加模式：依次点选两个相邻合并组");
+});
+
+document.querySelector("#btnDeleteRoad")!.addEventListener("click", () => {
+  if (!currentProject) {
+    setStatus("请先打开工程");
+    return;
+  }
+  if (selectedGroupIds.size !== 2) {
+    setStatus("请先选中恰好两个组，将删除它们之间的当前类型道路");
+    return;
+  }
+  const [g0, g1] = [...selectedGroupIds];
+  const a = g0! < g1! ? g0! : g1!;
+  const b = g0! < g1! ? g1! : g0!;
+  const typeId = roadTypeSelect.value;
+  const before = currentProject.roads.segments.length;
+  currentProject = {
+    ...currentProject,
+    roads: {
+      schemaVersion: 1,
+      segments: currentProject.roads.segments.filter(
+        (segment) =>
+          !(
+            segment.typeId === typeId &&
+            segment.provinceIdA === a &&
+            segment.provinceIdB === b
+          )
+      )
+    }
+  };
+  const removed = before - currentProject.roads.segments.length;
+  renderer.setProject(currentProject);
+  renderRoadList();
+  setStatus(removed > 0 ? `已删除 ${removed} 条道路（记得保存）` : "未找到匹配道路");
 });
 
 document.querySelector("#btnExport")!.addEventListener("click", () => {

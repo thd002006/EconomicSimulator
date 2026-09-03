@@ -240,12 +240,17 @@ describe("map compiler", () => {
       [0.002, 0]
     ]);
 
+    const roads = jsonFile(second, "roads.json") as { schemaVersion: number; segments: unknown[] };
+    expect(roads).toEqual({ schemaVersion: 1, segments: [] });
+    expect((manifest as { assets: { roads?: string } }).assets.roads).toBe("roads.json");
+
     expect(() =>
       parseMapPackBundle({
         manifest,
         provinces,
         boundaries: jsonFile(second, "boundaries.json"),
         coastlines,
+        roads,
         spatialIndex: jsonFile(second, "spatial-index.json"),
         globeMeshMetadata: jsonFile(second, "globe-mesh.json"),
         globeMeshBuffers: [0, 1, 2].map((index) => {
@@ -257,6 +262,120 @@ describe("map compiler", () => {
         })
       })
     ).not.toThrow();
+  });
+
+  it("compiles authored roads between adjacent provinces", async () => {
+    const { sourceRoot, outputRoot } = await createMapFixture();
+    const mapDirectory = join(sourceRoot, "test-map");
+    const geometryDir = join(mapDirectory, "geometry");
+    const otherDir = join(mapDirectory, "provinces", "other");
+    await mkdir(join(otherDir, "classes"), { recursive: true });
+    await writeFile(
+      join(otherDir, "province.csv"),
+      [
+        "id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id",
+        "other,Other,Other,UNK,1,0,0.5,0.5,temperate,temperate"
+      ].join("\n") + "\n",
+      "utf8"
+    );
+    await writeFile(
+      join(otherDir, "operating-units.csv"),
+      "id,kind,industry_id,default_market_id,owner_company_id,owner_shares,operating_status,initial_cash_cents\n",
+      "utf8"
+    );
+    await writeFile(
+      join(geometryDir, "provinces.geojson"),
+      JSON.stringify({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            id: "tiny",
+            properties: {
+              name: "Tiny",
+              adm0A3: "UNK",
+              capital: { coordinates: [0.005, 0.005] }
+            },
+            geometry: polygon([
+              [0, 0],
+              [0.01, 0],
+              [0.01, 0.01],
+              [0, 0.01],
+              [0, 0]
+            ])
+          },
+          {
+            type: "Feature",
+            id: "other",
+            properties: {
+              name: "Other",
+              adm0A3: "UNK",
+              capital: { coordinates: [0.015, 0.005] }
+            },
+            geometry: polygon([
+              [0.01, 0],
+              [0.02, 0],
+              [0.02, 0.01],
+              [0.01, 0.01],
+              [0.01, 0]
+            ])
+          }
+        ]
+      }),
+      "utf8"
+    );
+    await writeFile(
+      join(geometryDir, "boundaries.json"),
+      JSON.stringify({
+        type: "BoundaryCollection",
+        features: [
+          {
+            id: "shared",
+            leftProvinceId: "other",
+            rightProvinceId: "tiny",
+            coordinates: [
+              [0.01, 0],
+              [0.01, 0.01]
+            ]
+          }
+        ]
+      }),
+      "utf8"
+    );
+    await writeFile(
+      join(geometryDir, "roads.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        segments: [
+          {
+            id: "road-hw-other-tiny",
+            typeId: "highway",
+            provinceIdA: "other",
+            provinceIdB: "tiny"
+          }
+        ]
+      }),
+      "utf8"
+    );
+    const manifestPath = join(mapDirectory, "map.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as {
+      layers: Record<string, string>;
+    };
+    manifest.layers.roads = "geometry/roads.json";
+    await writeFile(manifestPath, JSON.stringify(manifest), "utf8");
+
+    await compilePack(sourceRoot, outputRoot, { id: "test-map", path: "test-map" });
+    const compiled = JSON.parse(
+      await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
+    ) as { segments: Array<{ provinceIdA: string; provinceIdB: string; typeId: string }> };
+    expect(compiled.segments).toEqual([
+      {
+        id: "road-hw-other-tiny",
+        typeId: "highway",
+        provinceIdA: "other",
+        provinceIdB: "tiny"
+      }
+    ]);
   });
 
   it("parseCompileArgs requires --map and handles '--' separator", () => {

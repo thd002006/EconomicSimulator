@@ -2,10 +2,13 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  adjacencyPairKey,
   parseLineGeometry,
   parsePolygonGeometry,
   parseProvinceCapital,
-  pointInGeometry
+  parseRoadCollection,
+  pointInGeometry,
+  type LonLat
 } from "@economic-simulator/map-runtime";
 import {
   aggregateDemographicsFromClasses,
@@ -109,6 +112,32 @@ export async function validatePack(
     }
   }
 
+  const adjacencyPairs = new Set<string>();
+  for (const raw of boundaryValue.features) {
+    if (!isRecord(raw)) continue;
+    const left = typeof raw.leftProvinceId === "string" ? raw.leftProvinceId : undefined;
+    const right = typeof raw.rightProvinceId === "string" ? raw.rightProvinceId : undefined;
+    if (left === undefined || right === undefined) continue;
+    adjacencyPairs.add(adjacencyPairKey(left, right));
+  }
+  const capitals = new Map<string, LonLat>();
+  for (const feature of provinces.features) {
+    const id = String(feature.id);
+    const capital = parseProvinceCapital(feature.properties?.capital, "provinces", id);
+    capitals.set(id, capital.coordinates);
+  }
+
+  let roads = 0;
+  if (manifest.layers.roads !== undefined) {
+    const roadsPath = await resolveContainedFile(packDir, manifest.layers.roads, "layers.roads");
+    const collection = parseRoadCollection(await readJson(roadsPath), {
+      provinceIds,
+      adjacencyPairs,
+      capitals
+    });
+    roads = collection.segments.length;
+  }
+
   const content = await loadAuthoredMapContent(packDir, {
     countriesPath: manifest.layers.countries,
     provincesDir: manifest.layers.provincesDir,
@@ -120,6 +149,7 @@ export async function validatePack(
     provinces: provinces.features.length,
     boundaries: boundaryValue.features.length,
     coastlines,
+    roads,
     countries: content.countries.length,
     demographics: Object.keys(demographics).length,
     companies: content.companies.length,

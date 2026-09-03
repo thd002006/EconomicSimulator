@@ -3,6 +3,14 @@ import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
 import earcut from "earcut";
+import {
+  adjacencyPairKey,
+  buildRoadDrawBatches,
+  roadTypesSortedByDrawOrder,
+  type LonLat,
+  type MapBoundary,
+  type RoadSegment
+} from "@economic-simulator/map-runtime";
 
 export interface LonLatBBox {
   minLon: number;
@@ -62,6 +70,17 @@ export interface EditorProject {
     nameEn?: string;
   };
   groups: ProjectGroup[];
+  roads: {
+    schemaVersion: 1;
+    segments: Array<{
+      id: string;
+      typeId: string;
+      provinceIdA: string;
+      provinceIdB: string;
+      name?: string;
+      nameEn?: string;
+    }>;
+  };
 }
 
 const MAP_WRAP = 360;
@@ -506,6 +525,7 @@ export class EditorMapRenderer {
   private provinceLines?: LineSegments2;
   private groupLines?: LineSegments2;
   private countryLines?: LineSegments2;
+  private roadLines: LineSegments2[] = [];
 
   private paletteTexture?: THREE.DataTexture;
   private paletteBytes?: Uint8Array;
@@ -739,9 +759,10 @@ export class EditorMapRenderer {
       COUNTRY_BORDER,
       COUNTRY_BORDER_WIDTH,
       COUNTRY_BORDER_OPACITY,
-      3
+      4
     );
     this.tileTemplate.add(this.provinceLines, this.groupLines, this.countryLines);
+    this.rebuildRoadMeshes();
 
     this.mapRoot.clear();
     for (const offset of TILE_OFFSETS) {
@@ -750,6 +771,86 @@ export class EditorMapRenderer {
       this.mapRoot.add(tile);
     }
     this.applyLineResolutions();
+  }
+
+  private rebuildRoadMeshes(): void {
+    for (const lines of this.roadLines) {
+      this.tileTemplate.remove(lines);
+      lines.geometry.dispose();
+      lines.material.dispose();
+    }
+    this.roadLines = [];
+    if (!this.baseData || !this.project || this.project.roads.segments.length === 0) return;
+
+    const memberToGroup = new Map<string, string>();
+    for (const group of this.project.groups) {
+      for (const member of group.members) memberToGroup.set(member, group.id);
+    }
+    const capitals = new Map<string, LonLat>();
+    for (const province of this.baseData.provinces) {
+      const groupId = memberToGroup.get(province.id);
+      if (groupId === undefined || capitals.has(groupId)) continue;
+      if (province.capital?.coordinates) {
+        capitals.set(groupId, province.capital.coordinates);
+      }
+    }
+
+    const groupBoundaries: MapBoundary[] = [];
+    const seenPairs = new Set<string>();
+    for (const boundary of this.baseData.boundaries) {
+      if (boundary.rightProvinceId === null) continue;
+      const left = memberToGroup.get(boundary.leftProvinceId);
+      const right = memberToGroup.get(boundary.rightProvinceId);
+      if (left === undefined || right === undefined || left === right) continue;
+      const key = adjacencyPairKey(left, right);
+      if (seenPairs.has(key)) continue;
+      seenPairs.add(key);
+      groupBoundaries.push({
+        id: `group-${key}`,
+        leftProvinceId: left < right ? left : right,
+        rightProvinceId: left < right ? right : left,
+        coordinates: boundary.coordinates
+      });
+    }
+
+    const segments: RoadSegment[] = this.project.roads.segments.map((segment) => ({
+      id: segment.id,
+      typeId: segment.typeId,
+      provinceIdA: segment.provinceIdA,
+      provinceIdB: segment.provinceIdB,
+      ...(segment.name === undefined ? {} : { name: segment.name }),
+      ...(segment.nameEn === undefined ? {} : { nameEn: segment.nameEn })
+    }));
+    const provinceGeometryById = new Map<string, (typeof this.baseData.provinces)[number]["geometry"]>();
+    for (const province of this.baseData.provinces) {
+      const groupId = memberToGroup.get(province.id);
+      if (groupId === undefined || provinceGeometryById.has(groupId)) continue;
+      provinceGeometryById.set(groupId, province.geometry);
+    }
+    const batches = buildRoadDrawBatches(segments, {
+      capitals,
+      boundaries: groupBoundaries,
+      provinceGeometryById
+    });
+    const batchByType = new Map(batches.map((batch) => [batch.typeId, batch]));
+    for (const typeDef of roadTypesSortedByDrawOrder()) {
+      const batch = batchByType.get(typeDef.id);
+      const positions: number[] = [];
+      if (batch) {
+        for (const polyline of batch.polylines) {
+          pushLineSegments(positions, polyline, GROUP_LINE_Z + 0.002);
+        }
+      }
+      const lines = makeWideLines(
+        positions,
+        typeDef.strokeColor,
+        typeDef.lineWidth,
+        typeDef.strokeOpacity,
+        3
+      );
+      this.roadLines.push(lines);
+      this.tileTemplate.add(lines);
+    }
   }
 
   public rebuildHighlight(): void {

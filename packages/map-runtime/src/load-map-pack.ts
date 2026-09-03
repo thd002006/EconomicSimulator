@@ -8,6 +8,11 @@ import {
 } from "./schema.js";
 import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
 import { EDUCATION_LEVEL_IDS } from "./types.js";
+import {
+  buildAdjacencyPairSet,
+  EMPTY_ROAD_COLLECTION,
+  parseRoadCollection
+} from "./roads.js";
 import type {
   CountryNameEntry,
   CountryNameTable,
@@ -21,8 +26,10 @@ import type {
   ProvinceDemographicsTable,
   ProvinceFeature,
   ProvinceFeatureProperties,
+  RoadCollection,
   SpatialIndexData
 } from "./types.js";
+import type { LonLat } from "./types.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -158,6 +165,7 @@ function parseManifest(input: unknown): MapPackManifest {
     : [];
 
   const coastlines = asString(input.assets.coastlines);
+  const roads = asString((input.assets as Record<string, unknown>).roads);
   const countries = asString(input.assets.countries);
   const demographics = asString((input.assets as Record<string, unknown>).demographics);
   const provinceDefinitions = asString(
@@ -175,6 +183,7 @@ function parseManifest(input: unknown): MapPackManifest {
       provinces: input.assets.provinces,
       boundaries: input.assets.boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
+      ...(roads === undefined ? {} : { roads }),
       ...(countries === undefined ? {} : { countries }),
       ...(demographics === undefined ? {} : { demographics }),
       ...(provinceDefinitions === undefined ? {} : { provinceDefinitions }),
@@ -444,6 +453,7 @@ export interface LoadedMapPack {
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
+  readonly roads: RoadCollection;
   readonly countries: CountryNameTable;
   readonly demographics?: ProvinceDemographicsTable;
   readonly scenarioSeed?: ScenarioSeedData;
@@ -476,6 +486,7 @@ export interface MapPackBundleInput {
   /** Metadata indices corresponding to globeMeshBuffers; omitted when every LOD is present. */
   readonly globeMeshLodIndices?: readonly number[];
   readonly coastlines?: unknown;
+  readonly roads?: unknown;
   readonly countries?: unknown;
   readonly demographics?: unknown;
   readonly scenarioSeed?: unknown;
@@ -606,10 +617,24 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
     throw new MapSchemaError("Globe mesh province IDs do not match provinces.", "globeMesh");
   }
   const scenarioSeed = parseScenarioSeed(raw.scenarioSeed);
+  const boundaries = parseRuntimeBoundaries(raw.boundaries);
+  const capitals = new Map<string, LonLat>();
+  for (const province of provinces) {
+    capitals.set(province.id, province.properties.capital.coordinates);
+  }
+  const roads =
+    raw.roads === undefined
+      ? EMPTY_ROAD_COLLECTION
+      : parseRoadCollection(raw.roads, {
+          provinceIds,
+          adjacencyPairs: buildAdjacencyPairSet(boundaries),
+          capitals
+        });
   return {
     manifest,
     provinces,
-    boundaries: parseRuntimeBoundaries(raw.boundaries),
+    boundaries,
+    roads,
     spatialIndex: parseSpatialIndex(raw.spatialIndex),
     globeMesh: createGlobeMeshData(
       globeMeshMetadata,
@@ -633,6 +658,7 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     boundariesRaw,
     spatialIndexRaw,
     coastlinesRaw,
+    roadsRaw,
     countriesRaw,
     demographicsRaw,
     scenarioSeedRaw,
@@ -644,6 +670,9 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     manifest.assets.coastlines === undefined
       ? Promise.resolve(undefined)
       : fetchJson(`${root}/${manifest.assets.coastlines}`),
+    manifest.assets.roads === undefined
+      ? Promise.resolve(undefined)
+      : fetchJson(`${root}/${manifest.assets.roads}`),
     manifest.assets.countries === undefined
       ? Promise.resolve(undefined)
       : fetchJson(`${root}/${manifest.assets.countries}`),
@@ -674,6 +703,7 @@ export async function loadMapPack(baseUrl: string): Promise<LoadedMapPack> {
     globeMeshBuffers,
     globeMeshLodIndices,
     ...(coastlinesRaw === undefined ? {} : { coastlines: coastlinesRaw }),
+    ...(roadsRaw === undefined ? {} : { roads: roadsRaw }),
     ...(countriesRaw === undefined ? {} : { countries: countriesRaw }),
     ...(demographicsRaw === undefined ? {} : { demographics: demographicsRaw }),
     ...(scenarioSeedRaw === undefined ? {} : { scenarioSeed: scenarioSeedRaw })

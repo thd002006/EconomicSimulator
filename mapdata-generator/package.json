@@ -13,6 +13,7 @@
     "aggregate:agrarian": "tsx src/aggregate-agrarian.ts",
     "editor": "pnpm --dir editor dev",
     "export-map": "tsx src/export-map.ts",
+    "generate:roads": "tsx src/generate-default-roads.ts",
     "test": "tsx --test tests/**/*.test.ts",
     "typecheck": "tsc -p tsconfig.json"
   },

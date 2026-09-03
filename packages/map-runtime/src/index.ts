@@ -20,6 +20,12 @@ export type {
   ProvinceDemographicsTable,
   ProvinceFeature,
   ProvinceFeatureProperties,
+  RoadBendOverride,
+  RoadCollection,
+  RoadSegment,
+  RoadSegmentId,
+  RoadTypeDefinition,
+  RoadTypeId,
   SpatialIndexData,
   Vec3
 } from "./types.js";
@@ -68,3 +74,29 @@ export {
   parseProvinceDescription
 } from "./schema.js";
 export { createMapViewModel } from "./view-model.js";
+export {
+  ROAD_TYPE_DEFINITIONS,
+  ROAD_TYPE_HIGHWAY,
+  ROAD_TYPE_LOCAL,
+  ROAD_TYPE_RAILWAY,
+  getRoadTypeDefinition,
+  isKnownRoadTypeId,
+  roadTypesSortedByDrawOrder
+} from "./road-types.js";
+export {
+  EMPTY_ROAD_COLLECTION,
+  adjacencyPairKey,
+  buildAdjacencyPairSet,
+  buildBoundaryMidpointIndex,
+  buildSharedBoundaryIndex,
+  buildRoadDrawBatches,
+  parseRoadCollection,
+  roadSegmentKey,
+  sampleRoadSegmentCurve
+} from "./roads.js";
+export type {
+  BuildRoadDrawBatchesOptions,
+  RoadDrawBatch,
+  RoadParseContext,
+  SampleRoadCurveOptions
+} from "./roads.js";

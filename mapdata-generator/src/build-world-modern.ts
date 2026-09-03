@@ -897,6 +897,7 @@ export async function writeMapManifest(
       provinces: "geometry/provinces.geojson",
       boundaries: "geometry/boundaries.json",
       coastlines: "geometry/coastlines.geojson",
+      roads: "geometry/roads.json",
       countries: "countries.csv",
       provincesDir: "provinces",
       companiesDir: "companies"

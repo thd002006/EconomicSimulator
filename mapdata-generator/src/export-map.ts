@@ -324,6 +324,7 @@ export async function exportProjectToL3L4(options: {
       features: lines.boundaries
     });
     await writeJson(join(geometryDir, "coastlines.geojson"), lines.coastlines);
+    await writeJson(join(geometryDir, "roads.json"), project.roads ?? { schemaVersion: 1, segments: [] });
     await writeFile(
       join(stagingDir, "countries.csv"),
       await readFile(join(baseRoot, "countries.csv"), "utf8")

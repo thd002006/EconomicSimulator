@@ -8,6 +8,7 @@ export interface SourceMapManifest {
     readonly provinces: string;
     readonly boundaries: string;
     readonly coastlines?: string;
+    readonly roads?: string;
     readonly countries: string;
     readonly provincesDir: string;
     readonly companiesDir: string;
@@ -78,6 +79,10 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
     value.layers.coastlines === undefined
       ? undefined
       : requiredString(value.layers.coastlines, "layers.coastlines");
+  const roads =
+    value.layers.roads === undefined
+      ? undefined
+      : requiredString(value.layers.roads, "layers.roads");
   const countries = requiredString(value.layers.countries, "layers.countries");
   const provincesDir = requiredString(value.layers.provincesDir, "layers.provincesDir");
   const companiesDir =
@@ -94,6 +99,7 @@ export function parseSourceMapManifest(value: unknown, expectedId: string): Sour
       provinces,
       boundaries,
       ...(coastlines === undefined ? {} : { coastlines }),
+      ...(roads === undefined ? {} : { roads }),
       countries,
       provincesDir,
       companiesDir

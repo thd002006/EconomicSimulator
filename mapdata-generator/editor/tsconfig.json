@@ -3,7 +3,10 @@
   "compilerOptions": {
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@economic-simulator/map-runtime": ["../../packages/map-runtime/src/index.ts"]
+    }
   },
   "include": ["*.ts"]
 }

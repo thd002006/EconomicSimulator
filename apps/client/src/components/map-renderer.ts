@@ -2,6 +2,8 @@ import {
   lonLatToMapXY,
   mapXYToLonLat,
   wrapLongitude,
+  buildRoadDrawBatches,
+  roadTypesSortedByDrawOrder,
   type CountryAggregate,
   type GeoJsonGeometry,
   type LonLat,
@@ -34,6 +36,7 @@ const HOVER_FILL = new THREE.Color("#c4a060");
 const SELECT_FILL = new THREE.Color("#a07840");
 const LAND_Z = 0.02;
 const LINE_Z = 0.04;
+const ROAD_Z = 0.045;
 const CAPITAL_Z = 0.06;
 const CAPITAL_POINT_SIZE = 7;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
@@ -45,6 +48,9 @@ const COUNTRY_BORDER_WIDTH = 1.5;
 const COUNTRY_BORDER_OPACITY = 0.82;
 const COAST_BORDER_WIDTH = 1.1;
 const COAST_BORDER_OPACITY = 0.78;
+const ROAD_RENDER_ORDER = 2;
+const COUNTRY_RENDER_ORDER = 3;
+const CAPITAL_RENDER_ORDER = 4;
 
 export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
@@ -357,6 +363,11 @@ export class GlobeRenderer {
   private coastLines: LineSegments2;
   private provinceLines: LineSegments2;
   private countryLines: LineSegments2;
+  private readonly roadLineEntries: Array<{
+    typeId: string;
+    maxVisibleHalfHeight: number;
+    lines: LineSegments2;
+  }> = [];
   private provinceLineHasGeometry = false;
   private ownerLookup: (provinceId: string) => string | undefined;
   private hoveredSelection: MapSelection | undefined;
@@ -463,10 +474,11 @@ export class GlobeRenderer {
       COUNTRY_BORDER,
       COUNTRY_BORDER_WIDTH,
       COUNTRY_BORDER_OPACITY,
-      2
+      COUNTRY_RENDER_ORDER
     );
     this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
+    this.buildRoadLines();
 
     const capitalPositions = new Float32Array(model.provinces.length * 3);
     for (const [index, feature] of model.provinces.entries()) {
@@ -492,12 +504,82 @@ export class GlobeRenderer {
         alphaTest: 0.05
       })
     );
-    this.capitalPoints.renderOrder = 3;
+    this.capitalPoints.renderOrder = CAPITAL_RENDER_ORDER;
     this.tileTemplate.add(this.capitalPoints);
     this.refreshTiles();
     this.rebuildLabels();
     this.updateDetailVisibility();
     this.resize();
+  }
+
+  private buildRoadLines(): void {
+    const capitals = new Map(
+      this.model.provinces.map((province) => [
+        province.id,
+        province.properties.capital.coordinates
+      ] as const)
+    );
+    const batches = buildRoadDrawBatches(this.model.roads.segments, {
+      capitals,
+      boundaries: this.model.boundaries,
+      provinceGeometryById: new Map(
+        this.model.provinces.map((province) => [province.id, province.geometry] as const)
+      )
+    });
+    const batchByType = new Map(batches.map((batch) => [batch.typeId, batch]));
+
+    for (const typeDef of roadTypesSortedByDrawOrder()) {
+      const batch = batchByType.get(typeDef.id);
+      const positions: number[] = [];
+      if (batch !== undefined) {
+        for (const polyline of batch.polylines) {
+          pushLineSegments(positions, polyline, ROAD_Z);
+        }
+      }
+
+      if (typeDef.casingColor !== undefined && typeDef.casingWidth !== undefined) {
+        const casing = makeWideLines(
+          positions,
+          typeDef.casingColor,
+          typeDef.casingWidth,
+          Math.min(1, typeDef.strokeOpacity + 0.1),
+          ROAD_RENDER_ORDER
+        );
+        casing.userData.hasRoadGeometry = positions.length > 0;
+        this.roadLineEntries.push({
+          typeId: typeDef.id,
+          maxVisibleHalfHeight: typeDef.maxVisibleHalfHeight,
+          lines: casing
+        });
+        this.tileTemplate.add(casing);
+      }
+
+      const stroke = makeWideLines(
+        positions,
+        typeDef.strokeColor,
+        typeDef.lineWidth,
+        typeDef.strokeOpacity,
+        ROAD_RENDER_ORDER
+      );
+      stroke.userData.hasRoadGeometry = positions.length > 0;
+      if (
+        typeDef.dashSize !== undefined &&
+        typeDef.gapSize !== undefined &&
+        !Array.isArray(stroke.material) &&
+        stroke.material instanceof LineMaterial
+      ) {
+        stroke.material.dashed = true;
+        stroke.material.dashSize = typeDef.dashSize;
+        stroke.material.gapSize = typeDef.gapSize;
+        stroke.computeLineDistances();
+      }
+      this.roadLineEntries.push({
+        typeId: typeDef.id,
+        maxVisibleHalfHeight: typeDef.maxVisibleHalfHeight,
+        lines: stroke
+      });
+      this.tileTemplate.add(stroke);
+    }
   }
 
   private refreshTiles(): void {
@@ -510,17 +592,41 @@ export class GlobeRenderer {
   }
 
   private updateDetailVisibility(): void {
-    const showProvinces =
-      this.provinceLineHasGeometry && showProvinceBorders(this.panZoom.halfHeight);
+    const halfHeight = this.panZoom.halfHeight;
+    const showProvinces = this.provinceLineHasGeometry && showProvinceBorders(halfHeight);
     this.provinceLines.visible = showProvinces;
-    this.capitalPoints.visible = showProvinceBorders(this.panZoom.halfHeight);
+    this.capitalPoints.visible = showProvinceBorders(halfHeight);
+
+    const roadVisibility = new Map<LineMaterial, boolean>();
+    for (const entry of this.roadLineEntries) {
+      const material = entry.lines.material;
+      if (!Array.isArray(material) && material instanceof LineMaterial) {
+        roadVisibility.set(
+          material,
+          entry.lines.userData.hasRoadGeometry === true &&
+            halfHeight <= entry.maxVisibleHalfHeight
+        );
+      }
+    }
+
     this.mapRoot.traverse((object) => {
       if (object === this.provinceLines || object === this.capitalPoints) return;
       if (object instanceof LineSegments2 && object.material === this.provinceLines.material) {
         object.visible = showProvinces;
+        return;
       }
       if (object instanceof THREE.Points && object.material === this.capitalPoints.material) {
-        object.visible = showProvinceBorders(this.panZoom.halfHeight);
+        object.visible = showProvinceBorders(halfHeight);
+        return;
+      }
+      if (object instanceof LineSegments2) {
+        const material = object.material;
+        if (!Array.isArray(material) && material instanceof LineMaterial) {
+          const showRoad = roadVisibility.get(material);
+          if (showRoad !== undefined) {
+            object.visible = showRoad;
+          }
+        }
       }
     });
     this.updateLabels();
@@ -600,7 +706,7 @@ export class GlobeRenderer {
       COUNTRY_BORDER,
       COUNTRY_BORDER_WIDTH,
       COUNTRY_BORDER_OPACITY,
-      2
+      COUNTRY_RENDER_ORDER
     );
     this.applyLineResolutions();
     this.tileTemplate.add(this.provinceLines, this.countryLines);
@@ -611,7 +717,13 @@ export class GlobeRenderer {
     this.renderer.getDrawingBufferSize(this.lineResolution);
     const width = Math.max(1, Math.floor(this.lineResolution.x));
     const height = Math.max(1, Math.floor(this.lineResolution.y));
-    for (const lines of [this.coastLines, this.provinceLines, this.countryLines]) {
+    const allLines = [
+      this.coastLines,
+      this.provinceLines,
+      this.countryLines,
+      ...this.roadLineEntries.map((entry) => entry.lines)
+    ];
+    for (const lines of allLines) {
       const material = lines.material;
       if (!Array.isArray(material) && material instanceof LineMaterial) {
         material.resolution.set(width, height);
@@ -753,6 +865,9 @@ export class GlobeRenderer {
     disposeWideLines(this.coastLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
+    for (const entry of this.roadLineEntries) {
+      disposeWideLines(entry.lines);
+    }
     this.capitalPoints.geometry.dispose();
     const capitalMaterial = this.capitalPoints.material;
     if (!Array.isArray(capitalMaterial) && capitalMaterial instanceof THREE.PointsMaterial) {

@@ -61,6 +61,7 @@ export function createMapViewModel(
     provinces: pack.provinces,
     coastlines: pack.coastlines,
     boundaries: pack.boundaries,
+    roads: pack.roads,
     countries: pack.countries,
     globeMesh: pack.globeMesh,
     hooks: mergedHooks,

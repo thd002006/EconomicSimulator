@@ -210,6 +210,20 @@
           <button id="btnSplit" type="button">拆分所选</button>
         </div>
 
+        <label>道路编辑</label>
+        <div class="row">
+          <select id="roadTypeSelect">
+            <option value="highway">高速公路</option>
+            <option value="local_road">普通公路</option>
+            <option value="railway">铁路</option>
+          </select>
+        </div>
+        <div class="row">
+          <button id="btnAddRoad" type="button">添加道路</button>
+          <button id="btnDeleteRoad" type="button">删除道路</button>
+        </div>
+        <div id="roadList" class="muted" style="max-height: 120px; overflow: auto; font-size: 0.75rem;"></div>
+
         <label>导出 mapId（建议名）</label>
         <input id="exportMapId" placeholder="world-modern" />
         <button id="btnExport" class="primary" type="button">导出 L3+L4</button>

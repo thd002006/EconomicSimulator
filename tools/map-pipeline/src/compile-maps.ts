@@ -3,13 +3,17 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  adjacencyPairKey,
   computeBBox,
+  EMPTY_ROAD_COLLECTION,
   parseLineGeometry,
   parsePolygonGeometry,
   parseProvinceCapital,
   parseProvinceDescription,
+  parseRoadCollection,
   type GeoJsonGeometry,
-  type LonLat
+  type LonLat,
+  type RoadCollection
 } from "@economic-simulator/map-runtime";
 import {
   aggregateDemographicsFromClasses,
@@ -303,6 +307,32 @@ export async function compilePack(
     }
   }
 
+  const provinceIdSet = new Set(provinces.map((province) => province.id));
+  const adjacencyPairs = new Set<string>();
+  for (const raw of boundaries.features) {
+    if (!isRecord(raw)) continue;
+    const left = typeof raw.leftProvinceId === "string" ? raw.leftProvinceId : undefined;
+    const right = typeof raw.rightProvinceId === "string" ? raw.rightProvinceId : undefined;
+    if (left === undefined || right === undefined) continue;
+    adjacencyPairs.add(adjacencyPairKey(left, right));
+  }
+  const capitals = new Map(provinces.map((province) => [
+    province.id,
+    province.properties.capital.coordinates
+  ] as const));
+
+  let roadsCollection: RoadCollection = EMPTY_ROAD_COLLECTION;
+  if (manifest.layers.roads !== undefined) {
+    const roadsPath = await resolveContainedFile(sourceDir, manifest.layers.roads, "layers.roads");
+    const text = await readFile(roadsPath, "utf8");
+    sourceHashes.roads = sha256(text);
+    roadsCollection = parseRoadCollection(JSON.parse(text) as unknown, {
+      provinceIds: provinceIdSet,
+      adjacencyPairs,
+      capitals
+    });
+  }
+
   const countries: Record<string, { nameEn: string; name?: string }> = {};
   for (const country of authored.countries) {
     countries[country.id] = {
@@ -330,6 +360,7 @@ export async function compilePack(
       features: coastlines
     })
   ).hash;
+  assetHashes.roads = (await writeJson(join(outDir, "roads.json"), roadsCollection)).hash;
   assetHashes.countries = (await writeJson(join(outDir, "countries.json"), countries)).hash;
   assetHashes.demographics = (await writeJson(join(outDir, "demographics.json"), demographics)).hash;
   const provinceDefinitions = buildProvinceDefinitions(manifest.id, authored);
@@ -393,6 +424,7 @@ export async function compilePack(
       provinces: "provinces.json",
       boundaries: "boundaries.json",
       coastlines: "coastlines.json",
+      roads: "roads.json",
       countries: "countries.json",
       demographics: "demographics.json",
       provinceDefinitions: "province-definitions.json",

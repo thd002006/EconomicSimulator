@@ -5,10 +5,12 @@ import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { createHash } from "node:crypto";
 import {
+  EMPTY_PROJECT_ROADS,
   identityGroupsFromIds,
   listProjects,
   loadProject,
   mergeGroups,
+  retainValidRoads,
   saveProject,
   splitGroupWithNames,
   validatePartition,
@@ -280,7 +282,8 @@ export function mapEditorApiPlugin(): Plugin {
                 suggestedMapId: body.suggestedMapId?.trim() || projectId,
                 name: body.name?.trim() || projectId
               },
-              groups: identityGroupsFromIds(index.provinces)
+              groups: identityGroupsFromIds(index.provinces),
+              roads: EMPTY_PROJECT_ROADS
             };
             await saveProject(projectDir, project);
             const baseRoot = join(generatorRoot, "base", baseMapId);
@@ -345,7 +348,11 @@ export function mapEditorApiPlugin(): Plugin {
               name,
               nameEn
             });
-            const next = { ...project, groups };
+            const next = {
+              ...project,
+              groups,
+              roads: retainValidRoads(project.roads, new Set(groups.map((group) => group.id)))
+            };
             await saveProject(projectDir, next);
             return sendJson(res, 200, next);
           }
@@ -357,7 +364,11 @@ export function mapEditorApiPlugin(): Plugin {
             const project = await loadProject(join(generatorRoot, "projects", projectId));
             const index = await loadBaseIndex(project.meta.baseMapId);
             const groups = splitGroupWithNames(project.groups, body.groupId, index.nameById);
-            const next = { ...project, groups };
+            const next = {
+              ...project,
+              groups,
+              roads: retainValidRoads(project.roads, new Set(groups.map((group) => group.id)))
+            };
             await saveProject(join(generatorRoot, "projects", projectId), next);
             return sendJson(res, 200, next);
           }
