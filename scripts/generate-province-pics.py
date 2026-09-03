@@ -255,13 +255,13 @@ def main():
             continue
 
         name = props.get('name', props.get('nameEn', f'p{idx}'))
-        adm0 = props.get('adm0A3', 'UNK')
-        safe = "".join(c if c.isalnum() else '_' for c in name)
-        pid = f"{adm0}_{safe}"
+        pid = feat.get('id')
+        if not isinstance(pid, str) or not pid:
+            log(f"  Skipping [{name}]: missing province feature id")
+            continue
         provinces.append({
             'id': pid,
             'name': name,
-            'adm0A3': adm0,
             'lat': round(centroid.y, 6),
             'lon': round(centroid.x, 6)
         })
@@ -277,17 +277,19 @@ def main():
         provinces = provinces[:test_count]
         print(f"TEST MODE: processing first {test_count} provinces", flush=True)
 
+    batch_size = int(os.environ.get('BATCH_COUNT', str(BATCH_SIZE)))
+
     def is_done(p):
         op = OUTPUT_DIR / f"{p['id']}.png"
         return op.exists() and op.stat().st_size > 1000
 
     incomplete = [p for p in provinces if not is_done(p)]
     print(f"Remaining (no png yet): {len(incomplete)}", flush=True)
-    batch = incomplete[:BATCH_SIZE]
+    batch = incomplete[:batch_size]
     if not batch:
         print("All provinces already processed.", flush=True)
         return
-    print(f"Processing batch of {len(batch)} (limit {BATCH_SIZE})", flush=True)
+    print(f"Processing batch of {len(batch)} (limit {batch_size})", flush=True)
 
     start = time.time()
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:

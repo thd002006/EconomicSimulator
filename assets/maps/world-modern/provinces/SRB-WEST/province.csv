@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SRB-WEST,West Serbia,West Serbia,SRB,21050,3023,0.582,0.83,temperate,temperate,9308770246,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SRB-WEST,West Serbia,West Serbia,SRB,21050,3023,0.582,0.83,temperate,temperate,9308770246,,,,RS-12

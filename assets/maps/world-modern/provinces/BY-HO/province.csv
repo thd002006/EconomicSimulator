@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BY-HO,Gomel,Gomel,BLR,40516,5486,0.45,0.648,temperate,temperate,14200034853,,Homyel,Gomel
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BY-HO,Gomel,Gomel,BLR,40516,5486,0.45,0.648,temperate,temperate,14200034853,,Homyel,Gomel,BY-HO

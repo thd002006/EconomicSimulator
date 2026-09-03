@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PE-SAM,San Martín,San Martín,PER,52915,1387,0.903,0.896,subtropical,subtropical,2367315821,,Moyobamba,Moyobamba
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PE-SAM,San Martín,San Martín,PER,52915,1387,0.903,0.896,subtropical,subtropical,2367315821,,Moyobamba,Moyobamba,PE-SAM

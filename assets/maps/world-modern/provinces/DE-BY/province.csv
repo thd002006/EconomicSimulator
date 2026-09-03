@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DE-BY,Bayern,Bavaria,DEU,69803,18505,0.536,0.781,temperate,temperate,513875508492,,Munich,Munich
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DE-BY,Bayern,Bavaria,DEU,69803,18505,0.536,0.781,temperate,temperate,513875508492,,Munich,Munich,DE-BY

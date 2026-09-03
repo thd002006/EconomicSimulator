@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MAR-G27B6F69,Meknès - Tafilalet–Gharb - Chrarda - Béni Hssen,Meknès-Tafilalet–Gharb-Chrarda-Béni Hssen,MAR,67908,6446,0.328,0.518,temperate,temperate,16540961519,,Kenitra,Kenitra
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MAR-G27B6F69,Meknès - Tafilalet–Gharb - Chrarda - Béni Hssen,Meknès-Tafilalet–Gharb-Chrarda-Béni Hssen,MAR,67908,6446,0.328,0.518,temperate,temperate,16540961519,,Kenitra,Kenitra,MA-06

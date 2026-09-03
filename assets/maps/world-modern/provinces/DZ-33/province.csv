@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZ-33,Illizi,Illizi,DZA,196417,225,0.067,0.02,subtropical,subtropical,4483958223,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DZ-33,Illizi,Illizi,DZA,196417,225,0.067,0.02,subtropical,subtropical,4483958223,,,,DZ-33

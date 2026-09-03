@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PER-G0763204,Áncash–La Libertad,Áncash–La Libertad,PER,60542,2026,0.601,0.78,temperate,temperate,14249828202,,Huaraz,Huaraz
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PER-G0763204,Áncash–La Libertad,Áncash–La Libertad,PER,60542,2026,0.601,0.78,temperate,temperate,14249828202,,Huaraz,Huaraz,PE-LAL

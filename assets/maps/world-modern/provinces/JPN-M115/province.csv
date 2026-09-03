@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-JPN-M115,Kyōto–Fukui–Ishikawa–Toyama–Aichi–Mie–Gifu–Shiga,Kyōto Prefecture–Fukui Prefecture–Ishikawa Prefecture–Toyama Prefecture–Aichi Prefecture–Mie Prefecture–Gifu Prefecture–Shiga Prefecture,JPN,42759,2651,0.769,0.903,temperate,temperate,690335363717,,Toyama,Toyama
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+JPN-M115,Kyōto–Fukui–Ishikawa–Toyama–Aichi–Mie–Gifu–Shiga,Kyōto Prefecture–Fukui Prefecture–Ishikawa Prefecture–Toyama Prefecture–Aichi Prefecture–Mie Prefecture–Gifu Prefecture–Shiga Prefecture,JPN,42759,2651,0.769,0.903,temperate,temperate,690335363717,,Toyama,Toyama,JP-23

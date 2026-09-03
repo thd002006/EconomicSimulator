@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AGO-GEE5C824,Benguela–Huambo,Benguela–Huambo,AGO,73112,2045,0.894,0.886,subtropical,subtropical,11107732351,,Benguela,Benguela
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AGO-GEE5C824,Benguela–Huambo,Benguela–Huambo,AGO,73112,2045,0.894,0.886,subtropical,subtropical,11107732351,,Benguela,Benguela,AO-HUA

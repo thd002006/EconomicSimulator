@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MR-01,Hodh ech Chargui,Hodh Ech Chargui,MRT,185522,197,0.112,0.236,tropical,tropical,914467224,,Nema,Néma
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MR-01,Hodh ech Chargui,Hodh Ech Chargui,MRT,185522,197,0.112,0.236,tropical,tropical,914467224,,Nema,Néma,MR-01

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-WA,Washington,Washington,USA,173552,8818,0.545,0.804,temperate,temperate,268638688185,,Olympia,Olympia
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+US-WA,Washington,Washington,USA,173552,8818,0.545,0.804,temperate,temperate,268638688185,,Olympia,Olympia,US-WA

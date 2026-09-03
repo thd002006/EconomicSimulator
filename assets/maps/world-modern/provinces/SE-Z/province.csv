@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SE-Z,Jämtland,Jämtland,SWE,53681,240,0.197,0.372,boreal,boreal,4198591601,,Östersund,Östersund
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SE-Z,Jämtland,Jämtland,SWE,53681,240,0.197,0.372,boreal,boreal,4198591601,,Östersund,Östersund,SE-Z

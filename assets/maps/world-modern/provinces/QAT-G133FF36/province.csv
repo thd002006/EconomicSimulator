@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-QAT-G133FF36,Qatar,Qatar,QAT,11160,35,0.098,0.164,tropical,tropical,68057770061,,Doha,Doha
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+QAT-G133FF36,Qatar,Qatar,QAT,11160,35,0.098,0.164,tropical,tropical,68057770061,,Doha,Doha,QA-RA

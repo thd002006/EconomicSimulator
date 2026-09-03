@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GNQ-G9D8756F,Mainland Equatorial Guinea,Mainland Equatorial Guinea,GNQ,24783,409,0.888,0.873,subtropical,subtropical,7096762096,,Evinayong,Evinayong
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+GNQ-G9D8756F,Mainland Equatorial Guinea,Mainland Equatorial Guinea,GNQ,24783,409,0.888,0.873,subtropical,subtropical,7096762096,,Evinayong,Evinayong,GQ-LI

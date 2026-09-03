@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AU-SA,South Australia,South Australia,AUS,985018,29539,0.244,0.468,subtropical,subtropical,44513780815,,Adelaide,Adelaide
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AU-SA,South Australia,South Australia,AUS,985018,29539,0.244,0.468,subtropical,subtropical,44513780815,,Adelaide,Adelaide,AU-SA

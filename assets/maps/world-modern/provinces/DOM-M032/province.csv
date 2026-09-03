@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DOM-M032,Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas–Monte Plata,Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas Mirabal–Monte Plata,DOM,8610,786,0.896,0.862,tropical,tropical,7755884930,,Moca,Moca
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DOM-M032,Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas–Monte Plata,Samaná–María Trinidad Sánchez–Espaillat–La Vega–Hermanas Mirabal–Monte Plata,DOM,8610,786,0.896,0.862,tropical,tropical,7755884930,,Moca,Moca,DO-13

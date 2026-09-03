@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZA-GDBC0E08,Central Algeria,Central Algeria,DZA,69103,2510,0.299,0.471,temperate,temperate,33133329623,,Biskra,Biskra
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DZA-GDBC0E08,Central Algeria,Central Algeria,DZA,69103,2510,0.299,0.471,temperate,temperate,33133329623,,Biskra,Biskra,DZ-17

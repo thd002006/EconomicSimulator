@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VNM-M263,Ha Tinh–Quảng Bình,Hà Tĩnh–Quảng Bình,VNM,14645,1932,0.884,0.871,subtropical,subtropical,2729161494,,Hà Tĩnh,Hà Tĩnh
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VNM-M263,Ha Tinh–Quảng Bình,Hà Tĩnh–Quảng Bình,VNM,14645,1932,0.884,0.871,subtropical,subtropical,2729161494,,Hà Tĩnh,Hà Tĩnh,VN-23

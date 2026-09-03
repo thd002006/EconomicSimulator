@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RUS-G7E8E77A,Orel–Kaluga,Oryol–Kaluga,RUS,53916,5978,0.379,0.57,boreal,boreal,19399441269,,Kaluga,Kaluga
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RUS-G7E8E77A,Orel–Kaluga,Oryol–Kaluga,RUS,53916,5978,0.379,0.57,boreal,boreal,19399441269,,Kaluga,Kaluga,RU-KLU

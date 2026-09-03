@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MX-BCN,Baja California,Baja California,MEX,72997,1065,0.171,0.364,subtropical,subtropical,57052965489,,Mexicali,Mexicali
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MX-BCN,Baja California,Baja California,MEX,72997,1065,0.171,0.364,subtropical,subtropical,57052965489,,Mexicali,Mexicali,MX-BCN

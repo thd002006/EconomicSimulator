@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BGD-G743C014,Chittagong–Sylhet,Chattogram–Sylhet,BGD,41265,14605,0.83,0.819,tropical,tropical,53394951328,,Chattogram,Chattogram
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BGD-G743C014,Chittagong–Sylhet,Chattogram–Sylhet,BGD,41265,14605,0.83,0.819,tropical,tropical,53394951328,,Chattogram,Chattogram,BD-B

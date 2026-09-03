@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDG-GD77AB94,Anosy–Androy–Atsimo-Andrefana,Anosy–Androy–Atsimo-Andrefana,MDG,115646,1400,0.864,0.812,tropical,tropical,2809485492,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MDG-GD77AB94,Anosy–Androy–Atsimo-Andrefana,Anosy–Androy–Atsimo-Andrefana,MDG,115646,1400,0.864,0.812,tropical,tropical,2809485492,,,,ne-1159317843

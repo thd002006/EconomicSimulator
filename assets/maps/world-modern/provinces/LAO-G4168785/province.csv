@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LAO-G4168785,Northwest Laos,Northwest Laos,LAO,57002,1878,0.902,0.877,subtropical,subtropical,3734004735,,Ban Houayxay,Ban Houayxay
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LAO-G4168785,Northwest Laos,Northwest Laos,LAO,57002,1878,0.902,0.877,subtropical,subtropical,3734004735,,Ban Houayxay,Ban Houayxay,LA-VI

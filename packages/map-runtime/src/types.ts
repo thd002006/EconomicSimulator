@@ -81,6 +81,7 @@ export interface ProvinceCapital {
 
 export interface ProvinceFeatureProperties extends MapFeatureProperties {
   readonly capital: ProvinceCapital;
+  readonly coreProvinceId?: string;
   /** Short English intro, ≤100 chars (excluding merger prefix). */
   readonly description?: string;
 }

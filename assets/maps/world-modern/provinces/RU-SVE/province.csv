@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-SVE,Sverdlovsk,Sverdlovsk,RUS,193531,2496,0.157,0.341,boreal,boreal,61382370928,,Yekaterinburg,Yekaterinburg
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-SVE,Sverdlovsk,Sverdlovsk,RUS,193531,2496,0.157,0.341,boreal,boreal,61382370928,,Yekaterinburg,Yekaterinburg,RU-SVE

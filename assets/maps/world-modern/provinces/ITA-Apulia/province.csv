@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Apulia,Apulia,Apulia,ITA,19440,4916,0.683,0.784,temperate,temperate,88237855683,,Bari,Bari
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ITA-Apulia,Apulia,Apulia,ITA,19440,4916,0.683,0.784,temperate,temperate,88237855683,,Bari,Bari,IT-LE

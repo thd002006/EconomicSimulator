@@ -67,7 +67,10 @@ describe("loadMapPack", () => {
           features: [
             {
               id: "A",
-              properties: { capital: { coordinates: [0, 0] } },
+              properties: {
+                coreProvinceId: "CORE-A",
+                capital: { coordinates: [0, 0] }
+              },
               bbox: [0, 0, 1, 1],
               lod: [polygon, polygon, polygon]
             }
@@ -118,5 +121,6 @@ describe("loadMapPack", () => {
     expect(requestedMeshFiles).toEqual([`${root}/globe-lod-2.bin`]);
     expect(pack.globeMesh.lods).toHaveLength(1);
     expect(pack.globeMesh.lods[0]?.tolerance).toBe(0);
+    expect(pack.provinces[0]?.properties.coreProvinceId).toBe("CORE-A");
   });
 });

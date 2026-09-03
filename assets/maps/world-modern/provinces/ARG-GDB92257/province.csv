@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ARG-GDB92257,Buenos Aires–Ciudad de Buenos Aires,Buenos Aires–Buenos Aires,ARG,306342,62728,0.886,0.869,temperate,temperate,254782368058,,La Plata,La Plata
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ARG-GDB92257,Buenos Aires–Ciudad de Buenos Aires,Buenos Aires–Buenos Aires,ARG,306342,62728,0.886,0.869,temperate,temperate,254782368058,,La Plata,La Plata,AR-B

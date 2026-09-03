@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ER-DU,Debub,Debub,ERI,33063,264,0.444,0.646,tropical,tropical,1390039622,,Massawa,Massawa
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ER-DU,Debub,Debub,ERI,33063,264,0.444,0.646,tropical,tropical,1390039622,,Massawa,Massawa,ER-DU

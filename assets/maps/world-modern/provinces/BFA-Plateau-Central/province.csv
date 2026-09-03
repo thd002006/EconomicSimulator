@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BFA-Plateau-Central,Plateau-Central,Plateau-Central,BFA,8738,1817,0.752,0.734,tropical,tropical,690442320,,Zorgo,Zorgho
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BFA-Plateau-Central,Plateau-Central,Plateau-Central,BFA,8738,1817,0.752,0.734,tropical,tropical,690442320,,Zorgo,Zorgho,BF-GAN

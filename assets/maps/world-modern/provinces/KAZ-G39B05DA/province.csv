@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KAZ-G39B05DA,Aqmola–Astana,Akmola–Nur-Sultan,KAZ,146551,15941,0.099,0.298,boreal,boreal,14339238226,,Kokshetau,Kokshetau
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+KAZ-G39B05DA,Aqmola–Astana,Akmola–Nur-Sultan,KAZ,146551,15941,0.099,0.298,boreal,boreal,14339238226,,Kokshetau,Kokshetau,KZ-AKM

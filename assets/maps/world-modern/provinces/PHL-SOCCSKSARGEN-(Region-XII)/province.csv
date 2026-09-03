@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PHL-SOCCSKSARGEN-(Region-XII),SOCCSKSARGEN (Region XII),SOCCSKSARGEN (Region XII),PHL,18298,4837,0.869,0.838,tropical,tropical,5706417369,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PHL-SOCCSKSARGEN-(Region-XII),SOCCSKSARGEN (Region XII),SOCCSKSARGEN (Region XII),PHL,18298,4837,0.869,0.838,tropical,tropical,5706417369,,,,ne-1159313393

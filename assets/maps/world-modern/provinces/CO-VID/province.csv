@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CO-VID,Vichada,Vichada,COL,99038,17,0.778,0.8,tropical,tropical,834699271,,Puerto Carreño,Puerto Carreño
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+CO-VID,Vichada,Vichada,COL,99038,17,0.778,0.8,tropical,tropical,834699271,,Puerto Carreño,Puerto Carreño,CO-VID

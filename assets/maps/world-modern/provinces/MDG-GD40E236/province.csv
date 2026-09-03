@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDG-GD40E236,Southeast Madagascar,Southeast Madagascar,MDG,83721,2934,0.896,0.9,subtropical,subtropical,4158868067,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MDG-GD40E236,Southeast Madagascar,Southeast Madagascar,MDG,83721,2934,0.896,0.9,subtropical,subtropical,4158868067,,,,ne-1159309821

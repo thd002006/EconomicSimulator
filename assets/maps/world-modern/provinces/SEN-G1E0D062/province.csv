@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SEN-G1E0D062,Saint-Louis–Louga–Diourbel,Saint-Louis–Louga–Diourbel,SEN,49241,4369,0.379,0.577,tropical,tropical,3923024639,,Diourbel,Diourbel
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SEN-G1E0D062,Saint-Louis–Louga–Diourbel,Saint-Louis–Louga–Diourbel,SEN,49241,4369,0.379,0.577,tropical,tropical,3923024639,,Diourbel,Diourbel,SN-DB

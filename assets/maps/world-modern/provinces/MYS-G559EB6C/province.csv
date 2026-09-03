@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MYS-G559EB6C,Western Malaysia,Western Malaysia,MYS,68234,8042,0.829,0.823,tropical,tropical,230028049139,,Alor Setar,Alor Setar
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MYS-G559EB6C,Western Malaysia,Western Malaysia,MYS,68234,8042,0.829,0.823,tropical,tropical,230028049139,,Alor Setar,Alor Setar,MY-10

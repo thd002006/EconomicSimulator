@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-NGR,Novgorod,Novgorod,RUS,54868,964,0.335,0.525,boreal,boreal,8542570001,,Velikiy Novgorod,Veliky Novgorod
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-NGR,Novgorod,Novgorod,RUS,54868,964,0.335,0.525,boreal,boreal,8542570001,,Velikiy Novgorod,Veliky Novgorod,RU-NGR

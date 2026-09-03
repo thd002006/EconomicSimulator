@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LBY-G4507E69,Al Jifarah–Mizdah,Jafara–Mizdah,LBY,90178,540,0.097,0.144,subtropical,subtropical,8729446526,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LBY-G4507E69,Al Jifarah–Mizdah,Jafara–Mizdah,LBY,90178,540,0.097,0.144,subtropical,subtropical,8729446526,,,,LY-MZ

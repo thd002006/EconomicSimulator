@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TZA-GA8E463C,Dodoma–Manyara,Dodoma–Manyara,TZA,87832,6726,0.862,0.82,subtropical,subtropical,3649866561,,Dodoma,Dodoma
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+TZA-GA8E463C,Dodoma–Manyara,Dodoma–Manyara,TZA,87832,6726,0.862,0.82,subtropical,subtropical,3649866561,,Dodoma,Dodoma,TZ-03

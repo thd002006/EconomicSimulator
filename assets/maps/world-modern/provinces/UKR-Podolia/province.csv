@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-UKR-Podolia,Podolia,Podolia,UKR,48663,12253,0.49,0.694,temperate,temperate,14506937705,,Vinnytsya,Vinnytsia
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+UKR-Podolia,Podolia,Podolia,UKR,48663,12253,0.49,0.694,temperate,temperate,14506937705,,Vinnytsya,Vinnytsia,UA-05

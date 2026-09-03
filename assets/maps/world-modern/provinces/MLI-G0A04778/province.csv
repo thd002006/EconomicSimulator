@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MLI-G0A04778,Koulikoro–Bamako,Koulikoro–Bamako,MLI,92038,7076,0.768,0.73,tropical,tropical,2548138454,,Koulikoro,Koulikoro
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MLI-G0A04778,Koulikoro–Bamako,Koulikoro–Bamako,MLI,92038,7076,0.768,0.73,tropical,tropical,2548138454,,Koulikoro,Koulikoro,ML-2

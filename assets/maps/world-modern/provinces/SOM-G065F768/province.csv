@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SOM-G065F768,Southern Somalia,Southern Somalia,SOM,95039,1818,0.389,0.554,tropical,tropical,924075820,,Mogadishu,Mogadishu
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SOM-G065F768,Southern Somalia,Southern Somalia,SOM,95039,1818,0.389,0.554,tropical,tropical,924075820,,Mogadishu,Mogadishu,SO-SH

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SWE-GCDF9C4E,Southern Sweden,Southern Sweden,SWE,81035,5815,0.452,0.667,temperate,temperate,110736408843,,Jönköping,Jönköping
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SWE-GCDF9C4E,Southern Sweden,Southern Sweden,SWE,81035,5815,0.452,0.667,temperate,temperate,110736408843,,Jönköping,Jönköping,SE-O

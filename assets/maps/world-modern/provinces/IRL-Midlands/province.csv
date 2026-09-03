@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IRL-Midlands,Midlands,Midlands,IRL,6682,203,0.618,0.901,temperate,temperate,11383908405,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IRL-Midlands,Midlands,Midlands,IRL,6682,203,0.618,0.901,temperate,temperate,11383908405,,,,IE-WH

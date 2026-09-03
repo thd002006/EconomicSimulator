@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-UMI-G0E4E063,Baker Island–Howland Island,Baker Island–Howland Island,UMI,1,0,0.761,0.778,tropical,tropical,0,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+UMI-G0E4E063,Baker Island–Howland Island,Baker Island–Howland Island,UMI,1,0,0.761,0.778,tropical,tropical,0,,,,UM-81

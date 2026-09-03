@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DNK-G4CB33B4,Sjaælland–Hovedstaden,Zealand–Denmark,DNK,9661,2527,0.531,0.806,temperate,temperate,123026845171,,København,Copenhagen
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DNK-G4CB33B4,Sjaælland–Hovedstaden,Zealand–Denmark,DNK,9661,2527,0.531,0.806,temperate,temperate,123026845171,,København,Copenhagen,DK-84

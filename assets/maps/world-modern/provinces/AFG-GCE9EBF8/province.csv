@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AFG-GCE9EBF8,Nimroz–Farah,Nimruz–Farah,AFG,91559,778,0.117,0.208,temperate,temperate,604042086,,Farah,Farah
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AFG-GCE9EBF8,Nimroz–Farah,Nimruz–Farah,AFG,91559,778,0.117,0.208,temperate,temperate,604042086,,Farah,Farah,AF-NIM

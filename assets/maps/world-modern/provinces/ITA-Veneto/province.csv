@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Veneto,Veneto,Veneto,ITA,17987,3835,0.696,0.826,temperate,temperate,189793441025,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ITA-Veneto,Veneto,Veneto,ITA,17987,3835,0.696,0.826,temperate,temperate,189793441025,,,,IT-TV

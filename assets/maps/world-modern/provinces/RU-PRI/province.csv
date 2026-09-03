@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-PRI,Primor'ye,Primorsky Krai,RUS,164952,1325,0.211,0.395,boreal,boreal,22158191353,,Vladivostok,Vladivostok
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-PRI,Primor'ye,Primorsky Krai,RUS,164952,1325,0.211,0.395,boreal,boreal,22158191353,,Vladivostok,Vladivostok,RU-PRI

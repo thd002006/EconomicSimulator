@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HND-G16E83E0,Southern Honduras,Southern Honduras,HND,25612,1456,0.89,0.884,subtropical,subtropical,11195997816,,Choluteca,Choluteca
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+HND-G16E83E0,Southern Honduras,Southern Honduras,HND,25612,1456,0.89,0.884,subtropical,subtropical,11195997816,,Choluteca,Choluteca,HN-FM

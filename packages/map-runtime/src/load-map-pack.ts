@@ -74,9 +74,11 @@ function normalizeProvinceProperties(
   id: string
 ): ProvinceFeatureProperties {
   const description = parseProvinceDescription(raw?.description, "provinces", id);
+  const coreProvinceId = asString(raw?.coreProvinceId ?? raw?.core_province_id);
   return {
     ...normalizeProperties(raw),
     capital: parseProvinceCapital(raw?.capital, "provinces", id),
+    ...(coreProvinceId === undefined ? {} : { coreProvinceId }),
     ...(description === undefined ? {} : { description })
   };
 }

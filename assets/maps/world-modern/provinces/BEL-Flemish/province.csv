@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BEL-Flemish,Flemish,Flemish,BEL,13467,2652,0.643,0.85,temperate,temperate,229823172336,,Antwerpen,Antwerp
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BEL-Flemish,Flemish,Flemish,BEL,13467,2652,0.643,0.85,temperate,temperate,229823172336,,Antwerpen,Antwerp,BE-VAN

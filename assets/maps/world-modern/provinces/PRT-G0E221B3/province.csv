@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PRT-G0E221B3,Central Portugal,Central Portugal,PRT,22413,2210,0.856,0.869,temperate,temperate,101091976122,,Coimbra,Coimbra
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PRT-G0E221B3,Central Portugal,Central Portugal,PRT,22413,2210,0.856,0.869,temperate,temperate,101091976122,,Coimbra,Coimbra,PT-11

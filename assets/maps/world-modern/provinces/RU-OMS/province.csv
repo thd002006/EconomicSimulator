@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-OMS,Omsk,Omsk,RUS,140816,14173,0.111,0.324,boreal,boreal,19349100106,,Omsk,Omsk
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-OMS,Omsk,Omsk,RUS,140816,14173,0.111,0.324,boreal,boreal,19349100106,,Omsk,Omsk,RU-OMS

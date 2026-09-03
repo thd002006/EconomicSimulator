@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MDG-CENTRAL-HIGHLAND,Vakinankaratra–Amoron'''i Mania,Vakinankaratra–Amoron'''i Mania,MDG,34512,926,0.903,0.903,subtropical,subtropical,3250651945,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MDG-CENTRAL-HIGHLAND,Vakinankaratra–Amoron'''i Mania,Vakinankaratra–Amoron'''i Mania,MDG,34512,926,0.903,0.903,subtropical,subtropical,3250651945,,,,ne-1159317853

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ML-6,Timbuktu,Tombouctou,MLI,505532,604,0.081,0.123,tropical,tropical,525473445,,Timbuktu,Timbuktu
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ML-6,Timbuktu,Tombouctou,MLI,505532,604,0.081,0.123,tropical,tropical,525473445,,Timbuktu,Timbuktu,ML-6

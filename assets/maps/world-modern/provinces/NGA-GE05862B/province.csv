@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NGA-GE05862B,Kaduna–Federal Capital Territory,Kaduna State–Federal Capital Territory,NGA,52079,14361,0.891,0.843,tropical,tropical,16849705992,,Abuja,Abuja
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+NGA-GE05862B,Kaduna–Federal Capital Territory,Kaduna State–Federal Capital Territory,NGA,52079,14361,0.891,0.843,tropical,tropical,16849705992,,Abuja,Abuja,NG-KD

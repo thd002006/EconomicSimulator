@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HRV-GB961C27,Eastern Croatia,Eastern Croatia,HRV,19933,2396,0.68,0.859,temperate,temperate,13700439360,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+HRV-GB961C27,Eastern Croatia,Eastern Croatia,HRV,19933,2396,0.68,0.859,temperate,temperate,13700439360,,,,HR-14

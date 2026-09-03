@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ML-3,Sikasso,Wassoulou,MLI,71206,7375,0.822,0.812,tropical,tropical,1599799530,,Sikasso,Sikasso
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ML-3,Sikasso,Wassoulou,MLI,71206,7375,0.822,0.812,tropical,tropical,1599799530,,Sikasso,Sikasso,ML-3

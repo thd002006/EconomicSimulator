@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LVA-G1D1DD85,Vidzeme–Latgale,Vidzeme–Latgale,LVA,29312,4083,0.395,0.593,temperate,temperate,8170986055,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LVA-G1D1DD85,Vidzeme–Latgale,Vidzeme–Latgale,LVA,29312,4083,0.395,0.593,temperate,temperate,8170986055,,,,LV-DGV

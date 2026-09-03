@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LAO-SOUTH,Savannakhet–Salavan–Champasak–Sekong–Attapeu,Savannakhet–Salavan–Champasak–Sekong–Attapeu,LAO,63651,2878,0.878,0.85,tropical,tropical,4443921204,,Attapu,Attapeu
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LAO-SOUTH,Savannakhet–Salavan–Champasak–Sekong–Attapeu,Savannakhet–Salavan–Champasak–Sekong–Attapeu,LAO,63651,2878,0.878,0.85,tropical,tropical,4443921204,,Attapu,Attapeu,LA-SV

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KGZ-GA39F522,Chuy–Talas–Bishkek,Chuy–Talas–Bishkek,KGZ,31273,2072,0.161,0.365,boreal,boreal,5714053607,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+KGZ-GA39F522,Chuy–Talas–Bishkek,Chuy–Talas–Bishkek,KGZ,31273,2072,0.161,0.365,boreal,boreal,5714053607,,,,KG-C

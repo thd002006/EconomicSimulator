@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CD-KE,Kasaï-Oriental,Kasaï-Oriental,COD,169580,2115,0.903,0.863,tropical,tropical,2405136480,,Mbuji-Mayi,Mbuji-Mayi
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+CD-KE,Kasaï-Oriental,Kasaï-Oriental,COD,169580,2115,0.903,0.863,tropical,tropical,2405136480,,Mbuji-Mayi,Mbuji-Mayi,CD-KE

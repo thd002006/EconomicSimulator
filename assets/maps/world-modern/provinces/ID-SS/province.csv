@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ID-SS,Sumatera Selatan,South Sumatra,IDN,85072,11286,0.816,0.817,tropical,tropical,32156795364,,Palembang,Palembang
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ID-SS,Sumatera Selatan,South Sumatra,IDN,85072,11286,0.816,0.817,tropical,tropical,32156795364,,Palembang,Palembang,ID-SS

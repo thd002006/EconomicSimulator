@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DOM-M030,Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago,Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago,DOM,9538,1125,0.886,0.856,subtropical,subtropical,13057477396,,Dajabón,Dajabón
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DOM-M030,Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago,Monte Cristi–Dajabón–Puerto Plata–Valverde–Santiago Rodríguez–Santiago,DOM,9538,1125,0.886,0.856,subtropical,subtropical,13057477396,,Dajabón,Dajabón,DO-25

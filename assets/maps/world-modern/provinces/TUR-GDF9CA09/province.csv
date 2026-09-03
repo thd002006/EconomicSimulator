@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TUR-GDF9CA09,Central East Turkey,Central East Turkey,TUR,100413,14531,0.571,0.764,temperate,temperate,56287150666,,Adıyaman,Adıyaman
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+TUR-GDF9CA09,Central East Turkey,Central East Turkey,TUR,100413,14531,0.571,0.764,temperate,temperate,56287150666,,Adıyaman,Adıyaman,TR-63

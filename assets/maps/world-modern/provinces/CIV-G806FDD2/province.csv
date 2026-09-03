@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CIV-G806FDD2,Southeastern Ivory Coast,Southeastern Ivory Coast,CIV,58849,9656,0.849,0.824,tropical,tropical,19513181097,,Abidjan,Abidjan
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+CIV-G806FDD2,Southeastern Ivory Coast,Southeastern Ivory Coast,CIV,58849,9656,0.849,0.824,tropical,tropical,19513181097,,Abidjan,Abidjan,CI-01

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RWA-G5A0388A,Rwanda,Rwanda,RWA,25423,9129,0.9,0.896,subtropical,subtropical,6814162272,,Kigali,Kigali
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RWA-G5A0388A,Rwanda,Rwanda,RWA,25423,9129,0.9,0.896,subtropical,subtropical,6814162272,,Kigali,Kigali,RW-04

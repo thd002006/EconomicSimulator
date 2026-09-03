@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-CT,Chhattisgarh,Chhattisgarh,IND,134886,34444,0.878,0.838,tropical,tropical,39738608892,,Raipur,Raipur
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IN-CT,Chhattisgarh,Chhattisgarh,IND,134886,34444,0.878,0.838,tropical,tropical,39738608892,,Raipur,Raipur,IN-CT

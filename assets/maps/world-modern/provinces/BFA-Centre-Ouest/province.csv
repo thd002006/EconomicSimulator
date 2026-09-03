@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BFA-Centre-Ouest,Centre-Ouest,Centre-Ouest,BFA,21729,2990,0.78,0.762,tropical,tropical,1270222093,,Koudougou,Koudougou
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BFA-Centre-Ouest,Centre-Ouest,Centre-Ouest,BFA,21729,2990,0.78,0.762,tropical,tropical,1270222093,,Koudougou,Koudougou,BF-BLK

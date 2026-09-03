@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VE-C,Apure,Apure,VEN,75416,496,0.814,0.807,tropical,tropical,6402775382,,San Fernando de Apure,San Fernando de Apure
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VE-C,Apure,Apure,VEN,75416,496,0.814,0.807,tropical,tropical,6402775382,,San Fernando de Apure,San Fernando de Apure,VE-C

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-IN,Indiana,Indiana,USA,93676,20578,0.693,0.903,temperate,temperate,252685006760,,Indianapolis,Indianapolis
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+US-IN,Indiana,Indiana,USA,93676,20578,0.693,0.903,temperate,temperate,252685006760,,Indianapolis,Indianapolis,US-IN

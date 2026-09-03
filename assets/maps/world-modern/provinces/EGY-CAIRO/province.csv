@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-EGY-CAIRO,Greater Cairo & Middle Nile,Greater Cairo & Middle Nile,EGY,70967,5997,0.056,0.001,subtropical,subtropical,224825704379,,Beni Suef,Beni Suef
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+EGY-CAIRO,Greater Cairo & Middle Nile,Greater Cairo & Middle Nile,EGY,70967,5997,0.056,0.001,subtropical,subtropical,224825704379,,Beni Suef,Beni Suef,EG-C

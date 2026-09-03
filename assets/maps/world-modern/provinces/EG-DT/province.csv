@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-EG-DT,Dumyat,Damietta,EGY,668,328,0.115,0.22,subtropical,subtropical,6772493088,,Dumyat,Damietta
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+EG-DT,Dumyat,Damietta,EGY,668,328,0.115,0.22,subtropical,subtropical,6772493088,,Dumyat,Damietta,EG-DT

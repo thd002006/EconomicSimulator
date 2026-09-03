@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VUT-M265,Shefa–Malampa–Sanma–Penama–Torba,Shefa–Malampa–Sanma–Penama–Torba,VUT,10614,491,0.828,0.824,tropical,tropical,285922186,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VUT-M265,Shefa–Malampa–Sanma–Penama–Torba,Shefa–Malampa–Sanma–Penama–Torba,VUT,10614,491,0.828,0.824,tropical,tropical,285922186,,,,VU-SEE

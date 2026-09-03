@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IM-X01~,Isle of Man,Isle of Man,IMN,575,0,0.584,0.902,temperate,temperate,1019142119,,Douglas,Douglas
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IM-X01~,Isle of Man,Isle of Man,IMN,575,0,0.584,0.902,temperate,temperate,1019142119,,Douglas,Douglas,IM-X01~

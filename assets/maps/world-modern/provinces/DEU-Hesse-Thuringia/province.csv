@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-Hesse-Thuringia,Hesse-Thuringia,Hesse-Thuringia,DEU,36958,10231,0.547,0.809,temperate,temperate,331307921050,,Wiesbaden,Wiesbaden
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DEU-Hesse-Thuringia,Hesse-Thuringia,Hesse-Thuringia,DEU,36958,10231,0.547,0.809,temperate,temperate,331307921050,,Wiesbaden,Wiesbaden,DE-HE

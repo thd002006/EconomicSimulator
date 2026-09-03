@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VEN-GA617F5A,Northwest Venezuela,Northwest Venezuela,VEN,85051,2599,0.858,0.82,tropical,tropical,50111432144,,San Carlos,San Carlos
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VEN-GA617F5A,Northwest Venezuela,Northwest Venezuela,VEN,85051,2599,0.858,0.82,tropical,tropical,50111432144,,San Carlos,San Carlos,VE-K

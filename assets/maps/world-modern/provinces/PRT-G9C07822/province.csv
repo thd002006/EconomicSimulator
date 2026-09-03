@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PRT-G9C07822,Faro–Beja–Setúbal,Faro–Beja–Setúbal,PRT,20318,2446,0.805,0.802,temperate,temperate,40572068086,,Beja,Beja
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PRT-G9C07822,Faro–Beja–Setúbal,Faro–Beja–Setúbal,PRT,20318,2446,0.805,0.802,temperate,temperate,40572068086,,Beja,Beja,PT-15

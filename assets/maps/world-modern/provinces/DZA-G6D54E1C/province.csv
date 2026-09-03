@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZA-G6D54E1C,El Oued–Khenchela,El Oued–Khenchela,DZA,56251,697,0.13,0.21,subtropical,subtropical,14235585129,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DZA-G6D54E1C,El Oued–Khenchela,El Oued–Khenchela,DZA,56251,697,0.13,0.21,subtropical,subtropical,14235585129,,,,DZ-39

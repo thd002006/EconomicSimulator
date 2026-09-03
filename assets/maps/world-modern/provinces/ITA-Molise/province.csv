@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ITA-Molise,Molise,Molise,ITA,4515,697,0.683,0.806,temperate,temperate,8476148361,,Campobasso,Campobasso
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ITA-Molise,Molise,Molise,ITA,4515,697,0.683,0.806,temperate,temperate,8476148361,,Campobasso,Campobasso,IT-CB

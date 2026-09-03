@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LTU-G9A1454C,Northern Lithuania,Northern Lithuania,LTU,27580,5447,0.439,0.637,temperate,temperate,15991115070,,Kaunas,Kaunas
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LTU-G9A1454C,Northern Lithuania,Northern Lithuania,LTU,27580,5447,0.439,0.637,temperate,temperate,15991115070,,Kaunas,Kaunas,LT-KU

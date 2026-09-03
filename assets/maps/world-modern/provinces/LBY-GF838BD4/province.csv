@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LBY-GF838BD4,Ghadamis–An Nuqat al Khams,Ghadames–Nuqat al Khams,LBY,74296,266,0.091,0.12,subtropical,subtropical,7547022386,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LBY-GF838BD4,Ghadamis–An Nuqat al Khams,Ghadames–Nuqat al Khams,LBY,74296,266,0.091,0.12,subtropical,subtropical,7547022386,,,,LY-NQ

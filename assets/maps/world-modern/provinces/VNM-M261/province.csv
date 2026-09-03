@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VNM-M261,Long An–Ðong Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Can Tho,Long An–Đồng Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Cần Thơ,VNM,19961,8933,0.806,0.804,tropical,tropical,22970212147,,Tan An,Tân An
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VNM-M261,Long An–Ðong Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Can Tho,Long An–Đồng Tháp–An Giang–Tiền Giang–Vĩnh Long–Trà Vinh–Bến Tre–Cần Thơ,VNM,19961,8933,0.806,0.804,tropical,tropical,22970212147,,Tan An,Tân An,VN-45

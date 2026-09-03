@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-BR-BA,Bahia,Bahia,BRA,562219,24855,0.888,0.849,subtropical,subtropical,73633600398,,Salvador,Salvador
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+BR-BA,Bahia,Bahia,BRA,562219,24855,0.888,0.849,subtropical,subtropical,73633600398,,Salvador,Salvador,BR-BA

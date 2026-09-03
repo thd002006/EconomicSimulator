@@ -19,6 +19,20 @@ import {
 } from "./game-lookups.js";
 import type { MapSelection } from "./selection.js";
 
+const provincePictureModules = import.meta.glob<string>("../../../../assets/provincePics/*", {
+  eager: true,
+  query: "?url",
+  import: "default"
+});
+
+const provincePicturesById = new Map(
+  Object.entries(provincePictureModules).map(([path, url]) => {
+    const filename = path.slice(path.lastIndexOf("/") + 1);
+    const extensionIndex = filename.lastIndexOf(".");
+    return [extensionIndex < 0 ? filename : filename.slice(0, extensionIndex), url];
+  })
+);
+
 function Stats(props: {
   readonly rows: readonly (readonly [string, string])[];
 }): React.JSX.Element {
@@ -104,6 +118,8 @@ export function buildSelectionPanelModel(
     const country = ownerId === undefined ? "—" : countryDisplayName(lookups, ownerId);
     const name = provinceDisplayName(feature, selection.id);
     const description = feature?.properties.description?.trim() || "—";
+    const coreProvinceId = feature?.properties.coreProvinceId ?? selection.id;
+    const provincePicture = provincePicturesById.get(coreProvinceId);
     const tabs: EntityPanelTab[] = [
       {
         id: "overview",
@@ -184,10 +200,14 @@ export function buildSelectionPanelModel(
       headerMedia: (
         <img
           className="inspector-terrain"
-          src={terrainPlaceholder}
+          src={provincePicture ?? terrainPlaceholder}
           alt=""
           width={640}
           height={240}
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = terrainPlaceholder;
+          }}
         />
       ),
       tabs

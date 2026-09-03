@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SYR-GA90763C,Northern Syria,Northern Syria,SYR,57331,12212,0.414,0.611,temperate,temperate,33536601762,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SYR-GA90763C,Northern Syria,Northern Syria,SYR,57331,12212,0.414,0.611,temperate,temperate,33536601762,,,,SY-HL

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NG-BO,Borno,Borno State,NGA,71314,17062,0.692,0.708,tropical,tropical,6727569396,,Maiduguri,Maiduguri
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+NG-BO,Borno,Borno State,NGA,71314,17062,0.692,0.708,tropical,tropical,6727569396,,Maiduguri,Maiduguri,NG-BO

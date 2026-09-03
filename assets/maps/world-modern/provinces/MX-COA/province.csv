@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MX-COA,Coahuila,Coahuila,MEX,151243,1351,0.409,0.641,subtropical,subtropical,45912750553,,Saltillo,Saltillo
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MX-COA,Coahuila,Coahuila,MEX,151243,1351,0.409,0.641,subtropical,subtropical,45912750553,,Saltillo,Saltillo,MX-COA

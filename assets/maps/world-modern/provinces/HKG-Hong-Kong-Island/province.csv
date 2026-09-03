@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HKG-Hong-Kong-Island,Hong Kong Island,Hong Kong Island,HKG,82,0,0.897,0.898,subtropical,subtropical,5626915840,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+HKG-Hong-Kong-Island,Hong Kong Island,Hong Kong Island,HKG,82,0,0.897,0.898,subtropical,subtropical,5626915840,,,,HK-X01~

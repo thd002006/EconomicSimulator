@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IN-RJ,Rajasthan,Rajasthan,IND,343715,102727,0.568,0.708,tropical,tropical,129762694941,,Jaipur,Jaipur
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IN-RJ,Rajasthan,Rajasthan,IND,343715,102727,0.568,0.708,tropical,tropical,129762694941,,Jaipur,Jaipur,IN-RJ

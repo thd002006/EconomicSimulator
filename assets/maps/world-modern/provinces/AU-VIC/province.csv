@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AU-VIC,Victoria,Victoria,AUS,227834,42080,0.816,0.827,temperate,temperate,157166847512,,Melbourne,Melbourne
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AU-VIC,Victoria,Victoria,AUS,227834,42080,0.816,0.827,temperate,temperate,157166847512,,Melbourne,Melbourne,AU-VIC

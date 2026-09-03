@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NOR-M175,Aust-Agder–Vest-Agder–Rogaland–Hordaland,Aust-Agder–Vest-Agder–Rogaland–Hordaland,NOR,40399,514,0.339,0.567,boreal,boreal,52712254279,,Arendal,Arendal
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+NOR-M175,Aust-Agder–Vest-Agder–Rogaland–Hordaland,Aust-Agder–Vest-Agder–Rogaland–Hordaland,NOR,40399,514,0.339,0.567,boreal,boreal,52712254279,,Arendal,Arendal,NO-12

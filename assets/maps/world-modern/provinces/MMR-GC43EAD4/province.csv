@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MMR-GC43EAD4,MTYB Region,MTYB Region,MMR,95380,15686,0.799,0.798,tropical,tropical,15723959509,,Bago,Bago
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MMR-GC43EAD4,MTYB Region,MTYB Region,MMR,95380,15686,0.799,0.798,tropical,tropical,15723959509,,Bago,Bago,MM-06

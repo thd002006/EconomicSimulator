@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ATG-G4010872,Antigua and Barbuda,Antigua and Barbuda,ATG,444,13,0.84,0.817,tropical,tropical,988183770,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ATG-G4010872,Antigua and Barbuda,Antigua and Barbuda,ATG,444,13,0.84,0.817,tropical,tropical,988183770,,,,AG-03

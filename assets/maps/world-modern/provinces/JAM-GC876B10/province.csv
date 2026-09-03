@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-JAM-GC876B10,Jamaica,Jamaica,JAM,11061,788,0.894,0.862,subtropical,subtropical,19573430750,,Kingston,Kingston
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+JAM-GC876B10,Jamaica,Jamaica,JAM,11061,788,0.894,0.862,subtropical,subtropical,19573430750,,Kingston,Kingston,JM-14

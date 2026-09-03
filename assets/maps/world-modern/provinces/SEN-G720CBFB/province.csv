@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SEN-G720CBFB,Southern Senegal,Southern Senegal,SEN,47299,2497,0.813,0.805,tropical,tropical,2817989806,,Kolda,Kolda
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SEN-G720CBFB,Southern Senegal,Southern Senegal,SEN,47299,2497,0.813,0.805,tropical,tropical,2817989806,,Kolda,Kolda,SN-KD

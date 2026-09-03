@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TZA-G38A2EAE,Tanga–Pwani–Dar-Es-Salaam,Tanga–Pwani–Dar es Salaam,TZA,61460,5233,0.88,0.847,tropical,tropical,7950586960,,Dar es Salaam,Dar es Salaam
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+TZA-G38A2EAE,Tanga–Pwani–Dar-Es-Salaam,Tanga–Pwani–Dar es Salaam,TZA,61460,5233,0.88,0.847,tropical,tropical,7950586960,,Dar es Salaam,Dar es Salaam,TZ-02

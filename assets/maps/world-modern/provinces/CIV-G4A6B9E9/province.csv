@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CIV-G4A6B9E9,Western Ivory Coast,Western Ivory Coast,CIV,46461,7686,0.887,0.844,tropical,tropical,5968761747,,Daloa,Daloa
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+CIV-G4A6B9E9,Western Ivory Coast,Western Ivory Coast,CIV,46461,7686,0.887,0.844,tropical,tropical,5968761747,,Daloa,Daloa,CI-02

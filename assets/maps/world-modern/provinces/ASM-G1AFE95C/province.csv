@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ASM-G1AFE95C,American Samoa,American Samoa,ASM,179,18,0.756,0.763,tropical,tropical,127617472,,Pago Pago,Pago Pago
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ASM-G1AFE95C,American Samoa,American Samoa,ASM,179,18,0.756,0.763,tropical,tropical,127617472,,Pago Pago,Pago Pago,AS-X01~

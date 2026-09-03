@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MN-057,Dzavhan,Zavkhan,MNG,81745,4,0.05,0.103,boreal,boreal,149996405,,Uliastay,Uliastai
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MN-057,Dzavhan,Zavkhan,MNG,81745,4,0.05,0.103,boreal,boreal,149996405,,Uliastay,Uliastai,MN-057

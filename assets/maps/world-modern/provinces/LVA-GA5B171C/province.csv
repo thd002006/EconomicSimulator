@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-LVA-GA5B171C,Riga–Zemgale–Kurzeme,Riga–Zemgale–Kurzeme,LVA,34949,5155,0.435,0.638,temperate,temperate,19383012282,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+LVA-GA5B171C,Riga–Zemgale–Kurzeme,Riga–Zemgale–Kurzeme,LVA,34949,5155,0.435,0.638,temperate,temperate,19383012282,,,,LV-RIX

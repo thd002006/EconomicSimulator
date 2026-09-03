@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VEN-G01A324A,Insular Venezuela,Insular Venezuela,VEN,1385,6,0.801,0.761,tropical,tropical,4120645408,,La Asunción,La Asunción
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VEN-G01A324A,Insular Venezuela,Insular Venezuela,VEN,1385,6,0.801,0.761,tropical,tropical,4120645408,,La Asunción,La Asunción,VE-O

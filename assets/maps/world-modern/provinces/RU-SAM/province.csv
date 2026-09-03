@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-SAM,Samara,Samara,RUS,53067,8625,0.29,0.528,boreal,boreal,55530613465,,Samara,Samara
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-SAM,Samara,Samara,RUS,53067,8625,0.29,0.528,boreal,boreal,55530613465,,Samara,Samara,RU-SAM

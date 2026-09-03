@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-GTM-GC531D6D,Western Guatemala,Western Guatemala,GTM,39285,3881,0.872,0.878,temperate,temperate,57853330377,,Chimaltenango,Chimaltenango
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+GTM-GC531D6D,Western Guatemala,Western Guatemala,GTM,39285,3881,0.872,0.878,temperate,temperate,57853330377,,Chimaltenango,Chimaltenango,GT-SA

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-RU-NVS,Novosibirsk,Novosibirsk,RUS,177084,17623,0.105,0.316,boreal,boreal,29250252466,,Novosibirsk,Novosibirsk
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+RU-NVS,Novosibirsk,Novosibirsk,RUS,177084,17623,0.105,0.316,boreal,boreal,29250252466,,Novosibirsk,Novosibirsk,RU-NVS

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SYR-GBC8A02F,Southern Syria,Southern Syria,SYR,29432,2659,0.218,0.426,temperate,temperate,23152078188,,Damascus,Damascus
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SYR-GBC8A02F,Southern Syria,Southern Syria,SYR,29432,2659,0.218,0.426,temperate,temperate,23152078188,,Damascus,Damascus,SY-RD

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ZWE-G7BADF62,Matabeleland South–Bulawayo,Matabeleland South–Bulawayo,ZWE,55111,1607,0.677,0.782,subtropical,subtropical,3752071290,,Bulawayo,Bulawayo
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ZWE-G7BADF62,Matabeleland South–Bulawayo,Matabeleland South–Bulawayo,ZWE,55111,1607,0.677,0.782,subtropical,subtropical,3752071290,,Bulawayo,Bulawayo,ZW-MS

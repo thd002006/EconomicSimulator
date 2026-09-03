@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DZA-G07F5591,Northwest Algeria,Northwest Algeria,DZA,60470,4751,0.375,0.594,temperate,temperate,31290860489,,Tlimcen,Tlemcen
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DZA-G07F5591,Northwest Algeria,Northwest Algeria,DZA,60470,4751,0.375,0.594,temperate,temperate,31290860489,,Tlimcen,Tlemcen,DZ-31

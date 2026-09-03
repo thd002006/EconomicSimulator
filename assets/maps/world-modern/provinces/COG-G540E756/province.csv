@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-COG-G540E756,Cuvette–Cuvette-Ouest,Cuvette–Cuvette-Ouest,COG,70747,370,0.9,0.852,tropical,tropical,872022450,,Ewo,Ewo
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+COG-G540E756,Cuvette–Cuvette-Ouest,Cuvette–Cuvette-Ouest,COG,70747,370,0.9,0.852,tropical,tropical,872022450,,Ewo,Ewo,CG-8

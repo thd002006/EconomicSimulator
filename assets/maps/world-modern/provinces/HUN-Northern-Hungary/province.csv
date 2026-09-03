@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-HUN-Northern-Hungary,Northern Hungary,Northern Hungary,HUN,13171,2485,0.531,0.796,temperate,temperate,17212493124,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+HUN-Northern-Hungary,Northern Hungary,Northern Hungary,HUN,13171,2485,0.531,0.796,temperate,temperate,17212493124,,,,HU-BZ

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PS-WBK,West Bank,West Bank,PSX,5736,533,0.533,0.762,subtropical,subtropical,9108362622,,Ramallah,Ramallah
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PS-WBK,West Bank,West Bank,PSX,5736,533,0.533,0.762,subtropical,subtropical,9108362622,,Ramallah,Ramallah,PS-WBK

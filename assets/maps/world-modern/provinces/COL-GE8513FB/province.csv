@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-COL-GE8513FB,Central Colombia,Central Colombia,COL,94397,4986,0.889,0.901,subtropical,subtropical,150805709553,,Tunja,Tunja
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+COL-GE8513FB,Central Colombia,Central Colombia,COL,94397,4986,0.889,0.901,subtropical,subtropical,150805709553,,Tunja,Tunja,ne-1159310129

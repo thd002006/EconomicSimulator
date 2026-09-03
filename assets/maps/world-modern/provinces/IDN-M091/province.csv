@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IDN-M091,Jawa Barat–Jakarta Raya–Banten–Bangka-Belitung,West Java–Jakarta–Banten–Bangka Belitung Islands,IDN,64208,10478,0.831,0.836,subtropical,subtropical,451659352235,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IDN-M091,Jawa Barat–Jakarta Raya–Banten–Bangka-Belitung,West Java–Jakarta–Banten–Bangka Belitung Islands,IDN,64208,10478,0.831,0.836,subtropical,subtropical,451659352235,,,,ID-JB

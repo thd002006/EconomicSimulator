@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MM-11,Kachin,Kachin State,MMR,88127,1734,0.881,0.903,subtropical,subtropical,1394029582,,Myitkyina,Myitkyina
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MM-11,Kachin,Kachin State,MMR,88127,1734,0.881,0.903,subtropical,subtropical,1394029582,,Myitkyina,Myitkyina,MM-11

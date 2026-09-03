@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-CHL-G1BEF6FC,Central Chile,Central Chile,CHL,87011,2548,0.346,0.571,temperate,temperate,150697639760,,La Serena,La Serena
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+CHL-G1BEF6FC,Central Chile,Central Chile,CHL,87011,2548,0.346,0.571,temperate,temperate,150697639760,,La Serena,La Serena,CL-RM

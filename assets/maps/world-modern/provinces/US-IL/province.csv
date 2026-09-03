@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-IL,Illinois,Illinois,USA,145944,37263,0.699,0.899,temperate,temperate,618320077136,,Springfield,Springfield
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+US-IL,Illinois,Illinois,USA,145944,37263,0.699,0.899,temperate,temperate,618320077136,,Springfield,Springfield,US-IL

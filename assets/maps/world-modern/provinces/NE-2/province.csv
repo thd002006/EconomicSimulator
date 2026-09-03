@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-NE-2,Diffa,Diffa,NER,145463,2567,0.112,0.223,tropical,tropical,201368605,,Diffa,Diffa
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+NE-2,Diffa,Diffa,NER,145463,2567,0.112,0.223,tropical,tropical,201368605,,Diffa,Diffa,NE-2

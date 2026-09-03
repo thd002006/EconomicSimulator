@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SLB-M202,Rennell and Bellona–Makira–Capital Territory (Honiara)–Guadalcanal–Central–Choiseul,Rennell and Bellona–Makira-Ulawa–Honiara–Guadalcanal–Central–Choiseul,SLB,12697,271,0.807,0.802,tropical,tropical,224060417,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SLB-M202,Rennell and Bellona–Makira–Capital Territory (Honiara)–Guadalcanal–Central–Choiseul,Rennell and Bellona–Makira-Ulawa–Honiara–Guadalcanal–Central–Choiseul,SLB,12697,271,0.807,0.802,tropical,tropical,224060417,,,,SB-GU

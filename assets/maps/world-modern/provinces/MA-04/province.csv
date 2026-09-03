@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MA-04,Oriental,Oriental,MAR,58240,2527,0.299,0.526,temperate,temperate,7044169060,,Oujda,Taza
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MA-04,Oriental,Oriental,MAR,58240,2527,0.299,0.526,temperate,temperate,7044169060,,Oujda,Taza,MA-04

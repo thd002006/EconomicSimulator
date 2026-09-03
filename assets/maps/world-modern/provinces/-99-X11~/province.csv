@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
--99-X11~,Somaliland,Somaliland,SOL,168140,411,0.185,0.38,tropical,tropical,1062124646,,Hargeisa,Hargeisa
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+-99-X11~,Somaliland,Somaliland,SOL,168140,411,0.185,0.38,tropical,tropical,1062124646,,Hargeisa,Hargeisa,-99-X11~

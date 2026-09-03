@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AZE-Aran-Economic-Region,Aran Economic Region,Aran Economic Region,AZE,21763,3545,0.426,0.66,temperate,temperate,8793720274,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AZE-Aran-Economic-Region,Aran Economic Region,Aran Economic Region,AZE,21763,3545,0.426,0.66,temperate,temperate,8793720274,,,,AZ-BAR

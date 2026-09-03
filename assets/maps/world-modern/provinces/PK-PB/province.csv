@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PK-PB,Punjab,Punjab,PAK,204044,59478,0.398,0.599,tropical,tropical,262123893425,,Lahore,Lahore
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PK-PB,Punjab,Punjab,PAK,204044,59478,0.398,0.599,tropical,tropical,262123893425,,Lahore,Lahore,PK-PB

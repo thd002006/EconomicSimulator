@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-US-OH,Ohio,Ohio,USA,106886,18746,0.663,0.898,temperate,temperate,501855020932,,Columbus,Columbus
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+US-OH,Ohio,Ohio,USA,106886,18746,0.663,0.898,temperate,temperate,501855020932,,Columbus,Columbus,US-OH

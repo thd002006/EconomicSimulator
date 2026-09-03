@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-SOM-G8BC2F8B,Gedo–Jubbada Hoose,Gedo–Lower Juba,SOM,95262,275,0.481,0.647,tropical,tropical,456322075,,Garbahaarey,Garbahaareey
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+SOM-G8BC2F8B,Gedo–Jubbada Hoose,Gedo–Lower Juba,SOM,95262,275,0.481,0.647,tropical,tropical,456322075,,Garbahaarey,Garbahaareey,SO-GE

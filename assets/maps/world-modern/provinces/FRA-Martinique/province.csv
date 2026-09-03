@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FRA-Martinique,Martinique,Martinique,FRA,1103,79,0.881,0.839,tropical,tropical,2744300050,,Fort-de-France,Fort-de-France
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+FRA-Martinique,Martinique,Martinique,FRA,1103,79,0.881,0.839,tropical,tropical,2744300050,,Fort-de-France,Fort-de-France,FR-MQ

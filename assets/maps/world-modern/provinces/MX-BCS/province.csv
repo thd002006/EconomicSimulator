@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MX-BCS,Baja California Sur,Baja California Sur,MEX,72253,404,0.175,0.374,subtropical,subtropical,7704942322,,La Paz,La Paz
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MX-BCS,Baja California Sur,Baja California Sur,MEX,72253,404,0.175,0.374,subtropical,subtropical,7704942322,,La Paz,La Paz,MX-BCS

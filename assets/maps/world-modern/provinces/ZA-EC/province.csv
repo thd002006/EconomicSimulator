@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ZA-EC,Eastern Cape,Eastern Cape,ZAF,169477,3619,0.822,0.803,temperate,temperate,63218603267,,Bhisho,Bhisho
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ZA-EC,Eastern Cape,Eastern Cape,ZAF,169477,3619,0.822,0.803,temperate,temperate,63218603267,,Bhisho,Bhisho,ZA-EC

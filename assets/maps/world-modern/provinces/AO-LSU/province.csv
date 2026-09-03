@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-AO-LSU,Lunda Sul,Lunda Sul,AGO,77993,541,0.903,0.903,subtropical,subtropical,687959578,,Saurimo,Saurimo
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+AO-LSU,Lunda Sul,Lunda Sul,AGO,77993,541,0.903,0.903,subtropical,subtropical,687959578,,Saurimo,Saurimo,AO-LSU

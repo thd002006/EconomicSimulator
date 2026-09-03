@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IRL-South-East,South-East,South-East,IRL,9218,530,0.631,0.903,temperate,temperate,16731553184,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IRL-South-East,South-East,South-East,IRL,9218,530,0.631,0.903,temperate,temperate,16731553184,,,,IE-KK

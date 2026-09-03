@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PNG-M199,West New Britain–New Ireland–Manus,West New Britain–New Ireland–Manus,PNG,31913,89,0.798,0.788,tropical,tropical,595510674,,Lorengau,Lorengau
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PNG-M199,West New Britain–New Ireland–Manus,West New Britain–New Ireland–Manus,PNG,31913,89,0.798,0.788,tropical,tropical,595510674,,Lorengau,Lorengau,PG-WBK

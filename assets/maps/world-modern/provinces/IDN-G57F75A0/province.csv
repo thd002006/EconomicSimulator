@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-IDN-G57F75A0,Lampung–Bengkulu,Lampung–Bengkulu,IDN,54160,8598,0.838,0.835,tropical,tropical,26823446201,,Bengkulu,Bengkulu
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+IDN-G57F75A0,Lampung–Bengkulu,Lampung–Bengkulu,IDN,54160,8598,0.838,0.835,tropical,tropical,26823446201,,Bengkulu,Bengkulu,ID-LA

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MOZ-G225CEBB,Maputo–Gaza,Maputo–Gaza,MOZ,100644,3526,0.826,0.785,subtropical,subtropical,3596580233,,Xai-Xai,Xai-Xai
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MOZ-G225CEBB,Maputo–Gaza,Maputo–Gaza,MOZ,100644,3526,0.826,0.785,subtropical,subtropical,3596580233,,Xai-Xai,Xai-Xai,MZ-G

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-KAZ-G8F478C8,Almaty–Almaty City,Almaty–Almaty,KAZ,212655,7470,0.209,0.501,temperate,temperate,39849992603,,Taldyqorghan,Taldykorgan
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+KAZ-G8F478C8,Almaty–Almaty City,Almaty–Almaty,KAZ,212655,7470,0.209,0.501,temperate,temperate,39849992603,,Taldyqorghan,Taldykorgan,KZ-ALA

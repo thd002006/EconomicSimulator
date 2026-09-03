@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TUR-M232,Kirklareli–Edirne–Tekirdag–Çanakkale–Balikesir,Kırklareli–Edirne–Tekirdağ–Çanakkale–Balıkesir,TUR,43322,6484,0.781,0.821,temperate,temperate,46635936948,,Balıkesir,Balıkesir
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+TUR-M232,Kirklareli–Edirne–Tekirdag–Çanakkale–Balikesir,Kırklareli–Edirne–Tekirdağ–Çanakkale–Balıkesir,TUR,43322,6484,0.781,0.821,temperate,temperate,46635936948,,Balıkesir,Balıkesir,TR-10

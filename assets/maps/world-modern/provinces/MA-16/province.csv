@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MA-16,Oued el Dahab,Oued Ed-Dahab,MAR,75710,0,0.074,0.05,subtropical,subtropical,151448781,,Ad Dakhla,Dakhla
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MA-16,Oued el Dahab,Oued Ed-Dahab,MAR,75710,0,0.074,0.05,subtropical,subtropical,151448781,,Ad Dakhla,Dakhla,MA-16

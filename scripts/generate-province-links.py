@@ -85,8 +85,10 @@ def main():
 
                 name = props.get('name', props.get('nameEn', f'p{idx}'))
                 adm0 = props.get('adm0A3', 'UNK')
-                safe = "".join(c if c.isalnum() else '_' for c in name)
-                pid = f"{adm0}_{safe}"
+                pid = feat.get('id')
+                if not isinstance(pid, str) or not pid:
+                    print(f"  Skipping [{name}]: missing province feature id")
+                    continue
                 provinces.append({
                     'id': pid,
                     'name': name,

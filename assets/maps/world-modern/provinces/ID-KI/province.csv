@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ID-KI,Kalimantan Timur,East Kalimantan,IDN,196557,12800,0.815,0.811,tropical,tropical,52262940373,,Samarinda,Samarinda
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ID-KI,Kalimantan Timur,East Kalimantan,IDN,196557,12800,0.815,0.811,tropical,tropical,52262940373,,Samarinda,Samarinda,ID-KI

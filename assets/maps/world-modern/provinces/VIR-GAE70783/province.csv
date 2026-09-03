@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-VIR-GAE70783,US Virgin Islands,US Virgin Islands,VIR,343,0,0.859,0.829,tropical,tropical,416323392,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+VIR-GAE70783,US Virgin Islands,US Virgin Islands,VIR,343,0,0.859,0.829,tropical,tropical,416323392,,,,VI-X01~

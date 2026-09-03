@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-DEU-G5B64D10,Northwest Germany,Northwest Germany,DEU,48544,16659,0.574,0.842,temperate,temperate,399333211321,,Bremen,Bremen
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+DEU-G5B64D10,Northwest Germany,Northwest Germany,DEU,48544,16659,0.574,0.842,temperate,temperate,399333211321,,Bremen,Bremen,DE-NI

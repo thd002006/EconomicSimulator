@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-FIN-G2C0C7E1,Western Finland,Western Finland,FIN,49154,1671,0.203,0.386,boreal,boreal,16535838156,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+FIN-G2C0C7E1,Western Finland,Western Finland,FIN,49154,1671,0.203,0.386,boreal,boreal,16535838156,,,,FI-14

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ER-GB,Gash Barka,Gash-Barka,ERI,33791,1189,0.556,0.694,tropical,tropical,853935640,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ER-GB,Gash Barka,Gash-Barka,ERI,33791,1189,0.556,0.694,tropical,tropical,853935640,,,,ER-GB

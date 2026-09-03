@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-ESP-Andalucía,Andalucía,Andalucía,ESP,87651,13926,0.716,0.787,temperate,temperate,161887955725,,,
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+ESP-Andalucía,Andalucía,Andalucía,ESP,87651,13926,0.716,0.787,temperate,temperate,161887955725,,,,ES-SE

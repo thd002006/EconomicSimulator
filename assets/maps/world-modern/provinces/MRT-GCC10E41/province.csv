@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-MRT-GCC10E41,Brakna–Gorgol–Guidimaka–Assaba,Brakna–Gorgol–Guidimaka–Assaba,MRT,93479,1209,0.205,0.397,tropical,tropical,3172888425,,Kiffa,Kiffa
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+MRT-GCC10E41,Brakna–Gorgol–Guidimaka–Assaba,Brakna–Gorgol–Guidimaka–Assaba,MRT,93479,1209,0.205,0.397,tropical,tropical,3172888425,,Kiffa,Kiffa,MR-05

@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-TZA-GFC61B3F,Northwest Tanzania,Northwest Tanzania,TZA,105787,12745,0.873,0.838,subtropical,subtropical,5929970558,,Mwanza,Mwanza
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+TZA-GFC61B3F,Northwest Tanzania,Northwest Tanzania,TZA,105787,12745,0.873,0.838,subtropical,subtropical,5929970558,,Mwanza,Mwanza,TZ-18

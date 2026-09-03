@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-POL-GDD396F4,Southern Poland,Southern Poland,POL,64194,11656,0.501,0.751,temperate,temperate,169160713629,,Łódź,Łódź
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+POL-GDD396F4,Southern Poland,Southern Poland,POL,64194,11656,0.501,0.751,temperate,temperate,169160713629,,Łódź,Łódź,PL-SL

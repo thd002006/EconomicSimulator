@@ -1,2 +1,2 @@
-id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en
-PAK-GD8A1E18,KFI Region,KFI Region,PAK,103269,8656,0.744,0.803,temperate,temperate,72255992542,,Islamabad,Islamabad
+id,name,name_en,owner_country_id,land_area_km2,arable_land_km2,cultivation_condition,habitability,terrain_profile_id,climate_profile_id,gdp_ppp,description,capital_name,capital_name_en,core_province_id
+PAK-GD8A1E18,KFI Region,KFI Region,PAK,103269,8656,0.744,0.803,temperate,temperate,72255992542,,Islamabad,Islamabad,PK-KP
