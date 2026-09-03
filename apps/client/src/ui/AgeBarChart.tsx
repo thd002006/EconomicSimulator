@@ -95,7 +95,7 @@ export function AgeBarChart(props: AgeBarChartProps): React.JSX.Element {
             {/* 10-year tick marks and labels */}
             {ticks.map((ageTick) => {
               const x = ageTick * barPitch + barPitch / 2;
-              let anchor = "middle";
+              let anchor: "middle" | "start" | "end" = "middle";
               if (ageTick === 0) anchor = "start";
               if (ageTick === 100) anchor = "end";
 
