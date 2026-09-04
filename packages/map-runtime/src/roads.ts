@@ -1,6 +1,10 @@
 import { lonLatToMapXY, wrapLongitude } from "./map-projection.js";
-import { pointInGeometry } from "./geometry.js";
-import { isKnownRoadTypeId, getRoadTypeDefinition, roadTypesSortedByDrawOrder } from "./road-types.js";
+import polygonClipping from "polygon-clipping";
+import {
+  isKnownRoadTypeId,
+  getRoadTypeDefinition,
+  roadTypesSortedByDrawOrder
+} from "./road-types.js";
 import { MapSchemaError, assertFiniteCoord } from "./schema.js";
 import type {
   GeoJsonGeometry,
@@ -8,13 +12,23 @@ import type {
   MapBoundary,
   RoadBendOverride,
   RoadCollection,
+  RoadPairRoute,
+  RoadPairRouteMode,
   RoadSegment,
-  RoadTypeId
+  RoadTypeId,
+  RuntimeRoadCollection
 } from "./types.js";
 
 export const EMPTY_ROAD_COLLECTION: RoadCollection = Object.freeze({
   schemaVersion: 1,
   segments: Object.freeze([])
+});
+
+export const EMPTY_RUNTIME_ROAD_COLLECTION: RuntimeRoadCollection = Object.freeze({
+  schemaVersion: 2,
+  routeInputHash: "empty",
+  segments: Object.freeze([]),
+  pairRoutes: Object.freeze([])
 });
 
 export function roadSegmentKey(typeId: string, provinceIdA: string, provinceIdB: string): string {
@@ -29,9 +43,7 @@ export function adjacencyPairKey(provinceIdA: string, provinceIdB: string): stri
     : `${provinceIdB}|${provinceIdA}`;
 }
 
-export function buildAdjacencyPairSet(
-  boundaries: readonly MapBoundary[]
-): ReadonlySet<string> {
+export function buildAdjacencyPairSet(boundaries: readonly MapBoundary[]): ReadonlySet<string> {
   const pairs = new Set<string>();
   for (const boundary of boundaries) {
     if (boundary.rightProvinceId === null) continue;
@@ -65,7 +77,11 @@ function asString(value: unknown): string | undefined {
 function parseBend(value: unknown, segmentId: string): RoadBendOverride | undefined {
   if (value === undefined || value === null) return undefined;
   if (!isRecord(value) || !Array.isArray(value.controlPoints)) {
-    throw new MapSchemaError("ROAD_BEND_INVALID: bend must have controlPoints.", "roads", segmentId);
+    throw new MapSchemaError(
+      "ROAD_BEND_INVALID: bend must have controlPoints.",
+      "roads",
+      segmentId
+    );
   }
   if (value.controlPoints.length !== 1 && value.controlPoints.length !== 2) {
     throw new MapSchemaError(
@@ -180,6 +196,119 @@ export function parseRoadCollection(
   return { schemaVersion: 1, segments };
 }
 
+const ROAD_ROUTE_MODES = new Set<RoadPairRouteMode>([
+  "union-shortest",
+  "bend",
+  "straight-fallback"
+]);
+
+function sameWrappedCoord(left: LonLat, right: LonLat, tolerance = 1e-7): boolean {
+  return (
+    Math.abs(unwrapLon(left[0], right[0]) - right[0]) <= tolerance &&
+    Math.abs(left[1] - right[1]) <= tolerance
+  );
+}
+
+export function parseRuntimeRoadCollection(
+  input: unknown,
+  context: RoadParseContext = {}
+): RuntimeRoadCollection {
+  if (!isRecord(input) || input.schemaVersion !== 2) {
+    throw new MapSchemaError(
+      "Compiled roads must use schemaVersion 2; run map:publish to rebuild the map pack.",
+      "roads"
+    );
+  }
+  const routeInputHash = asString(input.routeInputHash);
+  if (
+    routeInputHash === undefined ||
+    !Array.isArray(input.segments) ||
+    !Array.isArray(input.pairRoutes)
+  ) {
+    throw new MapSchemaError(
+      "Compiled roads require routeInputHash, segments, and pairRoutes.",
+      "roads"
+    );
+  }
+
+  const definitions = parseRoadCollection({ schemaVersion: 1, segments: input.segments }, context);
+  const referencedPairs = new Set(
+    definitions.segments.map((segment) =>
+      adjacencyPairKey(segment.provinceIdA, segment.provinceIdB)
+    )
+  );
+  const seenPairs = new Set<string>();
+  const pairRoutes: RoadPairRoute[] = [];
+
+  for (const [index, raw] of input.pairRoutes.entries()) {
+    if (!isRecord(raw)) {
+      throw new MapSchemaError(`pairRoutes[${index}] is invalid.`, "roads");
+    }
+    const rawA = asString(raw.provinceIdA);
+    const rawB = asString(raw.provinceIdB);
+    if (rawA === undefined || rawB === undefined || rawA === rawB) {
+      throw new MapSchemaError(`pairRoutes[${index}] requires distinct provinceIdA/B.`, "roads");
+    }
+    const provinceIdA = rawA < rawB ? rawA : rawB;
+    const provinceIdB = rawA < rawB ? rawB : rawA;
+    const pair = adjacencyPairKey(provinceIdA, provinceIdB);
+    if (!referencedPairs.has(pair)) {
+      throw new MapSchemaError(`ROAD_ROUTE_PAIR_UNUSED: ${pair}`, "roads");
+    }
+    if (seenPairs.has(pair)) {
+      throw new MapSchemaError(`ROAD_ROUTE_PAIR_DUPLICATE: ${pair}`, "roads");
+    }
+    seenPairs.add(pair);
+
+    if (typeof raw.mode !== "string" || !ROAD_ROUTE_MODES.has(raw.mode as RoadPairRouteMode)) {
+      throw new MapSchemaError(`ROAD_ROUTE_MODE_INVALID: ${String(raw.mode)}`, "roads", pair);
+    }
+    if (!Array.isArray(raw.coordinates) || raw.coordinates.length < 2) {
+      throw new MapSchemaError("ROAD_ROUTE_COORDINATES_INVALID", "roads", pair);
+    }
+    let coordinates = raw.coordinates.map((point, pointIndex) =>
+      assertFiniteCoord(point, "roads", pair, `pairRoutes[${index}].coordinates[${pointIndex}]`)
+    );
+
+    if (rawA !== provinceIdA) coordinates = [...coordinates].reverse();
+    const capitalA = context.capitals?.get(provinceIdA);
+    const capitalB = context.capitals?.get(provinceIdB);
+    if (
+      capitalA !== undefined &&
+      capitalB !== undefined &&
+      (!sameWrappedCoord(coordinates[0]!, capitalA) ||
+        !sameWrappedCoord(coordinates[coordinates.length - 1]!, capitalB))
+    ) {
+      throw new MapSchemaError("ROAD_ROUTE_ENDPOINT_MISMATCH", "roads", pair);
+    }
+
+    pairRoutes.push({
+      provinceIdA,
+      provinceIdB,
+      mode: raw.mode as RoadPairRouteMode,
+      coordinates
+    });
+  }
+
+  for (const pair of referencedPairs) {
+    if (!seenPairs.has(pair)) {
+      throw new MapSchemaError(`ROAD_ROUTE_MISSING: ${pair}`, "roads");
+    }
+  }
+
+  pairRoutes.sort((left, right) =>
+    adjacencyPairKey(left.provinceIdA, left.provinceIdB).localeCompare(
+      adjacencyPairKey(right.provinceIdA, right.provinceIdB)
+    )
+  );
+  return {
+    schemaVersion: 2,
+    routeInputHash,
+    segments: definitions.segments,
+    pairRoutes
+  };
+}
+
 function lineMidpoint(coordinates: readonly LonLat[]): LonLat {
   if (coordinates.length === 1) return coordinates[0]!;
   let total = 0;
@@ -214,12 +343,7 @@ function unwrapLon(lon: number, ref: number): number {
   return x;
 }
 
-function quadraticPoint(
-  p0: LonLat,
-  p1: LonLat,
-  p2: LonLat,
-  t: number
-): LonLat {
+function quadraticPoint(p0: LonLat, p1: LonLat, p2: LonLat, t: number): LonLat {
   const u = 1 - t;
   return [
     u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
@@ -239,28 +363,17 @@ function straightSampleCount(distance: number): number {
   return Math.max(4, Math.min(16, Math.ceil(distance / 2) + 4));
 }
 
-function closestPointOnSegment(point: LonLat, a: LonLat, b: LonLat): LonLat {
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  const len2 = dx * dx + dy * dy;
-  if (len2 <= 1e-18) return [a[0], a[1]];
-  const t = Math.max(0, Math.min(1, ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / len2));
-  return [a[0] + dx * t, a[1] + dy * t];
-}
-
-function pointInEither(
-  lon: number,
-  lat: number,
-  geomA: GeoJsonGeometry | undefined,
-  geomB: GeoJsonGeometry | undefined
-): boolean {
-  if (geomA !== undefined && pointInGeometry(lon, lat, geomA)) return true;
-  if (geomB !== undefined && pointInGeometry(lon, lat, geomB)) return true;
-  return false;
-}
-
 function wrapPolyline(points: readonly LonLat[]): LonLat[] {
   return points.map((p) => [wrapLongitude(p[0]), p[1]] as const);
+}
+
+function wrapRoadPolyline(points: readonly LonLat[], capitalA: LonLat, capitalB: LonLat): LonLat[] {
+  const wrapped = wrapPolyline(points);
+  if (wrapped.length >= 2) {
+    wrapped[0] = [capitalA[0], capitalA[1]];
+    wrapped[wrapped.length - 1] = [capitalB[0], capitalB[1]];
+  }
+  return wrapped;
 }
 
 function unwrapPolyline(points: readonly LonLat[]): LonLat[] {
@@ -306,365 +419,355 @@ function polylineLength(coords: readonly LonLat[]): number {
   return total;
 }
 
-function pickLongestBoundary(
-  arcs: readonly (readonly LonLat[])[] | undefined
-): LonLat[] | undefined {
-  if (arcs === undefined || arcs.length === 0) return undefined;
-  let best: LonLat[] | undefined;
-  let bestLen = -1;
-  for (const arc of arcs) {
-    if (arc.length === 0) continue;
-    const unwrapped = unwrapPolyline(arc);
-    const len = polylineLength(unwrapped);
-    if (len > bestLen) {
-      bestLen = len;
-      best = unwrapped;
-    }
-  }
-  return best;
-}
+type PolygonRing = LonLat[];
+type PolygonDomain = PolygonRing[];
+type MultiPolygonDomain = PolygonDomain[];
 
-interface PolylineHit {
-  readonly point: LonLat;
-  readonly segmentIndex: number;
-  readonly t: number;
-  readonly dist: number;
-}
+const GEOMETRY_EPSILON = 1e-9;
 
-function closestOnPolyline(point: LonLat, coords: readonly LonLat[]): PolylineHit | undefined {
-  if (coords.length === 0) return undefined;
-  if (coords.length === 1) {
-    const only = coords[0]!;
-    return {
-      point: [only[0], only[1]],
-      segmentIndex: 0,
-      t: 0,
-      dist: Math.hypot(point[0] - only[0], point[1] - only[1])
-    };
+function closeRing(points: readonly LonLat[], referenceLon: number): PolygonRing {
+  if (points.length === 0) return [];
+  const result: LonLat[] = [[unwrapLon(points[0]![0], referenceLon), points[0]![1]]];
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = result[index - 1]!;
+    const point = points[index]!;
+    result.push([unwrapLon(point[0], previous[0]), point[1]]);
   }
-  let best: PolylineHit | undefined;
-  for (let i = 0; i < coords.length - 1; i += 1) {
-    const a = coords[i]!;
-    const b = coords[i + 1]!;
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    const len2 = dx * dx + dy * dy;
-    const t =
-      len2 <= 1e-18
-        ? 0
-        : Math.max(0, Math.min(1, ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / len2));
-    const candidate: LonLat = [a[0] + dx * t, a[1] + dy * t];
-    const dist = Math.hypot(point[0] - candidate[0], point[1] - candidate[1]);
-    if (best === undefined || dist < best.dist) {
-      best = { point: candidate, segmentIndex: i, t, dist };
-    }
-  }
-  return best;
-}
-
-function perpendicularDistance(point: LonLat, a: LonLat, b: LonLat): number {
-  const c = closestPointOnSegment(point, a, b);
-  return Math.hypot(point[0] - c[0], point[1] - c[1]);
-}
-
-function douglasPeucker(points: readonly LonLat[], epsilon: number): LonLat[] {
-  if (points.length <= 2) {
-    return points.map((p) => [p[0], p[1]] as LonLat);
-  }
-  let maxDist = 0;
-  let maxIndex = 0;
-  const first = points[0]!;
-  const last = points[points.length - 1]!;
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const dist = perpendicularDistance(points[i]!, first, last);
-    if (dist > maxDist) {
-      maxDist = dist;
-      maxIndex = i;
-    }
-  }
-  if (maxDist > epsilon) {
-    const left = douglasPeucker(points.slice(0, maxIndex + 1), epsilon);
-    const right = douglasPeucker(points.slice(maxIndex), epsilon);
-    return [...left.slice(0, -1), ...right];
-  }
-  return [
-    [first[0], first[1]],
-    [last[0], last[1]]
-  ];
-}
-
-const RING_VERTEX_CAP = 48;
-const RING_DP_EPSILON = 0.08;
-const SHARED_SAMPLE_CAP = 16;
-const UNION_PATH_INTERIOR_CAP = 8;
-
-function sparsifyToMaxInterior(points: readonly LonLat[], maxInterior: number): LonLat[] {
-  if (points.length <= maxInterior + 2) {
-    return points.map((p) => [p[0], p[1]] as LonLat);
-  }
-  let epsilon = RING_DP_EPSILON;
-  let result = douglasPeucker(points, epsilon);
-  while (result.length - 2 > maxInterior && epsilon < 8) {
-    epsilon *= 1.6;
-    result = douglasPeucker(points, epsilon);
-  }
-  if (result.length - 2 > maxInterior) {
-    const out: LonLat[] = [[result[0]![0], result[0]![1]]];
-    for (let k = 1; k <= maxInterior; k += 1) {
-      const idx = Math.round((k * (result.length - 1)) / (maxInterior + 1));
-      out.push([result[idx]![0], result[idx]![1]]);
-    }
-    out.push([result[result.length - 1]![0], result[result.length - 1]![1]]);
-    return dedupeConsecutive(out);
+  const first = result[0]!;
+  const last = result[result.length - 1]!;
+  if (Math.hypot(first[0] - last[0], first[1] - last[1]) > GEOMETRY_EPSILON) {
+    result.push([first[0], first[1]]);
   }
   return result;
 }
 
-/** Dense samples along segment must lie in A∪B (boundary counts as inside). */
-function segmentInsideUnion(
-  a: LonLat,
-  b: LonLat,
-  geomA: GeoJsonGeometry | undefined,
-  geomB: GeoJsonGeometry | undefined
+function geometryToMultiPolygon(
+  geometry: GeoJsonGeometry,
+  referenceLon: number
+): MultiPolygonDomain {
+  if (geometry.type === "Polygon") {
+    const outer = closeRing(geometry.coordinates[0] ?? [], referenceLon);
+    return [
+      [
+        outer,
+        ...geometry.coordinates
+          .slice(1)
+          .map((ring) => closeRing(ring, outer[0]?.[0] ?? referenceLon))
+      ]
+    ];
+  }
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.map((polygon) => {
+      const outer = closeRing(polygon[0] ?? [], referenceLon);
+      return [
+        outer,
+        ...polygon.slice(1).map((ring) => closeRing(ring, outer[0]?.[0] ?? referenceLon))
+      ];
+    });
+  }
+  throw new MapSchemaError("Road routing requires Polygon or MultiPolygon geometry.", "roads");
+}
+
+function pointOnSegment(point: LonLat, a: LonLat, b: LonLat): boolean {
+  const cross = (point[0] - a[0]) * (b[1] - a[1]) - (point[1] - a[1]) * (b[0] - a[0]);
+  if (Math.abs(cross) > GEOMETRY_EPSILON) return false;
+  return (
+    point[0] >= Math.min(a[0], b[0]) - GEOMETRY_EPSILON &&
+    point[0] <= Math.max(a[0], b[0]) + GEOMETRY_EPSILON &&
+    point[1] >= Math.min(a[1], b[1]) - GEOMETRY_EPSILON &&
+    point[1] <= Math.max(a[1], b[1]) + GEOMETRY_EPSILON
+  );
+}
+
+function pointInDomain(point: LonLat, domain: PolygonDomain): boolean {
+  let inside = false;
+  for (const ring of domain) {
+    for (
+      let index = 0, previous = ring.length - 1;
+      index < ring.length;
+      previous = index, index += 1
+    ) {
+      const a = ring[previous]!;
+      const b = ring[index]!;
+      if (pointOnSegment(point, a, b)) return true;
+      if (
+        a[1] > point[1] !== b[1] > point[1] &&
+        point[0] < ((b[0] - a[0]) * (point[1] - a[1])) / (b[1] - a[1]) + a[0]
+      ) {
+        inside = !inside;
+      }
+    }
+  }
+  return inside;
+}
+
+function cross(a: LonLat, b: LonLat): number {
+  return a[0] * b[1] - a[1] * b[0];
+}
+
+function addBoundaryIntersectionParameters(
+  values: number[],
+  start: LonLat,
+  end: LonLat,
+  edgeStart: LonLat,
+  edgeEnd: LonLat
+): void {
+  const direction: LonLat = [end[0] - start[0], end[1] - start[1]];
+  const edgeDirection: LonLat = [edgeEnd[0] - edgeStart[0], edgeEnd[1] - edgeStart[1]];
+  const offset: LonLat = [edgeStart[0] - start[0], edgeStart[1] - start[1]];
+  const denominator = cross(direction, edgeDirection);
+  if (Math.abs(denominator) > GEOMETRY_EPSILON) {
+    const t = cross(offset, edgeDirection) / denominator;
+    const u = cross(offset, direction) / denominator;
+    if (
+      t >= -GEOMETRY_EPSILON &&
+      t <= 1 + GEOMETRY_EPSILON &&
+      u >= -GEOMETRY_EPSILON &&
+      u <= 1 + GEOMETRY_EPSILON
+    ) {
+      values.push(Math.max(0, Math.min(1, t)));
+    }
+    return;
+  }
+  if (Math.abs(cross(offset, direction)) > GEOMETRY_EPSILON) return;
+  const lengthSquared = direction[0] * direction[0] + direction[1] * direction[1];
+  if (lengthSquared <= GEOMETRY_EPSILON * GEOMETRY_EPSILON) return;
+  for (const point of [edgeStart, edgeEnd]) {
+    const t =
+      ((point[0] - start[0]) * direction[0] + (point[1] - start[1]) * direction[1]) / lengthSquared;
+    if (t >= -GEOMETRY_EPSILON && t <= 1 + GEOMETRY_EPSILON) {
+      values.push(Math.max(0, Math.min(1, t)));
+    }
+  }
+}
+
+function segmentInsideDomain(
+  start: LonLat,
+  end: LonLat,
+  domain: PolygonDomain,
+  endpointsKnownInside = false
 ): boolean {
-  if (geomA === undefined && geomB === undefined) return true;
-  const dist = Math.hypot(b[0] - a[0], b[1] - a[1]);
-  const n = Math.max(4, Math.min(32, Math.ceil(dist * 8) + 2));
-  for (let i = 0; i <= n; i += 1) {
-    const t = i / n;
-    const lon = a[0] + (b[0] - a[0]) * t;
-    const lat = a[1] + (b[1] - a[1]) * t;
-    if (!pointInEither(wrapLongitude(lon), lat, geomA, geomB)) return false;
+  if (!endpointsKnownInside && (!pointInDomain(start, domain) || !pointInDomain(end, domain))) {
+    return false;
+  }
+  const parameters = [0, 1];
+  for (const ring of domain) {
+    for (let index = 1; index < ring.length; index += 1) {
+      addBoundaryIntersectionParameters(parameters, start, end, ring[index - 1]!, ring[index]!);
+    }
+  }
+  parameters.sort((left, right) => left - right);
+  const unique = parameters.filter(
+    (value, index) => index === 0 || Math.abs(value - parameters[index - 1]!) > GEOMETRY_EPSILON
+  );
+  for (let index = 1; index < unique.length; index += 1) {
+    const from = unique[index - 1]!;
+    const to = unique[index]!;
+    if (to - from <= GEOMETRY_EPSILON) continue;
+    const t = (from + to) / 2;
+    if (
+      !pointInDomain(
+        [start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t],
+        domain
+      )
+    ) {
+      return false;
+    }
   }
   return true;
 }
 
-function listOuterRings(geom: GeoJsonGeometry): LonLat[][] {
-  if (geom.type === "Polygon") {
-    const outer = geom.coordinates[0];
-    if (outer === undefined) return [];
-    return [outer.map((c) => [c[0], c[1]] as LonLat)];
+function ringArea(ring: readonly LonLat[]): number {
+  let area = 0;
+  for (let index = 1; index < ring.length; index += 1) {
+    const previous = ring[index - 1]!;
+    const current = ring[index]!;
+    area += previous[0] * current[1] - current[0] * previous[1];
   }
-  if (geom.type === "MultiPolygon") {
-    const rings: LonLat[][] = [];
-    for (const polygon of geom.coordinates) {
-      const outer = polygon[0];
-      if (outer === undefined) continue;
-      rings.push(outer.map((c) => [c[0], c[1]] as LonLat));
-    }
-    return rings;
-  }
-  return [];
+  return area / 2;
 }
 
-function pickOuterRing(geom: GeoJsonGeometry, point: LonLat): LonLat[] | undefined {
-  const rings = listOuterRings(geom);
-  if (rings.length === 0) return undefined;
-  for (const ring of rings) {
-    const asPoly: GeoJsonGeometry = { type: "Polygon", coordinates: [ring] };
-    if (pointInGeometry(wrapLongitude(point[0]), point[1], asPoly)) {
-      return unwrapPolyline(ring);
-    }
-  }
-  let best: LonLat[] | undefined;
-  let bestDist = Number.POSITIVE_INFINITY;
-  for (const ring of rings) {
-    const unwrapped = unwrapPolyline(ring);
-    const hit = closestOnPolyline(point, unwrapped);
-    if (hit !== undefined && hit.dist < bestDist) {
-      bestDist = hit.dist;
-      best = unwrapped;
-    }
-  }
-  return best;
-}
-
-function openRingVertices(ring: readonly LonLat[]): LonLat[] {
-  if (ring.length === 0) return [];
-  let verts = ring.map((p) => [p[0], p[1]] as LonLat);
-  if (
-    verts.length >= 2 &&
-    Math.hypot(
-      verts[0]![0] - verts[verts.length - 1]![0],
-      verts[0]![1] - verts[verts.length - 1]![1]
-    ) <= 1e-9
-  ) {
-    verts = verts.slice(0, -1);
-  }
-  if (verts.length <= RING_VERTEX_CAP) return verts;
-  const closed = [...verts, [verts[0]![0], verts[0]![1]] as LonLat];
-  let epsilon = RING_DP_EPSILON;
-  let sparse = douglasPeucker(closed, epsilon);
-  while (sparse.length - 1 > RING_VERTEX_CAP && epsilon < 8) {
-    epsilon *= 1.5;
-    sparse = douglasPeucker(closed, epsilon);
-  }
-  if (
-    sparse.length >= 2 &&
-    Math.hypot(
-      sparse[0]![0] - sparse[sparse.length - 1]![0],
-      sparse[0]![1] - sparse[sparse.length - 1]![1]
-    ) <= 1e-9
-  ) {
-    sparse = sparse.slice(0, -1);
-  }
-  if (sparse.length > RING_VERTEX_CAP) {
-    const step = sparse.length / RING_VERTEX_CAP;
-    const out: LonLat[] = [];
-    for (let i = 0; i < RING_VERTEX_CAP; i += 1) {
-      out.push(sparse[Math.min(sparse.length - 1, Math.floor(i * step))]!);
-    }
-    return dedupeConsecutive(out);
-  }
-  return sparse;
-}
-
-function appendUniqueNodes(
-  nodes: LonLat[],
-  candidates: readonly LonLat[],
-  ref: LonLat
-): void {
-  for (const raw of candidates) {
-    const p: LonLat = [unwrapLon(raw[0], ref[0]), raw[1]];
-    let near = false;
-    for (const existing of nodes) {
-      if (Math.hypot(p[0] - existing[0], p[1] - existing[1]) <= 1e-7) {
-        near = true;
-        break;
+function reflexVertices(domain: PolygonDomain): LonLat[] {
+  const result: LonLat[] = [];
+  const seen = new Set<string>();
+  for (const [ringIndex, closed] of domain.entries()) {
+    const ring = closed.slice(0, -1);
+    const area = ringArea(closed);
+    if (ring.length < 3 || Math.abs(area) <= GEOMETRY_EPSILON) continue;
+    for (let index = 0; index < ring.length; index += 1) {
+      const previous = ring[(index + ring.length - 1) % ring.length]!;
+      const current = ring[index]!;
+      const next = ring[(index + 1) % ring.length]!;
+      const turn = cross(
+        [current[0] - previous[0], current[1] - previous[1]],
+        [next[0] - current[0], next[1] - current[1]]
+      );
+      const needed =
+        ringIndex === 0 ? turn * area < -GEOMETRY_EPSILON : turn * area > GEOMETRY_EPSILON;
+      if (!needed) continue;
+      const key = `${current[0].toFixed(10)},${current[1].toFixed(10)}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push([current[0], current[1]]);
       }
     }
-    if (!near) nodes.push(p);
   }
+  return result;
 }
 
-function visibilityShortestPathInUnion(
-  nodes: readonly LonLat[],
-  geomA: GeoJsonGeometry | undefined,
-  geomB: GeoJsonGeometry | undefined
+function shortestVisibilityPath(
+  start: LonLat,
+  end: LonLat,
+  domain: PolygonDomain
 ): LonLat[] | undefined {
-  const n = nodes.length;
-  if (n < 2) return undefined;
-  const dist = new Array<number>(n).fill(Number.POSITIVE_INFINITY);
-  const prev = new Array<number>(n).fill(-1);
-  const used = new Array<boolean>(n).fill(false);
-  dist[0] = 0;
+  if (segmentInsideDomain(start, end, domain, true)) return [start, end];
+  const candidates = reflexVertices(domain).filter(
+    (point) =>
+      Math.hypot(point[0] - start[0], point[1] - start[1]) > GEOMETRY_EPSILON &&
+      Math.hypot(point[0] - end[0], point[1] - end[1]) > GEOMETRY_EPSILON
+  );
+  const nodes = [start, ...candidates, end];
+  const target = nodes.length - 1;
+  const distances = new Array<number>(nodes.length).fill(Number.POSITIVE_INFINITY);
+  const previous = new Array<number>(nodes.length).fill(-1);
+  const used = new Array<boolean>(nodes.length).fill(false);
+  distances[0] = 0;
 
-  for (let iter = 0; iter < n; iter += 1) {
-    let u = -1;
-    let best = Number.POSITIVE_INFINITY;
-    for (let i = 0; i < n; i += 1) {
-      if (!used[i] && dist[i]! < best) {
-        best = dist[i]!;
-        u = i;
+  for (let iteration = 0; iteration < nodes.length; iteration += 1) {
+    let current = -1;
+    let bestScore = Number.POSITIVE_INFINITY;
+    for (let index = 0; index < nodes.length; index += 1) {
+      const score =
+        distances[index]! +
+        Math.hypot(nodes[target]![0] - nodes[index]![0], nodes[target]![1] - nodes[index]![1]);
+      if (!used[index] && score < bestScore) {
+        current = index;
+        bestScore = score;
       }
     }
-    if (u < 0 || best === Number.POSITIVE_INFINITY) break;
-    used[u] = true;
-    if (u === n - 1) break;
-    const from = nodes[u]!;
-    for (let v = 0; v < n; v += 1) {
-      if (used[v] || u === v) continue;
-      const to = nodes[v]!;
-      if (!segmentInsideUnion(from, to, geomA, geomB)) continue;
-      const w = Math.hypot(to[0] - from[0], to[1] - from[1]);
-      const next = dist[u]! + w;
-      if (next < dist[v]!) {
-        dist[v] = next;
-        prev[v] = u;
+    if (current < 0) break;
+    if (current === target) break;
+    used[current] = true;
+    if (segmentInsideDomain(nodes[current]!, nodes[target]!, domain, true)) {
+      const direct =
+        distances[current]! +
+        Math.hypot(nodes[target]![0] - nodes[current]![0], nodes[target]![1] - nodes[current]![1]);
+      if (direct + GEOMETRY_EPSILON < distances[target]!) {
+        distances[target] = direct;
+        previous[target] = current;
+      }
+    }
+    for (let next = 0; next < nodes.length; next += 1) {
+      if (next === current || next === target || used[next]) continue;
+      const edgeLength = Math.hypot(
+        nodes[next]![0] - nodes[current]![0],
+        nodes[next]![1] - nodes[current]![1]
+      );
+      const candidate = distances[current]! + edgeLength;
+      const lowerBound =
+        candidate +
+        Math.hypot(nodes[target]![0] - nodes[next]![0], nodes[target]![1] - nodes[next]![1]);
+      if (lowerBound + GEOMETRY_EPSILON >= distances[target]!) continue;
+      if (!segmentInsideDomain(nodes[current]!, nodes[next]!, domain, true)) continue;
+      const nextDistance = distances[current]! + edgeLength;
+      if (nextDistance + GEOMETRY_EPSILON < distances[next]!) {
+        distances[next] = nextDistance;
+        previous[next] = current;
       }
     }
   }
-
-  if (dist[n - 1] === Number.POSITIVE_INFINITY) return undefined;
-
-  const pathIdx: number[] = [];
-  for (let cur = n - 1; ; cur = prev[cur]!) {
-    pathIdx.push(cur);
-    if (cur === 0) break;
-    if (prev[cur]! < 0) return undefined;
+  if (!Number.isFinite(distances[target])) return undefined;
+  const indices: number[] = [];
+  for (let current = target; current >= 0; current = previous[current]!) {
+    indices.push(current);
+    if (current === 0) break;
   }
-  pathIdx.reverse();
-  return pathIdx.map((i) => [nodes[i]![0], nodes[i]![1]] as LonLat);
+  if (indices[indices.length - 1] !== 0) return undefined;
+  indices.reverse();
+  return indices.map((index) => nodes[index]!);
 }
 
-/**
- * Shortest visibility path in A∪B (union-domain geodesic approximation).
- * Shared-boundary samples strengthen connectivity; they are not forced waypoints.
- */
+interface UnionRouteResult {
+  readonly connected: boolean;
+  readonly domain?: PolygonDomain;
+  readonly points: LonLat[];
+}
+
+function buildUnionDomain(
+  start: LonLat,
+  end: LonLat,
+  geometryA: GeoJsonGeometry,
+  geometryB: GeoJsonGeometry
+): { readonly start: LonLat; readonly end: LonLat; readonly domain?: PolygonDomain } {
+  const normalizedStart: LonLat = [start[0], start[1]];
+  const normalizedEnd: LonLat = [unwrapLon(end[0], start[0]), end[1]];
+  let union: MultiPolygonDomain;
+  try {
+    union = polygonClipping.union(
+      geometryToMultiPolygon(geometryA, normalizedStart[0]) as unknown as Parameters<
+        typeof polygonClipping.union
+      >[0],
+      geometryToMultiPolygon(geometryB, normalizedStart[0]) as unknown as Parameters<
+        typeof polygonClipping.union
+      >[0]
+    ) as MultiPolygonDomain;
+  } catch (error) {
+    throw new MapSchemaError(
+      `ROAD_ROUTE_UNION_FAILED: ${error instanceof Error ? error.message : String(error)}`,
+      "roads"
+    );
+  }
+  const domain = union.find(
+    (candidate) =>
+      pointInDomain(normalizedStart, candidate) && pointInDomain(normalizedEnd, candidate)
+  );
+  return {
+    start: normalizedStart,
+    end: normalizedEnd,
+    ...(domain === undefined ? {} : { domain })
+  };
+}
+
 function shortestPathInUnion(
   start: LonLat,
   end: LonLat,
-  geomA: GeoJsonGeometry | undefined,
-  geomB: GeoJsonGeometry | undefined,
-  sharedBoundary?: readonly LonLat[]
-): LonLat[] {
-  const s: LonLat = [start[0], start[1]];
-  const t: LonLat = [unwrapLon(end[0], start[0]), end[1]];
-  if (segmentInsideUnion(s, t, geomA, geomB)) {
-    return [s, t];
+  geometryA: GeoJsonGeometry,
+  geometryB: GeoJsonGeometry
+): UnionRouteResult {
+  const built = buildUnionDomain(start, end, geometryA, geometryB);
+  const normalizedStart = built.start;
+  const normalizedEnd = built.end;
+  const domain = built.domain;
+  if (domain === undefined) {
+    return { connected: false, points: [normalizedStart, normalizedEnd] };
   }
-  if (geomA === undefined && geomB === undefined) {
-    return [s, t];
+  const path = shortestVisibilityPath(normalizedStart, normalizedEnd, domain);
+  if (path === undefined) {
+    throw new MapSchemaError("ROAD_ROUTE_PATHFIND_FAILED", "roads");
   }
-
-  const mid: LonLat[] = [];
-  if (geomA !== undefined) {
-    const ringA = pickOuterRing(geomA, s);
-    if (ringA !== undefined) {
-      appendUniqueNodes(mid, openRingVertices(ringA), s);
-    }
-  }
-  if (geomB !== undefined) {
-    const ringB = pickOuterRing(geomB, t);
-    if (ringB !== undefined) {
-      appendUniqueNodes(mid, openRingVertices(ringB), s);
-    }
-  }
-  if (sharedBoundary !== undefined && sharedBoundary.length > 0) {
-    const shared = unwrapPolyline(sharedBoundary);
-    const sparseShared = sparsifyToMaxInterior(shared, Math.max(1, SHARED_SAMPLE_CAP - 2));
-    appendUniqueNodes(mid, sparseShared, s);
-  }
-
-  const filteredMid: LonLat[] = [];
-  for (const p of mid) {
-    if (Math.hypot(p[0] - s[0], p[1] - s[1]) <= 1e-7) continue;
-    if (Math.hypot(p[0] - t[0], p[1] - t[1]) <= 1e-7) continue;
-    filteredMid.push(p);
-  }
-
-  const graphNodes = [s, ...filteredMid, t];
-  const path = visibilityShortestPathInUnion(graphNodes, geomA, geomB);
-  if (path === undefined || path.length < 2) {
-    return [s, t];
-  }
-  return sparsifyToMaxInterior(dedupeConsecutive(path), UNION_PATH_INTERIOR_CAP);
+  return { connected: true, domain, points: dedupeConsecutive(path) };
 }
 
 export interface SampleRoadCurveOptions {
   readonly geometryA?: GeoJsonGeometry;
   readonly geometryB?: GeoJsonGeometry;
-  /** Optional shared-boundary samples to strengthen A∪B connectivity. */
+  /** Retained for source compatibility; the exact polygon union is authoritative. */
   readonly sharedBoundary?: readonly LonLat[];
 }
 
-/**
- * Sample a road segment as LonLat polyline.
- * Default: straight if inside A∪B; else visibility shortest path in A∪B.
- */
-export function sampleRoadSegmentCurve(
+function resolveRoadSegmentCurve(
   segment: RoadSegment,
   capitalA: LonLat,
   capitalB: LonLat,
-  _boundaryMid: LonLat | undefined,
   options: SampleRoadCurveOptions = {}
-): LonLat[] {
+): { readonly mode: RoadPairRouteMode; readonly points: LonLat[] } {
   const aMap = lonLatToMapXY(capitalA[0], capitalA[1]);
   const bLon = unwrapLon(capitalB[0], aMap[0]);
   const bMap: LonLat = [bLon, capitalB[1]];
   const p0: LonLat = [aMap[0], aMap[1]];
   const pEnd: LonLat = bMap;
 
+  let bendPoints: LonLat[] | undefined;
   if (segment.bend?.controlPoints.length === 2) {
     const c0 = segment.bend.controlPoints[0]!;
     const c1 = segment.bend.controlPoints[1]!;
@@ -676,7 +779,7 @@ export function sampleRoadSegmentCurve(
     for (let i = 0; i <= n; i += 1) {
       samples.push(cubicPoint(p0, p1, p2, pEnd, i / n));
     }
-    return wrapPolyline(samples);
+    bendPoints = samples;
   }
   if (segment.bend?.controlPoints.length === 1) {
     const ctrl: LonLat = [
@@ -689,26 +792,48 @@ export function sampleRoadSegmentCurve(
     for (let i = 0; i <= n; i += 1) {
       samples.push(quadraticPoint(p0, ctrl, pEnd, i / n));
     }
-    return wrapPolyline(samples);
+    bendPoints = samples;
   }
 
-  if (segmentInsideUnion(p0, pEnd, options.geometryA, options.geometryB)) {
-    return wrapPolyline([p0, pEnd]);
+  if (bendPoints !== undefined) {
+    if (options.geometryA !== undefined && options.geometryB !== undefined) {
+      const built = buildUnionDomain(p0, pEnd, options.geometryA, options.geometryB);
+      if (
+        built.domain === undefined ||
+        bendPoints.some(
+          (_, index) =>
+            index > 0 &&
+            !segmentInsideDomain(bendPoints[index - 1]!, bendPoints[index]!, built.domain!)
+        )
+      ) {
+        throw new MapSchemaError("ROAD_BEND_OUTSIDE_UNION", "roads", segment.id);
+      }
+    }
+    return { mode: "bend", points: wrapRoadPolyline(bendPoints, capitalA, capitalB) };
   }
 
-  if (options.geometryA !== undefined || options.geometryB !== undefined) {
-    return wrapPolyline(
-      shortestPathInUnion(
-        p0,
-        pEnd,
-        options.geometryA,
-        options.geometryB,
-        options.sharedBoundary
-      )
-    );
+  if (options.geometryA !== undefined && options.geometryB !== undefined) {
+    const result = shortestPathInUnion(p0, pEnd, options.geometryA, options.geometryB);
+    return {
+      mode: result.connected ? "union-shortest" : "straight-fallback",
+      points: wrapRoadPolyline(result.points, capitalA, capitalB)
+    };
   }
 
-  return wrapPolyline([p0, pEnd]);
+  return {
+    mode: "union-shortest",
+    points: wrapRoadPolyline([p0, pEnd], capitalA, capitalB)
+  };
+}
+
+export function sampleRoadSegmentCurve(
+  segment: RoadSegment,
+  capitalA: LonLat,
+  capitalB: LonLat,
+  _boundaryMid: LonLat | undefined,
+  options: SampleRoadCurveOptions = {}
+): LonLat[] {
+  return resolveRoadSegmentCurve(segment, capitalA, capitalB, options).points;
 }
 
 const BASE_LANE_SPACING = 0.35;
@@ -759,10 +884,7 @@ function offsetPolylineKeepEnds(points: readonly LonLat[], distance: number): Lo
   }
 
   const firstSeg = segmentNormal(unwrapped[0]!, unwrapped[1]!);
-  const lastSeg = segmentNormal(
-    unwrapped[unwrapped.length - 2]!,
-    unwrapped[unwrapped.length - 1]!
-  );
+  const lastSeg = segmentNormal(unwrapped[unwrapped.length - 2]!, unwrapped[unwrapped.length - 1]!);
   const t0x = unwrapped[1]![0] - unwrapped[0]![0];
   const t0y = unwrapped[1]![1] - unwrapped[0]![1];
   const t0len = Math.hypot(t0x, t0y) || 1;
@@ -794,34 +916,12 @@ function offsetPolylineKeepEnds(points: readonly LonLat[], distance: number): Lo
   return wrapPolyline(dedupeConsecutive(out));
 }
 
-function mainCurveTypeId(typeIds: readonly RoadTypeId[]): RoadTypeId {
-  let best: RoadTypeId | undefined;
-  let bestLane = Number.POSITIVE_INFINITY;
-  let bestOrder = Number.POSITIVE_INFINITY;
-  for (const typeId of typeIds) {
-    const def = getRoadTypeDefinition(typeId);
-    if (def === undefined) continue;
-    if (def.laneIndex === 0) return typeId;
-    if (
-      Math.abs(def.laneIndex) < Math.abs(bestLane) ||
-      (Math.abs(def.laneIndex) === Math.abs(bestLane) && def.drawOrder < bestOrder)
-    ) {
-      best = typeId;
-      bestLane = def.laneIndex;
-      bestOrder = def.drawOrder;
-    }
-  }
-  return best ?? typeIds[0]!;
-}
-
 interface SegmentCurve {
   readonly segment: RoadSegment;
   readonly points: LonLat[];
 }
 
-function chainPolylines(
-  segments: readonly SegmentCurve[]
-): LonLat[][] {
+function chainPolylines(segments: readonly SegmentCurve[]): LonLat[][] {
   if (segments.length === 0) return [];
 
   const adj = new Map<string, { other: string; curve: SegmentCurve }[]>();
@@ -878,9 +978,75 @@ export interface RoadDrawBatch {
   readonly polylines: readonly (readonly LonLat[])[];
 }
 
-export interface BuildRoadDrawBatchesOptions {
+export interface BuildRoadPairRoutesOptions {
   readonly capitals: ReadonlyMap<string, LonLat>;
-  readonly boundaries: readonly MapBoundary[];
+  readonly provinceGeometryById?: ReadonlyMap<string, GeoJsonGeometry>;
+  readonly onWarning?: (message: string) => void;
+}
+
+function bendSignature(bend: RoadBendOverride): string {
+  return JSON.stringify(bend.controlPoints);
+}
+
+export function buildRoadPairRoutes(
+  segments: readonly RoadSegment[],
+  options: BuildRoadPairRoutesOptions
+): RoadPairRoute[] {
+  const byPair = new Map<string, RoadSegment[]>();
+  for (const segment of segments) {
+    const pair = adjacencyPairKey(segment.provinceIdA, segment.provinceIdB);
+    const list = byPair.get(pair) ?? [];
+    list.push(segment);
+    byPair.set(pair, list);
+  }
+
+  const routes: RoadPairRoute[] = [];
+  for (const pair of [...byPair.keys()].sort()) {
+    const pairSegments = byPair.get(pair)!;
+    const first = pairSegments[0]!;
+    const capitalA = options.capitals.get(first.provinceIdA);
+    const capitalB = options.capitals.get(first.provinceIdB);
+    if (capitalA === undefined || capitalB === undefined) {
+      throw new MapSchemaError("ROAD_CAPITAL_MISSING", "roads", pair);
+    }
+
+    const bends = pairSegments.flatMap((segment) =>
+      segment.bend === undefined ? [] : [segment.bend]
+    );
+    const distinctBends = new Map(bends.map((bend) => [bendSignature(bend), bend]));
+    if (distinctBends.size > 1) {
+      throw new MapSchemaError("ROAD_BEND_CONFLICT", "roads", pair);
+    }
+    const bend = distinctBends.values().next().value as RoadBendOverride | undefined;
+    const representative: RoadSegment = {
+      ...first,
+      ...(bend === undefined ? {} : { bend })
+    };
+    const geometryA = options.provinceGeometryById?.get(first.provinceIdA);
+    const geometryB = options.provinceGeometryById?.get(first.provinceIdB);
+    const resolved = resolveRoadSegmentCurve(representative, capitalA, capitalB, {
+      ...(geometryA === undefined ? {} : { geometryA }),
+      ...(geometryB === undefined ? {} : { geometryB })
+    });
+    if (resolved.mode === "straight-fallback") {
+      options.onWarning?.(
+        `ROAD_ROUTE_UNREACHABLE_FALLBACK: ${first.provinceIdA}|${first.provinceIdB}`
+      );
+    }
+    routes.push({
+      provinceIdA: first.provinceIdA,
+      provinceIdB: first.provinceIdB,
+      mode: resolved.mode,
+      coordinates: resolved.points
+    });
+  }
+  return routes;
+}
+
+export interface BuildRoadDrawBatchesOptions {
+  readonly pairRoutes?: readonly RoadPairRoute[];
+  readonly capitals?: ReadonlyMap<string, LonLat>;
+  readonly boundaries?: readonly MapBoundary[];
   /** When set, skip types whose maxVisibleHalfHeight is below this. */
   readonly halfHeight?: number;
   readonly baseLaneSpacing?: number;
@@ -892,18 +1058,13 @@ export function buildRoadDrawBatches(
   segments: readonly RoadSegment[],
   options: BuildRoadDrawBatchesOptions
 ): RoadDrawBatch[] {
-  const midpoints = buildBoundaryMidpointIndex(options.boundaries);
-  const sharedBorders = buildSharedBoundaryIndex(options.boundaries);
   const spacing = options.baseLaneSpacing ?? BASE_LANE_SPACING;
 
   const byPair = new Map<string, RoadSegment[]>();
   for (const segment of segments) {
     const def = getRoadTypeDefinition(segment.typeId);
     if (def === undefined) continue;
-    if (
-      options.halfHeight !== undefined &&
-      options.halfHeight > def.maxVisibleHalfHeight
-    ) {
+    if (options.halfHeight !== undefined && options.halfHeight > def.maxVisibleHalfHeight) {
       continue;
     }
     const pair = adjacencyPairKey(segment.provinceIdA, segment.provinceIdB);
@@ -914,28 +1075,34 @@ export function buildRoadDrawBatches(
 
   const offsetCurves = new Map<RoadTypeId, SegmentCurve[]>();
 
-  for (const [pair, pairSegments] of byPair) {
-    const typeIds = pairSegments.map((s) => s.typeId);
-    const mainType = mainCurveTypeId(typeIds);
-    const mainSegment = pairSegments.find((s) => s.typeId === mainType)!;
-    const capitalA = options.capitals.get(mainSegment.provinceIdA);
-    const capitalB = options.capitals.get(mainSegment.provinceIdB);
-    if (capitalA === undefined || capitalB === undefined) continue;
-
-    const mid = midpoints.get(pair);
-    const geomA = options.provinceGeometryById?.get(mainSegment.provinceIdA);
-    const geomB = options.provinceGeometryById?.get(mainSegment.provinceIdB);
-    const sharedBoundary = pickLongestBoundary(sharedBorders.get(pair));
-    const mainPoints = sampleRoadSegmentCurve(mainSegment, capitalA, capitalB, mid, {
-      ...(geomA === undefined ? {} : { geometryA: geomA }),
-      ...(geomB === undefined ? {} : { geometryB: geomB }),
-      ...(sharedBoundary === undefined ? {} : { sharedBoundary })
+  let pairRoutes = options.pairRoutes;
+  if (pairRoutes === undefined) {
+    if (options.capitals === undefined) {
+      throw new MapSchemaError("Road drawing requires pairRoutes or capitals.", "roads");
+    }
+    pairRoutes = buildRoadPairRoutes(segments, {
+      capitals: options.capitals,
+      ...(options.provinceGeometryById === undefined
+        ? {}
+        : { provinceGeometryById: options.provinceGeometryById })
     });
+  }
+  const routeByPair = new Map(
+    pairRoutes.map(
+      (route) => [adjacencyPairKey(route.provinceIdA, route.provinceIdB), route] as const
+    )
+  );
+
+  for (const [pair, pairSegments] of byPair) {
+    const route = routeByPair.get(pair);
+    if (route === undefined) {
+      throw new MapSchemaError(`ROAD_ROUTE_MISSING: ${pair}`, "roads");
+    }
 
     for (const segment of pairSegments) {
       const def = getRoadTypeDefinition(segment.typeId)!;
-      const offset = def.laneIndex * spacing * def.laneSpacingScale;
-      const points = offsetPolylineKeepEnds(mainPoints, offset);
+      const offset = pairSegments.length === 1 ? 0 : def.laneIndex * spacing * def.laneSpacingScale;
+      const points = offsetPolylineKeepEnds(route.coordinates, offset);
       const list = offsetCurves.get(segment.typeId) ?? [];
       list.push({ segment, points });
       offsetCurves.set(segment.typeId, list);

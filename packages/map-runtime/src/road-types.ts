@@ -11,9 +11,11 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     drawOrder: 0,
     laneIndex: -1,
     laneSpacingScale: 1,
-    strokeColor: 0x6b5340,
-    strokeOpacity: 0.55,
-    lineWidth: 1.6,
+    strokeColor: 0xffffff,
+    strokeOpacity: 1,
+    lineWidth: 2.0,
+    casingColor: 0xd0d0d0,
+    casingWidth: 2.8,
     maxVisibleHalfHeight: 32
   },
   {
@@ -22,9 +24,11 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     drawOrder: 1,
     laneIndex: 0,
     laneSpacingScale: 1,
-    strokeColor: 0x4a3428,
-    strokeOpacity: 0.72,
-    lineWidth: 2.2,
+    strokeColor: 0xffb366,
+    strokeOpacity: 1,
+    lineWidth: 3.2,
+    casingColor: 0xd4893a,
+    casingWidth: 4.2,
     maxVisibleHalfHeight: 90
   },
   {
@@ -33,13 +37,13 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     drawOrder: 2,
     laneIndex: 1,
     laneSpacingScale: 1,
-    strokeColor: 0x2a1c12,
-    strokeOpacity: 0.85,
+    strokeColor: 0xffffff,
+    strokeOpacity: 1,
     lineWidth: 1.8,
-    casingColor: 0x2a1c12,
-    casingWidth: 3.2,
-    dashSize: 4,
-    gapSize: 3,
+    casingColor: 0x666666,
+    casingWidth: 2.8,
+    dashSize: 5,
+    gapSize: 5,
     maxVisibleHalfHeight: 90
   }
 ];

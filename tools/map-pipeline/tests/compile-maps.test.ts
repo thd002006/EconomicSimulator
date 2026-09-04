@@ -1,7 +1,7 @@
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   compilePack,
   LOD_TOLERANCES,
@@ -17,6 +17,7 @@ import { parseMapPackBundle } from "@economic-simulator/map-runtime";
 const temporaryDirectories: string[] = [];
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   await Promise.all(
     temporaryDirectories
       .splice(0)
@@ -240,8 +241,14 @@ describe("map compiler", () => {
       [0.002, 0]
     ]);
 
-    const roads = jsonFile(second, "roads.json") as { schemaVersion: number; segments: unknown[] };
-    expect(roads).toEqual({ schemaVersion: 1, segments: [] });
+    const roads = jsonFile(second, "roads.json") as {
+      schemaVersion: number;
+      routeInputHash: string;
+      segments: unknown[];
+      pairRoutes: unknown[];
+    };
+    expect(roads).toMatchObject({ schemaVersion: 2, segments: [], pairRoutes: [] });
+    expect(roads.routeInputHash).toMatch(/^sha256:/);
     expect((manifest as { assets: { roads?: string } }).assets.roads).toBe("roads.json");
 
     expect(() =>
@@ -367,7 +374,15 @@ describe("map compiler", () => {
     await compilePack(sourceRoot, outputRoot, { id: "test-map", path: "test-map" });
     const compiled = JSON.parse(
       await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
-    ) as { segments: Array<{ provinceIdA: string; provinceIdB: string; typeId: string }> };
+    ) as {
+      segments: Array<{ provinceIdA: string; provinceIdB: string; typeId: string }>;
+      pairRoutes: Array<{
+        provinceIdA: string;
+        provinceIdB: string;
+        mode: string;
+        coordinates: Array<[number, number]>;
+      }>;
+    };
     expect(compiled.segments).toEqual([
       {
         id: "road-hw-other-tiny",
@@ -376,6 +391,82 @@ describe("map compiler", () => {
         provinceIdB: "tiny"
       }
     ]);
+    expect(compiled.pairRoutes).toEqual([
+      {
+        provinceIdA: "other",
+        provinceIdB: "tiny",
+        mode: "union-shortest",
+        coordinates: [
+          [0.015, 0.005],
+          [0.005, 0.005]
+        ]
+      }
+    ]);
+
+    const firstHash = JSON.parse(
+      await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
+    ) as { routeInputHash: string };
+    await writeFile(
+      join(geometryDir, "roads.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        segments: [
+          {
+            id: "road-hw-other-tiny",
+            typeId: "highway",
+            provinceIdA: "other",
+            provinceIdB: "tiny"
+          },
+          {
+            id: "road-local-other-tiny",
+            typeId: "local_road",
+            provinceIdA: "other",
+            provinceIdB: "tiny"
+          }
+        ]
+      }),
+      "utf8"
+    );
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    await compilePack(sourceRoot, outputRoot, { id: "test-map", path: "test-map" });
+    expect(log).toHaveBeenLastCalledWith(expect.stringContaining("road routes reused"));
+    const styleOnlyChange = JSON.parse(
+      await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
+    ) as { routeInputHash: string; segments: unknown[]; pairRoutes: unknown[] };
+    expect(styleOnlyChange.routeInputHash).toBe(firstHash.routeInputHash);
+    expect(styleOnlyChange.segments).toHaveLength(2);
+    expect(styleOnlyChange.pairRoutes).toHaveLength(1);
+
+    await writeFile(
+      join(geometryDir, "roads.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        segments: [
+          {
+            id: "road-hw-other-tiny",
+            typeId: "highway",
+            provinceIdA: "other",
+            provinceIdB: "tiny",
+            bend: { controlPoints: [[0.01, 0.006]] }
+          },
+          {
+            id: "road-local-other-tiny",
+            typeId: "local_road",
+            provinceIdA: "other",
+            provinceIdB: "tiny"
+          }
+        ]
+      }),
+      "utf8"
+    );
+    await compilePack(sourceRoot, outputRoot, { id: "test-map", path: "test-map" });
+    expect(log).toHaveBeenLastCalledWith(expect.stringContaining("road routes built"));
+    const bendChange = JSON.parse(
+      await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
+    ) as { routeInputHash: string; pairRoutes: Array<{ mode: string }> };
+    expect(bendChange.routeInputHash).not.toBe(firstHash.routeInputHash);
+    expect(bendChange.pairRoutes[0]?.mode).toBe("bend");
+    log.mockRestore();
   });
 
   it("parseCompileArgs requires --map and handles '--' separator", () => {

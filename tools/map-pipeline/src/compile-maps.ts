@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   adjacencyPairKey,
+  buildRoadPairRoutes,
   computeBBox,
   EMPTY_ROAD_COLLECTION,
   parseLineGeometry,
@@ -11,9 +12,11 @@ import {
   parseProvinceCapital,
   parseProvinceDescription,
   parseRoadCollection,
+  parseRuntimeRoadCollection,
   type GeoJsonGeometry,
   type LonLat,
-  type RoadCollection
+  type RoadCollection,
+  type RuntimeRoadCollection
 } from "@economic-simulator/map-runtime";
 import {
   aggregateDemographicsFromClasses,
@@ -30,7 +33,8 @@ import { compileGlobeMesh, serializeGlobeMesh } from "./globe-mesh.js";
 
 export const LOD_TOLERANCES = [0.25, 0.08, 0] as const;
 const GRID_CELL_SIZE = 5;
-const TOOL_VERSION = "0.6.1";
+const TOOL_VERSION = "0.7.0";
+const ROAD_ROUTING_VERSION = "1";
 
 type RecordValue = Record<string, unknown>;
 type Feature = {
@@ -40,6 +44,11 @@ type Feature = {
   geometry?: unknown;
 };
 type FeatureCollection = { type: "FeatureCollection"; features: Feature[] };
+type BoundaryFeature = Feature & {
+  leftProvinceId?: unknown;
+  rightProvinceId?: unknown;
+  coordinates?: unknown;
+};
 
 function isRecord(value: unknown): value is RecordValue {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -219,7 +228,9 @@ export async function compilePack(
     companiesDir: manifest.layers.companiesDir
   });
   assertAuthoredCrossRefs(authored, new Set(provinceIds));
-  sourceHashes.countries = sha256(await readFile(join(sourceDir, manifest.layers.countries), "utf8"));
+  sourceHashes.countries = sha256(
+    await readFile(join(sourceDir, manifest.layers.countries), "utf8")
+  );
   sourceHashes.provincesDir = sha256(
     JSON.stringify(
       [...authored.provinces.entries()].map(([id, pack]) => [
@@ -283,7 +294,8 @@ export async function compilePack(
   ) {
     throw new Error("boundaries must be a BoundaryCollection.");
   }
-  assertUniqueFeatureIds(boundaries.features, "boundaries");
+  const boundaryFeatures = boundaries.features as BoundaryFeature[];
+  assertUniqueFeatureIds(boundaryFeatures, "boundaries");
 
   const coastlines: Array<{ id: string; multi: boolean; coordinates: unknown }> = [];
   if (manifest.layers.coastlines !== undefined) {
@@ -309,17 +321,16 @@ export async function compilePack(
 
   const provinceIdSet = new Set(provinces.map((province) => province.id));
   const adjacencyPairs = new Set<string>();
-  for (const raw of boundaries.features) {
+  for (const raw of boundaryFeatures) {
     if (!isRecord(raw)) continue;
     const left = typeof raw.leftProvinceId === "string" ? raw.leftProvinceId : undefined;
     const right = typeof raw.rightProvinceId === "string" ? raw.rightProvinceId : undefined;
     if (left === undefined || right === undefined) continue;
     adjacencyPairs.add(adjacencyPairKey(left, right));
   }
-  const capitals = new Map(provinces.map((province) => [
-    province.id,
-    province.properties.capital.coordinates
-  ] as const));
+  const capitals = new Map(
+    provinces.map((province) => [province.id, province.properties.capital.coordinates] as const)
+  );
 
   let roadsCollection: RoadCollection = EMPTY_ROAD_COLLECTION;
   if (manifest.layers.roads !== undefined) {
@@ -333,6 +344,93 @@ export async function compilePack(
     });
   }
 
+  const outDir = join(outputRoot, entry.path, "compiled");
+  const provinceGeometryById = new Map<string, GeoJsonGeometry>();
+  for (const province of provinces) {
+    const geometry = province.lod.at(-1);
+    if (geometry === undefined) {
+      throw new Error(`Province ${province.id} is missing source-resolution geometry.`);
+    }
+    provinceGeometryById.set(province.id, geometry);
+  }
+  const routeInputs = new Map<
+    string,
+    {
+      readonly provinceIdA: string;
+      readonly provinceIdB: string;
+      readonly bends: readonly string[];
+    }
+  >();
+  for (const segment of roadsCollection.segments) {
+    const pair = adjacencyPairKey(segment.provinceIdA, segment.provinceIdB);
+    const existing = routeInputs.get(pair);
+    const bends = new Set(existing?.bends ?? []);
+    if (segment.bend !== undefined) bends.add(JSON.stringify(segment.bend.controlPoints));
+    routeInputs.set(pair, {
+      provinceIdA: segment.provinceIdA,
+      provinceIdB: segment.provinceIdB,
+      bends: [...bends].sort()
+    });
+  }
+  const routeInputHash = sha256(
+    JSON.stringify({
+      routingVersion: ROAD_ROUTING_VERSION,
+      pairs: [...routeInputs.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([pair, input]) => ({
+          pair,
+          ...input,
+          capitalA: capitals.get(input.provinceIdA),
+          capitalB: capitals.get(input.provinceIdB),
+          geometryA: provinceGeometryById.get(input.provinceIdA),
+          geometryB: provinceGeometryById.get(input.provinceIdB),
+          sharedBoundaries: boundaryFeatures
+            .filter(
+              (boundary) =>
+                isRecord(boundary) &&
+                typeof boundary.leftProvinceId === "string" &&
+                typeof boundary.rightProvinceId === "string" &&
+                adjacencyPairKey(boundary.leftProvinceId, boundary.rightProvinceId) === pair
+            )
+            .map((boundary) => (isRecord(boundary) ? boundary.coordinates : undefined))
+        }))
+    })
+  );
+  let runtimeRoads: RuntimeRoadCollection | undefined;
+  let reusedRoadRoutes = false;
+  try {
+    const cached = parseRuntimeRoadCollection(await readJson(join(outDir, "roads.json")), {
+      provinceIds: provinceIdSet,
+      adjacencyPairs,
+      capitals
+    });
+    if (cached.routeInputHash === routeInputHash) {
+      runtimeRoads = parseRuntimeRoadCollection(
+        { ...cached, segments: roadsCollection.segments },
+        { provinceIds: provinceIdSet, adjacencyPairs, capitals }
+      );
+      reusedRoadRoutes = true;
+    }
+  } catch {
+    runtimeRoads = undefined;
+  }
+  if (runtimeRoads === undefined) {
+    const pairRoutes = buildRoadPairRoutes(roadsCollection.segments, {
+      capitals,
+      provinceGeometryById,
+      onWarning: (message) => console.warn(message)
+    });
+    runtimeRoads = parseRuntimeRoadCollection(
+      {
+        schemaVersion: 2,
+        routeInputHash,
+        segments: roadsCollection.segments,
+        pairRoutes
+      },
+      { provinceIds: provinceIdSet, adjacencyPairs, capitals }
+    );
+  }
+
   const countries: Record<string, { nameEn: string; name?: string }> = {};
   for (const country of authored.countries) {
     countries[country.id] = {
@@ -341,9 +439,10 @@ export async function compilePack(
     };
   }
 
-  const demographics: Record<string, unknown> = aggregateDemographicsFromClasses(authored.provinces);
+  const demographics: Record<string, unknown> = aggregateDemographicsFromClasses(
+    authored.provinces
+  );
 
-  const outDir = join(outputRoot, entry.path, "compiled");
   await rm(outDir, { recursive: true, force: true });
   await mkdir(outDir, { recursive: true });
   const assetHashes: Record<string, string> = {};
@@ -360,17 +459,24 @@ export async function compilePack(
       features: coastlines
     })
   ).hash;
-  assetHashes.roads = (await writeJson(join(outDir, "roads.json"), roadsCollection)).hash;
+  assetHashes.roads = (await writeJson(join(outDir, "roads.json"), runtimeRoads)).hash;
   assetHashes.countries = (await writeJson(join(outDir, "countries.json"), countries)).hash;
-  assetHashes.demographics = (await writeJson(join(outDir, "demographics.json"), demographics)).hash;
+  assetHashes.demographics = (
+    await writeJson(join(outDir, "demographics.json"), demographics)
+  ).hash;
   const provinceDefinitions = buildProvinceDefinitions(manifest.id, authored);
   assetHashes.provinceDefinitions = (
     await writeJson(join(outDir, "province-definitions.json"), provinceDefinitions)
   ).hash;
   const scenarioSeed = buildScenarioSeed(manifest.id, authored);
-  assetHashes.scenarioSeed = (await writeJson(join(outDir, "scenario-seed.json"), scenarioSeed)).hash;
+  assetHashes.scenarioSeed = (
+    await writeJson(join(outDir, "scenario-seed.json"), scenarioSeed)
+  ).hash;
   if (manifest.id === "world-modern") {
-    const gameDataProvincesPath = resolve(repoRootFromCompile(), "packages/game-data/data/provinces.json");
+    const gameDataProvincesPath = resolve(
+      repoRootFromCompile(),
+      "packages/game-data/data/provinces.json"
+    );
     await writeJson(gameDataProvincesPath, provinceDefinitions);
   }
   assetHashes.spatialIndex = (
@@ -445,13 +551,12 @@ export async function compilePack(
     ...manifestCore,
     provenance: { ...manifestCore.provenance, outputHash }
   });
-  console.log(`Compiled authored map: ${entry.id} (${provinces.length} provinces)`);
+  console.log(
+    `Compiled authored map: ${entry.id} (${provinces.length} provinces; road routes ${reusedRoadRoutes ? "reused" : "built"})`
+  );
 }
 
-export async function compileSingleMap(
-  sourceRoot: string,
-  mapId: string
-): Promise<void> {
+export async function compileSingleMap(sourceRoot: string, mapId: string): Promise<void> {
   if (!mapId || mapId.trim() === "") {
     throw new Error("compileSingleMap requires a valid non-empty mapId.");
   }

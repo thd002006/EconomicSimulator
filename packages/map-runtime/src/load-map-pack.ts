@@ -10,8 +10,8 @@ import { createGlobeMeshData, parseGlobeMeshMetadata } from "./globe-mesh.js";
 import { EDUCATION_LEVEL_IDS } from "./types.js";
 import {
   buildAdjacencyPairSet,
-  EMPTY_ROAD_COLLECTION,
-  parseRoadCollection
+  EMPTY_RUNTIME_ROAD_COLLECTION,
+  parseRuntimeRoadCollection
 } from "./roads.js";
 import type {
   CountryNameEntry,
@@ -26,7 +26,7 @@ import type {
   ProvinceDemographicsTable,
   ProvinceFeature,
   ProvinceFeatureProperties,
-  RoadCollection,
+  RuntimeRoadCollection,
   SpatialIndexData
 } from "./types.js";
 import type { LonLat } from "./types.js";
@@ -453,7 +453,7 @@ export interface LoadedMapPack {
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
-  readonly roads: RoadCollection;
+  readonly roads: RuntimeRoadCollection;
   readonly countries: CountryNameTable;
   readonly demographics?: ProvinceDemographicsTable;
   readonly scenarioSeed?: ScenarioSeedData;
@@ -624,8 +624,8 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
   }
   const roads =
     raw.roads === undefined
-      ? EMPTY_ROAD_COLLECTION
-      : parseRoadCollection(raw.roads, {
+      ? EMPTY_RUNTIME_ROAD_COLLECTION
+      : parseRuntimeRoadCollection(raw.roads, {
           provinceIds,
           adjacencyPairs: buildAdjacencyPairSet(boundaries),
           capitals

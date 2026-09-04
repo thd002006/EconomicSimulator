@@ -154,6 +154,21 @@ test("exportProjectToL3L4 auto-generates missing L2 classes from L1 demographics
   };
   await writeFile(join(projectDir, "project.json"), JSON.stringify(projectMeta));
   await writeFile(join(projectDir, "groups.json"), JSON.stringify(projectGroups));
+  await writeFile(
+    join(projectDir, "roads.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      segments: [
+        {
+          id: "G1|G2:local_road",
+          typeId: "local_road",
+          provinceIdA: "G1",
+          provinceIdB: "G2",
+          bend: { controlPoints: [[2.5, 2.5]] }
+        }
+      ]
+    })
+  );
 
   const result = await exportProjectToL3L4({
     generatorRoot: genRoot,
@@ -185,6 +200,10 @@ test("exportProjectToL3L4 auto-generates missing L2 classes from L1 demographics
     name: "Inside",
     nameEn: "Inside EN"
   });
+  const exportedRoads = JSON.parse(
+    await readFile(join(result.outDir, "geometry/roads.json"), "utf8")
+  ) as { segments: Array<{ bend?: { controlPoints: number[][] } }> };
+  assert.deepEqual(exportedRoads.segments[0]!.bend?.controlPoints, [[2.5, 2.5]]);
 
   // Check that L2 project got classes generated
   const l2Classes = await readdir(join(projectDir, "provinces/P1/classes"));
@@ -231,7 +250,15 @@ test("exportProjectToL3L4 selects most populous member as coreProvinceId for mer
         properties: { adm0A3: "AAA", name: "P1", nameEn: "P1" },
         geometry: {
           type: "Polygon",
-          coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+          coordinates: [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+              [0, 0]
+            ]
+          ]
         }
       },
       {
@@ -240,7 +267,15 @@ test("exportProjectToL3L4 selects most populous member as coreProvinceId for mer
         properties: { adm0A3: "AAA", name: "P2", nameEn: "P2" },
         geometry: {
           type: "Polygon",
-          coordinates: [[[1, 0], [2, 0], [2, 1], [1, 1], [1, 0]]]
+          coordinates: [
+            [
+              [1, 0],
+              [2, 0],
+              [2, 1],
+              [1, 1],
+              [1, 0]
+            ]
+          ]
         }
       },
       {
@@ -249,7 +284,15 @@ test("exportProjectToL3L4 selects most populous member as coreProvinceId for mer
         properties: { adm0A3: "AAA", name: "P3", nameEn: "P3" },
         geometry: {
           type: "Polygon",
-          coordinates: [[[2, 0], [3, 0], [3, 1], [2, 1], [2, 0]]]
+          coordinates: [
+            [
+              [2, 0],
+              [3, 0],
+              [3, 1],
+              [2, 1],
+              [2, 0]
+            ]
+          ]
         }
       }
     ]
@@ -294,7 +337,13 @@ test("exportProjectToL3L4 selects most populous member as coreProvinceId for mer
   };
   const projectGroups = {
     groups: [
-      { id: "G_MERGED", countryId: "AAA", members: ["P1", "P2", "P3"], name: "Merged Group", nameEn: "Merged Group" }
+      {
+        id: "G_MERGED",
+        countryId: "AAA",
+        members: ["P1", "P2", "P3"],
+        name: "Merged Group",
+        nameEn: "Merged Group"
+      }
     ]
   };
   await writeFile(join(projectDir, "project.json"), JSON.stringify(projectMeta));

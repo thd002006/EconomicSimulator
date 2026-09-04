@@ -4,7 +4,9 @@ import {
   adjacencyPairKey,
   buildAdjacencyPairSet,
   buildRoadDrawBatches,
+  buildRoadPairRoutes,
   parseRoadCollection,
+  parseRuntimeRoadCollection,
   roadSegmentKey,
   sampleRoadSegmentCurve
 } from "../src/index.js";
@@ -124,6 +126,312 @@ describe("parseRoadCollection", () => {
   });
 });
 
+describe("compiled road routes", () => {
+  it("requires exactly one route for every referenced province pair", () => {
+    const context = {
+      provinceIds: new Set(["A", "B"]),
+      adjacencyPairs: new Set(["A|B"]),
+      capitals: new Map<string, readonly [number, number]>([
+        ["A", [0.5, 0.5]],
+        ["B", [1.5, 0.5]]
+      ])
+    };
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [{ id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" }],
+          pairRoutes: []
+        },
+        context
+      )
+    ).toThrow(/ROAD_ROUTE_MISSING/);
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 1,
+          segments: []
+        },
+        context
+      )
+    ).toThrow(/map:publish/);
+  });
+
+  it("precomputes one route per pair and leaves a single local road centered", () => {
+    const segments: RoadSegment[] = [
+      { id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" },
+      { id: "l", typeId: "local_road", provinceIdA: "A", provinceIdB: "B" }
+    ];
+    const capitals = new Map<string, readonly [number, number]>([
+      ["A", [0.5, 0.5]],
+      ["B", [1.5, 0.5]]
+    ]);
+    const routes = buildRoadPairRoutes(segments, { capitals });
+    expect(routes).toHaveLength(1);
+
+    const single = buildRoadDrawBatches([segments[1]!], { pairRoutes: routes });
+    expect(single[0]!.polylines[0]).toEqual([
+      [0.5, 0.5],
+      [1.5, 0.5]
+    ]);
+
+    const multiple = buildRoadDrawBatches(segments, { pairRoutes: routes });
+    expect(multiple.find((batch) => batch.typeId === "highway")!.polylines[0]).toEqual([
+      [0.5, 0.5],
+      [1.5, 0.5]
+    ]);
+    expect(multiple.find((batch) => batch.typeId === "local_road")!.polylines[0]!.length).toBe(4);
+  });
+
+  it("rejects conflicting pair bends and marks disconnected unions as fallback", () => {
+    const capitals = new Map<string, readonly [number, number]>([
+      ["A", [0.5, 0.5]],
+      ["B", [3.5, 0.5]]
+    ]);
+    expect(() =>
+      buildRoadPairRoutes(
+        [
+          {
+            id: "h",
+            typeId: "highway",
+            provinceIdA: "A",
+            provinceIdB: "B",
+            bend: { controlPoints: [[1, 0.5]] }
+          },
+          {
+            id: "l",
+            typeId: "local_road",
+            provinceIdA: "A",
+            provinceIdB: "B",
+            bend: { controlPoints: [[2, 0.5]] }
+          }
+        ],
+        { capitals }
+      )
+    ).toThrow(/ROAD_BEND_CONFLICT/);
+
+    const warnings: string[] = [];
+    const routes = buildRoadPairRoutes(
+      [{ id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" }],
+      {
+        capitals,
+        provinceGeometryById: new Map([
+          [
+            "A",
+            {
+              type: "Polygon" as const,
+              coordinates: [
+                [
+                  [0, 0],
+                  [1, 0],
+                  [1, 1],
+                  [0, 1],
+                  [0, 0]
+                ]
+              ]
+            }
+          ],
+          [
+            "B",
+            {
+              type: "Polygon" as const,
+              coordinates: [
+                [
+                  [3, 0],
+                  [4, 0],
+                  [4, 1],
+                  [3, 1],
+                  [3, 0]
+                ]
+              ]
+            }
+          ]
+        ]),
+        onWarning: (warning) => warnings.push(warning)
+      }
+    );
+    expect(routes[0]!.mode).toBe("straight-fallback");
+    expect(warnings[0]).toMatch(/ROAD_ROUTE_UNREACHABLE_FALLBACK/);
+  });
+
+  it("rejects an authored bend that leaves the province union", () => {
+    expect(() =>
+      buildRoadPairRoutes(
+        [
+          {
+            id: "h",
+            typeId: "highway",
+            provinceIdA: "A",
+            provinceIdB: "B",
+            bend: { controlPoints: [[1, 2]] }
+          }
+        ],
+        {
+          capitals: new Map([
+            ["A", [0.5, 0.5] as const],
+            ["B", [1.5, 0.5] as const]
+          ]),
+          provinceGeometryById: new Map([
+            [
+              "A",
+              {
+                type: "Polygon" as const,
+                coordinates: [
+                  [
+                    [0, 0],
+                    [1, 0],
+                    [1, 1],
+                    [0, 1],
+                    [0, 0]
+                  ]
+                ]
+              }
+            ],
+            [
+              "B",
+              {
+                type: "Polygon" as const,
+                coordinates: [
+                  [
+                    [1, 0],
+                    [2, 0],
+                    [2, 1],
+                    [1, 1],
+                    [1, 0]
+                  ]
+                ]
+              }
+            ]
+          ])
+        }
+      )
+    ).toThrow(/ROAD_BEND_OUTSIDE_UNION/);
+  });
+
+  it("routes around holes, selects the connected multipolygon component, and wraps the dateline", () => {
+    const segment: RoadSegment = {
+      id: "h",
+      typeId: "highway",
+      provinceIdA: "A",
+      provinceIdB: "B"
+    };
+    const aroundHole = sampleRoadSegmentCurve(segment, [0.5, 1.5], [3.5, 1.5], undefined, {
+      geometryA: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [0, 0],
+            [3, 0],
+            [3, 3],
+            [0, 3],
+            [0, 0]
+          ],
+          [
+            [1, 1],
+            [1, 2],
+            [2, 2],
+            [2, 1],
+            [1, 1]
+          ]
+        ]
+      },
+      geometryB: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [3, 0],
+            [4, 0],
+            [4, 3],
+            [3, 3],
+            [3, 0]
+          ]
+        ]
+      }
+    });
+    expect(aroundHole.length).toBeGreaterThan(2);
+    assertEdgesInUnion(aroundHole, (lon, lat) => {
+      const inA =
+        lon >= 0 && lon <= 3 && lat >= 0 && lat <= 3 && !(lon > 1 && lon < 2 && lat > 1 && lat < 2);
+      const inB = lon >= 3 && lon <= 4 && lat >= 0 && lat <= 3;
+      return inA || inB;
+    });
+
+    const multi = sampleRoadSegmentCurve(segment, [0.5, 0.5], [1.5, 0.5], undefined, {
+      geometryA: {
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+              [0, 0]
+            ]
+          ],
+          [
+            [
+              [10, 0],
+              [11, 0],
+              [11, 1],
+              [10, 1],
+              [10, 0]
+            ]
+          ]
+        ]
+      },
+      geometryB: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [1, 0],
+            [2, 0],
+            [2, 1],
+            [1, 1],
+            [1, 0]
+          ]
+        ]
+      }
+    });
+    expect(multi).toEqual([
+      [0.5, 0.5],
+      [1.5, 0.5]
+    ]);
+
+    const dateline = sampleRoadSegmentCurve(segment, [179, 0], [-179, 0], undefined, {
+      geometryA: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [178, -1],
+            [180, -1],
+            [180, 1],
+            [178, 1],
+            [178, -1]
+          ]
+        ]
+      },
+      geometryB: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-180, -1],
+            [-178, -1],
+            [-178, 1],
+            [-180, 1],
+            [-180, -1]
+          ]
+        ]
+      }
+    });
+    expect(dateline).toEqual([
+      [179, 0],
+      [-179, 0]
+    ]);
+  });
+});
+
 describe("buildRoadDrawBatches", () => {
   it("samples metro-style straight capital-to-capital lines with PCB lane jogs", () => {
     const segments: RoadSegment[] = [
@@ -176,13 +484,7 @@ describe("buildRoadDrawBatches", () => {
     const geomA = {
       type: "Polygon" as const,
       coordinates: [
-        [
-          [0, 0] as const,
-          [1.05, 0] as const,
-          [1.05, 1] as const,
-          [0, 1] as const,
-          [0, 0] as const
-        ]
+        [[0, 0] as const, [1.05, 0] as const, [1.05, 1] as const, [0, 1] as const, [0, 0] as const]
       ]
     };
     const geomB = {
@@ -268,16 +570,10 @@ describe("buildRoadDrawBatches", () => {
 
     assertEdgesInUnion(curve, (lon, lat) => {
       const inA =
-        lon >= 0 &&
-        lon <= 0.85 &&
-        lat >= 0 &&
-        lat <= 1 ||
+        (lon >= 0 && lon <= 0.85 && lat >= 0 && lat <= 1) ||
         (lon >= 0.85 && lon <= 1 && lat >= 0 && lat <= 0.2);
       const inB =
-        lon >= 1.15 &&
-        lon <= 2 &&
-        lat >= 0 &&
-        lat <= 1 ||
+        (lon >= 1.15 && lon <= 2 && lat >= 0 && lat <= 1) ||
         (lon >= 1 && lon <= 1.15 && lat >= 0 && lat <= 0.2);
       return inA || inB;
     });

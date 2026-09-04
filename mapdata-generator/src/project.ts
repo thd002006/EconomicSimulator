@@ -26,6 +26,9 @@ export interface ProjectRoadSegment {
   readonly provinceIdB: string;
   readonly name?: string;
   readonly nameEn?: string;
+  readonly bend?: {
+    readonly controlPoints: readonly (readonly [number, number])[];
+  };
 }
 
 export interface ProjectRoadsFile {
@@ -207,13 +210,39 @@ function parseRoads(value: unknown): ProjectRoadsFile {
     }
     const a = entry.provinceIdA < entry.provinceIdB ? entry.provinceIdA : entry.provinceIdB;
     const b = entry.provinceIdA < entry.provinceIdB ? entry.provinceIdB : entry.provinceIdA;
+    let bend: ProjectRoadSegment["bend"];
+    if (entry.bend !== undefined) {
+      if (!isRecord(entry.bend) || !Array.isArray(entry.bend.controlPoints)) {
+        throw new Error(`roads.segments[${index}].bend must contain controlPoints.`);
+      }
+      if (entry.bend.controlPoints.length !== 1 && entry.bend.controlPoints.length !== 2) {
+        throw new Error(`roads.segments[${index}].bend.controlPoints must contain 1 or 2 points.`);
+      }
+      const controlPoints = entry.bend.controlPoints.map((point) => {
+        if (
+          !Array.isArray(point) ||
+          point.length < 2 ||
+          typeof point[0] !== "number" ||
+          !Number.isFinite(point[0]) ||
+          typeof point[1] !== "number" ||
+          !Number.isFinite(point[1])
+        ) {
+          throw new Error(
+            `roads.segments[${index}].bend.controlPoints must be finite coordinates.`
+          );
+        }
+        return [point[0], point[1]] as const;
+      });
+      bend = { controlPoints };
+    }
     segments.push({
       id: entry.id,
       typeId: entry.typeId,
       provinceIdA: a,
       provinceIdB: b,
       ...(typeof entry.name === "string" ? { name: entry.name } : {}),
-      ...(typeof entry.nameEn === "string" ? { nameEn: entry.nameEn } : {})
+      ...(typeof entry.nameEn === "string" ? { nameEn: entry.nameEn } : {}),
+      ...(bend === undefined ? {} : { bend })
     });
   }
   return { schemaVersion: 1, segments };
@@ -265,7 +294,10 @@ export async function saveProject(projectDir: string, project: EditorProject): P
 export async function listProjects(projectsRoot: string): Promise<string[]> {
   try {
     const entries = await readdir(projectsRoot, { withFileTypes: true });
-    return entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort();
   } catch {
     return [];
   }

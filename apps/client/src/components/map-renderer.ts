@@ -439,7 +439,8 @@ export class GlobeRenderer {
     this.rebuildPalette();
 
     const authoredLod = model.globeMesh.lods.at(-1);
-    if (authoredLod === undefined) throw new Error("Map pack is missing the source-resolution mesh.");
+    if (authoredLod === undefined)
+      throw new Error("Map pack is missing the source-resolution mesh.");
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(authoredLod.positions, 3));
     geometry.setAttribute("provinceSlot", new THREE.BufferAttribute(authoredLod.provinceSlots, 1));
@@ -513,18 +514,8 @@ export class GlobeRenderer {
   }
 
   private buildRoadLines(): void {
-    const capitals = new Map(
-      this.model.provinces.map((province) => [
-        province.id,
-        province.properties.capital.coordinates
-      ] as const)
-    );
     const batches = buildRoadDrawBatches(this.model.roads.segments, {
-      capitals,
-      boundaries: this.model.boundaries,
-      provinceGeometryById: new Map(
-        this.model.provinces.map((province) => [province.id, province.geometry] as const)
-      )
+      pairRoutes: this.model.roads.pairRoutes
     });
     const batchByType = new Map(batches.map((batch) => [batch.typeId, batch]));
 
@@ -603,8 +594,7 @@ export class GlobeRenderer {
       if (!Array.isArray(material) && material instanceof LineMaterial) {
         roadVisibility.set(
           material,
-          entry.lines.userData.hasRoadGeometry === true &&
-            halfHeight <= entry.maxVisibleHalfHeight
+          entry.lines.userData.hasRoadGeometry === true && halfHeight <= entry.maxVisibleHalfHeight
         );
       }
     }

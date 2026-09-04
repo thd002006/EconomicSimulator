@@ -223,7 +223,7 @@ describe("map runtime validation", () => {
       },
       provinces: [left, right],
       coastlines: [],
-      roads: { schemaVersion: 1, segments: [] },
+      roads: { schemaVersion: 2, routeInputHash: "empty", segments: [], pairRoutes: [] },
       countries: {
         AAA: { nameEn: "Alpha" },
         BBB: { nameEn: "Beta" }

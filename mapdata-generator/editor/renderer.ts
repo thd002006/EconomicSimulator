@@ -6,9 +6,11 @@ import earcut from "earcut";
 import {
   adjacencyPairKey,
   buildRoadDrawBatches,
+  buildRoadPairRoutes,
   roadTypesSortedByDrawOrder,
+  type GeoJsonGeometry,
   type LonLat,
-  type MapBoundary,
+  type RoadPairRoute,
   type RoadSegment
 } from "@economic-simulator/map-runtime";
 
@@ -26,10 +28,12 @@ export interface BaseProvinceFeature {
   nameEn: string;
   geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
   bbox: LonLatBBox;
-  capital?: {
-    name?: string | undefined;
-    coordinates: [number, number];
-  } | undefined;
+  capital?:
+    | {
+        name?: string | undefined;
+        coordinates: [number, number];
+      }
+    | undefined;
 }
 
 export interface BaseBoundary {
@@ -79,6 +83,9 @@ export interface EditorProject {
       provinceIdB: string;
       name?: string;
       nameEn?: string;
+      bend?: {
+        controlPoints: [number, number][];
+      };
     }>;
   };
 }
@@ -160,7 +167,11 @@ export function pointInRing(lon: number, lat: number, ring: number[][]): boolean
   return inside;
 }
 
-export function pointInGeometry(lon: number, lat: number, geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon): boolean {
+export function pointInGeometry(
+  lon: number,
+  lat: number,
+  geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon
+): boolean {
   if (geometry.type === "Polygon") {
     return pointInPolygon(lon, lat, geometry.coordinates);
   }
@@ -296,7 +307,7 @@ function clipSegmentToWorld(
   return segments;
 }
 
-function pushLineSegments(target: number[], coordinates: readonly [number, number][], z: number): void {
+function pushLineSegments(target: number[], coordinates: readonly LonLat[], z: number): void {
   for (let index = 1; index < coordinates.length; index += 1) {
     const previous = coordinates[index - 1]!;
     const current = coordinates[index]!;
@@ -526,6 +537,10 @@ export class EditorMapRenderer {
   private groupLines?: LineSegments2;
   private countryLines?: LineSegments2;
   private roadLines: LineSegments2[] = [];
+  private roadPairRouteCache = new Map<
+    string,
+    { readonly inputKey: string; readonly route: RoadPairRoute }
+  >();
 
   private paletteTexture?: THREE.DataTexture;
   private paletteBytes?: Uint8Array;
@@ -571,6 +586,7 @@ export class EditorMapRenderer {
 
   public setBaseData(baseData: EditorBaseData): void {
     this.baseData = baseData;
+    this.roadPairRouteCache.clear();
     this.spatialIndex = new SpatialGridIndex(baseData.provinces);
     this.slotByProvinceId.clear();
     baseData.provinces.forEach((f, slot) => this.slotByProvinceId.set(f.id, slot));
@@ -639,12 +655,7 @@ export class EditorMapRenderer {
       3
     );
 
-    this.tileTemplate.add(
-      this.coastLines,
-      this.provinceLines,
-      this.groupLines,
-      this.countryLines
-    );
+    this.tileTemplate.add(this.coastLines, this.provinceLines, this.groupLines, this.countryLines);
 
     this.mapRoot.clear();
     for (const offset of TILE_OFFSETS) {
@@ -669,9 +680,7 @@ export class EditorMapRenderer {
     for (let slot = 0; slot < this.baseData.provinces.length; slot++) {
       const p = this.baseData.provinces[slot]!;
       const group = memberToGroup.get(p.id);
-      const color = group
-        ? groupColor(group.id, group.countryId)
-        : countryFillColor(p.countryId);
+      const color = group ? groupColor(group.id, group.countryId) : countryFillColor(p.countryId);
 
       this.paletteBytes[slot * 4] = Math.round(color.r * 255);
       this.paletteBytes[slot * 4 + 1] = Math.round(color.g * 255);
@@ -703,7 +712,7 @@ export class EditorMapRenderer {
 
     for (const b of this.baseData.boundaries) {
       const leftCountry = provToCountry.get(b.leftProvinceId) ?? "";
-      const rightCountry = b.rightProvinceId ? provToCountry.get(b.rightProvinceId) ?? "" : "";
+      const rightCountry = b.rightProvinceId ? (provToCountry.get(b.rightProvinceId) ?? "") : "";
       const isCountryBorder = b.rightProvinceId === null || leftCountry !== rightCountry;
 
       if (isCountryBorder) {
@@ -711,7 +720,9 @@ export class EditorMapRenderer {
         pushLineSegments(countryPos, b.coordinates, COUNTRY_LINE_Z);
       } else {
         const leftG = memberToGroup.get(b.leftProvinceId) ?? b.leftProvinceId;
-        const rightG = b.rightProvinceId ? memberToGroup.get(b.rightProvinceId) ?? b.rightProvinceId : null;
+        const rightG = b.rightProvinceId
+          ? (memberToGroup.get(b.rightProvinceId) ?? b.rightProvinceId)
+          : null;
         const isGroupBorder = rightG !== null && leftG !== rightG;
 
         if (isGroupBorder) {
@@ -795,42 +806,84 @@ export class EditorMapRenderer {
       }
     }
 
-    const groupBoundaries: MapBoundary[] = [];
-    const seenPairs = new Set<string>();
-    for (const boundary of this.baseData.boundaries) {
-      if (boundary.rightProvinceId === null) continue;
-      const left = memberToGroup.get(boundary.leftProvinceId);
-      const right = memberToGroup.get(boundary.rightProvinceId);
-      if (left === undefined || right === undefined || left === right) continue;
-      const key = adjacencyPairKey(left, right);
-      if (seenPairs.has(key)) continue;
-      seenPairs.add(key);
-      groupBoundaries.push({
-        id: `group-${key}`,
-        leftProvinceId: left < right ? left : right,
-        rightProvinceId: left < right ? right : left,
-        coordinates: boundary.coordinates
-      });
-    }
-
     const segments: RoadSegment[] = this.project.roads.segments.map((segment) => ({
       id: segment.id,
       typeId: segment.typeId,
       provinceIdA: segment.provinceIdA,
       provinceIdB: segment.provinceIdB,
       ...(segment.name === undefined ? {} : { name: segment.name }),
-      ...(segment.nameEn === undefined ? {} : { nameEn: segment.nameEn })
+      ...(segment.nameEn === undefined ? {} : { nameEn: segment.nameEn }),
+      ...(segment.bend === undefined ? {} : { bend: segment.bend })
     }));
-    const provinceGeometryById = new Map<string, (typeof this.baseData.provinces)[number]["geometry"]>();
-    for (const province of this.baseData.provinces) {
-      const groupId = memberToGroup.get(province.id);
-      if (groupId === undefined || provinceGeometryById.has(groupId)) continue;
-      provinceGeometryById.set(groupId, province.geometry);
+    const provinceGeometryById = new Map<string, GeoJsonGeometry>();
+    const provinceById = new Map(
+      this.baseData.provinces.map((province) => [province.id, province])
+    );
+    for (const group of this.project.groups) {
+      const polygons: LonLat[][][] = [];
+      for (const memberId of group.members) {
+        const geometry = provinceById.get(memberId)?.geometry;
+        if (geometry?.type === "Polygon") {
+          polygons.push(
+            geometry.coordinates.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
+          );
+        }
+        if (geometry?.type === "MultiPolygon") {
+          polygons.push(
+            ...geometry.coordinates.map((polygon) =>
+              polygon.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
+            )
+          );
+        }
+      }
+      provinceGeometryById.set(group.id, { type: "MultiPolygon", coordinates: polygons });
+    }
+
+    const segmentsByPair = new Map<string, RoadSegment[]>();
+    for (const segment of segments) {
+      const pair = adjacencyPairKey(segment.provinceIdA, segment.provinceIdB);
+      const list = segmentsByPair.get(pair) ?? [];
+      list.push(segment);
+      segmentsByPair.set(pair, list);
+    }
+    const pairRoutes: RoadPairRoute[] = [];
+    const activePairs = new Set<string>();
+    const groupById = new Map(this.project.groups.map((group) => [group.id, group]));
+    for (const [pair, pairSegments] of segmentsByPair) {
+      activePairs.add(pair);
+      const [provinceIdA, provinceIdB] = pair.split("|") as [string, string];
+      const inputKey = JSON.stringify({
+        provinceIdA,
+        provinceIdB,
+        membersA: groupById.get(provinceIdA)?.members,
+        membersB: groupById.get(provinceIdB)?.members,
+        capitalA: capitals.get(provinceIdA),
+        capitalB: capitals.get(provinceIdB),
+        bends: [
+          ...new Set(
+            pairSegments.flatMap((segment) =>
+              segment.bend === undefined ? [] : [JSON.stringify(segment.bend.controlPoints)]
+            )
+          )
+        ].sort()
+      });
+      const cached = this.roadPairRouteCache.get(pair);
+      if (cached?.inputKey === inputKey) {
+        pairRoutes.push(cached.route);
+        continue;
+      }
+      const route = buildRoadPairRoutes(pairSegments, {
+        capitals,
+        provinceGeometryById
+      })[0]!;
+      this.roadPairRouteCache.set(pair, { inputKey, route });
+      pairRoutes.push(route);
+    }
+    for (const pair of this.roadPairRouteCache.keys()) {
+      if (!activePairs.has(pair)) this.roadPairRouteCache.delete(pair);
     }
     const batches = buildRoadDrawBatches(segments, {
-      capitals,
-      boundaries: groupBoundaries,
-      provinceGeometryById
+      pairRoutes
     });
     const batchByType = new Map(batches.map((batch) => [batch.typeId, batch]));
     for (const typeDef of roadTypesSortedByDrawOrder()) {
@@ -841,6 +894,17 @@ export class EditorMapRenderer {
           pushLineSegments(positions, polyline, GROUP_LINE_Z + 0.002);
         }
       }
+      if (typeDef.casingColor !== undefined && typeDef.casingWidth !== undefined) {
+        const casing = makeWideLines(
+          positions,
+          typeDef.casingColor,
+          typeDef.casingWidth,
+          Math.min(1, typeDef.strokeOpacity + 0.1),
+          3
+        );
+        this.roadLines.push(casing);
+        this.tileTemplate.add(casing);
+      }
       const lines = makeWideLines(
         positions,
         typeDef.strokeColor,
@@ -848,6 +912,17 @@ export class EditorMapRenderer {
         typeDef.strokeOpacity,
         3
       );
+      if (
+        typeDef.dashSize !== undefined &&
+        typeDef.gapSize !== undefined &&
+        !Array.isArray(lines.material) &&
+        lines.material instanceof LineMaterial
+      ) {
+        lines.material.dashed = true;
+        lines.material.dashSize = typeDef.dashSize;
+        lines.material.gapSize = typeDef.gapSize;
+        lines.computeLineDistances();
+      }
       this.roadLines.push(lines);
       this.tileTemplate.add(lines);
     }
@@ -963,11 +1038,8 @@ export class EditorMapRenderer {
   }
 
   private setupEvents(): void {
-    let pointerMoved = false;
-
     this.canvas.addEventListener("pointerdown", (e) => {
       this.dragging = true;
-      pointerMoved = false;
       this.prevMouse.set(e.clientX, e.clientY, 0);
     });
 
@@ -975,8 +1047,6 @@ export class EditorMapRenderer {
       if (this.dragging) {
         const dx = e.clientX - this.prevMouse.x;
         const dy = e.clientY - this.prevMouse.y;
-        if (Math.abs(dx) > 2 || Math.abs(dy) > 2) pointerMoved = true;
-
         const rect = this.canvas.getBoundingClientRect();
         const aspect = rect.width / rect.height;
         const halfW = this.halfHeight * aspect;
@@ -995,13 +1065,17 @@ export class EditorMapRenderer {
       this.dragging = false;
     });
 
-    this.canvas.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const factor = e.deltaY > 0 ? 1.15 : 0.87;
-      this.halfHeight = THREE.MathUtils.clamp(this.halfHeight * factor, 4, 85);
-      this.applyView();
-      this.render();
-    }, { passive: false });
+    this.canvas.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 1.15 : 0.87;
+        this.halfHeight = THREE.MathUtils.clamp(this.halfHeight * factor, 4, 85);
+        this.applyView();
+        this.render();
+      },
+      { passive: false }
+    );
 
     window.addEventListener("resize", () => this.resize());
   }

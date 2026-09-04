@@ -22,10 +22,13 @@ export type {
   ProvinceFeatureProperties,
   RoadBendOverride,
   RoadCollection,
+  RoadPairRoute,
+  RoadPairRouteMode,
   RoadSegment,
   RoadSegmentId,
   RoadTypeDefinition,
   RoadTypeId,
+  RuntimeRoadCollection,
   SpatialIndexData,
   Vec3
 } from "./types.js";
@@ -85,17 +88,21 @@ export {
 } from "./road-types.js";
 export {
   EMPTY_ROAD_COLLECTION,
+  EMPTY_RUNTIME_ROAD_COLLECTION,
   adjacencyPairKey,
   buildAdjacencyPairSet,
   buildBoundaryMidpointIndex,
   buildSharedBoundaryIndex,
   buildRoadDrawBatches,
+  buildRoadPairRoutes,
   parseRoadCollection,
+  parseRuntimeRoadCollection,
   roadSegmentKey,
   sampleRoadSegmentCurve
 } from "./roads.js";
 export type {
   BuildRoadDrawBatchesOptions,
+  BuildRoadPairRoutesOptions,
   RoadDrawBatch,
   RoadParseContext,
   SampleRoadCurveOptions

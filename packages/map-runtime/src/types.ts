@@ -135,6 +135,24 @@ export interface RoadCollection {
   readonly segments: readonly RoadSegment[];
 }
 
+export type RoadPairRouteMode = "union-shortest" | "bend" | "straight-fallback";
+
+export interface RoadPairRoute {
+  /** Normalized so provinceIdA < provinceIdB (lexicographic). */
+  readonly provinceIdA: string;
+  readonly provinceIdB: string;
+  readonly mode: RoadPairRouteMode;
+  readonly coordinates: readonly LonLat[];
+}
+
+/** L4 map asset. Expensive A∪B routing is completed by map:publish. */
+export interface RuntimeRoadCollection {
+  readonly schemaVersion: 2;
+  readonly routeInputHash: string;
+  readonly segments: readonly RoadSegment[];
+  readonly pairRoutes: readonly RoadPairRoute[];
+}
+
 export interface RoadTypeDefinition {
   readonly id: RoadTypeId;
   readonly nameKey: string;
@@ -181,7 +199,7 @@ export interface MapViewModel {
   readonly provinces: readonly ProvinceFeature[];
   readonly coastlines: readonly MapFeature[];
   readonly boundaries: readonly MapBoundary[];
-  readonly roads: RoadCollection;
+  readonly roads: RuntimeRoadCollection;
   readonly countries: CountryNameTable;
   readonly globeMesh: GlobeMeshData;
   readonly hooks: MapViewModelHooks;
