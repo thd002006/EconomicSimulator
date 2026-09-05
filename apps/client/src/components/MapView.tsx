@@ -4,10 +4,12 @@ import { createMapViewModel, type ProvinceFeature } from "@economic-simulator/ma
 
 import {
   boundaryOwnerChanges,
+  DEFAULT_MAP_LAYER_VISIBILITY,
   GlobeRenderer,
   provinceLabel,
   showProvinceBorders,
-  type GlobeRuntimeModel
+  type GlobeRuntimeModel,
+  type MapLayerVisibility
 } from "./map-renderer";
 import { MapHoverCard } from "../ui/MapHoverCard";
 import type { GameUiLookups, MapDisplayLookups } from "../ui/game-lookups";
@@ -79,6 +81,9 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [hovered, setHovered] = useState<MapSelection | undefined>(undefined);
   const [contextEpoch, setContextEpoch] = useState(0);
+  const [layerVisibility, setLayerVisibility] = useState<MapLayerVisibility>(
+    DEFAULT_MAP_LAYER_VISIBILITY
+  );
 
   const publishMapDisplay = (next: MapDisplayLookups | undefined): void => {
     onMapDisplayChangeRef.current?.(next);
@@ -160,6 +165,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
         return;
       }
       globeRef.current = createdGlobe;
+      createdGlobe.setLayerVisibility(layerVisibility);
       if (props.selection !== undefined) {
         createdGlobe.setSelected(props.selection);
       }
@@ -187,13 +193,20 @@ export function MapView(props: MapViewProps): React.JSX.Element {
     const globe = globeRef.current;
     if (model === undefined || globe === undefined) return;
     const changed = boundaryOwnerChanges(previousOwnersRef.current, props.provinceOwners);
-    globe.updateOwners(createOwnerLookup(props.provinceOwners, model.getProvinceOwner.bind(model)), changed);
+    globe.updateOwners(
+      createOwnerLookup(props.provinceOwners, model.getProvinceOwner.bind(model)),
+      changed
+    );
     previousOwnersRef.current = props.provinceOwners;
   }, [props.provinceOwners]);
 
   useEffect(() => {
     globeRef.current?.setSelected(props.selection);
   }, [props.selection]);
+
+  useEffect(() => {
+    globeRef.current?.setLayerVisibility(layerVisibility);
+  }, [layerVisibility]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -311,6 +324,13 @@ export function MapView(props: MapViewProps): React.JSX.Element {
 
   const hoverLookups = props.uiLookups;
   const displaySelection = props.selection ?? hovered;
+  const layers: ReadonlyArray<readonly [keyof MapLayerVisibility, string]> = [
+    ["labels", "名称"],
+    ["capitals", "首府标点"],
+    ["roads", "道路"],
+    ["countryBorders", "国界"],
+    ["provinceBorders", "省界"]
+  ];
 
   return (
     <section
@@ -365,9 +385,37 @@ export function MapView(props: MapViewProps): React.JSX.Element {
           <p className="map-overlay map-overlay-error">{errorMessage}</p>
         ) : null}
         {props.fill === true ? <MapHoverCard selection={hovered} lookups={hoverLookups} /> : null}
+        <fieldset
+          className="map-layer-panel"
+          onPointerDown={(event) => event.stopPropagation()}
+          onWheel={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          <legend>地图图层</legend>
+          {layers.map(([key, label]) => (
+            <label key={key}>
+              <input
+                type="checkbox"
+                checked={layerVisibility[key]}
+                onChange={(event) => {
+                  const checked = event.currentTarget.checked;
+                  setLayerVisibility((current) => ({
+                    ...current,
+                    [key]: checked
+                  }));
+                }}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </fieldset>
       </div>
       {props.fill === true ? null : (
-        <p className="map-hint">Drag to pan · scroll to zoom · click to select a province or country</p>
+        <p className="map-hint">
+          Drag to pan · scroll to zoom · click to select a province or country
+        </p>
       )}
     </section>
   );

@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 export const INITIAL_LON = 10;
 export const INITIAL_LAT = 20;
-export const MIN_HALF_HEIGHT = 8;
+export const MIN_HALF_HEIGHT = 4;
 export const MAX_HALF_HEIGHT = 90;
 export const INITIAL_HALF_HEIGHT = 70;
 export const MAP_WRAP = 360;

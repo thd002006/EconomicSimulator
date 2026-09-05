@@ -27,3 +27,9 @@ jobs:
 
       - name: Validate architecture baseline
         run: pnpm check
+
+      - name: Install map data generator dependencies
+        run: pnpm --dir mapdata-generator install --frozen-lockfile
+
+      - name: Validate map data generator
+        run: pnpm --dir mapdata-generator typecheck && pnpm --dir mapdata-generator test && pnpm --dir mapdata-generator/editor typecheck

@@ -83,6 +83,7 @@ describe("map pan/zoom controller", () => {
   });
 
   it("clamps zoom and latitude so the map cannot leave the world", () => {
+    expect(MIN_HALF_HEIGHT).toBe(4);
     expect(clampHalfHeight(1)).toBe(MIN_HALF_HEIGHT);
     expect(clampHalfHeight(400)).toBe(MAX_HALF_HEIGHT);
     const camera = createCamera();

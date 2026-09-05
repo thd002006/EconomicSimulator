@@ -5,12 +5,17 @@ import {
   buildAdjacencyPairSet,
   buildRoadDrawBatches,
   buildRoadPairRoutes,
+  buildRoadRibbonMesh,
+  getRoadTypeDefinition,
   parseRoadCollection,
   parseRuntimeRoadCollection,
+  provincePairHasRoutableBridge,
   roadSegmentKey,
-  sampleRoadSegmentCurve
+  ROAD_STYLE_MAP_SCALE,
+  sampleRoadSegmentCurve,
+  segmentUsesValidBridgeSpan
 } from "../src/index.js";
-import type { MapBoundary, RoadSegment } from "../src/index.js";
+import type { GeoJsonGeometry, MapBoundary, RoadSegment } from "../src/index.js";
 
 const boundaries: MapBoundary[] = [
   {
@@ -46,6 +51,26 @@ function assertEdgesInUnion(
       expect(inUnion(lon, lat)).toBe(true);
     }
   }
+}
+
+function rectangle(
+  minLon: number,
+  minLat: number,
+  maxLon: number,
+  maxLat: number
+): Extract<GeoJsonGeometry, { type: "Polygon" }> {
+  return {
+    type: "Polygon",
+    coordinates: [
+      [
+        [minLon, minLat],
+        [maxLon, minLat],
+        [maxLon, maxLat],
+        [minLon, maxLat],
+        [minLon, minLat]
+      ]
+    ]
+  };
 }
 
 describe("parseRoadCollection", () => {
@@ -158,7 +183,395 @@ describe("compiled road routes", () => {
     ).toThrow(/map:publish/);
   });
 
-  it("precomputes one route per pair and leaves a single local road centered", () => {
+  it("does not let compiled route metadata authorize a non-adjacent road", () => {
+    const context = {
+      provinceIds: new Set(["A", "B"]),
+      adjacencyPairs: new Set<string>(),
+      capitals: new Map<string, readonly [number, number]>([
+        ["A", [0.5, 0.5]],
+        ["B", [2, 0.5]]
+      ])
+    };
+    const segment = { id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" };
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [segment],
+          pairRoutes: [
+            {
+              provinceIdA: "A",
+              provinceIdB: "B",
+              mode: "bridge-shortest",
+              coordinates: [
+                [0.5, 0.5],
+                [2, 0.5]
+              ]
+            }
+          ]
+        },
+        { ...context, adjacencyPairs: new Set(["A|B"]) }
+      )
+    ).toThrow(/ROAD_ROUTE_BRIDGE_SEGMENTS_MISSING/);
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [segment],
+          pairRoutes: [
+            {
+              provinceIdA: "A",
+              provinceIdB: "B",
+              mode: "bridge-shortest",
+              coordinates: [
+                [0.5, 0.5],
+                [2, 0.5]
+              ],
+              bridgeSegments: [0]
+            }
+          ]
+        },
+        context
+      )
+    ).toThrow(/ROAD_NOT_ADJACENT/);
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [segment],
+          pairRoutes: [
+            {
+              provinceIdA: "A",
+              provinceIdB: "B",
+              mode: "union-shortest",
+              coordinates: [
+                [0.5, 0.5],
+                [2, 0.5]
+              ],
+              bridgeSegments: [0]
+            }
+          ]
+        },
+        { ...context, adjacencyPairs: new Set(["A|B"]) }
+      )
+    ).toThrow(/ROAD_ROUTE_BRIDGE_SEGMENTS_UNEXPECTED/);
+    for (const mode of ["union-shortest", "straight-fallback", "bend"] as const) {
+      expect(() =>
+        parseRuntimeRoadCollection(
+          {
+            schemaVersion: 2,
+            routeInputHash: "hash",
+            segments: [segment],
+            pairRoutes: [
+              {
+                provinceIdA: "A",
+                provinceIdB: "B",
+                mode,
+                coordinates: [
+                  [0.5, 0.5],
+                  [2, 0.5]
+                ]
+              }
+            ]
+          },
+          context
+        )
+      ).toThrow(/ROAD_NOT_ADJACENT/);
+    }
+
+    const parsed = parseRuntimeRoadCollection(
+      {
+        schemaVersion: 2,
+        routeInputHash: "hash",
+        segments: [segment],
+        pairRoutes: [
+          {
+            provinceIdA: "B",
+            provinceIdB: "A",
+            mode: "bridge-shortest",
+            coordinates: [
+              [2, 0.5],
+              [1.5, 0.5],
+              [1, 0.5],
+              [0.5, 0.5]
+            ],
+            bridgeSegments: [0]
+          }
+        ]
+      },
+      { ...context, adjacencyPairs: new Set(["A|B"]) }
+    );
+    expect(parsed.pairRoutes[0]!.coordinates).toEqual([
+      [0.5, 0.5],
+      [1, 0.5],
+      [1.5, 0.5],
+      [2, 0.5]
+    ]);
+    expect(parsed.pairRoutes[0]!.bridgeSegments).toEqual([2]);
+  });
+
+  it("validates the actual bridge polyline instead of trusting its metadata", () => {
+    const geometryA = rectangle(0, 0, 1, 1);
+    const geometryB = rectangle(1.1, 0, 2.1, 1);
+    const context = {
+      provinceIds: new Set(["A", "B"]),
+      adjacencyPairs: new Set<string>(),
+      capitals: new Map<string, readonly [number, number]>([
+        ["A", [0.5, 0.5]],
+        ["B", [1.6, 0.5]]
+      ]),
+      provinceGeometryById: new Map([
+        ["A", geometryA],
+        ["B", geometryB]
+      ])
+    };
+    const segment = { id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" };
+    expect(
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [segment],
+          pairRoutes: [
+            {
+              provinceIdA: "A",
+              provinceIdB: "B",
+              mode: "bridge-shortest",
+              coordinates: [
+                [0.5, 0.5],
+                [1.6, 0.5]
+              ],
+              bridgeSegments: [0]
+            }
+          ]
+        },
+        context
+      ).pairRoutes[0]
+    ).toMatchObject({ mode: "bridge-shortest", bridgeSegments: [0] });
+    expect(() =>
+      parseRuntimeRoadCollection(
+        {
+          schemaVersion: 2,
+          routeInputHash: "hash",
+          segments: [segment],
+          pairRoutes: [
+            {
+              provinceIdA: "A",
+              provinceIdB: "B",
+              mode: "bridge-shortest",
+              coordinates: [
+                [0.5, 0.5],
+                [1.05, 2],
+                [1.6, 0.5]
+              ],
+              bridgeSegments: [0, 1]
+            }
+          ]
+        },
+        context
+      )
+    ).toThrow(/ROAD_ROUTE_GEOMETRY_INVALID/);
+  });
+
+  it("bridges water spans up to 20 km and rejects wider gaps", () => {
+    const segment: RoadSegment = {
+      id: "h",
+      typeId: "highway",
+      provinceIdA: "A",
+      provinceIdB: "B"
+    };
+    const geometryA = rectangle(0, 0, 1, 1);
+    const geometryB = rectangle(1.1, 0, 2.1, 1);
+    const geometryById = new Map([
+      ["A", geometryA],
+      ["B", geometryB]
+    ]);
+    const routes = buildRoadPairRoutes([segment], {
+      capitals: new Map([
+        ["A", [0.5, 0.5] as const],
+        ["B", [1.6, 0.5] as const]
+      ]),
+      provinceGeometryById: geometryById
+    });
+    expect(routes[0]).toMatchObject({ mode: "bridge-shortest", bridgeSegments: [0] });
+    expect(routes[0]!.coordinates).toEqual([
+      [0.5, 0.5],
+      [1.6, 0.5]
+    ]);
+    expect(
+      provincePairHasRoutableBridge(
+        "A",
+        "B",
+        geometryA,
+        geometryB,
+        geometryById,
+        [0.5, 0.5],
+        [1.6, 0.5]
+      )
+    ).toBe(true);
+    expect(segmentUsesValidBridgeSpan([0.5, 0.5], [1.6, 0.5], "A", "B", geometryById)).toBe(true);
+
+    const wideGeometryB = rectangle(1.25, 0, 2.25, 1);
+    const wideGeometryById = new Map([
+      ["A", geometryA],
+      ["B", wideGeometryB]
+    ]);
+    const warnings: string[] = [];
+    const wideRoutes = buildRoadPairRoutes([segment], {
+      capitals: new Map([
+        ["A", [0.5, 0.5] as const],
+        ["B", [1.75, 0.5] as const]
+      ]),
+      provinceGeometryById: wideGeometryById,
+      onWarning: (warning) => warnings.push(warning)
+    });
+    expect(wideRoutes[0]!.mode).toBe("straight-fallback");
+    expect(wideRoutes[0]!.bridgeSegments).toBeUndefined();
+    expect(warnings[0]).toMatch(/ROAD_ROUTE_UNREACHABLE_FALLBACK/);
+    expect(
+      provincePairHasRoutableBridge(
+        "A",
+        "B",
+        geometryA,
+        wideGeometryB,
+        wideGeometryById,
+        [0.5, 0.5],
+        [1.75, 0.5]
+      )
+    ).toBe(false);
+  });
+
+  it("uses a short bridge across a bay instead of taking the long land detour", () => {
+    const geometryA: GeoJsonGeometry = {
+      type: "Polygon",
+      coordinates: [
+        [
+          [0, 0],
+          [1, 0],
+          [1, 0.1],
+          [0.9, 0.1],
+          [0.9, 1],
+          [0, 1],
+          [0, 0]
+        ]
+      ]
+    };
+    const geometryB: GeoJsonGeometry = {
+      type: "Polygon",
+      coordinates: [
+        [
+          [1, 0],
+          [2, 0],
+          [2, 1],
+          [1.05, 1],
+          [1.05, 0.1],
+          [1, 0.1],
+          [1, 0]
+        ]
+      ]
+    };
+    const routes = buildRoadPairRoutes(
+      [{ id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" }],
+      {
+        capitals: new Map([
+          ["A", [0.4, 0.75] as const],
+          ["B", [1.6, 0.75] as const]
+        ]),
+        provinceGeometryById: new Map([
+          ["A", geometryA],
+          ["B", geometryB]
+        ])
+      }
+    );
+    expect(routes[0]!.mode).toBe("bridge-shortest");
+    expect(routes[0]!.coordinates).toEqual([
+      [0.4, 0.75],
+      [1.6, 0.75]
+    ]);
+  });
+
+  it("does not bridge through a third province", () => {
+    const geometryA = rectangle(0, 0, 1, 1);
+    const geometryB = rectangle(1.1, 0, 2.1, 1);
+    const geometryC = rectangle(1.02, -1, 1.08, 2);
+    const geometryById = new Map([
+      ["A", geometryA],
+      ["B", geometryB],
+      ["C", geometryC]
+    ]);
+    expect(segmentUsesValidBridgeSpan([0.5, 0.5], [1.6, 0.5], "A", "B", geometryById)).toBe(false);
+    expect(
+      provincePairHasRoutableBridge(
+        "A",
+        "B",
+        geometryA,
+        geometryB,
+        geometryById,
+        [0.5, 0.5],
+        [1.6, 0.5]
+      )
+    ).toBe(false);
+    const routes = buildRoadPairRoutes(
+      [{ id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" }],
+      {
+        capitals: new Map([
+          ["A", [0.5, 0.5] as const],
+          ["B", [1.6, 0.5] as const]
+        ]),
+        provinceGeometryById: geometryById
+      }
+    );
+    expect(routes[0]!.mode).toBe("straight-fallback");
+
+    const splitA: GeoJsonGeometry = {
+      type: "MultiPolygon",
+      coordinates: [
+        [...rectangle(0, 0, 1, 1).coordinates],
+        [...rectangle(1.1, 0, 2.1, 1).coordinates]
+      ]
+    };
+    const farB = rectangle(10, 0, 11, 1);
+    const farGeometryById = new Map<string, GeoJsonGeometry>([
+      ["A", splitA],
+      ["B", farB]
+    ]);
+    expect(
+      provincePairHasRoutableBridge(
+        "A",
+        "B",
+        splitA,
+        farB,
+        farGeometryById,
+        [0.5, 0.5],
+        [10.5, 0.5]
+      )
+    ).toBe(false);
+
+    const satelliteNearB: GeoJsonGeometry = {
+      type: "MultiPolygon",
+      coordinates: [[...rectangle(0, 0, 1, 1).coordinates], [...rectangle(9, 0, 10, 1).coordinates]]
+    };
+    const nearSatelliteGeometryById = new Map<string, GeoJsonGeometry>([
+      ["A", satelliteNearB],
+      ["B", rectangle(10.1, 0, 11.1, 1)]
+    ]);
+    expect(
+      provincePairHasRoutableBridge(
+        "A",
+        "B",
+        satelliteNearB,
+        nearSatelliteGeometryById.get("B")!,
+        nearSatelliteGeometryById,
+        [0.5, 0.5],
+        [10.6, 0.5]
+      )
+    ).toBe(false);
+  });
+
+  it("precomputes one route per pair and packs road edges in fixed map units", () => {
     const segments: RoadSegment[] = [
       { id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" },
       { id: "l", typeId: "local_road", provinceIdA: "A", provinceIdB: "B" }
@@ -177,11 +590,15 @@ describe("compiled road routes", () => {
     ]);
 
     const multiple = buildRoadDrawBatches(segments, { pairRoutes: routes });
-    expect(multiple.find((batch) => batch.typeId === "highway")!.polylines[0]).toEqual([
-      [0.5, 0.5],
-      [1.5, 0.5]
-    ]);
-    expect(multiple.find((batch) => batch.typeId === "local_road")!.polylines[0]!.length).toBe(4);
+    const highway = multiple.find((batch) => batch.typeId === "highway")!.polylines[0]!;
+    const local = multiple.find((batch) => batch.typeId === "local_road")!.polylines[0]!;
+    expect(highway).toHaveLength(4);
+    expect(local).toHaveLength(4);
+    expect(highway[1]![1]).toBeCloseTo(0.5 + 2.1 * ROAD_STYLE_MAP_SCALE, 9);
+    expect(local[1]![1]).toBeCloseTo(0.5 - 2.8 * ROAD_STYLE_MAP_SCALE, 9);
+    const centerDistanceStyleUnits = (highway[1]![1] - local[1]![1]) / ROAD_STYLE_MAP_SCALE;
+    const edgeGapStyleUnits = centerDistanceStyleUnits - (4.2 + 2.8) / 2;
+    expect(edgeGapStyleUnits).toBeCloseTo(1.4, 9);
   });
 
   it("rejects conflicting pair bends and marks disconnected unions as fallback", () => {
@@ -309,6 +726,32 @@ describe("compiled road routes", () => {
     ).toThrow(/ROAD_BEND_OUTSIDE_UNION/);
   });
 
+  it("rejects a bend whose continuous water crossing exceeds the bridge limit", () => {
+    expect(() =>
+      buildRoadPairRoutes(
+        [
+          {
+            id: "h",
+            typeId: "highway",
+            provinceIdA: "A",
+            provinceIdB: "B",
+            bend: { controlPoints: [[1.15, 0.5]] }
+          }
+        ],
+        {
+          capitals: new Map([
+            ["A", [0.5, 0.5] as const],
+            ["B", [1.8, 0.5] as const]
+          ]),
+          provinceGeometryById: new Map([
+            ["A", rectangle(0, 0, 1, 1)],
+            ["B", rectangle(1.3, 0, 2.3, 1)]
+          ])
+        }
+      )
+    ).toThrow(/ROAD_BEND_OUTSIDE_UNION/);
+  });
+
   it("routes around holes, selects the connected multipolygon component, and wraps the dateline", () => {
     const segment: RoadSegment = {
       id: "h",
@@ -316,7 +759,7 @@ describe("compiled road routes", () => {
       provinceIdA: "A",
       provinceIdB: "B"
     };
-    const aroundHole = sampleRoadSegmentCurve(segment, [0.5, 1.5], [3.5, 1.5], undefined, {
+    const aroundHole = sampleRoadSegmentCurve(segment, [0.5, 1.5], [3.5, 1.5], {
       geometryA: {
         type: "Polygon",
         coordinates: [
@@ -357,7 +800,7 @@ describe("compiled road routes", () => {
       return inA || inB;
     });
 
-    const multi = sampleRoadSegmentCurve(segment, [0.5, 0.5], [1.5, 0.5], undefined, {
+    const multi = sampleRoadSegmentCurve(segment, [0.5, 0.5], [1.5, 0.5], {
       geometryA: {
         type: "MultiPolygon",
         coordinates: [
@@ -399,7 +842,7 @@ describe("compiled road routes", () => {
       [1.5, 0.5]
     ]);
 
-    const dateline = sampleRoadSegmentCurve(segment, [179, 0], [-179, 0], undefined, {
+    const dateline = sampleRoadSegmentCurve(segment, [179, 0], [-179, 0], {
       geometryA: {
         type: "Polygon",
         coordinates: [
@@ -432,7 +875,148 @@ describe("compiled road routes", () => {
   });
 });
 
+describe("buildRoadRibbonMesh", () => {
+  it("builds a fixed-width strip with butt caps", () => {
+    const mesh = buildRoadRibbonMesh(
+      [
+        [
+          [0, 0],
+          [1, 0]
+        ]
+      ],
+      { width: 0.063 }
+    );
+    expect(mesh.vertices).toEqual([
+      [0, 0.0315],
+      [0, -0.0315],
+      [1, 0.0315],
+      [1, -0.0315]
+    ]);
+    expect(mesh.indices).toEqual([0, 1, 2, 1, 3, 2]);
+  });
+
+  it("fills a turn with one bounded bevel instead of segment end caps", () => {
+    const mesh = buildRoadRibbonMesh(
+      [
+        [
+          [0, 0],
+          [1, 0],
+          [1, 1]
+        ]
+      ],
+      { width: 0.2 }
+    );
+    expect(mesh.vertices).toHaveLength(11);
+    expect(mesh.indices).toHaveLength(15);
+    expect(mesh.vertices.slice(-3)).toEqual([
+      [1, 0],
+      [1, -0.1],
+      [1.1, 0]
+    ]);
+    expect(Math.min(...mesh.vertices.map(([x]) => x))).toBe(0);
+    expect(Math.max(...mesh.vertices.map(([, y]) => y))).toBe(1);
+  });
+
+  it("keeps dash phase continuous across a turn", () => {
+    const mesh = buildRoadRibbonMesh(
+      [
+        [
+          [0, 0],
+          [0.06, 0],
+          [0.06, 0.12]
+        ]
+      ],
+      { width: 0.03, dashSize: 0.09, gapSize: 0.09 }
+    );
+    expect(mesh.vertices).toHaveLength(11);
+    expect(mesh.vertices).toContainEqual([0.045, 0.03]);
+    expect(mesh.vertices).toContainEqual([0.075, 0.03]);
+  });
+
+  it("unwraps date-line crossings into a short continuous strip", () => {
+    const mesh = buildRoadRibbonMesh(
+      [
+        [
+          [179.9, 0],
+          [-179.9, 0]
+        ]
+      ],
+      { width: 0.02 }
+    );
+    const longitudes = mesh.vertices.map(([longitude]) => longitude);
+    expect(Math.min(...longitudes)).toBeCloseTo(179.9, 9);
+    expect(Math.max(...longitudes)).toBeCloseTo(180.1, 9);
+  });
+
+  it("uses butt-ended strips for each branch of a junction", () => {
+    const mesh = buildRoadRibbonMesh(
+      [
+        [
+          [0, 0],
+          [1, 0]
+        ],
+        [
+          [0, 0],
+          [0, 1]
+        ],
+        [
+          [0, 0],
+          [-1, 0]
+        ]
+      ],
+      { width: 0.04 }
+    );
+    expect(mesh.vertices).toHaveLength(12);
+    expect(mesh.indices).toHaveLength(18);
+    expect(mesh.vertices.every(([x, y]) => Math.abs(x) <= 1 && Math.abs(y) <= 1)).toBe(true);
+  });
+});
+
 describe("buildRoadDrawBatches", () => {
+  it("keeps every two-type combination centered with a half-width edge gap", () => {
+    const types = ["local_road", "highway", "railway"] as const;
+    const capitals = new Map<string, readonly [number, number]>([
+      ["A", [0.5, 0.5]],
+      ["B", [1.5, 0.5]]
+    ]);
+    for (let first = 0; first < types.length; first += 1) {
+      for (let second = first + 1; second < types.length; second += 1) {
+        const segments: RoadSegment[] = [types[first]!, types[second]!].map((typeId) => ({
+          id: typeId,
+          typeId,
+          provinceIdA: "A",
+          provinceIdB: "B"
+        }));
+        const batches = buildRoadDrawBatches(segments, { capitals });
+        const centers = batches.map((batch) => batch.polylines[0]![1]![1]);
+        const widths = segments.map((segment) => {
+          const def = getRoadTypeDefinition(segment.typeId)!;
+          return def.casingWidth ?? def.lineWidth;
+        });
+        const centerDistanceStyleUnits = Math.abs(centers[1]! - centers[0]!) / ROAD_STYLE_MAP_SCALE;
+        const edgeGapStyleUnits = centerDistanceStyleUnits - (widths[0]! + widths[1]!) / 2;
+        expect(edgeGapStyleUnits).toBeCloseTo(Math.min(...widths) / 2, 9);
+        const leftEdge = centers[0]! - (widths[0]! / 2) * ROAD_STYLE_MAP_SCALE;
+        const rightEdge = centers[1]! + (widths[1]! / 2) * ROAD_STYLE_MAP_SCALE;
+        expect((leftEdge + rightEdge) / 2).toBeCloseTo(0.5, 9);
+      }
+    }
+  });
+
+  it("converts all road style dimensions to the selected fixed map scale", () => {
+    const local = getRoadTypeDefinition("local_road")!;
+    const highway = getRoadTypeDefinition("highway")!;
+    const railway = getRoadTypeDefinition("railway")!;
+    expect(local.lineWidth * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.03, 9);
+    expect(local.casingWidth! * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.042, 9);
+    expect(highway.lineWidth * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.048, 9);
+    expect(highway.casingWidth! * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.063, 9);
+    expect(railway.lineWidth * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.027, 9);
+    expect(railway.casingWidth! * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.042, 9);
+    expect(railway.dashSize! * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.09, 9);
+    expect(railway.gapSize! * ROAD_STYLE_MAP_SCALE).toBeCloseTo(0.09, 9);
+  });
+
   it("samples metro-style straight capital-to-capital lines with PCB lane jogs", () => {
     const segments: RoadSegment[] = [
       { id: "h", typeId: "highway", provinceIdA: "A", provinceIdB: "B" },
@@ -443,7 +1027,7 @@ describe("buildRoadDrawBatches", () => {
       ["A", [0.5, 0.5]],
       ["B", [1.5, 0.5]]
     ]);
-    const batches = buildRoadDrawBatches(segments, { capitals, boundaries });
+    const batches = buildRoadDrawBatches(segments, { capitals });
     expect(batches.map((b) => b.typeId)).toEqual(["local_road", "highway", "railway"]);
 
     const highway = batches.find((b) => b.typeId === "highway")!.polylines[0]!;
@@ -457,16 +1041,11 @@ describe("buildRoadDrawBatches", () => {
     expect(local).toHaveLength(4);
     expect(local[0]).toEqual([0.5, 0.5]);
     expect(local[3]).toEqual([1.5, 0.5]);
-    expect(Math.abs(local[1]![1] - 0.15)).toBeLessThan(1e-9);
-    expect(Math.abs(local[2]![1] - 0.15)).toBeLessThan(1e-9);
+    expect(Math.abs(local[1]![1] - (0.5 - 4.9 * ROAD_STYLE_MAP_SCALE))).toBeLessThan(1e-9);
+    expect(Math.abs(local[2]![1] - (0.5 - 4.9 * ROAD_STYLE_MAP_SCALE))).toBeLessThan(1e-9);
     expect(Math.abs(local[1]![1] - local[2]![1])).toBeLessThan(1e-9);
 
-    const curve = sampleRoadSegmentCurve(
-      segments[0]!,
-      capitals.get("A")!,
-      capitals.get("B")!,
-      [1, 0.5]
-    );
+    const curve = sampleRoadSegmentCurve(segments[0]!, capitals.get("A")!, capitals.get("B")!);
     expect(curve).toEqual([
       [0.5, 0.5],
       [1.5, 0.5]
@@ -499,13 +1078,9 @@ describe("buildRoadDrawBatches", () => {
         ]
       ]
     };
-    const curve = sampleRoadSegmentCurve(segment, [0.5, 0.5], [1.5, 0.5], [1, 0.5], {
+    const curve = sampleRoadSegmentCurve(segment, [0.5, 0.5], [1.5, 0.5], {
       geometryA: geomA,
-      geometryB: geomB,
-      sharedBoundary: [
-        [1, 0],
-        [1, 1]
-      ]
+      geometryB: geomB
     });
     expect(curve[0]).toEqual([0.5, 0.5]);
     expect(curve[curve.length - 1]).toEqual([1.5, 0.5]);
@@ -549,14 +1124,9 @@ describe("buildRoadDrawBatches", () => {
         ]
       ]
     };
-    const sharedBoundary: Array<readonly [number, number]> = [
-      [1, 0],
-      [1, 0.2]
-    ];
-    const curve = sampleRoadSegmentCurve(segment, [0.4, 0.7], [1.6, 0.7], undefined, {
+    const curve = sampleRoadSegmentCurve(segment, [0.4, 0.7], [1.6, 0.7], {
       geometryA: geomA,
-      geometryB: geomB,
-      sharedBoundary
+      geometryB: geomB
     });
     expect(curve[0]![0]).toBeCloseTo(0.4, 9);
     expect(curve[0]![1]).toBeCloseTo(0.7, 9);
@@ -612,16 +1182,11 @@ describe("buildRoadDrawBatches", () => {
         ]
       ]
     };
-    const sharedBoundary: Array<readonly [number, number]> = [
-      [0.9, 0],
-      [0.9, 0.35]
-    ];
     const capitalA: readonly [number, number] = [0.15, 0.85];
     const capitalB: readonly [number, number] = [1.5, 0.18];
-    const curve = sampleRoadSegmentCurve(segment, capitalA, capitalB, undefined, {
+    const curve = sampleRoadSegmentCurve(segment, capitalA, capitalB, {
       geometryA: geomA,
-      geometryB: geomB,
-      sharedBoundary
+      geometryB: geomB
     });
 
     expect(curve[0]![0]).toBeCloseTo(0.15, 9);
@@ -674,14 +1239,9 @@ describe("buildRoadDrawBatches", () => {
         ]
       ]
     };
-    const sharedBoundary: Array<readonly [number, number]> = [
-      [1.6, 0],
-      [1.6, 0.35]
-    ];
-    const curve = sampleRoadSegmentCurve(segment, [0.3, 0.75], [2.9, 0.75], undefined, {
+    const curve = sampleRoadSegmentCurve(segment, [0.3, 0.75], [2.9, 0.75], {
       geometryA: geomA,
-      geometryB: geomB,
-      sharedBoundary
+      geometryB: geomB
     });
 
     expect(curve.length).toBeGreaterThan(2);
@@ -710,7 +1270,7 @@ describe("buildRoadDrawBatches", () => {
       ["B", [1.5, 0.5]],
       ["C", [2.5, 0.5]]
     ]);
-    const batches = buildRoadDrawBatches(segments, { capitals, boundaries });
+    const batches = buildRoadDrawBatches(segments, { capitals });
     expect(batches).toHaveLength(1);
     expect(batches[0]!.polylines).toHaveLength(1);
     expect(batches[0]!.polylines[0]!.length).toBeGreaterThanOrEqual(3);

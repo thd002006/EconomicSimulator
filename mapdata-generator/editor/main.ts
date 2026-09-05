@@ -78,14 +78,13 @@ function addRoadBetween(groupA: string, groupB: string): void {
   const a = groupA < groupB ? groupA : groupB;
   const b = groupA < groupB ? groupB : groupA;
   const pair = `${a}|${b}`;
-  if (!groupAdjacencyKeys().has(pair)) {
-    setStatus("所选两组不相邻，无法添加道路");
+  if (!groupAdjacencyKeys().has(pair) && !renderer.canBridgeRoadPair(a, b)) {
+    setStatus("所选两组既不相邻，也没有 20 km 内的合法水域桥接");
     return;
   }
   const typeId = roadTypeSelect.value;
   const duplicate = currentProject.roads.segments.some(
-    (segment) =>
-      segment.typeId === typeId && segment.provinceIdA === a && segment.provinceIdB === b
+    (segment) => segment.typeId === typeId && segment.provinceIdA === a && segment.provinceIdB === b
   );
   if (duplicate) {
     setStatus(`已存在 ${typeId} 道路 ${a} ↔ ${b}`);
@@ -175,9 +174,10 @@ function renderGroups(): void {
   groupsEl.innerHTML = visible
     .map((g) => {
       const isSelected = selectedGroupIds.has(g.id);
-      const title = g.nameEn && g.name && g.name !== g.nameEn
-        ? `${g.nameEn} (${g.name})`
-        : g.nameEn || g.name || g.id;
+      const title =
+        g.nameEn && g.name && g.name !== g.nameEn
+          ? `${g.nameEn} (${g.name})`
+          : g.nameEn || g.name || g.id;
       return `
         <div class="group-item ${isSelected ? "selected" : ""}" data-id="${g.id}">
           <input type="checkbox" data-id="${g.id}" ${isSelected ? "checked" : ""} />
@@ -280,7 +280,8 @@ async function loadBase(baseMapId: string): Promise<void> {
     const props = (f.properties ?? {}) as Record<string, unknown>;
     const id = String(f.id ?? props.id ?? "");
     const geom = f.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
-    const capitalRaw = props.capital as { name?: string | undefined; coordinates: [number, number] } | undefined;
+    const capitalRaw = props.capital as
+      { name?: string | undefined; coordinates: [number, number] } | undefined;
     const capital = capitalRaw
       ? {
           name: capitalRaw.name,
@@ -336,12 +337,14 @@ async function loadBase(baseMapId: string): Promise<void> {
         ? feature.rightProvinceId !== null
           ? String(feature.rightProvinceId)
           : null
-        : feature.properties?.rightProvinceId !== undefined && feature.properties?.rightProvinceId !== null
+        : feature.properties?.rightProvinceId !== undefined &&
+            feature.properties?.rightProvinceId !== null
           ? String(feature.properties.rightProvinceId)
           : null;
-    const coordinates = (feature.coordinates ??
-      feature.geometry?.coordinates ??
-      []) as [number, number][];
+    const coordinates = (feature.coordinates ?? feature.geometry?.coordinates ?? []) as [
+      number,
+      number
+    ][];
 
     return {
       id: String(feature.id ?? ""),
@@ -579,7 +582,8 @@ document.querySelector("#btnSplit")!.addEventListener("click", () => {
     if (selectedGroupIds.size !== 1) throw new Error("请只选择一个要拆分的组");
     const groupId = [...selectedGroupIds][0]!;
     const group = currentProject.groups.find((g) => g.id === groupId);
-    if (!group || group.members.length <= 1) throw new Error("该组仅含单个原子省份，无法进一步拆分");
+    if (!group || group.members.length <= 1)
+      throw new Error("该组仅含单个原子省份，无法进一步拆分");
 
     currentProject = ensureRoads(
       await api<EditorProject>(
@@ -602,7 +606,7 @@ document.querySelector("#btnAddRoad")!.addEventListener("click", () => {
   }
   editMode = "addRoad";
   roadPickFirstId = undefined;
-  setStatus("道路添加模式：依次点选两个相邻合并组");
+  setStatus("道路添加模式：依次点选两个相邻或可桥接的合并组");
 });
 
 document.querySelector("#btnDeleteRoad")!.addEventListener("click", () => {
@@ -625,11 +629,7 @@ document.querySelector("#btnDeleteRoad")!.addEventListener("click", () => {
       schemaVersion: 1,
       segments: currentProject.roads.segments.filter(
         (segment) =>
-          !(
-            segment.typeId === typeId &&
-            segment.provinceIdA === a &&
-            segment.provinceIdB === b
-          )
+          !(segment.typeId === typeId && segment.provinceIdA === a && segment.provinceIdB === b)
       )
     }
   };
@@ -647,10 +647,14 @@ document.querySelector("#btnExport")!.addEventListener("click", () => {
       `/api/projects/${encodeURIComponent(currentProject.meta.projectId)}/export`,
       {
         method: "POST",
-        body: JSON.stringify({ mapId: exportMapId.value.trim() || currentProject.meta.suggestedMapId })
+        body: JSON.stringify({
+          mapId: exportMapId.value.trim() || currentProject.meta.suggestedMapId
+        })
       }
     );
-    setStatus(`✅ 导出完成！\nmapId = ${result.mapId}\n包含省份数 = ${result.provinceCount}\n已自动发布至 assets/maps/`);
+    setStatus(
+      `✅ 导出完成！\nmapId = ${result.mapId}\n包含省份数 = ${result.provinceCount}\n已自动发布至 assets/maps/`
+    );
   })().catch((e) => setStatus(String(e)));
 });
 

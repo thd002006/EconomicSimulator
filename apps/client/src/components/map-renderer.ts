@@ -3,6 +3,8 @@ import {
   mapXYToLonLat,
   wrapLongitude,
   buildRoadDrawBatches,
+  buildRoadRibbonMesh,
+  ROAD_STYLE_MAP_SCALE,
   roadTypesSortedByDrawOrder,
   type CountryAggregate,
   type GeoJsonGeometry,
@@ -51,6 +53,22 @@ const COAST_BORDER_OPACITY = 0.78;
 const ROAD_RENDER_ORDER = 2;
 const COUNTRY_RENDER_ORDER = 3;
 const CAPITAL_RENDER_ORDER = 4;
+
+export interface MapLayerVisibility {
+  readonly labels: boolean;
+  readonly capitals: boolean;
+  readonly roads: boolean;
+  readonly countryBorders: boolean;
+  readonly provinceBorders: boolean;
+}
+
+export const DEFAULT_MAP_LAYER_VISIBILITY: MapLayerVisibility = {
+  labels: true,
+  capitals: true,
+  roads: true,
+  countryBorders: true,
+  provinceBorders: true
+};
 
 export interface GlobeRuntimeModel extends MapViewModel {
   hitTest(lon: number, lat: number): ProvinceFeature | undefined;
@@ -198,6 +216,55 @@ function makeWideLines(
 function disposeWideLines(lines: LineSegments2): void {
   lines.geometry.dispose();
   const material = lines.material;
+  if (Array.isArray(material)) {
+    for (const entry of material) entry.dispose();
+  } else {
+    material.dispose();
+  }
+}
+
+function makeRoadMesh(
+  polylines: readonly (readonly LonLat[])[],
+  width: number,
+  color: number,
+  opacity: number,
+  z: number,
+  dashSize?: number,
+  gapSize?: number
+): THREE.Mesh {
+  const meshData = buildRoadRibbonMesh(polylines, {
+    width,
+    ...(dashSize === undefined ? {} : { dashSize }),
+    ...(gapSize === undefined ? {} : { gapSize })
+  });
+  const positions = new Float32Array(meshData.vertices.length * 3);
+  for (const [index, [x, y]] of meshData.vertices.entries()) {
+    positions[index * 3] = x;
+    positions[index * 3 + 1] = y;
+    positions[index * 3 + 2] = z;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setIndex([...meshData.indices]);
+  const mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshBasicMaterial({
+      color,
+      transparent: opacity < 1,
+      opacity,
+      depthTest: true,
+      depthWrite: false
+    })
+  );
+  mesh.frustumCulled = false;
+  mesh.visible = meshData.indices.length > 0;
+  mesh.renderOrder = ROAD_RENDER_ORDER;
+  return mesh;
+}
+
+function disposeRoadMesh(mesh: THREE.Mesh): void {
+  mesh.geometry.dispose();
+  const material = mesh.material;
   if (Array.isArray(material)) {
     for (const entry of material) entry.dispose();
   } else {
@@ -363,16 +430,17 @@ export class GlobeRenderer {
   private coastLines: LineSegments2;
   private provinceLines: LineSegments2;
   private countryLines: LineSegments2;
-  private readonly roadLineEntries: Array<{
+  private readonly roadMeshEntries: Array<{
     typeId: string;
     maxVisibleHalfHeight: number;
-    lines: LineSegments2;
+    mesh: THREE.Mesh;
   }> = [];
   private provinceLineHasGeometry = false;
   private ownerLookup: (provinceId: string) => string | undefined;
   private hoveredSelection: MapSelection | undefined;
   private selectedSelection: MapSelection | undefined;
   private readonly lineResolution = new THREE.Vector2();
+  private layerVisibility: MapLayerVisibility = DEFAULT_MAP_LAYER_VISIBILITY;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -479,7 +547,7 @@ export class GlobeRenderer {
     );
     this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
     this.rebuildBoundaries();
-    this.buildRoadLines();
+    this.buildRoadMeshes();
 
     const capitalPositions = new Float32Array(model.provinces.length * 3);
     for (const [index, feature] of model.provinces.entries()) {
@@ -513,7 +581,7 @@ export class GlobeRenderer {
     this.resize();
   }
 
-  private buildRoadLines(): void {
+  private buildRoadMeshes(): void {
     const batches = buildRoadDrawBatches(this.model.roads.segments, {
       pairRoutes: this.model.roads.pairRoutes
     });
@@ -521,53 +589,39 @@ export class GlobeRenderer {
 
     for (const typeDef of roadTypesSortedByDrawOrder()) {
       const batch = batchByType.get(typeDef.id);
-      const positions: number[] = [];
-      if (batch !== undefined) {
-        for (const polyline of batch.polylines) {
-          pushLineSegments(positions, polyline, ROAD_Z);
-        }
-      }
+      const polylines = batch?.polylines ?? [];
 
       if (typeDef.casingColor !== undefined && typeDef.casingWidth !== undefined) {
-        const casing = makeWideLines(
-          positions,
+        const casing = makeRoadMesh(
+          polylines,
+          typeDef.casingWidth * ROAD_STYLE_MAP_SCALE,
           typeDef.casingColor,
-          typeDef.casingWidth,
           Math.min(1, typeDef.strokeOpacity + 0.1),
-          ROAD_RENDER_ORDER
+          ROAD_Z
         );
-        casing.userData.hasRoadGeometry = positions.length > 0;
-        this.roadLineEntries.push({
+        casing.userData.hasRoadGeometry = polylines.length > 0;
+        this.roadMeshEntries.push({
           typeId: typeDef.id,
           maxVisibleHalfHeight: typeDef.maxVisibleHalfHeight,
-          lines: casing
+          mesh: casing
         });
         this.tileTemplate.add(casing);
       }
 
-      const stroke = makeWideLines(
-        positions,
+      const stroke = makeRoadMesh(
+        polylines,
+        typeDef.lineWidth * ROAD_STYLE_MAP_SCALE,
         typeDef.strokeColor,
-        typeDef.lineWidth,
         typeDef.strokeOpacity,
-        ROAD_RENDER_ORDER
+        ROAD_Z + 0.0005,
+        typeDef.dashSize === undefined ? undefined : typeDef.dashSize * ROAD_STYLE_MAP_SCALE,
+        typeDef.gapSize === undefined ? undefined : typeDef.gapSize * ROAD_STYLE_MAP_SCALE
       );
-      stroke.userData.hasRoadGeometry = positions.length > 0;
-      if (
-        typeDef.dashSize !== undefined &&
-        typeDef.gapSize !== undefined &&
-        !Array.isArray(stroke.material) &&
-        stroke.material instanceof LineMaterial
-      ) {
-        stroke.material.dashed = true;
-        stroke.material.dashSize = typeDef.dashSize;
-        stroke.material.gapSize = typeDef.gapSize;
-        stroke.computeLineDistances();
-      }
-      this.roadLineEntries.push({
+      stroke.userData.hasRoadGeometry = polylines.length > 0;
+      this.roadMeshEntries.push({
         typeId: typeDef.id,
         maxVisibleHalfHeight: typeDef.maxVisibleHalfHeight,
-        lines: stroke
+        mesh: stroke
       });
       this.tileTemplate.add(stroke);
     }
@@ -584,17 +638,25 @@ export class GlobeRenderer {
 
   private updateDetailVisibility(): void {
     const halfHeight = this.panZoom.halfHeight;
-    const showProvinces = this.provinceLineHasGeometry && showProvinceBorders(halfHeight);
+    const showProvinces =
+      this.layerVisibility.provinceBorders &&
+      this.provinceLineHasGeometry &&
+      showProvinceBorders(halfHeight);
+    const showCapitals = this.layerVisibility.capitals && showProvinceBorders(halfHeight);
     this.provinceLines.visible = showProvinces;
-    this.capitalPoints.visible = showProvinceBorders(halfHeight);
+    this.countryLines.visible = this.layerVisibility.countryBorders;
+    this.capitalPoints.visible = showCapitals;
+    this.labels.setVisible(this.layerVisibility.labels);
 
-    const roadVisibility = new Map<LineMaterial, boolean>();
-    for (const entry of this.roadLineEntries) {
-      const material = entry.lines.material;
-      if (!Array.isArray(material) && material instanceof LineMaterial) {
+    const roadVisibility = new Map<THREE.Material, boolean>();
+    for (const entry of this.roadMeshEntries) {
+      const material = entry.mesh.material;
+      if (!Array.isArray(material)) {
         roadVisibility.set(
           material,
-          entry.lines.userData.hasRoadGeometry === true && halfHeight <= entry.maxVisibleHalfHeight
+          this.layerVisibility.roads &&
+            entry.mesh.userData.hasRoadGeometry === true &&
+            halfHeight <= entry.maxVisibleHalfHeight
         );
       }
     }
@@ -606,12 +668,16 @@ export class GlobeRenderer {
         return;
       }
       if (object instanceof THREE.Points && object.material === this.capitalPoints.material) {
-        object.visible = showProvinceBorders(halfHeight);
+        object.visible = showCapitals;
         return;
       }
-      if (object instanceof LineSegments2) {
+      if (object instanceof LineSegments2 && object.material === this.countryLines.material) {
+        object.visible = this.layerVisibility.countryBorders;
+        return;
+      }
+      if (object instanceof THREE.Mesh) {
         const material = object.material;
-        if (!Array.isArray(material) && material instanceof LineMaterial) {
+        if (!Array.isArray(material)) {
           const showRoad = roadVisibility.get(material);
           if (showRoad !== undefined) {
             object.visible = showRoad;
@@ -620,6 +686,12 @@ export class GlobeRenderer {
       }
     });
     this.updateLabels();
+  }
+
+  setLayerVisibility(visibility: MapLayerVisibility): void {
+    this.layerVisibility = visibility;
+    this.updateDetailVisibility();
+    this.requestRender();
   }
 
   private rebuildLabels(): void {
@@ -707,12 +779,7 @@ export class GlobeRenderer {
     this.renderer.getDrawingBufferSize(this.lineResolution);
     const width = Math.max(1, Math.floor(this.lineResolution.x));
     const height = Math.max(1, Math.floor(this.lineResolution.y));
-    const allLines = [
-      this.coastLines,
-      this.provinceLines,
-      this.countryLines,
-      ...this.roadLineEntries.map((entry) => entry.lines)
-    ];
+    const allLines = [this.coastLines, this.provinceLines, this.countryLines];
     for (const lines of allLines) {
       const material = lines.material;
       if (!Array.isArray(material) && material instanceof LineMaterial) {
@@ -855,8 +922,8 @@ export class GlobeRenderer {
     disposeWideLines(this.coastLines);
     disposeWideLines(this.provinceLines);
     disposeWideLines(this.countryLines);
-    for (const entry of this.roadLineEntries) {
-      disposeWideLines(entry.lines);
+    for (const entry of this.roadMeshEntries) {
+      disposeRoadMesh(entry.mesh);
     }
     this.capitalPoints.geometry.dispose();
     const capitalMaterial = this.capitalPoints.material;

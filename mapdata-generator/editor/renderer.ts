@@ -7,6 +7,9 @@ import {
   adjacencyPairKey,
   buildRoadDrawBatches,
   buildRoadPairRoutes,
+  buildRoadRibbonMesh,
+  provincePairHasRoutableBridge,
+  ROAD_STYLE_MAP_SCALE,
   roadTypesSortedByDrawOrder,
   type GeoJsonGeometry,
   type LonLat,
@@ -347,6 +350,45 @@ function makeWideLines(
   return lines;
 }
 
+function makeRoadMesh(
+  polylines: readonly (readonly LonLat[])[],
+  width: number,
+  color: number,
+  opacity: number,
+  z: number,
+  dashSize?: number,
+  gapSize?: number
+): THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> {
+  const meshData = buildRoadRibbonMesh(polylines, {
+    width,
+    ...(dashSize === undefined ? {} : { dashSize }),
+    ...(gapSize === undefined ? {} : { gapSize })
+  });
+  const positions = new Float32Array(meshData.vertices.length * 3);
+  for (const [index, [x, y]] of meshData.vertices.entries()) {
+    positions[index * 3] = x;
+    positions[index * 3 + 1] = y;
+    positions[index * 3 + 2] = z;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setIndex([...meshData.indices]);
+  const mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshBasicMaterial({
+      color,
+      transparent: opacity < 1,
+      opacity,
+      depthTest: true,
+      depthWrite: false
+    })
+  );
+  mesh.frustumCulled = false;
+  mesh.visible = meshData.indices.length > 0;
+  mesh.renderOrder = 3;
+  return mesh;
+}
+
 function createLandMaterial(
   palette: THREE.DataTexture,
   highlight: THREE.DataTexture,
@@ -536,7 +578,7 @@ export class EditorMapRenderer {
   private provinceLines?: LineSegments2;
   private groupLines?: LineSegments2;
   private countryLines?: LineSegments2;
-  private roadLines: LineSegments2[] = [];
+  private roadMeshes: Array<THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>> = [];
   private roadPairRouteCache = new Map<
     string,
     { readonly inputKey: string; readonly route: RoadPairRoute }
@@ -606,6 +648,75 @@ export class EditorMapRenderer {
     this.render();
   }
 
+  public canBridgeRoadPair(provinceIdA: string, provinceIdB: string): boolean {
+    if (!this.baseData || !this.project) return false;
+    const geometryByGroupId = this.buildGroupGeometryIndex();
+    const geometryA = geometryByGroupId.get(provinceIdA);
+    const geometryB = geometryByGroupId.get(provinceIdB);
+    const capitals = this.buildGroupCapitalIndex();
+    const capitalA = capitals.get(provinceIdA);
+    const capitalB = capitals.get(provinceIdB);
+    return (
+      geometryA !== undefined &&
+      geometryB !== undefined &&
+      capitalA !== undefined &&
+      capitalB !== undefined &&
+      provincePairHasRoutableBridge(
+        provinceIdA,
+        provinceIdB,
+        geometryA,
+        geometryB,
+        geometryByGroupId,
+        capitalA,
+        capitalB
+      )
+    );
+  }
+
+  private buildGroupGeometryIndex(): Map<string, GeoJsonGeometry> {
+    if (!this.baseData || !this.project) return new Map();
+    const provinceById = new Map(
+      this.baseData.provinces.map((province) => [province.id, province])
+    );
+    const geometryByGroupId = new Map<string, GeoJsonGeometry>();
+    for (const group of this.project.groups) {
+      const polygons: LonLat[][][] = [];
+      for (const memberId of group.members) {
+        const geometry = provinceById.get(memberId)?.geometry;
+        if (geometry?.type === "Polygon") {
+          polygons.push(
+            geometry.coordinates.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
+          );
+        } else if (geometry?.type === "MultiPolygon") {
+          polygons.push(
+            ...geometry.coordinates.map((polygon) =>
+              polygon.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
+            )
+          );
+        }
+      }
+      geometryByGroupId.set(group.id, { type: "MultiPolygon", coordinates: polygons });
+    }
+    return geometryByGroupId;
+  }
+
+  private buildGroupCapitalIndex(): Map<string, LonLat> {
+    if (!this.baseData || !this.project) return new Map();
+    const memberToGroup = new Map<string, string>();
+    for (const group of this.project.groups) {
+      for (const member of group.members) memberToGroup.set(member, group.id);
+    }
+    const capitals = new Map<string, LonLat>();
+    for (const province of this.baseData.provinces) {
+      const groupId = memberToGroup.get(province.id);
+      if (groupId === undefined || capitals.has(groupId)) continue;
+      if (province.capital?.coordinates !== undefined) {
+        capitals.set(groupId, province.capital.coordinates);
+      }
+    }
+    return capitals;
+  }
+
   private buildMeshes(): void {
     if (!this.baseData) return;
     this.tileTemplate.clear();
@@ -657,12 +768,7 @@ export class EditorMapRenderer {
 
     this.tileTemplate.add(this.coastLines, this.provinceLines, this.groupLines, this.countryLines);
 
-    this.mapRoot.clear();
-    for (const offset of TILE_OFFSETS) {
-      const tile = this.tileTemplate.clone(true);
-      tile.position.x = offset;
-      this.mapRoot.add(tile);
-    }
+    this.refreshTiles();
     this.applyLineResolutions();
   }
 
@@ -775,36 +881,29 @@ export class EditorMapRenderer {
     this.tileTemplate.add(this.provinceLines, this.groupLines, this.countryLines);
     this.rebuildRoadMeshes();
 
+    this.refreshTiles();
+    this.applyLineResolutions();
+  }
+
+  private refreshTiles(): void {
     this.mapRoot.clear();
     for (const offset of TILE_OFFSETS) {
       const tile = this.tileTemplate.clone(true);
       tile.position.x = offset;
       this.mapRoot.add(tile);
     }
-    this.applyLineResolutions();
   }
 
   private rebuildRoadMeshes(): void {
-    for (const lines of this.roadLines) {
-      this.tileTemplate.remove(lines);
-      lines.geometry.dispose();
-      lines.material.dispose();
+    for (const mesh of this.roadMeshes) {
+      this.tileTemplate.remove(mesh);
+      mesh.geometry.dispose();
+      mesh.material.dispose();
     }
-    this.roadLines = [];
+    this.roadMeshes = [];
     if (!this.baseData || !this.project || this.project.roads.segments.length === 0) return;
 
-    const memberToGroup = new Map<string, string>();
-    for (const group of this.project.groups) {
-      for (const member of group.members) memberToGroup.set(member, group.id);
-    }
-    const capitals = new Map<string, LonLat>();
-    for (const province of this.baseData.provinces) {
-      const groupId = memberToGroup.get(province.id);
-      if (groupId === undefined || capitals.has(groupId)) continue;
-      if (province.capital?.coordinates) {
-        capitals.set(groupId, province.capital.coordinates);
-      }
-    }
+    const capitals = this.buildGroupCapitalIndex();
 
     const segments: RoadSegment[] = this.project.roads.segments.map((segment) => ({
       id: segment.id,
@@ -815,29 +914,7 @@ export class EditorMapRenderer {
       ...(segment.nameEn === undefined ? {} : { nameEn: segment.nameEn }),
       ...(segment.bend === undefined ? {} : { bend: segment.bend })
     }));
-    const provinceGeometryById = new Map<string, GeoJsonGeometry>();
-    const provinceById = new Map(
-      this.baseData.provinces.map((province) => [province.id, province])
-    );
-    for (const group of this.project.groups) {
-      const polygons: LonLat[][][] = [];
-      for (const memberId of group.members) {
-        const geometry = provinceById.get(memberId)?.geometry;
-        if (geometry?.type === "Polygon") {
-          polygons.push(
-            geometry.coordinates.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
-          );
-        }
-        if (geometry?.type === "MultiPolygon") {
-          polygons.push(
-            ...geometry.coordinates.map((polygon) =>
-              polygon.map((ring) => ring.map((point) => [point[0]!, point[1]!] as const))
-            )
-          );
-        }
-      }
-      provinceGeometryById.set(group.id, { type: "MultiPolygon", coordinates: polygons });
-    }
+    const provinceGeometryById = this.buildGroupGeometryIndex();
 
     const segmentsByPair = new Map<string, RoadSegment[]>();
     for (const segment of segments) {
@@ -888,43 +965,29 @@ export class EditorMapRenderer {
     const batchByType = new Map(batches.map((batch) => [batch.typeId, batch]));
     for (const typeDef of roadTypesSortedByDrawOrder()) {
       const batch = batchByType.get(typeDef.id);
-      const positions: number[] = [];
-      if (batch) {
-        for (const polyline of batch.polylines) {
-          pushLineSegments(positions, polyline, GROUP_LINE_Z + 0.002);
-        }
-      }
+      const polylines = batch?.polylines ?? [];
       if (typeDef.casingColor !== undefined && typeDef.casingWidth !== undefined) {
-        const casing = makeWideLines(
-          positions,
+        const casing = makeRoadMesh(
+          polylines,
+          typeDef.casingWidth * ROAD_STYLE_MAP_SCALE,
           typeDef.casingColor,
-          typeDef.casingWidth,
           Math.min(1, typeDef.strokeOpacity + 0.1),
-          3
+          GROUP_LINE_Z + 0.002
         );
-        this.roadLines.push(casing);
+        this.roadMeshes.push(casing);
         this.tileTemplate.add(casing);
       }
-      const lines = makeWideLines(
-        positions,
+      const mesh = makeRoadMesh(
+        polylines,
+        typeDef.lineWidth * ROAD_STYLE_MAP_SCALE,
         typeDef.strokeColor,
-        typeDef.lineWidth,
         typeDef.strokeOpacity,
-        3
+        GROUP_LINE_Z + 0.0025,
+        typeDef.dashSize === undefined ? undefined : typeDef.dashSize * ROAD_STYLE_MAP_SCALE,
+        typeDef.gapSize === undefined ? undefined : typeDef.gapSize * ROAD_STYLE_MAP_SCALE
       );
-      if (
-        typeDef.dashSize !== undefined &&
-        typeDef.gapSize !== undefined &&
-        !Array.isArray(lines.material) &&
-        lines.material instanceof LineMaterial
-      ) {
-        lines.material.dashed = true;
-        lines.material.dashSize = typeDef.dashSize;
-        lines.material.gapSize = typeDef.gapSize;
-        lines.computeLineDistances();
-      }
-      this.roadLines.push(lines);
-      this.tileTemplate.add(lines);
+      this.roadMeshes.push(mesh);
+      this.tileTemplate.add(mesh);
     }
   }
 

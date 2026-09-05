@@ -135,7 +135,7 @@ export interface RoadCollection {
   readonly segments: readonly RoadSegment[];
 }
 
-export type RoadPairRouteMode = "union-shortest" | "bend" | "straight-fallback";
+export type RoadPairRouteMode = "union-shortest" | "bridge-shortest" | "bend" | "straight-fallback";
 
 export interface RoadPairRoute {
   /** Normalized so provinceIdA < provinceIdB (lexicographic). */
@@ -143,6 +143,8 @@ export interface RoadPairRoute {
   readonly provinceIdB: string;
   readonly mode: RoadPairRouteMode;
   readonly coordinates: readonly LonLat[];
+  /** Edge indexes whose open-water portion is an automatically accepted bridge span. */
+  readonly bridgeSegments?: readonly number[];
 }
 
 /** L4 map asset. Expensive A∪B routing is completed by map:publish. */
@@ -158,12 +160,13 @@ export interface RoadTypeDefinition {
   readonly nameKey: string;
   readonly drawOrder: number;
   readonly laneIndex: number;
-  readonly laneSpacingScale: number;
   readonly strokeColor: number;
   readonly strokeOpacity: number;
+  /** Width in road style units; multiply by ROAD_STYLE_MAP_SCALE for map degrees. */
   readonly lineWidth: number;
   readonly casingColor?: number;
   readonly casingWidth?: number;
+  /** Dash and gap lengths in the same road style units as lineWidth. */
   readonly dashSize?: number;
   readonly gapSize?: number;
   readonly maxVisibleHalfHeight: number;

@@ -31,6 +31,8 @@ export const EMPTY_RUNTIME_ROAD_COLLECTION: RuntimeRoadCollection = Object.freez
   pairRoutes: Object.freeze([])
 });
 
+export const ROAD_STYLE_MAP_SCALE = 0.015;
+
 export function roadSegmentKey(typeId: string, provinceIdA: string, provinceIdB: string): string {
   const a = provinceIdA < provinceIdB ? provinceIdA : provinceIdB;
   const b = provinceIdA < provinceIdB ? provinceIdB : provinceIdA;
@@ -101,6 +103,7 @@ export interface RoadParseContext {
   readonly provinceIds?: ReadonlySet<string>;
   readonly adjacencyPairs?: ReadonlySet<string>;
   readonly capitals?: ReadonlyMap<string, LonLat>;
+  readonly provinceGeometryById?: ReadonlyMap<string, GeoJsonGeometry>;
 }
 
 export function parseRoadCollection(
@@ -167,7 +170,27 @@ export function parseRoadCollection(
       }
     }
     if (context.adjacencyPairs !== undefined) {
-      if (!context.adjacencyPairs.has(adjacencyPairKey(provinceIdA, provinceIdB))) {
+      const pair = adjacencyPairKey(provinceIdA, provinceIdB);
+      const geometryA = context.provinceGeometryById?.get(provinceIdA);
+      const geometryB = context.provinceGeometryById?.get(provinceIdB);
+      const capitalA = context.capitals?.get(provinceIdA);
+      const capitalB = context.capitals?.get(provinceIdB);
+      if (
+        !context.adjacencyPairs.has(pair) &&
+        (geometryA === undefined ||
+          geometryB === undefined ||
+          capitalA === undefined ||
+          capitalB === undefined ||
+          !provincePairHasRoutableBridge(
+            provinceIdA,
+            provinceIdB,
+            geometryA,
+            geometryB,
+            context.provinceGeometryById!,
+            capitalA,
+            capitalB
+          ))
+      ) {
         throw new MapSchemaError("ROAD_NOT_ADJACENT", "roads", id);
       }
     }
@@ -198,6 +221,7 @@ export function parseRoadCollection(
 
 const ROAD_ROUTE_MODES = new Set<RoadPairRouteMode>([
   "union-shortest",
+  "bridge-shortest",
   "bend",
   "straight-fallback"
 ]);
@@ -232,6 +256,13 @@ export function parseRuntimeRoadCollection(
   }
 
   const definitions = parseRoadCollection({ schemaVersion: 1, segments: input.segments }, context);
+  const bridgeAuthorizedPairs = new Set(
+    context.adjacencyPairs === undefined
+      ? []
+      : definitions.segments
+          .map((segment) => adjacencyPairKey(segment.provinceIdA, segment.provinceIdB))
+          .filter((pair) => !context.adjacencyPairs!.has(pair))
+  );
   const referencedPairs = new Set(
     definitions.segments.map((segment) =>
       adjacencyPairKey(segment.provinceIdA, segment.provinceIdB)
@@ -269,8 +300,39 @@ export function parseRuntimeRoadCollection(
     let coordinates = raw.coordinates.map((point, pointIndex) =>
       assertFiniteCoord(point, "roads", pair, `pairRoutes[${index}].coordinates[${pointIndex}]`)
     );
+    if (
+      raw.bridgeSegments !== undefined &&
+      (!Array.isArray(raw.bridgeSegments) ||
+        raw.bridgeSegments.some(
+          (edge) =>
+            !Number.isInteger(edge) ||
+            (edge as number) < 0 ||
+            (edge as number) >= coordinates.length - 1
+        ))
+    ) {
+      throw new MapSchemaError("ROAD_ROUTE_BRIDGE_SEGMENTS_INVALID", "roads", pair);
+    }
+    let bridgeSegments =
+      raw.bridgeSegments === undefined
+        ? undefined
+        : [...new Set(raw.bridgeSegments as number[])].sort((left, right) => left - right);
+    if (raw.mode === "bridge-shortest" && (bridgeSegments?.length ?? 0) === 0) {
+      throw new MapSchemaError("ROAD_ROUTE_BRIDGE_SEGMENTS_MISSING", "roads", pair);
+    }
+    if (
+      raw.mode !== "bridge-shortest" &&
+      raw.mode !== "bend" &&
+      (bridgeSegments?.length ?? 0) > 0
+    ) {
+      throw new MapSchemaError("ROAD_ROUTE_BRIDGE_SEGMENTS_UNEXPECTED", "roads", pair);
+    }
 
-    if (rawA !== provinceIdA) coordinates = [...coordinates].reverse();
+    if (rawA !== provinceIdA) {
+      coordinates = [...coordinates].reverse();
+      bridgeSegments = bridgeSegments
+        ?.map((edge) => coordinates.length - 2 - edge)
+        .sort((a, b) => a - b);
+    }
     const capitalA = context.capitals?.get(provinceIdA);
     const capitalB = context.capitals?.get(provinceIdB);
     if (
@@ -281,12 +343,36 @@ export function parseRuntimeRoadCollection(
     ) {
       throw new MapSchemaError("ROAD_ROUTE_ENDPOINT_MISMATCH", "roads", pair);
     }
+    if (bridgeAuthorizedPairs.has(pair) && raw.mode === "straight-fallback") {
+      throw new MapSchemaError("ROAD_ROUTE_GEOMETRY_INVALID", "roads", pair);
+    }
+    const geometryA = context.provinceGeometryById?.get(provinceIdA);
+    const geometryB = context.provinceGeometryById?.get(provinceIdB);
+    if (geometryA !== undefined && geometryB !== undefined && raw.mode !== "straight-fallback") {
+      const routePoints = unwrapPolyline(coordinates);
+      const built = buildUnionDomains(routePoints[0]!, routePoints.at(-1)!, geometryA, geometryB);
+      const actualBridgeSegments = validPolylineBridgeSegments(
+        routePoints,
+        built.domains,
+        context.provinceGeometryById,
+        new Set([provinceIdA, provinceIdB]),
+        DEFAULT_MAX_BRIDGE_SPAN_KM
+      );
+      if (
+        actualBridgeSegments === undefined ||
+        actualBridgeSegments.length !== (bridgeSegments?.length ?? 0) ||
+        actualBridgeSegments.some((edge, edgeIndex) => edge !== bridgeSegments?.[edgeIndex])
+      ) {
+        throw new MapSchemaError("ROAD_ROUTE_GEOMETRY_INVALID", "roads", pair);
+      }
+    }
 
     pairRoutes.push({
       provinceIdA,
       provinceIdB,
       mode: raw.mode as RoadPairRouteMode,
-      coordinates
+      coordinates,
+      ...(bridgeSegments === undefined || bridgeSegments.length === 0 ? {} : { bridgeSegments })
     });
   }
 
@@ -424,6 +510,37 @@ type PolygonDomain = PolygonRing[];
 type MultiPolygonDomain = PolygonDomain[];
 
 const GEOMETRY_EPSILON = 1e-9;
+export const DEFAULT_MAX_BRIDGE_SPAN_KM = 20;
+
+interface BridgeCandidate {
+  readonly start: LonLat;
+  readonly end: LonLat;
+  readonly spanKm: number;
+}
+
+interface BridgeRouteResult {
+  readonly connected: boolean;
+  readonly points: LonLat[];
+  readonly bridgeSegments: number[];
+}
+
+interface IndexedProvinceGeometry {
+  readonly provinceId: string;
+  readonly geometry: GeoJsonGeometry;
+  readonly bounds: readonly [number, number, number, number];
+}
+
+interface IndexedBoundaryEdge {
+  readonly start: LonLat;
+  readonly end: LonLat;
+  readonly minLon: number;
+  readonly maxLon: number;
+  readonly minLat: number;
+  readonly maxLat: number;
+}
+
+const provinceGeometryIndexCache = new WeakMap<object, readonly IndexedProvinceGeometry[]>();
+const domainBoundaryEdgeCache = new WeakMap<object, readonly IndexedBoundaryEdge[]>();
 
 function closeRing(points: readonly LonLat[], referenceLon: number): PolygonRing {
   if (points.length === 0) return [];
@@ -541,6 +658,48 @@ function addBoundaryIntersectionParameters(
   }
 }
 
+function indexedBoundaryEdges(domain: PolygonDomain): readonly IndexedBoundaryEdge[] {
+  const cached = domainBoundaryEdgeCache.get(domain);
+  if (cached !== undefined) return cached;
+  const edges: IndexedBoundaryEdge[] = [];
+  for (const ring of domain) {
+    for (let index = 1; index < ring.length; index += 1) {
+      const start = ring[index - 1]!;
+      const end = ring[index]!;
+      edges.push({
+        start,
+        end,
+        minLon: Math.min(start[0], end[0]),
+        maxLon: Math.max(start[0], end[0]),
+        minLat: Math.min(start[1], end[1]),
+        maxLat: Math.max(start[1], end[1])
+      });
+    }
+  }
+  edges.sort((left, right) => left.minLon - right.minLon);
+  domainBoundaryEdgeCache.set(domain, edges);
+  return edges;
+}
+
+function addDomainIntersectionParameters(
+  values: number[],
+  start: LonLat,
+  end: LonLat,
+  domain: PolygonDomain
+): void {
+  const minLon = Math.min(start[0], end[0]) - GEOMETRY_EPSILON;
+  const maxLon = Math.max(start[0], end[0]) + GEOMETRY_EPSILON;
+  const minLat = Math.min(start[1], end[1]) - GEOMETRY_EPSILON;
+  const maxLat = Math.max(start[1], end[1]) + GEOMETRY_EPSILON;
+  for (const edge of indexedBoundaryEdges(domain)) {
+    if (edge.minLon > maxLon) break;
+    if (edge.maxLon < minLon || edge.maxLat < minLat || edge.minLat > maxLat) {
+      continue;
+    }
+    addBoundaryIntersectionParameters(values, start, end, edge.start, edge.end);
+  }
+}
+
 function segmentInsideDomain(
   start: LonLat,
   end: LonLat,
@@ -551,11 +710,7 @@ function segmentInsideDomain(
     return false;
   }
   const parameters = [0, 1];
-  for (const ring of domain) {
-    for (let index = 1; index < ring.length; index += 1) {
-      addBoundaryIntersectionParameters(parameters, start, end, ring[index - 1]!, ring[index]!);
-    }
-  }
+  addDomainIntersectionParameters(parameters, start, end, domain);
   parameters.sort((left, right) => left - right);
   const unique = parameters.filter(
     (value, index) => index === 0 || Math.abs(value - parameters[index - 1]!) > GEOMETRY_EPSILON
@@ -575,6 +730,194 @@ function segmentInsideDomain(
     }
   }
   return true;
+}
+
+function pointInAnyDomain(point: LonLat, domains: MultiPolygonDomain): boolean {
+  return domains.some((domain) => pointInDomain(point, domain));
+}
+
+function segmentInsideDomains(start: LonLat, end: LonLat, domains: MultiPolygonDomain): boolean {
+  return domains.some(
+    (domain) =>
+      pointInDomain(start, domain) &&
+      pointInDomain(end, domain) &&
+      segmentInsideDomain(start, end, domain, true)
+  );
+}
+
+function segmentIntervals(
+  start: LonLat,
+  end: LonLat,
+  domains: MultiPolygonDomain
+): Array<{ readonly from: number; readonly to: number; readonly inside: boolean }> {
+  const parameters = [0, 1];
+  for (const domain of domains) {
+    addDomainIntersectionParameters(parameters, start, end, domain);
+  }
+  parameters.sort((left, right) => left - right);
+  const unique = parameters.filter(
+    (value, index) => index === 0 || Math.abs(value - parameters[index - 1]!) > GEOMETRY_EPSILON
+  );
+  const intervals: Array<{ from: number; to: number; inside: boolean }> = [];
+  for (let index = 1; index < unique.length; index += 1) {
+    const from = unique[index - 1]!;
+    const to = unique[index]!;
+    if (to - from <= GEOMETRY_EPSILON) continue;
+    const middle = (from + to) / 2;
+    intervals.push({
+      from,
+      to,
+      inside: pointInAnyDomain(
+        [start[0] + (end[0] - start[0]) * middle, start[1] + (end[1] - start[1]) * middle],
+        domains
+      )
+    });
+  }
+  return intervals;
+}
+
+function interpolate(start: LonLat, end: LonLat, amount: number): LonLat {
+  return [start[0] + (end[0] - start[0]) * amount, start[1] + (end[1] - start[1]) * amount];
+}
+
+function haversineKm(start: LonLat, end: LonLat): number {
+  const radians = Math.PI / 180;
+  const latitudeDelta = (end[1] - start[1]) * radians;
+  const longitudeDelta = (end[0] - start[0]) * radians;
+  const latitudeA = start[1] * radians;
+  const latitudeB = end[1] * radians;
+  const value =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(latitudeA) * Math.cos(latitudeB) * Math.sin(longitudeDelta / 2) ** 2;
+  return 12_742 * Math.asin(Math.min(1, Math.sqrt(value)));
+}
+
+function segmentPassesThroughDomainInterior(
+  start: LonLat,
+  end: LonLat,
+  domains: MultiPolygonDomain
+): boolean {
+  return segmentIntervals(start, end, domains).some((interval) => interval.inside);
+}
+
+function segmentCrossesThirdProvince(
+  start: LonLat,
+  end: LonLat,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry> | undefined,
+  excludedProvinceIds: ReadonlySet<string>
+): boolean {
+  if (provinceGeometryById === undefined) return false;
+  const minLon = Math.min(start[0], end[0]) - GEOMETRY_EPSILON;
+  const maxLon = Math.max(start[0], end[0]) + GEOMETRY_EPSILON;
+  const minLat = Math.min(start[1], end[1]) - GEOMETRY_EPSILON;
+  const maxLat = Math.max(start[1], end[1]) + GEOMETRY_EPSILON;
+  const cacheKey = provinceGeometryById as object;
+  let geometryIndex = provinceGeometryIndexCache.get(cacheKey);
+  if (geometryIndex === undefined) {
+    geometryIndex = [...provinceGeometryById].map(([provinceId, geometry]) => {
+      let geometryMinLon = Number.POSITIVE_INFINITY;
+      let geometryMaxLon = Number.NEGATIVE_INFINITY;
+      let geometryMinLat = Number.POSITIVE_INFINITY;
+      let geometryMaxLat = Number.NEGATIVE_INFINITY;
+      for (const domain of geometryToMultiPolygon(geometry, 0)) {
+        for (const point of domain.flat()) {
+          geometryMinLon = Math.min(geometryMinLon, point[0]);
+          geometryMaxLon = Math.max(geometryMaxLon, point[0]);
+          geometryMinLat = Math.min(geometryMinLat, point[1]);
+          geometryMaxLat = Math.max(geometryMaxLat, point[1]);
+        }
+      }
+      return {
+        provinceId,
+        geometry,
+        bounds: [geometryMinLon, geometryMinLat, geometryMaxLon, geometryMaxLat]
+      };
+    });
+    provinceGeometryIndexCache.set(cacheKey, geometryIndex);
+  }
+  for (const { provinceId, geometry, bounds } of geometryIndex) {
+    if (excludedProvinceIds.has(provinceId)) continue;
+    let boundsOverlap = false;
+    for (const longitudeOffset of [-360, 0, 360]) {
+      if (
+        bounds[2] + longitudeOffset >= minLon &&
+        bounds[0] + longitudeOffset <= maxLon &&
+        bounds[3] >= minLat &&
+        bounds[1] <= maxLat
+      ) {
+        boundsOverlap = true;
+        break;
+      }
+    }
+    if (!boundsOverlap) continue;
+    const domains = geometryToMultiPolygon(geometry, start[0]);
+    if (segmentPassesThroughDomainInterior(start, end, domains)) return true;
+  }
+  return false;
+}
+
+function validBridgeIntervals(
+  start: LonLat,
+  end: LonLat,
+  domains: MultiPolygonDomain,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry> | undefined,
+  excludedProvinceIds: ReadonlySet<string>,
+  maxBridgeSpanKm: number,
+  requireEntireInteriorWater = false
+): boolean {
+  const intervals = segmentIntervals(start, end, domains);
+  const water = intervals.filter((interval) => !interval.inside);
+  if (
+    water.length === 0 ||
+    (requireEntireInteriorWater && intervals.some((interval) => interval.inside))
+  ) {
+    return false;
+  }
+  for (const interval of water) {
+    const waterStart = interpolate(start, end, interval.from);
+    const waterEnd = interpolate(start, end, interval.to);
+    if (
+      haversineKm(waterStart, waterEnd) > maxBridgeSpanKm + 1e-6 ||
+      segmentCrossesThirdProvince(waterStart, waterEnd, provinceGeometryById, excludedProvinceIds)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function validPolylineBridgeSegments(
+  points: readonly LonLat[],
+  domains: MultiPolygonDomain,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry> | undefined,
+  excludedProvinceIds: ReadonlySet<string>,
+  maxBridgeSpanKm: number
+): number[] | undefined {
+  const bridgeSegments: number[] = [];
+  let continuousBridgeKm = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1]!;
+    const end = points[index]!;
+    let usesBridge = false;
+    for (const interval of segmentIntervals(start, end, domains)) {
+      if (interval.inside) {
+        continuousBridgeKm = 0;
+        continue;
+      }
+      usesBridge = true;
+      const waterStart = interpolate(start, end, interval.from);
+      const waterEnd = interpolate(start, end, interval.to);
+      continuousBridgeKm += haversineKm(waterStart, waterEnd);
+      if (
+        continuousBridgeKm > maxBridgeSpanKm + 1e-6 ||
+        segmentCrossesThirdProvince(waterStart, waterEnd, provinceGeometryById, excludedProvinceIds)
+      ) {
+        return undefined;
+      }
+    }
+    if (usesBridge) bridgeSegments.push(index - 1);
+  }
+  return bridgeSegments;
 }
 
 function ringArea(ring: readonly LonLat[]): number {
@@ -615,19 +958,214 @@ function reflexVertices(domain: PolygonDomain): LonLat[] {
   return result;
 }
 
+interface BoundaryEdge {
+  readonly start: LonLat;
+  readonly end: LonLat;
+  readonly domainIndex: number;
+  readonly ringIndex: number;
+  readonly edgeIndex: number;
+  readonly ringEdgeCount: number;
+}
+
+function boundaryEdges(domains: MultiPolygonDomain): BoundaryEdge[] {
+  const edges: BoundaryEdge[] = [];
+  for (const [domainIndex, domain] of domains.entries()) {
+    for (const [ringIndex, ring] of domain.entries()) {
+      const ringEdgeCount = Math.max(0, ring.length - 1);
+      for (let edgeIndex = 0; edgeIndex < ringEdgeCount; edgeIndex += 1) {
+        edges.push({
+          start: ring[edgeIndex]!,
+          end: ring[edgeIndex + 1]!,
+          domainIndex,
+          ringIndex,
+          edgeIndex,
+          ringEdgeCount
+        });
+      }
+    }
+  }
+  return edges;
+}
+
+function closestPointOnSegmentProjected(
+  point: LonLat,
+  start: LonLat,
+  end: LonLat,
+  longitudeScale: number
+): { readonly point: LonLat; readonly distanceKm: number } {
+  const dx = (end[0] - start[0]) * longitudeScale;
+  const dy = (end[1] - start[1]) * 110.57;
+  const px = (point[0] - start[0]) * longitudeScale;
+  const py = (point[1] - start[1]) * 110.57;
+  const denominator = dx * dx + dy * dy;
+  const amount =
+    denominator <= 1e-12 ? 0 : Math.max(0, Math.min(1, (px * dx + py * dy) / denominator));
+  const projected = interpolate(start, end, amount);
+  return {
+    point: projected,
+    distanceKm: Math.hypot(
+      (point[0] - projected[0]) * longitudeScale,
+      (point[1] - projected[1]) * 110.57
+    )
+  };
+}
+
+function closestPointsBetweenEdges(left: BoundaryEdge, right: BoundaryEdge): BridgeCandidate {
+  const latitude = (left.start[1] + left.end[1] + right.start[1] + right.end[1]) / 4;
+  const longitudeScale = Math.max(1e-6, 111.32 * Math.cos((latitude * Math.PI) / 180));
+  const candidates: BridgeCandidate[] = [];
+  for (const point of [left.start, left.end]) {
+    const projected = closestPointOnSegmentProjected(point, right.start, right.end, longitudeScale);
+    candidates.push({ start: point, end: projected.point, spanKm: projected.distanceKm });
+  }
+  for (const point of [right.start, right.end]) {
+    const projected = closestPointOnSegmentProjected(point, left.start, left.end, longitudeScale);
+    candidates.push({ start: projected.point, end: point, spanKm: projected.distanceKm });
+  }
+  candidates.sort((a, b) => a.spanKm - b.spanKm);
+  return candidates[0]!;
+}
+
+function edgesAreAdjacent(left: BoundaryEdge, right: BoundaryEdge): boolean {
+  if (left.domainIndex !== right.domainIndex || left.ringIndex !== right.ringIndex) return false;
+  const difference = Math.abs(left.edgeIndex - right.edgeIndex);
+  return difference <= 1 || difference === left.ringEdgeCount - 1;
+}
+
+function bridgeCandidates(
+  domains: MultiPolygonDomain,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry> | undefined,
+  excludedProvinceIds: ReadonlySet<string>,
+  maxBridgeSpanKm: number,
+  stopAfterFirst = false,
+  domainPair?: readonly [number, number],
+  acceptCandidate?: (candidate: BridgeCandidate) => boolean
+): BridgeCandidate[] {
+  const edges = boundaryEdges(domains);
+  const maxAbsoluteLatitude = edges.reduce(
+    (maximum, edge) => Math.max(maximum, Math.abs(edge.start[1]), Math.abs(edge.end[1])),
+    0
+  );
+  const latitudeTolerance = maxBridgeSpanKm / 110.57;
+  const longitudeTolerance =
+    maxBridgeSpanKm / (111.32 * Math.max(0.01, Math.cos((maxAbsoluteLatitude * Math.PI) / 180)));
+  const indexedEdges = edges
+    .map((edge, originalIndex) => ({
+      edge,
+      originalIndex,
+      minLon: Math.min(edge.start[0], edge.end[0]),
+      maxLon: Math.max(edge.start[0], edge.end[0]),
+      minLat: Math.min(edge.start[1], edge.end[1]),
+      maxLat: Math.max(edge.start[1], edge.end[1])
+    }))
+    .sort((left, right) => left.minLon - right.minLon);
+  const nearby: Array<{
+    readonly leftEdgeIndex: number;
+    readonly rightEdgeIndex: number;
+    readonly candidate: BridgeCandidate;
+  }> = [];
+  for (let leftIndex = 0; leftIndex < indexedEdges.length; leftIndex += 1) {
+    const left = indexedEdges[leftIndex]!;
+    for (let rightIndex = leftIndex + 1; rightIndex < indexedEdges.length; rightIndex += 1) {
+      const right = indexedEdges[rightIndex]!;
+      if (right.minLon > left.maxLon + longitudeTolerance) break;
+      if (
+        right.maxLon < left.minLon - longitudeTolerance ||
+        right.minLat > left.maxLat + latitudeTolerance ||
+        right.maxLat < left.minLat - latitudeTolerance ||
+        (domainPair !== undefined &&
+          !(
+            (left.edge.domainIndex === domainPair[0] && right.edge.domainIndex === domainPair[1]) ||
+            (left.edge.domainIndex === domainPair[1] && right.edge.domainIndex === domainPair[0])
+          )) ||
+        edgesAreAdjacent(left.edge, right.edge)
+      ) {
+        continue;
+      }
+      const candidate = closestPointsBetweenEdges(left.edge, right.edge);
+      if (
+        candidate.spanKm > 1e-6 &&
+        candidate.spanKm <= maxBridgeSpanKm + 1e-6 &&
+        (acceptCandidate === undefined || acceptCandidate(candidate))
+      ) {
+        nearby.push({
+          leftEdgeIndex: left.originalIndex,
+          rightEdgeIndex: right.originalIndex,
+          candidate
+        });
+      }
+    }
+  }
+  nearby.sort((left, right) => left.candidate.spanKm - right.candidate.spanKm);
+  const bestByEdge = new Map<number, BridgeCandidate>();
+  for (const { leftEdgeIndex, rightEdgeIndex, candidate } of nearby) {
+    if (bestByEdge.has(leftEdgeIndex) && bestByEdge.has(rightEdgeIndex)) continue;
+    if (
+      !validBridgeIntervals(
+        candidate.start,
+        candidate.end,
+        domains,
+        provinceGeometryById,
+        excludedProvinceIds,
+        maxBridgeSpanKm,
+        true
+      )
+    ) {
+      continue;
+    }
+    if (stopAfterFirst) return [candidate];
+    for (const edgeIndex of [leftEdgeIndex, rightEdgeIndex]) {
+      if (!bestByEdge.has(edgeIndex)) bestByEdge.set(edgeIndex, candidate);
+    }
+  }
+  const unique = new Map<string, BridgeCandidate>();
+  for (const candidate of bestByEdge.values()) {
+    const forward = `${candidate.start[0].toFixed(9)},${candidate.start[1].toFixed(9)}|${candidate.end[0].toFixed(9)},${candidate.end[1].toFixed(9)}`;
+    const reverse = `${candidate.end[0].toFixed(9)},${candidate.end[1].toFixed(9)}|${candidate.start[0].toFixed(9)},${candidate.start[1].toFixed(9)}`;
+    unique.set(forward < reverse ? forward : reverse, candidate);
+  }
+  return [...unique.values()].sort((left, right) => left.spanKm - right.spanKm);
+}
+
+function nodeKey(point: LonLat): string {
+  return `${point[0].toFixed(10)},${point[1].toFixed(10)}`;
+}
+
 function shortestVisibilityPath(
   start: LonLat,
   end: LonLat,
-  domain: PolygonDomain
-): LonLat[] | undefined {
-  if (segmentInsideDomain(start, end, domain, true)) return [start, end];
-  const candidates = reflexVertices(domain).filter(
-    (point) =>
-      Math.hypot(point[0] - start[0], point[1] - start[1]) > GEOMETRY_EPSILON &&
-      Math.hypot(point[0] - end[0], point[1] - end[1]) > GEOMETRY_EPSILON
-  );
-  const nodes = [start, ...candidates, end];
-  const target = nodes.length - 1;
+  domains: MultiPolygonDomain,
+  bridges: readonly BridgeCandidate[]
+): { readonly points: LonLat[]; readonly bridgeSegments: number[] } | undefined {
+  if (segmentInsideDomains(start, end, domains))
+    return { points: [start, end], bridgeSegments: [] };
+  const candidates = domains
+    .flatMap((domain) => reflexVertices(domain))
+    .filter(
+      (point) =>
+        Math.hypot(point[0] - start[0], point[1] - start[1]) > GEOMETRY_EPSILON &&
+        Math.hypot(point[0] - end[0], point[1] - end[1]) > GEOMETRY_EPSILON
+    );
+  const nodes: LonLat[] = [];
+  const nodeIndexByKey = new Map<string, number>();
+  const addNode = (point: LonLat): number => {
+    const key = nodeKey(point);
+    const existing = nodeIndexByKey.get(key);
+    if (existing !== undefined) return existing;
+    const index = nodes.length;
+    nodes.push(point);
+    nodeIndexByKey.set(key, index);
+    return index;
+  };
+  addNode(start);
+  for (const candidate of candidates) addNode(candidate);
+  const bridgeEdges = new Set<string>();
+  for (const bridge of bridges) {
+    const from = addNode(bridge.start);
+    const to = addNode(bridge.end);
+    bridgeEdges.add(from < to ? `${from}|${to}` : `${to}|${from}`);
+  }
+  const target = addNode(end);
   const distances = new Array<number>(nodes.length).fill(Number.POSITIVE_INFINITY);
   const previous = new Array<number>(nodes.length).fill(-1);
   const used = new Array<boolean>(nodes.length).fill(false);
@@ -648,7 +1186,11 @@ function shortestVisibilityPath(
     if (current < 0) break;
     if (current === target) break;
     used[current] = true;
-    if (segmentInsideDomain(nodes[current]!, nodes[target]!, domain, true)) {
+    const directKey = current < target ? `${current}|${target}` : `${target}|${current}`;
+    if (
+      bridgeEdges.has(directKey) ||
+      segmentInsideDomains(nodes[current]!, nodes[target]!, domains)
+    ) {
       const direct =
         distances[current]! +
         Math.hypot(nodes[target]![0] - nodes[current]![0], nodes[target]![1] - nodes[current]![1]);
@@ -668,7 +1210,13 @@ function shortestVisibilityPath(
         candidate +
         Math.hypot(nodes[target]![0] - nodes[next]![0], nodes[target]![1] - nodes[next]![1]);
       if (lowerBound + GEOMETRY_EPSILON >= distances[target]!) continue;
-      if (!segmentInsideDomain(nodes[current]!, nodes[next]!, domain, true)) continue;
+      const edgeKey = current < next ? `${current}|${next}` : `${next}|${current}`;
+      if (
+        !bridgeEdges.has(edgeKey) &&
+        !segmentInsideDomains(nodes[current]!, nodes[next]!, domains)
+      ) {
+        continue;
+      }
       const nextDistance = distances[current]! + edgeLength;
       if (nextDistance + GEOMETRY_EPSILON < distances[next]!) {
         distances[next] = nextDistance;
@@ -684,21 +1232,22 @@ function shortestVisibilityPath(
   }
   if (indices[indices.length - 1] !== 0) return undefined;
   indices.reverse();
-  return indices.map((index) => nodes[index]!);
+  const bridgeSegments: number[] = [];
+  for (let index = 1; index < indices.length; index += 1) {
+    const from = indices[index - 1]!;
+    const to = indices[index]!;
+    const edgeKey = from < to ? `${from}|${to}` : `${to}|${from}`;
+    if (bridgeEdges.has(edgeKey)) bridgeSegments.push(index - 1);
+  }
+  return { points: indices.map((index) => nodes[index]!), bridgeSegments };
 }
 
-interface UnionRouteResult {
-  readonly connected: boolean;
-  readonly domain?: PolygonDomain;
-  readonly points: LonLat[];
-}
-
-function buildUnionDomain(
+function buildUnionDomains(
   start: LonLat,
   end: LonLat,
   geometryA: GeoJsonGeometry,
   geometryB: GeoJsonGeometry
-): { readonly start: LonLat; readonly end: LonLat; readonly domain?: PolygonDomain } {
+): { readonly start: LonLat; readonly end: LonLat; readonly domains: MultiPolygonDomain } {
   const normalizedStart: LonLat = [start[0], start[1]];
   const normalizedEnd: LonLat = [unwrapLon(end[0], start[0]), end[1]];
   let union: MultiPolygonDomain;
@@ -717,42 +1266,121 @@ function buildUnionDomain(
       "roads"
     );
   }
-  const domain = union.find(
-    (candidate) =>
-      pointInDomain(normalizedStart, candidate) && pointInDomain(normalizedEnd, candidate)
-  );
-  return {
-    start: normalizedStart,
-    end: normalizedEnd,
-    ...(domain === undefined ? {} : { domain })
-  };
+  return { start: normalizedStart, end: normalizedEnd, domains: union };
 }
 
-function shortestPathInUnion(
+function shortestPathWithBridges(
   start: LonLat,
   end: LonLat,
   geometryA: GeoJsonGeometry,
-  geometryB: GeoJsonGeometry
-): UnionRouteResult {
-  const built = buildUnionDomain(start, end, geometryA, geometryB);
+  geometryB: GeoJsonGeometry,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry> | undefined,
+  excludedProvinceIds: ReadonlySet<string>,
+  maxBridgeSpanKm: number
+): BridgeRouteResult {
+  const built = buildUnionDomains(start, end, geometryA, geometryB);
   const normalizedStart = built.start;
   const normalizedEnd = built.end;
-  const domain = built.domain;
-  if (domain === undefined) {
-    return { connected: false, points: [normalizedStart, normalizedEnd] };
+  if (
+    validBridgeIntervals(
+      normalizedStart,
+      normalizedEnd,
+      built.domains,
+      provinceGeometryById,
+      excludedProvinceIds,
+      maxBridgeSpanKm
+    )
+  ) {
+    return { connected: true, points: [normalizedStart, normalizedEnd], bridgeSegments: [0] };
   }
-  const path = shortestVisibilityPath(normalizedStart, normalizedEnd, domain);
+  const startDomainIndex = built.domains.findIndex((domain) =>
+    pointInDomain(normalizedStart, domain)
+  );
+  const endDomainIndex = built.domains.findIndex((domain) => pointInDomain(normalizedEnd, domain));
+  const connectedDomain = built.domains.find(
+    (domain) => pointInDomain(normalizedStart, domain) && pointInDomain(normalizedEnd, domain)
+  );
+  if (connectedDomain !== undefined) {
+    const landPath = shortestVisibilityPath(normalizedStart, normalizedEnd, [connectedDomain], []);
+    if (landPath === undefined) throw new MapSchemaError("ROAD_ROUTE_PATHFIND_FAILED", "roads");
+    return { connected: true, points: landPath.points, bridgeSegments: [] };
+  }
+  const bridges = bridgeCandidates(
+    built.domains,
+    provinceGeometryById,
+    excludedProvinceIds,
+    maxBridgeSpanKm,
+    false,
+    [startDomainIndex, endDomainIndex]
+  );
+  const routeDomains = [built.domains[startDomainIndex], built.domains[endDomainIndex]].filter(
+    (domain): domain is PolygonDomain => domain !== undefined
+  );
+  const path = shortestVisibilityPath(normalizedStart, normalizedEnd, routeDomains, bridges);
   if (path === undefined) {
-    throw new MapSchemaError("ROAD_ROUTE_PATHFIND_FAILED", "roads");
+    return {
+      connected: false,
+      points: [normalizedStart, normalizedEnd],
+      bridgeSegments: []
+    };
   }
-  return { connected: true, domain, points: dedupeConsecutive(path) };
+  return {
+    connected: true,
+    points: path.points,
+    bridgeSegments: path.bridgeSegments
+  };
+}
+
+export function provincePairHasRoutableBridge(
+  provinceIdA: string,
+  provinceIdB: string,
+  geometryA: GeoJsonGeometry,
+  geometryB: GeoJsonGeometry,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry>,
+  capitalA: LonLat,
+  capitalB: LonLat,
+  maxBridgeSpanKm = DEFAULT_MAX_BRIDGE_SPAN_KM
+): boolean {
+  const result = shortestPathWithBridges(
+    capitalA,
+    capitalB,
+    geometryA,
+    geometryB,
+    provinceGeometryById,
+    new Set([provinceIdA, provinceIdB]),
+    maxBridgeSpanKm
+  );
+  return result.connected && result.bridgeSegments.length > 0;
+}
+
+export function segmentUsesValidBridgeSpan(
+  start: LonLat,
+  end: LonLat,
+  provinceIdA: string,
+  provinceIdB: string,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry>,
+  maxBridgeSpanKm = DEFAULT_MAX_BRIDGE_SPAN_KM
+): boolean {
+  const geometryA = provinceGeometryById.get(provinceIdA);
+  const geometryB = provinceGeometryById.get(provinceIdB);
+  if (geometryA === undefined || geometryB === undefined) return false;
+  const built = buildUnionDomains(start, end, geometryA, geometryB);
+  return validBridgeIntervals(
+    built.start,
+    built.end,
+    built.domains,
+    provinceGeometryById,
+    new Set([provinceIdA, provinceIdB]),
+    maxBridgeSpanKm
+  );
 }
 
 export interface SampleRoadCurveOptions {
   readonly geometryA?: GeoJsonGeometry;
   readonly geometryB?: GeoJsonGeometry;
-  /** Retained for source compatibility; the exact polygon union is authoritative. */
-  readonly sharedBoundary?: readonly LonLat[];
+  readonly provinceGeometryById?: ReadonlyMap<string, GeoJsonGeometry>;
+  readonly excludedProvinceIds?: ReadonlySet<string>;
+  readonly maxBridgeSpanKm?: number;
 }
 
 function resolveRoadSegmentCurve(
@@ -760,7 +1388,11 @@ function resolveRoadSegmentCurve(
   capitalA: LonLat,
   capitalB: LonLat,
   options: SampleRoadCurveOptions = {}
-): { readonly mode: RoadPairRouteMode; readonly points: LonLat[] } {
+): {
+  readonly mode: RoadPairRouteMode;
+  readonly points: LonLat[];
+  readonly bridgeSegments: number[];
+} {
   const aMap = lonLatToMapXY(capitalA[0], capitalA[1]);
   const bLon = unwrapLon(capitalB[0], aMap[0]);
   const bMap: LonLat = [bLon, capitalB[1]];
@@ -797,32 +1429,55 @@ function resolveRoadSegmentCurve(
 
   if (bendPoints !== undefined) {
     if (options.geometryA !== undefined && options.geometryB !== undefined) {
-      const built = buildUnionDomain(p0, pEnd, options.geometryA, options.geometryB);
-      if (
-        built.domain === undefined ||
-        bendPoints.some(
-          (_, index) =>
-            index > 0 &&
-            !segmentInsideDomain(bendPoints[index - 1]!, bendPoints[index]!, built.domain!)
-        )
-      ) {
+      const built = buildUnionDomains(p0, pEnd, options.geometryA, options.geometryB);
+      const bridgeSegments = validPolylineBridgeSegments(
+        bendPoints,
+        built.domains,
+        options.provinceGeometryById,
+        options.excludedProvinceIds ?? new Set(),
+        options.maxBridgeSpanKm ?? DEFAULT_MAX_BRIDGE_SPAN_KM
+      );
+      if (bridgeSegments === undefined) {
         throw new MapSchemaError("ROAD_BEND_OUTSIDE_UNION", "roads", segment.id);
       }
+      return {
+        mode: "bend",
+        points: wrapRoadPolyline(bendPoints, capitalA, capitalB),
+        bridgeSegments
+      };
     }
-    return { mode: "bend", points: wrapRoadPolyline(bendPoints, capitalA, capitalB) };
+    return {
+      mode: "bend",
+      points: wrapRoadPolyline(bendPoints, capitalA, capitalB),
+      bridgeSegments: []
+    };
   }
 
   if (options.geometryA !== undefined && options.geometryB !== undefined) {
-    const result = shortestPathInUnion(p0, pEnd, options.geometryA, options.geometryB);
+    const result = shortestPathWithBridges(
+      p0,
+      pEnd,
+      options.geometryA,
+      options.geometryB,
+      options.provinceGeometryById,
+      options.excludedProvinceIds ?? new Set(),
+      options.maxBridgeSpanKm ?? DEFAULT_MAX_BRIDGE_SPAN_KM
+    );
     return {
-      mode: result.connected ? "union-shortest" : "straight-fallback",
-      points: wrapRoadPolyline(result.points, capitalA, capitalB)
+      mode: result.connected
+        ? result.bridgeSegments.length > 0
+          ? "bridge-shortest"
+          : "union-shortest"
+        : "straight-fallback",
+      points: wrapRoadPolyline(result.points, capitalA, capitalB),
+      bridgeSegments: result.bridgeSegments
     };
   }
 
   return {
     mode: "union-shortest",
-    points: wrapRoadPolyline([p0, pEnd], capitalA, capitalB)
+    points: wrapRoadPolyline([p0, pEnd], capitalA, capitalB),
+    bridgeSegments: []
   };
 }
 
@@ -830,15 +1485,14 @@ export function sampleRoadSegmentCurve(
   segment: RoadSegment,
   capitalA: LonLat,
   capitalB: LonLat,
-  _boundaryMid: LonLat | undefined,
   options: SampleRoadCurveOptions = {}
 ): LonLat[] {
   return resolveRoadSegmentCurve(segment, capitalA, capitalB, options).points;
 }
 
-const BASE_LANE_SPACING = 0.35;
 const PCB_JOG_MAX = 0.5;
 const PCB_JOG_FRACTION = 0.12;
+const LANE_GAP_WIDTH_RATIO = 0.5;
 
 function segmentNormal(a: LonLat, b: LonLat): LonLat {
   const dx = b[0] - a[0];
@@ -978,9 +1632,136 @@ export interface RoadDrawBatch {
   readonly polylines: readonly (readonly LonLat[])[];
 }
 
+export interface RoadRibbonMesh {
+  readonly vertices: readonly LonLat[];
+  readonly indices: readonly number[];
+}
+
+export interface BuildRoadRibbonMeshOptions {
+  readonly width: number;
+  readonly dashSize?: number;
+  readonly gapSize?: number;
+}
+
+export function buildRoadRibbonMesh(
+  polylines: readonly (readonly LonLat[])[],
+  options: BuildRoadRibbonMeshOptions
+): RoadRibbonMesh {
+  const vertices: LonLat[] = [];
+  const indices: number[] = [];
+  const halfWidth = options.width / 2;
+
+  const appendRibbon = (source: readonly LonLat[]): void => {
+    const points = dedupeConsecutive(unwrapPolyline(source));
+    if (points.length < 2) return;
+    const normals: LonLat[] = [];
+    for (let index = 1; index < points.length; index += 1) {
+      const start = points[index - 1]!;
+      const end = points[index]!;
+      const normal = segmentNormal(start, end);
+      normals.push(normal);
+      const vertexOffset = vertices.length;
+      vertices.push(
+        [start[0] + normal[0] * halfWidth, start[1] + normal[1] * halfWidth],
+        [start[0] - normal[0] * halfWidth, start[1] - normal[1] * halfWidth],
+        [end[0] + normal[0] * halfWidth, end[1] + normal[1] * halfWidth],
+        [end[0] - normal[0] * halfWidth, end[1] - normal[1] * halfWidth]
+      );
+      indices.push(
+        vertexOffset,
+        vertexOffset + 1,
+        vertexOffset + 2,
+        vertexOffset + 1,
+        vertexOffset + 3,
+        vertexOffset + 2
+      );
+    }
+
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const previous = points[index - 1]!;
+      const point = points[index]!;
+      const next = points[index + 1]!;
+      const turn =
+        (point[0] - previous[0]) * (next[1] - point[1]) -
+        (point[1] - previous[1]) * (next[0] - point[0]);
+      if (Math.abs(turn) <= 1e-12) continue;
+      const previousNormal = normals[index - 1]!;
+      const nextNormal = normals[index]!;
+      const side = turn > 0 ? -1 : 1;
+      const previousOuter: LonLat = [
+        point[0] + previousNormal[0] * halfWidth * side,
+        point[1] + previousNormal[1] * halfWidth * side
+      ];
+      const nextOuter: LonLat = [
+        point[0] + nextNormal[0] * halfWidth * side,
+        point[1] + nextNormal[1] * halfWidth * side
+      ];
+      const vertexOffset = vertices.length;
+      vertices.push([point[0], point[1]], previousOuter, nextOuter);
+      if (turn > 0) {
+        indices.push(vertexOffset, vertexOffset + 1, vertexOffset + 2);
+      } else {
+        indices.push(vertexOffset, vertexOffset + 2, vertexOffset + 1);
+      }
+    }
+  };
+
+  const dashed =
+    options.dashSize !== undefined &&
+    options.gapSize !== undefined &&
+    options.dashSize > 0 &&
+    options.gapSize > 0;
+  for (const source of polylines) {
+    if (!dashed) {
+      appendRibbon(source);
+      continue;
+    }
+    const points = dedupeConsecutive(unwrapPolyline(source));
+    let drawing = true;
+    let intervalDistance = 0;
+    let dash: LonLat[] = [];
+    for (let index = 1; index < points.length; index += 1) {
+      const start = points[index - 1]!;
+      const end = points[index]!;
+      const dx = end[0] - start[0];
+      const dy = end[1] - start[1];
+      const segmentLength = Math.hypot(dx, dy);
+      let segmentDistance = 0;
+      while (segmentDistance < segmentLength - 1e-12) {
+        const intervalLength = drawing ? options.dashSize! : options.gapSize!;
+        const step = Math.min(segmentLength - segmentDistance, intervalLength - intervalDistance);
+        const from: LonLat = [
+          start[0] + (dx * segmentDistance) / segmentLength,
+          start[1] + (dy * segmentDistance) / segmentLength
+        ];
+        segmentDistance += step;
+        const to: LonLat = [
+          start[0] + (dx * segmentDistance) / segmentLength,
+          start[1] + (dy * segmentDistance) / segmentLength
+        ];
+        if (drawing) {
+          if (dash.length === 0) dash.push(from);
+          dash.push(to);
+        }
+        intervalDistance += step;
+        if (intervalDistance >= intervalLength - 1e-12) {
+          if (drawing) appendRibbon(dash);
+          dash = [];
+          drawing = !drawing;
+          intervalDistance = 0;
+        }
+      }
+    }
+    if (drawing && dash.length >= 2) appendRibbon(dash);
+  }
+
+  return { vertices, indices };
+}
+
 export interface BuildRoadPairRoutesOptions {
   readonly capitals: ReadonlyMap<string, LonLat>;
   readonly provinceGeometryById?: ReadonlyMap<string, GeoJsonGeometry>;
+  readonly maxBridgeSpanKm?: number;
   readonly onWarning?: (message: string) => void;
 }
 
@@ -1026,7 +1807,12 @@ export function buildRoadPairRoutes(
     const geometryB = options.provinceGeometryById?.get(first.provinceIdB);
     const resolved = resolveRoadSegmentCurve(representative, capitalA, capitalB, {
       ...(geometryA === undefined ? {} : { geometryA }),
-      ...(geometryB === undefined ? {} : { geometryB })
+      ...(geometryB === undefined ? {} : { geometryB }),
+      ...(options.provinceGeometryById === undefined
+        ? {}
+        : { provinceGeometryById: options.provinceGeometryById }),
+      excludedProvinceIds: new Set([first.provinceIdA, first.provinceIdB]),
+      maxBridgeSpanKm: options.maxBridgeSpanKm ?? DEFAULT_MAX_BRIDGE_SPAN_KM
     });
     if (resolved.mode === "straight-fallback") {
       options.onWarning?.(
@@ -1037,7 +1823,8 @@ export function buildRoadPairRoutes(
       provinceIdA: first.provinceIdA,
       provinceIdB: first.provinceIdB,
       mode: resolved.mode,
-      coordinates: resolved.points
+      coordinates: resolved.points,
+      ...(resolved.bridgeSegments.length === 0 ? {} : { bridgeSegments: resolved.bridgeSegments })
     });
   }
   return routes;
@@ -1046,10 +1833,8 @@ export function buildRoadPairRoutes(
 export interface BuildRoadDrawBatchesOptions {
   readonly pairRoutes?: readonly RoadPairRoute[];
   readonly capitals?: ReadonlyMap<string, LonLat>;
-  readonly boundaries?: readonly MapBoundary[];
   /** When set, skip types whose maxVisibleHalfHeight is below this. */
   readonly halfHeight?: number;
-  readonly baseLaneSpacing?: number;
   /** Province polygons for land-aware path selection (A∪B). */
   readonly provinceGeometryById?: ReadonlyMap<string, GeoJsonGeometry>;
 }
@@ -1058,8 +1843,6 @@ export function buildRoadDrawBatches(
   segments: readonly RoadSegment[],
   options: BuildRoadDrawBatchesOptions
 ): RoadDrawBatch[] {
-  const spacing = options.baseLaneSpacing ?? BASE_LANE_SPACING;
-
   const byPair = new Map<string, RoadSegment[]>();
   for (const segment of segments) {
     const def = getRoadTypeDefinition(segment.typeId);
@@ -1099,9 +1882,33 @@ export function buildRoadDrawBatches(
       throw new MapSchemaError(`ROAD_ROUTE_MISSING: ${pair}`, "roads");
     }
 
+    const orderedSegments = [...pairSegments].sort((a, b) => {
+      const aLane = getRoadTypeDefinition(a.typeId)?.laneIndex ?? 0;
+      const bLane = getRoadTypeDefinition(b.typeId)?.laneIndex ?? 0;
+      return aLane - bLane;
+    });
+    const centersStyleUnits = new Map<RoadTypeId, number>();
+    if (orderedSegments.length > 1) {
+      let cursor = 0;
+      for (const [index, segment] of orderedSegments.entries()) {
+        const def = getRoadTypeDefinition(segment.typeId)!;
+        const width = def.casingWidth ?? def.lineWidth;
+        if (index > 0) {
+          const previousDef = getRoadTypeDefinition(orderedSegments[index - 1]!.typeId)!;
+          const previousWidth = previousDef.casingWidth ?? previousDef.lineWidth;
+          cursor += Math.min(previousWidth, width) * LANE_GAP_WIDTH_RATIO;
+        }
+        centersStyleUnits.set(segment.typeId, cursor + width / 2);
+        cursor += width;
+      }
+      for (const [typeId, center] of centersStyleUnits) {
+        centersStyleUnits.set(typeId, center - cursor / 2);
+      }
+    }
+
     for (const segment of pairSegments) {
       const def = getRoadTypeDefinition(segment.typeId)!;
-      const offset = pairSegments.length === 1 ? 0 : def.laneIndex * spacing * def.laneSpacingScale;
+      const offset = (centersStyleUnits.get(def.id) ?? 0) * ROAD_STYLE_MAP_SCALE;
       const points = offsetPolylineKeepEnds(route.coordinates, offset);
       const list = offsetCurves.get(segment.typeId) ?? [];
       list.push({ segment, points });

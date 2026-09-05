@@ -16,6 +16,7 @@ import {
 import type {
   CountryNameEntry,
   CountryNameTable,
+  GeoJsonGeometry,
   GlobeMeshData,
   MapBoundary,
   MapFeature,
@@ -619,8 +620,10 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
   const scenarioSeed = parseScenarioSeed(raw.scenarioSeed);
   const boundaries = parseRuntimeBoundaries(raw.boundaries);
   const capitals = new Map<string, LonLat>();
+  const provinceGeometryById = new Map<string, GeoJsonGeometry>();
   for (const province of provinces) {
     capitals.set(province.id, province.properties.capital.coordinates);
+    provinceGeometryById.set(province.id, province.lod?.at(-1) ?? province.geometry);
   }
   const roads =
     raw.roads === undefined
@@ -628,7 +631,8 @@ export function parseMapPackBundle(raw: MapPackBundleInput): LoadedMapPack {
       : parseRuntimeRoadCollection(raw.roads, {
           provinceIds,
           adjacencyPairs: buildAdjacencyPairSet(boundaries),
-          capitals
+          capitals,
+          provinceGeometryById
         });
   return {
     manifest,

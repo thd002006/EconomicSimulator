@@ -13,7 +13,7 @@ async function discoverMaps(mapsRoot: string): Promise<MapEntry[]> {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort();
-  return Promise.all(
+  const entries = await Promise.all(
     directories.map(async (path) => {
       const manifest = JSON.parse(await readFile(join(mapsRoot, path, "map.json"), "utf8")) as {
         id: string;
@@ -21,6 +21,14 @@ async function discoverMaps(mapsRoot: string): Promise<MapEntry[]> {
       return { id: manifest.id, path };
     })
   );
+  const byId = new Map<string, MapEntry>();
+  for (const entry of entries) {
+    const existing = byId.get(entry.id);
+    if (existing === undefined || (entry.path === entry.id && existing.path !== existing.id)) {
+      byId.set(entry.id, entry);
+    }
+  }
+  return [...byId.values()].sort((left, right) => left.id.localeCompare(right.id));
 }
 
 /**

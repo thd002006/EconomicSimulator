@@ -8,6 +8,7 @@ import {
   parseProvinceCapital,
   parseRoadCollection,
   pointInGeometry,
+  type GeoJsonGeometry,
   type LonLat
 } from "@economic-simulator/map-runtime";
 import {
@@ -55,9 +56,11 @@ export async function validatePack(
   );
   const provinces = parseCollection(await readJson(provincePath), "provinces");
   const provinceIds = new Set(assertUniqueFeatureIds(provinces.features, "provinces"));
+  const provinceGeometryById = new Map<string, GeoJsonGeometry>();
   for (const feature of provinces.features) {
     const id = String(feature.id);
     const geometry = parsePolygonGeometry(feature.geometry, "provinces", id);
+    provinceGeometryById.set(id, geometry);
     const capital = parseProvinceCapital(feature.properties?.capital, "provinces", id);
     if (!pointInGeometry(capital.coordinates[0], capital.coordinates[1], geometry)) {
       throw new Error(`Province ${id} capital lies outside its geometry.`);
@@ -130,10 +133,12 @@ export async function validatePack(
   let roads = 0;
   if (manifest.layers.roads !== undefined) {
     const roadsPath = await resolveContainedFile(packDir, manifest.layers.roads, "layers.roads");
-    const collection = parseRoadCollection(await readJson(roadsPath), {
+    const roadsInput = await readJson(roadsPath);
+    const collection = parseRoadCollection(roadsInput, {
       provinceIds,
       adjacencyPairs,
-      capitals
+      capitals,
+      provinceGeometryById
     });
     roads = collection.segments.length;
   }
@@ -179,10 +184,13 @@ export function parseValidateArgs(args: readonly string[]): { mapId?: string } {
     }
     throw new Error(`Unknown validate argument: ${argument}`);
   }
-  return { mapId };
+  return mapId === undefined ? {} : { mapId };
 }
 
-export async function validateMaps(mapsRoot: string, options: { mapId?: string } = {}): Promise<void> {
+export async function validateMaps(
+  mapsRoot: string,
+  options: { mapId?: string } = {}
+): Promise<void> {
   const reports: Record<string, Record<string, number>> = {};
   if (options.mapId !== undefined) {
     const entry = { id: options.mapId, path: options.mapId };
@@ -209,5 +217,5 @@ export async function validateMaps(mapsRoot: string, options: { mapId?: string }
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { mapId } = parseValidateArgs(process.argv.slice(2));
-  await validateMaps(resolve(toolRoot, "../../assets/maps"), { mapId });
+  await validateMaps(resolve(toolRoot, "../../assets/maps"), mapId === undefined ? {} : { mapId });
 }

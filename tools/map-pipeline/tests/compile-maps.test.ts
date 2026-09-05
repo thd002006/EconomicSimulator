@@ -467,6 +467,76 @@ describe("map compiler", () => {
     expect(bendChange.routeInputHash).not.toBe(firstHash.routeInputHash);
     expect(bendChange.pairRoutes[0]?.mode).toBe("bend");
     log.mockRestore();
+
+    await writeFile(
+      join(geometryDir, "boundaries.json"),
+      JSON.stringify({ type: "BoundaryCollection", features: [] }),
+      "utf8"
+    );
+    await writeFile(
+      join(geometryDir, "provinces.geojson"),
+      JSON.stringify({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            id: "tiny",
+            properties: {
+              name: "Tiny",
+              adm0A3: "UNK",
+              capital: { coordinates: [0.005, 0.005] }
+            },
+            geometry: polygon([
+              [0, 0],
+              [0.01, 0],
+              [0.01, 0.01],
+              [0, 0.01],
+              [0, 0]
+            ])
+          },
+          {
+            type: "Feature",
+            id: "other",
+            properties: {
+              name: "Other",
+              adm0A3: "UNK",
+              capital: { coordinates: [0.016, 0.005] }
+            },
+            geometry: polygon([
+              [0.011, 0],
+              [0.021, 0],
+              [0.021, 0.01],
+              [0.011, 0.01],
+              [0.011, 0]
+            ])
+          }
+        ]
+      }),
+      "utf8"
+    );
+    await writeFile(
+      join(geometryDir, "roads.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        segments: [
+          {
+            id: "road-hw-other-tiny",
+            typeId: "highway",
+            provinceIdA: "other",
+            provinceIdB: "tiny"
+          }
+        ]
+      }),
+      "utf8"
+    );
+    await compilePack(sourceRoot, outputRoot, { id: "test-map", path: "test-map" });
+    const bridged = JSON.parse(
+      await readFile(join(outputRoot, "test-map", "compiled", "roads.json"), "utf8")
+    ) as { pairRoutes: Array<{ mode: string; bridgeSegments?: number[] }> };
+    expect(bridged.pairRoutes[0]).toMatchObject({
+      mode: "bridge-shortest",
+      bridgeSegments: [0]
+    });
   });
 
   it("parseCompileArgs requires --map and handles '--' separator", () => {

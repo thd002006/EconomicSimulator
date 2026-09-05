@@ -89,21 +89,28 @@ export {
 export {
   EMPTY_ROAD_COLLECTION,
   EMPTY_RUNTIME_ROAD_COLLECTION,
+  DEFAULT_MAX_BRIDGE_SPAN_KM,
+  ROAD_STYLE_MAP_SCALE,
   adjacencyPairKey,
   buildAdjacencyPairSet,
   buildBoundaryMidpointIndex,
   buildSharedBoundaryIndex,
   buildRoadDrawBatches,
+  buildRoadRibbonMesh,
   buildRoadPairRoutes,
+  provincePairHasRoutableBridge,
   parseRoadCollection,
   parseRuntimeRoadCollection,
   roadSegmentKey,
-  sampleRoadSegmentCurve
+  sampleRoadSegmentCurve,
+  segmentUsesValidBridgeSpan
 } from "./roads.js";
 export type {
   BuildRoadDrawBatchesOptions,
+  BuildRoadRibbonMeshOptions,
   BuildRoadPairRoutesOptions,
   RoadDrawBatch,
+  RoadRibbonMesh,
   RoadParseContext,
   SampleRoadCurveOptions
 } from "./roads.js";

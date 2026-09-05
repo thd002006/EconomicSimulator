@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import {
   adjacencyPairKey,
   buildRoadPairRoutes,
+  DEFAULT_MAX_BRIDGE_SPAN_KM,
   computeBBox,
   EMPTY_ROAD_COLLECTION,
   parseLineGeometry,
@@ -34,7 +35,7 @@ import { compileGlobeMesh, serializeGlobeMesh } from "./globe-mesh.js";
 export const LOD_TOLERANCES = [0.25, 0.08, 0] as const;
 const GRID_CELL_SIZE = 5;
 const TOOL_VERSION = "0.7.0";
-const ROAD_ROUTING_VERSION = "1";
+const ROAD_ROUTING_VERSION = "3-capital-reachable-water-bridges";
 
 type RecordValue = Record<string, unknown>;
 type Feature = {
@@ -331,20 +332,6 @@ export async function compilePack(
   const capitals = new Map(
     provinces.map((province) => [province.id, province.properties.capital.coordinates] as const)
   );
-
-  let roadsCollection: RoadCollection = EMPTY_ROAD_COLLECTION;
-  if (manifest.layers.roads !== undefined) {
-    const roadsPath = await resolveContainedFile(sourceDir, manifest.layers.roads, "layers.roads");
-    const text = await readFile(roadsPath, "utf8");
-    sourceHashes.roads = sha256(text);
-    roadsCollection = parseRoadCollection(JSON.parse(text) as unknown, {
-      provinceIds: provinceIdSet,
-      adjacencyPairs,
-      capitals
-    });
-  }
-
-  const outDir = join(outputRoot, entry.path, "compiled");
   const provinceGeometryById = new Map<string, GeoJsonGeometry>();
   for (const province of provinces) {
     const geometry = province.lod.at(-1);
@@ -353,6 +340,22 @@ export async function compilePack(
     }
     provinceGeometryById.set(province.id, geometry);
   }
+
+  let roadsCollection: RoadCollection = EMPTY_ROAD_COLLECTION;
+  if (manifest.layers.roads !== undefined) {
+    const roadsPath = await resolveContainedFile(sourceDir, manifest.layers.roads, "layers.roads");
+    const text = await readFile(roadsPath, "utf8");
+    sourceHashes.roads = sha256(text);
+    const roadsInput = JSON.parse(text) as unknown;
+    roadsCollection = parseRoadCollection(roadsInput, {
+      provinceIds: provinceIdSet,
+      adjacencyPairs,
+      capitals,
+      provinceGeometryById
+    });
+  }
+
+  const outDir = join(outputRoot, entry.path, "compiled");
   const routeInputs = new Map<
     string,
     {
@@ -375,6 +378,8 @@ export async function compilePack(
   const routeInputHash = sha256(
     JSON.stringify({
       routingVersion: ROAD_ROUTING_VERSION,
+      maxBridgeSpanKm: DEFAULT_MAX_BRIDGE_SPAN_KM,
+      globalLandGeometry: sourceHashes.provinces,
       pairs: [...routeInputs.entries()]
         .sort(([left], [right]) => left.localeCompare(right))
         .map(([pair, input]) => ({
@@ -402,12 +407,13 @@ export async function compilePack(
     const cached = parseRuntimeRoadCollection(await readJson(join(outDir, "roads.json")), {
       provinceIds: provinceIdSet,
       adjacencyPairs,
-      capitals
+      capitals,
+      provinceGeometryById
     });
     if (cached.routeInputHash === routeInputHash) {
       runtimeRoads = parseRuntimeRoadCollection(
         { ...cached, segments: roadsCollection.segments },
-        { provinceIds: provinceIdSet, adjacencyPairs, capitals }
+        { provinceIds: provinceIdSet, adjacencyPairs, capitals, provinceGeometryById }
       );
       reusedRoadRoutes = true;
     }
@@ -427,7 +433,7 @@ export async function compilePack(
         segments: roadsCollection.segments,
         pairRoutes
       },
-      { provinceIds: provinceIdSet, adjacencyPairs, capitals }
+      { provinceIds: provinceIdSet, adjacencyPairs, capitals, provinceGeometryById }
     );
   }
 

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@economic-simulator/map-runtime':
+        specifier: file:../packages/map-runtime
+        version: file:../packages/map-runtime
       '@turf/area':
         specifier: 7.4.0
         version: 7.4.0
@@ -90,6 +93,9 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
+
+  '@economic-simulator/map-runtime@file:../packages/map-runtime':
+    resolution: {directory: ../packages/map-runtime, type: directory}
 
   '@esbuild/aix-ppc64@0.28.2':
     resolution: {integrity: sha512-XExcO+dvLKvVtNTibSTBej1NCAbaGhWn9Ww1ZPx80qsahhPFe/8jgWP0IchNe0F3HwkU7n8ejhH8bjonqht8mQ==}
@@ -654,6 +660,10 @@ packages:
 snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
+
+  '@economic-simulator/map-runtime@file:../packages/map-runtime':
+    dependencies:
+      polygon-clipping: 0.15.7
 
   '@esbuild/aix-ppc64@0.28.2':
     optional: true

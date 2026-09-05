@@ -3,7 +3,7 @@
 > 文档状态：可实施基线（Implementation Baseline）  
 > 适用版本：道路地图绘制 V1  
 > 相关文档：`economic_simulation_web_architecture.md`、`province_architecture.md`、`economic_unit_architecture.md`、`operating_unit_architecture.md`  
-> 核心取舍：道路在地图上以「相邻省份首府之间的可扩展类型段」为权威拓扑；绘制可串联与偏移，经济内核仍按段处理且本阶段不实现
+> 核心取舍：道路在地图上以「相邻或有合法窄水域桥接的省份首府之间的可扩展类型段」为权威拓扑；绘制可串联与偏移，经济内核仍按段处理且本阶段不实现
 
 ---
 
@@ -11,14 +11,14 @@
 
 V1 采用以下设计：
 
-1. 任意在成品地图 `boundaries` 中存在共享边界的两个省份之间，可以存在零条或多条不同类型的道路段；省份相邻不等于默认可通行。
+1. 任意在成品地图 `boundaries` 中存在共享边界、或两岸间存在不超过 20 km 合法水域桥段的两个省份之间，可以存在零条或多条不同类型的道路段；地理可连接不等于默认可通行。
 2. 道路类型由可扩展注册表定义（普通公路、高速公路、铁路等）；新增类型只需注册样式与偏移参数，不改拓扑 schema。
-3. 每个存在道路的相邻省份无序对只预制一条首府间基础路线：若直线穿出 `A∪B`，则在真实并集域上求平面可视性最短折线；基础路线在 `map:publish` 生成，客户端不得重新寻路。
+3. 每个存在道路的省份无序对只预制一条首府间基础路线：陆地段位于真实 `A∪B`，允许以最长 20 km 的特殊可视边跨越连续水域，但桥段不得穿过第三省陆地；基础路线在 `map:publish` 生成，客户端不得重新寻路。
 4. 同类型、共享端点省份的道路段在**绘制层**可串联为更长的连续折线；经济内核与存档仍以分段为权威，串联不合并段身份。
 5. 绘制样式对齐百度地图式道路符号（填充色 + 描边 casing；铁路为深色连续 casing + 白色虚线填充形成深浅相间），客户端与地图编辑器共用同一视觉语言，并与省界/国界/海岸线分层。
 6. 单一类型道路直接使用基础路线；同一省对有多个类型时，客户端按类型注册表的固定偏移序号沿基础路线法线做确定性平行偏移。偏移是纯视觉效果，允许小幅越出 `A∪B`。
 7. 地图编辑器提供添加、删除、改类型道路的能力；不修改省份多边形或邻接拓扑。
-8. 默认道路数据以 Natural Earth 道路连接强度筛选邻接省对；无足够证据不建路。
+8. 默认道路数据以固定版本 Natural Earth 公路与铁路连接强度筛选省对；非相邻省对仅在线路采样确实跨越两岸时加入候选，无足够证据不建路。
 9. 道路几何与类型属于地图包 Definition，不写入模拟快照；V1 不创建 `TransportEdge`、不创建道路 Operating Unit、不做运力/寻路/收费。
 
 V1 明确不做：
@@ -26,7 +26,7 @@ V1 明确不做：
 - 运输经济模拟、运力、维护、收费、寻路与贸易路线；
 - 将真实连续公路线（OSM / Natural Earth 折线）直接作为游戏可通行拓扑；
 - 省内城市节点、路口 Junction、边境口岸节点的独立绘制；
-- 跨不相邻省份的“飞线”道路；
+- 超过 20 km 连续水域、穿过第三省陆地，或缺少道路拓扑依据的“飞线”；
 - 因绘制串联而合并或删除 `RoadSegment` 权威记录；
 - 运行时动态改建道路几何（建设/拆除的经济命令留待后续规格）；
 - 海运航线、运河、管道等非陆路类型的完整规范（注册表可预留，V1 不实现绘制）。
@@ -80,13 +80,8 @@ interface RoadTypeDefinition {
   readonly nameKey: string;
   /** 绘制排序：数值越小越先画（被后画的压在上方时可按需反转） */
   readonly drawOrder: number;
-  /**
-   * 同一省对上多类型并行时的车道序号。
-   * 0 表示贴主路径；正负表示法线两侧。注册表内必须两两不同。
-   */
+  /** 同一省对上多类型并行时的左右排序；注册表内必须两两不同。 */
   readonly laneIndex: number;
-  /** 相对 lane 间距的乘数，默认 1 */
-  readonly laneSpacingScale: number;
   readonly strokeColor: number;
   readonly strokeOpacity: number;
   readonly lineWidth: number;
@@ -104,11 +99,11 @@ interface RoadTypeDefinition {
 
 底图仍为暖纸色 `0xc8b898`（海岸 `0x3a2a1a`、省界 `0x5a4030`、国界 `0x2a1c12`）。道路采用不透明填充 + casing，比省界更易辨认，仍画在国界之下。
 
-| typeId       | 含义     | laneIndex | lineWidth / casingWidth | stroke / casing                           | maxVisibleHalfHeight | 备注                                                                         |
-| ------------ | -------- | --------- | ----------------------- | ----------------------------------------- | -------------------- | ---------------------------------------------------------------------------- |
-| `local_road` | 普通公路 | -1        | 2.0 / 2.8               | 白 `0xffffff` / 浅灰 `0xd0d0d0` @ 1.0     | 32                   | 与省界同级缩放才显示                                                         |
-| `highway`    | 高速公路 | 0         | 3.2 / 4.2               | 橙桃 `0xffb366` / 深橙褐 `0xd4893a` @ 1.0 | 90                   | 中距可见，比普通路粗                                                         |
-| `railway`    | 铁路     | 1         | 1.8 / 2.8               | 白 `0xffffff` / 深灰 `0x666666` @ 1.0     | 90                   | 深色连续 casing + 白色虚线（`dashSize`/`gapSize` 5）= 深浅相间，白段带深轮廓 |
+| typeId       | 含义     | laneIndex | lineWidth / casingWidth | stroke / casing                           | maxVisibleHalfHeight | 备注                                           |
+| ------------ | -------- | --------- | ----------------------- | ----------------------------------------- | -------------------- | ---------------------------------------------- |
+| `local_road` | 普通公路 | -1        | 2.0 / 2.8               | 白 `0xffffff` / 浅灰 `0xd0d0d0` @ 1.0     | 32                   | 与省界同级缩放才显示                           |
+| `highway`    | 高速公路 | 0         | 3.2 / 4.2               | 橙桃 `0xffb366` / 深橙褐 `0xd4893a` @ 1.0 | 90                   | 中距可见，比普通路粗                           |
+| `railway`    | 铁路     | 1         | 1.8 / 2.8               | 白 `0xffffff` / 深灰 `0x666666` @ 1.0     | 90                   | 深色连续 casing + `6 / 6` 样式单位的白段和深段 |
 
 追加类型时必须分配未占用的 `laneIndex`，并更新本表。禁止两个类型共用同一 `laneIndex`。
 
@@ -187,8 +182,10 @@ interface RuntimeRoadCollection {
   readonly pairRoutes: readonly {
     provinceIdA: ProvinceId;
     provinceIdB: ProvinceId;
-    mode: "union-shortest" | "bend" | "straight-fallback";
+    mode: "union-shortest" | "bridge-shortest" | "bend" | "straight-fallback";
     coordinates: readonly LonLat[];
+    /** coordinates 中跨越水域的边索引；仅供校验和诊断，不触发特殊渲染 */
+    bridgeSegments?: readonly number[];
   }[];
 }
 ```
@@ -209,7 +206,7 @@ interface RuntimeRoadCollection {
 
 1. 解析并校验 `RoadCollection`；
 2. 确认每个端点省份存在且含首府坐标；
-3. 确认存在 `left/right` 对应该省对的 `MapBoundary`（`rightProvinceId !== null`）；
+3. 确认存在 `left/right` 对应该省对的 `MapBoundary`，或两省岸线间存在不超过 20 km 且不穿第三省的合法桥段；
 4. 确认 `typeId` 均在注册表中；
 5. 按无序省对去重，在完整 `A∪B` 上生成一条基础路线；
 6. 将 `segments`、`pairRoutes` 与 `routeInputHash` 写为 compiled `roads.json` schemaVersion 2，供 `loadMapPack` / `MapViewModel` 挂载；输入哈希未变时复用已有路线。
@@ -218,7 +215,7 @@ interface RuntimeRoadCollection {
 
 ### 4.4 邻接判定
 
-唯一邻接真相为成品 `boundaries.json` 中的共享省界：
+陆地邻接真相为成品 `boundaries.json` 中的共享省界：
 
 ```ts
 interface MapBoundary {
@@ -229,13 +226,13 @@ interface MapBoundary {
 }
 ```
 
-仅当存在某 boundary 满足无序对 `{left, right} == {provinceIdA, provinceIdB}` 时，该省对合法。海岸弧（`rightProvinceId === null`）不能作为道路端点对。
+存在某 boundary 满足无序对 `{left, right} == {provinceIdA, provinceIdB}` 时，该省对为陆地邻接。非邻接省对只有在两省岸线间能构造合法桥段时才可通过道路校验；默认生成器还要求 Natural Earth 非 Ferry 道路确实从一岸跨到另一岸，不能仅凭距离自动创建道路拓扑。
 
 ---
 
 ## 5. 直线路径与同类型串联
 
-### 5.1 省对基础路径（直线优先 + A∪B 并集域最短路）
+### 5.1 省对基础路径（直线优先 + A∪B 并集域最短路 + 窄水域桥）
 
 对段 `S`，取两端首府地图坐标 `P_a`、`P_b`（经 `lonLatToMapXY`，处理 360° wrap 时选择短经度差）。
 
@@ -243,8 +240,11 @@ interface MapBoundary {
 
 1. 使用完整 Polygon/MultiPolygon 计算真实并集，并按首府 A 的经度展开日期变更线附近坐标。
 2. 若精确线段包含判定确认 `P_a → P_b` 全部位于并集内，则输出两点直线。
-3. 否则从并集外环和孔洞提取反射顶点，建立仅包含完全位于闭合并集内的可视边，并按地图平面欧氏距离求最短路径。
-4. 只有两个首府确实落在不同并集连通分量时，才输出带 `straight-fallback` 标记的直线并报告 `ROAD_ROUTE_UNREACHABLE_FALLBACK`；算法失败必须拒绝发布。
+3. 若直线离开并集，但每一段连续水域都不超过 20 km 且不穿过第三省陆地，则输出两点直线并将对应边标为桥段。
+4. 若两个首府位于同一并集连通分量，则从该分量的外环和孔洞提取反射顶点，建立仅包含完全位于闭合并集内的可视边，并按地图平面欧氏距离求最短路径。
+5. 若首府位于不同陆块，则从岸线边生成最长 20 km 的合法桥边，加入多分量可视图后求最短路径；仍不可达时才输出带 `straight-fallback` 标记的直线并报告 `ROAD_ROUTE_UNREACHABLE_FALLBACK`。算法失败必须拒绝发布。
+
+桥只影响预制走线。`bridgeSegments` 不改变道路颜色、casing、虚线或层级，客户端也不绘制独立桥梁对象。
 
 不做弧线/微弧骨架；不再用「最近共享边强制附着 + 分段省内路径」——那种选点易被拽到海湾外侧并产生怪折点。
 
@@ -254,9 +254,9 @@ interface MapBoundary {
 - 2 个点 → 三次 Bezier 覆盖；
 - 其他长度 → 校验失败。
 - bend 属于整个省对的基础路线；同省对多个 segment 的 bend 必须缺省或完全一致，否则以 `ROAD_BEND_CONFLICT` 拒绝发布。
-- bend 采样后的每条绘制线段都必须位于 `A∪B`，否则以 `ROAD_BEND_OUTSIDE_UNION` 拒绝发布。
+- bend 采样后的每条绘制线段都必须位于 `A∪B` 或满足同样的 20 km 桥段约束，否则以 `ROAD_BEND_OUTSIDE_UNION` 拒绝发布。
 
-道路基础几何只在地图发布时计算。运行时包按省对保存一份 `pairRoute`；`routeInputHash` 覆盖被道路引用的省对、端点几何、首府、共享边界、bend 与寻路算法版本，但不包含道路类型、名称、颜色、线宽或偏移配置。
+道路基础几何只在地图发布时计算。运行时包按省对保存一份 `pairRoute`；`routeInputHash` 覆盖被道路引用的省对、全局陆地几何（用于第三省阻挡）、首府、共享边界、bend、20 km 阈值与寻路算法版本，但不包含道路类型、名称、颜色、线宽或偏移配置。
 
 ### 5.2 同类型串联（仅绘制）
 
@@ -278,7 +278,7 @@ interface MapBoundary {
 
 ### 5.3 日期变更线与 wrap
 
-与现有边界线一致：跨 ±180° 的段在采样后按 `clipSegmentToWorld` / tile 复制策略绘制，不得出现横穿整张地图的错误长线。
+跨 ±180° 的道路先展开为连续短路径，再随 tile 复制到相邻世界，不得出现横穿整张地图的错误长线。
 
 ---
 
@@ -286,24 +286,25 @@ interface MapBoundary {
 
 ### 6.1 偏移规则
 
-对每个省对 `{a,b}`，收集该省对上所有类型的段，并读取唯一预制基础路线 `M`。省对只有一个类型时偏移量固定为 0；只有多个类型同时存在时才应用下式：
-
-对类型 `T`：
+对每个省对 `{a,b}`，收集该省对上所有类型的段，并读取唯一预制基础路线 `M`。省对只有一个类型时偏移量固定为 0；多个类型按 `laneIndex` 排序并紧凑排布：
 
 ```text
-offsetDistance = laneIndex(T) * baseLaneSpacing * laneSpacingScale(T)
-baseLaneSpacing = 0.35                                      // 当前地图平面单位
+visibleWidth(T) = casingWidth(T) ?? lineWidth(T)
+edgeGap(A, B) = min(visibleWidth(A), visibleWidth(B)) * 0.5
+mapOffset = styleOffset * 0.015°
+centerDistance(A, B) = visibleWidth(A) / 2 + edgeGap(A, B) + visibleWidth(B) / 2
 ```
+
+完成排布后，将整组道路的可见外包络居中于基础路线。道路偏移、描边宽度、外框宽度和虚线长度固定使用 `0.015°` 对应一个样式宽度单位；高速主体 / 外框分别为 `0.048° / 0.063°`，铁路白段 / 深段均为 `0.09°`。缩放只改变其屏幕大小，不重建道路几何或材质。
 
 偏移采用**电路板走线**（非整段鼓包）：
 
-- `laneIndex === 0`：沿预制基础路线。
-- 否则：端点钉首府；端点附近各加一段短折线引出；中段对整条主路径做恒定法线平行偏移（多折点走廊保留拐点）。
+- 端点钉首府；端点附近各加一段短折线引出；中段对整条主路径做恒定法线平行偏移（多折点走廊保留拐点）。
 - `jog = min(固定地图单位, 0.12 * 路径长)`，并保证两端 jog 之和小于路径长。
 
 法线取邻段平均，避免同省对多类型法线翻转。
 
-偏移后不做多边形包含校验；小幅穿出基础路线所在并集属于允许的视觉误差。确定性要求：相同输入地图包 + 相同视角缩放，偏移结果字节级一致（禁止依赖哈希随机扰动）。
+偏移后不做多边形包含校验；小幅穿出基础路线所在并集属于允许的视觉误差。确定性要求：相同输入地图包生成字节级一致的偏移结果（禁止依赖视角缩放或哈希随机扰动）。
 
 ### 6.2 图层顺序
 
@@ -325,7 +326,7 @@ baseLaneSpacing = 0.35                                      // 当前地图平�
 
 ### 6.4 实现提示
 
-客户端与编辑器均使用 Three.js `LineSegments2` + `LineMaterial`，先画可选 casing、再画 stroke；有 `dashSize`/`gapSize` 时顶层虚线。铁路：深色连续 casing + 白色虚线 fill，gap 露出深色块、dash 为白心深边。样式数值来自 `road-types.ts`，禁止客户端/编辑器各写一套颜色。
+客户端与编辑器均将共享折线三角化为地图平面上的连续道路带，先画可选 casing、再稍微抬高 stroke。每段是四边形，折点外侧补 bevel 三角形，端点使用 butt cap；不使用会为每个采样段生成端帽的 `LineSegments2`。铁路将顶层 stroke 按累计路径长度切成固定 `0.09° / 0.09°` 的白段与间隔。样式数值来自 `road-types.ts`，禁止客户端/编辑器各写一套颜色。
 
 ---
 
@@ -350,7 +351,7 @@ baseLaneSpacing = 0.35                                      // 当前地图平�
 
 1. 选择 `typeId`；
 2. 依次点选两个省份（或两个首府标记）；
-3. 校验邻接与 `segmentKey` 唯一；
+3. 校验陆地邻接或合法桥接，以及 `segmentKey` 唯一；
 4. 写入当前编辑项目的道路草稿（建议 `projects/<id>/roads.json`，导出时写入 L3）。
 
 **其他操作：** 删除段、更改类型、按类型过滤显示、列表搜索省对。V1 可不做控制点拖拽；若未提供 `bend`，预览使用 §5 的并集最短路径。
@@ -362,7 +363,7 @@ baseLaneSpacing = 0.35                                      // 当前地图平�
 编辑器不得：
 
 - 因道路编辑修改 `groups.json` 合并关系或省份几何；
-- 允许不相邻省对建路；
+- 允许既不相邻、也不存在合法桥段的省对建路；
 - 静默覆盖已存在的同键段（必须提示替换或拒绝）。
 
 ---
@@ -371,25 +372,25 @@ baseLaneSpacing = 0.35                                      // 当前地图平�
 
 ### 8.1 现状结论
 
-| 来源                                  | 仓库现状                            | 结论                             |
-| ------------------------------------- | ----------------------------------- | -------------------------------- |
-| `geometry/boundaries.json` + 省份首府 | 已有                                | 提供候选邻接省对与绘制骨架       |
-| Natural Earth `ne_10m_roads`          | 生成时下载到 `cache/natural-earth/` | **强度真相**：决定哪些邻接对建路 |
-| Natural Earth `ne_10m_railroads`      | 未接入                              | 后续可对 `railway` 做同类打分    |
-| OSM 公路网                            | 未使用                              | 本阶段不纳入                     |
+| 来源                                                                | 仓库现状                            | 结论                                 |
+| ------------------------------------------------------------------- | ----------------------------------- | ------------------------------------ |
+| `geometry/boundaries.json` + 省份首府                               | 已有                                | 提供候选邻接省对与绘制骨架           |
+| Natural Earth `ne_10m_roads`                                        | 生成时下载到 `cache/natural-earth/` | **公路强度真相**：决定哪些省对建公路 |
+| Natural Earth `ne_10m_railroads` + `ne_10m_railroads_north_america` | 同一缓存，固定到提交 `9380cca`      | **铁路强度真相**：决定哪些省对建铁路 |
+| OSM 公路网                                                          | 未使用                              | 本阶段不纳入                         |
 
-因此：默认道路数据由 **NE 道路连接强度** 筛选邻接省对生成；游戏拓扑仍是省对段，不直接矢量化 NE 折线。
+因此：默认道路数据由 **NE 公路/铁路连接强度** 分别筛选省对生成；非相邻两岸只有非 Ferry 线路采样跨越合法短水域时才成为候选。铁路只接受 `featurecla === "Railroad"`，显式排除 `Railroad ferry`。游戏拓扑仍是省对段，不直接矢量化 NE 折线。
 
 ### 8.2 推荐种子算法（强度筛选）
 
-输入：成品 `boundaries` / `provinces`，以及缓存的 `ne_10m_roads.geojson`。
+输入：成品 `boundaries` / `provinces`，以及缓存的 `ne_10m_roads.geojson`、`ne_10m_railroads.geojson` 和 `ne_10m_railroads_north_america.geojson`。
 
 步骤：
 
-1. 枚举合法邻接省对（含跨境），过滤过短共享边界；
-2. 沿 NE 道路折线按步长采样，用省份空间索引判定所属省；
-3. 相邻采样点落在不同且相邻的省 `A/B` 时，累加 `length × typeWeight × scalerankFactor`（排除 Ferry）；
-4. 分数 ≥ `highwayThreshold` → `highway`；≥ `localThreshold` → `local_road`；无证据不建路；
+1. 枚举合法陆地邻接省对（含跨境），过滤过短共享边界；
+2. 沿 NE 公路与铁路折线按 12 km 步长采样，用省份空间索引判定所属省；
+3. 相邻采样点落在不同省 `A/B` 时：陆地邻接直接累加；非邻接则仅当该段跨越不超过 20 km 水域且不穿第三省时累加（始终排除 Ferry）；
+4. 公路分数 ≥ `highwayThreshold` → `highway`，≥ `localThreshold` → `local_road`；铁路按 `scalerankFactor` 独立累计，分数 ≥ `railwayThreshold`（默认 `2.5`）→ `railway`；两类可共存；
 5. 输出 `RoadCollection` 并更新 `map.json.layers.roads`。
 
 脚本：`mapdata-generator/src/generate-default-roads.ts`（`pnpm generate:roads`）。
@@ -447,7 +448,7 @@ V1 禁止在未完成运输规格前暗含上述对象的半成品状态。
 1. `provinceIdA < provinceIdB`（字典序）；若输入颠倒，规范化或拒绝（实现二选一，全管线一致）。
 2. `provinceIdA != provinceIdB`。
 3. 两端省份存在且 `capital.coordinates` 有效。
-4. 存在对应共享 `MapBoundary`。
+4. 存在对应共享 `MapBoundary`，或存在不超过 20 km 且不穿第三省的合法桥段。
 5. `typeId` ∈ 注册表。
 6. `segmentKey` 唯一。
 7. `bend.controlPoints` 长度为 0（视为缺省）、1 或 2。
@@ -460,7 +461,7 @@ V1 禁止在未完成运输规格前暗含上述对象的半成品状态。
 | --------------------------------- | ---------------------------------------- |
 | `ROAD_PROVINCE_NOT_FOUND`         | 端点省份不存在                           |
 | `ROAD_CAPITAL_MISSING`            | 首府坐标缺失                             |
-| `ROAD_NOT_ADJACENT`               | 无共享边界                               |
+| `ROAD_NOT_ADJACENT`               | 无共享边界且不存在合法桥段               |
 | `ROAD_TYPE_UNKNOWN`               | 未知类型                                 |
 | `ROAD_DUPLICATE_SEGMENT`          | 同类型同省对重复                         |
 | `ROAD_BEND_INVALID`               | 控制点非法                               |
@@ -482,7 +483,8 @@ V1 禁止在未完成运输规格前暗含上述对象的半成品状态。
 - 同省对上 `local_road` + `highway` + `railway` 三者可同时存在且彼此偏移可辨。
 - 远景隐藏 `local_road`，中近景显示高速/铁路；普通路白底灰边、高速橙底深边、铁路深浅相间。
 - 编辑器可添加/删除/改类型道路，导出后客户端可见。
-- NE 强度种子脚本能对 `world-modern` 产出可校验的默认 `roads.json`。
+- NE 强度种子脚本能对 `world-modern` 产出包含公路与铁路、可校验的默认 `roads.json`，且北美与非北美均有铁路。
+- 九州—本州、四国—本州等有非 Ferry 道路证据的窄水域省对可建路；超过 20 km 或穿过第三省的桥段被拒绝。
 
 非功能：
 
@@ -499,15 +501,17 @@ V1 禁止在未完成运输规格前暗含上述对象的半成品状态。
 2. **编译期路线**：按省对生成并缓存 `pairRoutes`，发布 schema v2。
 3. **客户端绘制**：读取基础路线 → 多类型偏移 → 同类型串联 → LOD。
 4. **编辑器**：添加/删除/改类型、省对路线缓存与预览；导出接入。
-5. **默认种子脚本**：NE 道路强度筛选邻接省对 → `highway` / `local_road`；生成报告；compile 入库。
-6. **（可选）NE 增强**：下载 roads/railroads，走廊匹配提升类型。
-7. **（后续规格）** Transport Graph 与 Operating Unit 对接。
+5. **默认种子脚本**：NE 公路/铁路强度筛选省对 → `highway` / `local_road` / `railway`；生成报告；compile 入库。
+6. **（后续规格）** Transport Graph 与 Operating Unit 对接。
 
 ---
 
 ## 13. 修订记录
 
-| 版本       | 说明                                                  |
-| ---------- | ----------------------------------------------------- |
-| 2026-09-03 | 初版：地图绘制 V1 基线，经济模拟明确排除              |
-| 2026-09-04 | 每省对编译期预制 `A∪B` 最短路线，运行时仅做多类型偏移 |
+| 版本       | 说明                                                      |
+| ---------- | --------------------------------------------------------- |
+| 2026-09-03 | 初版：地图绘制 V1 基线，经济模拟明确排除                  |
+| 2026-09-04 | 每省对编译期预制 `A∪B` 最短路线，运行时仅做多类型偏移     |
+| 2026-09-04 | 引入最长 20 km 的自动桥段；仅影响预制走线，不增加桥梁渲染 |
+| 2026-09-04 | 接入固定版本 NE 全球与北美铁路数据，默认生成省际铁路      |
+| 2026-09-04 | 道路偏移与铁路虚线改用固定地图单位，缩放不再重建道路几何  |

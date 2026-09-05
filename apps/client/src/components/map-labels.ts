@@ -770,9 +770,7 @@ export function visibleLabelCopies(
   const copies: Array<{ offset: number; path: LabelPoint[]; anchor: LabelPoint }> = [];
   for (const offset of LABEL_WRAP_OFFSETS) {
     const shifted =
-      offset === 0
-        ? basePath
-        : basePath.map((point) => ({ x: point.x + offset, y: point.y }));
+      offset === 0 ? basePath : basePath.map((point) => ({ x: point.x + offset, y: point.y }));
     const anchor =
       shifted.length === 0
         ? { x: baseFallback.x + offset, y: baseFallback.y }
@@ -964,6 +962,11 @@ export class MapLabelLayer {
 
   get sceneRoot(): THREE.Object3D {
     return this.root;
+  }
+
+  setVisible(visible: boolean): void {
+    this.root.visible = visible;
+    this.cssRenderer.domElement.style.display = visible ? "block" : "none";
   }
 
   setLabels(specs: readonly MapLabelSpec[]): void {

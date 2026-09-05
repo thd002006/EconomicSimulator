@@ -8,6 +8,11 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  DEFAULT_MAX_BRIDGE_SPAN_KM,
+  segmentUsesValidBridgeSpan,
+  type GeoJsonGeometry
+} from "@economic-simulator/map-runtime";
 import { isRecord, pointInGeometry } from "./geo.js";
 import type { AreaGeometry, LonLat } from "./types.js";
 
@@ -16,6 +21,10 @@ const repoRoot = resolve(generatorRoot, "..");
 const NATURAL_EARTH_COMMIT = "9380cca83db5f9aef52d5e762765100745f84b27";
 const NATURAL_EARTH_BASE = `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/${NATURAL_EARTH_COMMIT}/geojson`;
 const NE_ROADS_FILE = "ne_10m_roads.geojson";
+const NE_RAILROADS_FILES = [
+  "ne_10m_railroads.geojson",
+  "ne_10m_railroads_north_america.geojson"
+] as const;
 const SAMPLE_STEP_KM = 12;
 const GRID_CELL = 2;
 
@@ -28,7 +37,7 @@ const TYPE_WEIGHT: Readonly<Record<string, number>> = {
   Track: 0.25
 };
 
-interface ProvinceHit {
+export interface ProvinceHit {
   readonly id: string;
   readonly geometry: AreaGeometry;
   readonly bbox: readonly [number, number, number, number];
@@ -41,9 +50,7 @@ function haversineKm(a: LonLat, b: LonLat): number {
   const dLon = toRad(b[0] - a[0]);
   const lat1 = toRad(a[1]);
   const lat2 = toRad(b[1]);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
   return 2 * r * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
@@ -64,8 +71,7 @@ function bboxOfGeometry(geometry: AreaGeometry): readonly [number, number, numbe
   let minLat = Infinity;
   let maxLon = -Infinity;
   let maxLat = -Infinity;
-  const rings =
-    geometry.type === "Polygon" ? geometry.coordinates : geometry.coordinates.flat();
+  const rings = geometry.type === "Polygon" ? geometry.coordinates : geometry.coordinates.flat();
   for (const ring of rings) {
     for (const [lon, lat] of ring) {
       if (lon < minLon) minLon = lon;
@@ -81,7 +87,7 @@ function cellKey(lon: number, lat: number): string {
   return `${Math.floor(lon / GRID_CELL)}:${Math.floor(lat / GRID_CELL)}`;
 }
 
-class ProvinceIndex {
+export class ProvinceIndex {
   private readonly cells = new Map<string, ProvinceHit[]>();
 
   constructor(provinces: readonly ProvinceHit[]) {
@@ -124,28 +130,34 @@ function scalerankFactor(scalerank: number | undefined): number {
   return Math.max(0.2, Math.min(1.2, (11 - scalerank) / 10));
 }
 
-function parseArgs(args: readonly string[]): {
+export function parseArgs(args: readonly string[]): {
   mapId: string;
   minBorderKm: number;
   highwayThreshold: number;
   localThreshold: number;
+  railwayThreshold: number;
 } {
   let mapId = "world-modern";
   let minBorderKm = 5;
   let highwayThreshold = 8;
   let localThreshold = 2.5;
+  let railwayThreshold = 2.5;
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]!;
     if (arg === "--map") mapId = args[++i] ?? mapId;
     else if (arg.startsWith("--map=")) mapId = arg.slice("--map=".length);
     else if (arg === "--min-border-km") minBorderKm = Number(args[++i]);
-    else if (arg.startsWith("--min-border-km=")) minBorderKm = Number(arg.slice("--min-border-km=".length));
+    else if (arg.startsWith("--min-border-km="))
+      minBorderKm = Number(arg.slice("--min-border-km=".length));
     else if (arg === "--highway-threshold") highwayThreshold = Number(args[++i]);
     else if (arg.startsWith("--highway-threshold=")) {
       highwayThreshold = Number(arg.slice("--highway-threshold=".length));
     } else if (arg === "--local-threshold") localThreshold = Number(args[++i]);
     else if (arg.startsWith("--local-threshold=")) {
       localThreshold = Number(arg.slice("--local-threshold=".length));
+    } else if (arg === "--railway-threshold") railwayThreshold = Number(args[++i]);
+    else if (arg.startsWith("--railway-threshold=")) {
+      railwayThreshold = Number(arg.slice("--railway-threshold=".length));
     }
   }
   if (
@@ -153,27 +165,29 @@ function parseArgs(args: readonly string[]): {
     !Number.isFinite(minBorderKm) ||
     minBorderKm < 0 ||
     !Number.isFinite(highwayThreshold) ||
-    !Number.isFinite(localThreshold)
+    !Number.isFinite(localThreshold) ||
+    !Number.isFinite(railwayThreshold) ||
+    railwayThreshold < 0
   ) {
     throw new Error("Invalid arguments");
   }
-  return { mapId, minBorderKm, highwayThreshold, localThreshold };
+  return { mapId, minBorderKm, highwayThreshold, localThreshold, railwayThreshold };
 }
 
-async function ensureNeRoads(): Promise<string> {
+async function ensureNaturalEarthFile(filename: string): Promise<string> {
   const cacheDir = join(generatorRoot, "cache", "natural-earth");
   await mkdir(cacheDir, { recursive: true });
-  const path = join(cacheDir, NE_ROADS_FILE);
+  const path = join(cacheDir, filename);
   try {
     await access(path);
     return path;
   } catch {
     // download below
   }
-  const url = `${NATURAL_EARTH_BASE}/${NE_ROADS_FILE}`;
+  const url = `${NATURAL_EARTH_BASE}/${filename}`;
   console.log(`Downloading ${url}`);
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to download NE roads: HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`Failed to download ${filename}: HTTP ${response.status}`);
   const text = await response.text();
   await writeFile(path, text, "utf8");
   return path;
@@ -210,8 +224,189 @@ function sampleLine(coords: readonly LonLat[], stepKm: number): LonLat[] {
   return out;
 }
 
+type FeatureFactor = { readonly factor: number } | { readonly skip: "ferry" | "other" };
+
+export interface ScoreLineFeaturesResult {
+  readonly sampledFeatures: number;
+  readonly skippedFerry: number;
+  readonly skippedOther: number;
+  readonly skippedInvalidGeometry: number;
+}
+
+function lineStringsOfFeature(feature: Record<string, unknown>): LonLat[][] | undefined {
+  if (!isRecord(feature.geometry)) return undefined;
+  const geometry = feature.geometry;
+  const rawLines =
+    geometry.type === "LineString" && Array.isArray(geometry.coordinates)
+      ? [geometry.coordinates]
+      : geometry.type === "MultiLineString" && Array.isArray(geometry.coordinates)
+        ? geometry.coordinates
+        : undefined;
+  if (rawLines === undefined) return undefined;
+
+  const lines: LonLat[][] = [];
+  for (const rawLine of rawLines) {
+    if (!Array.isArray(rawLine) || rawLine.length < 2) return undefined;
+    const line: LonLat[] = [];
+    for (const point of rawLine) {
+      const lonLat = asLonLat(point);
+      if (lonLat === undefined) return undefined;
+      line.push(lonLat);
+    }
+    lines.push(line);
+  }
+  return lines.length > 0 ? lines : undefined;
+}
+
+export function scoreLineFeatures(
+  features: readonly unknown[],
+  classify: (properties: Record<string, unknown>) => FeatureFactor,
+  index: ProvinceIndex,
+  adjacency: ReadonlySet<string>,
+  provinceGeometryById: ReadonlyMap<string, GeoJsonGeometry>,
+  scores: Map<string, number>,
+  bridgePairs: Set<string>
+): ScoreLineFeaturesResult {
+  let sampledFeatures = 0;
+  let skippedFerry = 0;
+  let skippedOther = 0;
+  let skippedInvalidGeometry = 0;
+
+  for (const feature of features) {
+    if (!isRecord(feature)) {
+      skippedInvalidGeometry += 1;
+      continue;
+    }
+    const properties = isRecord(feature.properties) ? feature.properties : {};
+    const classification = classify(properties);
+    if ("skip" in classification) {
+      if (classification.skip === "ferry") skippedFerry += 1;
+      else skippedOther += 1;
+      continue;
+    }
+    const lines = lineStringsOfFeature(feature);
+    if (lines === undefined) {
+      skippedInvalidGeometry += 1;
+      continue;
+    }
+    sampledFeatures += 1;
+
+    for (const line of lines) {
+      const samples = sampleLine(line, SAMPLE_STEP_KM);
+      let previousProvinceId: string | undefined;
+      let previousPoint: LonLat | undefined;
+      for (const point of samples) {
+        const provinceId = index.hit(point[0], point[1]);
+        if (
+          provinceId !== undefined &&
+          previousProvinceId !== undefined &&
+          previousPoint !== undefined &&
+          provinceId !== previousProvinceId
+        ) {
+          const key = pairKey(previousProvinceId, provinceId);
+          const bridgeAllowed =
+            bridgePairs.has(key) ||
+            (!adjacency.has(key) &&
+              segmentUsesValidBridgeSpan(
+                previousPoint,
+                point,
+                previousProvinceId,
+                provinceId,
+                provinceGeometryById,
+                DEFAULT_MAX_BRIDGE_SPAN_KM
+              ));
+          if (bridgeAllowed) bridgePairs.add(key);
+          if (adjacency.has(key) || bridgeAllowed) {
+            const distance = haversineKm(previousPoint, point);
+            scores.set(key, (scores.get(key) ?? 0) + distance * classification.factor);
+          }
+        }
+        if (provinceId !== undefined) {
+          previousProvinceId = provinceId;
+          previousPoint = point;
+        }
+      }
+    }
+  }
+
+  return { sampledFeatures, skippedFerry, skippedOther, skippedInvalidGeometry };
+}
+
+function roadFeatureFactor(properties: Record<string, unknown>): FeatureFactor {
+  const type = typeof properties.type === "string" ? properties.type : undefined;
+  const weight = typeWeight(type);
+  if (weight === undefined) return { skip: "ferry" };
+  const scalerank =
+    typeof properties.scalerank === "number"
+      ? properties.scalerank
+      : typeof properties.scalerank === "string"
+        ? Number(properties.scalerank)
+        : undefined;
+  return { factor: weight * scalerankFactor(scalerank) };
+}
+
+export function railwayFeatureFactor(properties: Record<string, unknown>): FeatureFactor {
+  if (properties.featurecla === "Railroad ferry") return { skip: "ferry" };
+  if (properties.featurecla !== "Railroad") return { skip: "other" };
+  const scalerank =
+    typeof properties.scalerank === "number"
+      ? properties.scalerank
+      : typeof properties.scalerank === "string"
+        ? Number(properties.scalerank)
+        : undefined;
+  return { factor: scalerankFactor(scalerank) };
+}
+
+export interface GeneratedRoadSegment {
+  readonly id: string;
+  readonly typeId: "highway" | "local_road" | "railway";
+  readonly provinceIdA: string;
+  readonly provinceIdB: string;
+}
+
+export function buildGeneratedRoadSegments(
+  roadScores: ReadonlyMap<string, number>,
+  railwayScores: ReadonlyMap<string, number>,
+  highwayThreshold: number,
+  localThreshold: number,
+  railwayThreshold: number
+): GeneratedRoadSegment[] {
+  const segments: GeneratedRoadSegment[] = [];
+  for (const [key, score] of roadScores) {
+    const [provinceIdA, provinceIdB] = key.split("|") as [string, string];
+    if (score >= highwayThreshold) {
+      segments.push({
+        id: `road-hw-${provinceIdA}-${provinceIdB}`,
+        typeId: "highway",
+        provinceIdA,
+        provinceIdB
+      });
+    } else if (score >= localThreshold) {
+      segments.push({
+        id: `road-local-${provinceIdA}-${provinceIdB}`,
+        typeId: "local_road",
+        provinceIdA,
+        provinceIdB
+      });
+    }
+  }
+  for (const [key, score] of railwayScores) {
+    if (score < railwayThreshold) continue;
+    const [provinceIdA, provinceIdB] = key.split("|") as [string, string];
+    segments.push({
+      id: `road-rail-${provinceIdA}-${provinceIdB}`,
+      typeId: "railway",
+      provinceIdA,
+      provinceIdB
+    });
+  }
+  return segments.sort((left, right) => left.id.localeCompare(right.id));
+}
+
 async function main(): Promise<void> {
-  const { mapId, minBorderKm, highwayThreshold, localThreshold } = parseArgs(process.argv.slice(2));
+  const { mapId, minBorderKm, highwayThreshold, localThreshold, railwayThreshold } = parseArgs(
+    process.argv.slice(2)
+  );
   const mapRoot = join(repoRoot, "assets", "maps", mapId);
   const provincesPath = join(mapRoot, "geometry", "provinces.geojson");
   const boundariesPath = join(mapRoot, "geometry", "boundaries.json");
@@ -228,6 +423,7 @@ async function main(): Promise<void> {
   }
 
   const provinces: ProvinceHit[] = [];
+  const provinceGeometryById = new Map<string, GeoJsonGeometry>();
   for (const feature of provincesRaw.features) {
     if (!isRecord(feature)) continue;
     const id = typeof feature.id === "string" ? feature.id : undefined;
@@ -236,6 +432,7 @@ async function main(): Promise<void> {
     const geometry = feature.geometry as AreaGeometry;
     if (geometry.type !== "Polygon" && geometry.type !== "MultiPolygon") continue;
     provinces.push({ id, geometry, bbox: bboxOfGeometry(geometry) });
+    provinceGeometryById.set(id, geometry);
   }
   const index = new ProvinceIndex(provinces);
 
@@ -272,111 +469,65 @@ async function main(): Promise<void> {
     adjacency.add(pairKey(left, right));
   }
 
-  const nePath = await ensureNeRoads();
+  const nePath = await ensureNaturalEarthFile(NE_ROADS_FILE);
   const neRaw = JSON.parse(await readFile(nePath, "utf8")) as unknown;
   if (!isRecord(neRaw) || !Array.isArray(neRaw.features)) {
     throw new Error("NE roads must be a FeatureCollection");
   }
 
   const scores = new Map<string, number>();
-  let sampledFeatures = 0;
-  let skippedFerry = 0;
+  const bridgePairs = new Set<string>();
+  const roadStats = scoreLineFeatures(
+    neRaw.features,
+    roadFeatureFactor,
+    index,
+    adjacency,
+    provinceGeometryById,
+    scores,
+    bridgePairs
+  );
 
-  for (const feature of neRaw.features) {
-    if (!isRecord(feature) || !isRecord(feature.geometry)) continue;
-    const props = isRecord(feature.properties) ? feature.properties : {};
-    const type = typeof props.type === "string" ? props.type : undefined;
-    const weight = typeWeight(type);
-    if (weight === undefined) {
-      skippedFerry += 1;
-      continue;
+  const railwayScores = new Map<string, number>();
+  const railwayBridgePairs = new Set<string>();
+  const railwayPaths = await Promise.all(
+    NE_RAILROADS_FILES.map((filename) => ensureNaturalEarthFile(filename))
+  );
+  let sampledRailwayFeatures = 0;
+  let skippedRailroadFerry = 0;
+  let skippedRailroadOther = 0;
+  let skippedInvalidRailroadGeometry = 0;
+  for (const railwayPath of railwayPaths) {
+    const railwayRaw = JSON.parse(await readFile(railwayPath, "utf8")) as unknown;
+    if (!isRecord(railwayRaw) || !Array.isArray(railwayRaw.features)) {
+      throw new Error(`${railwayPath} must be a FeatureCollection`);
     }
-    const scalerank =
-      typeof props.scalerank === "number"
-        ? props.scalerank
-        : typeof props.scalerank === "string"
-          ? Number(props.scalerank)
-          : undefined;
-    const factor = weight * scalerankFactor(scalerank);
-    const geom = feature.geometry;
-    const lines: LonLat[][] = [];
-    if (geom.type === "LineString" && Array.isArray(geom.coordinates)) {
-      const line: LonLat[] = [];
-      for (const point of geom.coordinates) {
-        const ll = asLonLat(point);
-        if (ll !== undefined) line.push(ll);
-      }
-      if (line.length >= 2) lines.push(line);
-    } else if (geom.type === "MultiLineString" && Array.isArray(geom.coordinates)) {
-      for (const part of geom.coordinates) {
-        if (!Array.isArray(part)) continue;
-        const line: LonLat[] = [];
-        for (const point of part) {
-          const ll = asLonLat(point);
-          if (ll !== undefined) line.push(ll);
-        }
-        if (line.length >= 2) lines.push(line);
-      }
-    }
-    if (lines.length === 0) continue;
-    sampledFeatures += 1;
-
-    for (const line of lines) {
-      const samples = sampleLine(line, SAMPLE_STEP_KM);
-      let prevId: string | undefined;
-      let prevPoint: LonLat | undefined;
-      for (const point of samples) {
-        const id = index.hit(point[0], point[1]);
-        if (
-          id !== undefined &&
-          prevId !== undefined &&
-          prevPoint !== undefined &&
-          id !== prevId
-        ) {
-          const key = pairKey(prevId, id);
-          if (adjacency.has(key)) {
-            const dist = haversineKm(prevPoint, point);
-            scores.set(key, (scores.get(key) ?? 0) + dist * factor);
-          }
-        }
-        if (id !== undefined) {
-          prevId = id;
-          prevPoint = point;
-        }
-      }
-    }
+    const stats = scoreLineFeatures(
+      railwayRaw.features,
+      railwayFeatureFactor,
+      index,
+      adjacency,
+      provinceGeometryById,
+      railwayScores,
+      railwayBridgePairs
+    );
+    sampledRailwayFeatures += stats.sampledFeatures;
+    skippedRailroadFerry += stats.skippedFerry;
+    skippedRailroadOther += stats.skippedOther;
+    skippedInvalidRailroadGeometry += stats.skippedInvalidGeometry;
   }
 
-  const segments: Array<{
-    id: string;
-    typeId: "highway" | "local_road";
-    provinceIdA: string;
-    provinceIdB: string;
-  }> = [];
   const scoredPairs = [...scores.entries()].sort((a, b) => b[1] - a[1]);
-  let highways = 0;
-  let locals = 0;
-  for (const [key, score] of scoredPairs) {
-    const [a, b] = key.split("|") as [string, string];
-    if (score >= highwayThreshold) {
-      segments.push({
-        id: `road-hw-${a}-${b}`,
-        typeId: "highway",
-        provinceIdA: a,
-        provinceIdB: b
-      });
-      highways += 1;
-    } else if (score >= localThreshold) {
-      segments.push({
-        id: `road-local-${a}-${b}`,
-        typeId: "local_road",
-        provinceIdA: a,
-        provinceIdB: b
-      });
-      locals += 1;
-    }
-  }
-  segments.sort((left, right) => left.id.localeCompare(right.id));
+  const scoredRailwayPairs = [...railwayScores.entries()].sort((a, b) => b[1] - a[1]);
+  const segments = buildGeneratedRoadSegments(
+    scores,
+    railwayScores,
+    highwayThreshold,
+    localThreshold,
+    railwayThreshold
+  );
+  const highways = segments.filter((segment) => segment.typeId === "highway").length;
+  const locals = segments.filter((segment) => segment.typeId === "local_road").length;
+  const railways = segments.filter((segment) => segment.typeId === "railway").length;
 
   const collection = { schemaVersion: 1 as const, segments };
   await mkdir(dirname(roadsPath), { recursive: true });
@@ -388,23 +539,39 @@ async function main(): Promise<void> {
   manifest.layers.roads = "geometry/roads.json";
   await writeFile(manifestPath, `${JSON.stringify(manifest)}\n`, "utf8");
 
-  const topScores = scoredPairs.slice(0, 5).map(([key, score]) => ({ key, score: Number(score.toFixed(2)) }));
+  const topScores = scoredPairs
+    .slice(0, 5)
+    .map(([key, score]) => ({ key, score: Number(score.toFixed(2)) }));
+  const topRailwayScores = scoredRailwayPairs
+    .slice(0, 5)
+    .map(([key, score]) => ({ key, score: Number(score.toFixed(2)) }));
   console.log(
     JSON.stringify(
       {
         mapId,
         adjacencyPairs: adjacency.size,
+        bridgeRoadPairs: bridgePairs.size,
         scoredPairs: scores.size,
         highways,
         localRoads: locals,
+        railways,
+        railwayCandidatePairs: railwayScores.size,
+        bridgeRailwayPairs: railwayBridgePairs.size,
         skippedShort,
-        skippedFerry,
-        sampledNeFeatures: sampledFeatures,
+        skippedFerry: roadStats.skippedFerry,
+        skippedRailroadFerry,
+        skippedRailroadOther,
+        skippedInvalidRailroadGeometry,
+        sampledNeFeatures: roadStats.sampledFeatures,
+        sampledRailwayFeatures,
         highwayThreshold,
         localThreshold,
+        railwayThreshold,
         minBorderKm,
         neRoadsPath: nePath,
+        neRailwaysPaths: railwayPaths,
         topScores,
+        topRailwayScores,
         roadsPath
       },
       null,
@@ -413,7 +580,9 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

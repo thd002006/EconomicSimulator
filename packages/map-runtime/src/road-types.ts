@@ -10,7 +10,6 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     nameKey: "map.road.local",
     drawOrder: 0,
     laneIndex: -1,
-    laneSpacingScale: 1,
     strokeColor: 0xffffff,
     strokeOpacity: 1,
     lineWidth: 2.0,
@@ -23,7 +22,6 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     nameKey: "map.road.highway",
     drawOrder: 1,
     laneIndex: 0,
-    laneSpacingScale: 1,
     strokeColor: 0xffb366,
     strokeOpacity: 1,
     lineWidth: 3.2,
@@ -36,14 +34,13 @@ export const ROAD_TYPE_DEFINITIONS: readonly RoadTypeDefinition[] = [
     nameKey: "map.road.railway",
     drawOrder: 2,
     laneIndex: 1,
-    laneSpacingScale: 1,
     strokeColor: 0xffffff,
     strokeOpacity: 1,
     lineWidth: 1.8,
     casingColor: 0x666666,
     casingWidth: 2.8,
-    dashSize: 5,
-    gapSize: 5,
+    dashSize: 6,
+    gapSize: 6,
     maxVisibleHalfHeight: 90
   }
 ];
