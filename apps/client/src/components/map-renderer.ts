@@ -33,14 +33,20 @@ const OCEAN = 0x9eb5b0;
 const COAST = 0x3a2a1a;
 const PROVINCE_BORDER = 0x5a4030;
 const COUNTRY_BORDER = 0x2a1c12;
-const CAPITAL = 0x5a4030;
+const CAPITAL_DARK_RED = 0x7a1f1f;
 const HOVER_FILL = new THREE.Color("#c4a060");
 const SELECT_FILL = new THREE.Color("#a07840");
 const LAND_Z = 0.02;
 const LINE_Z = 0.04;
 const ROAD_Z = 0.045;
 const CAPITAL_Z = 0.06;
-const CAPITAL_POINT_SIZE = 7;
+// World-unit radii (same space as roads: mapXY degrees, via ROAD_STYLE_MAP_SCALE)
+// Halved from 0.18/0.14/0.05/0.065. White disc is now INSIDE the dark-red ring
+// (no white halo beyond the outer ring) — white touches ring inner edge.
+const CAPITAL_WHITE_RADIUS = 0.06;
+const CAPITAL_RING_RADIUS = 0.075;
+const CAPITAL_RING_WIDTH = 0.028;
+const CAPITAL_DOT_RADIUS = 0.032;
 const MAX_DRAWING_PIXELS = 3840 * 2160;
 const PROVINCE_DETAIL_HALF_HEIGHT = 32;
 const TILE_OFFSETS = [-MAP_WRAP, 0, MAP_WRAP] as const;
@@ -82,27 +88,24 @@ export function showProvinceBorders(halfHeight: number): boolean {
   return halfHeight <= PROVINCE_DETAIL_HALF_HEIGHT;
 }
 
-function createCapitalRingTexture(): THREE.CanvasTexture {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const context = canvas.getContext("2d");
-  if (context === null) {
-    throw new Error("Unable to create capital marker canvas.");
+function createCapitalInstancedMesh(
+  geometry: THREE.BufferGeometry,
+  material: THREE.Material,
+  positions: Array<readonly [number, number, number]>
+): THREE.InstancedMesh {
+  const mesh = new THREE.InstancedMesh(geometry, material, positions.length);
+  mesh.frustumCulled = false;
+  mesh.renderOrder = CAPITAL_RENDER_ORDER;
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const dummy = new THREE.Object3D();
+  for (let index = 0; index < positions.length; index += 1) {
+    const pos = positions[index]!;
+    dummy.position.set(pos[0], pos[1], pos[2]);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(index, dummy.matrix);
   }
-  context.clearRect(0, 0, size, size);
-  const center = size / 2;
-  const radius = size * 0.32;
-  context.beginPath();
-  context.arc(center, center, radius, 0, Math.PI * 2);
-  context.strokeStyle = "#5a4030";
-  context.lineWidth = size * 0.08;
-  context.stroke();
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.needsUpdate = true;
-  return texture;
+  mesh.instanceMatrix.needsUpdate = true;
+  return mesh;
 }
 
 function countryFill(adm0A3: string | undefined): THREE.Color {
@@ -424,7 +427,10 @@ export class GlobeRenderer {
   private readonly oceanMaterial: THREE.ShaderMaterial;
   private readonly landMesh: THREE.Mesh;
   private readonly slotByProvinceId = new Map<string, number>();
-  private readonly capitalPoints: THREE.Points;
+  private readonly capitalGroup: THREE.Group;
+  private readonly capitalWhiteMesh: THREE.InstancedMesh;
+  private readonly capitalRingMesh: THREE.InstancedMesh;
+  private readonly capitalDotMesh: THREE.InstancedMesh;
   private readonly ocean: THREE.Mesh;
   private readonly labels: MapLabelLayer;
   private coastLines: LineSegments2;
@@ -549,32 +555,59 @@ export class GlobeRenderer {
     this.rebuildBoundaries();
     this.buildRoadMeshes();
 
-    const capitalPositions = new Float32Array(model.provinces.length * 3);
-    for (const [index, feature] of model.provinces.entries()) {
+    // Capitals in world units (same space as roads) — simple dark-red target: white base + dark-red ring + dark-red dot
+    const capitalXY: Array<readonly [number, number, number]> = model.provinces.map((feature) => {
       const [x, y] = lonLatToMapXY(
         feature.properties.capital.coordinates[0],
         feature.properties.capital.coordinates[1]
       );
-      capitalPositions.set([x, y, CAPITAL_Z], index * 3);
-    }
-    const capitalGeometry = new THREE.BufferGeometry();
-    capitalGeometry.setAttribute("position", new THREE.BufferAttribute(capitalPositions, 3));
-    this.capitalPoints = new THREE.Points(
-      capitalGeometry,
-      new THREE.PointsMaterial({
-        color: CAPITAL,
-        map: createCapitalRingTexture(),
-        size: CAPITAL_POINT_SIZE,
-        sizeAttenuation: false,
-        depthTest: false,
-        depthWrite: false,
-        transparent: true,
-        opacity: 0.62,
-        alphaTest: 0.05
-      })
+      return [x, y, CAPITAL_Z] as const;
+    });
+    const whiteGeometry = new THREE.CircleGeometry(CAPITAL_WHITE_RADIUS, 32);
+    const ringGeometry = new THREE.RingGeometry(
+      CAPITAL_RING_RADIUS - CAPITAL_RING_WIDTH / 2,
+      CAPITAL_RING_RADIUS + CAPITAL_RING_WIDTH / 2,
+      32
     );
-    this.capitalPoints.renderOrder = CAPITAL_RENDER_ORDER;
-    this.tileTemplate.add(this.capitalPoints);
+    const dotGeometry = new THREE.CircleGeometry(CAPITAL_DOT_RADIUS, 32);
+    const whiteMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: false
+    });
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: CAPITAL_DARK_RED,
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: false
+    });
+    const dotMaterial = new THREE.MeshBasicMaterial({
+      color: CAPITAL_DARK_RED,
+      side: THREE.DoubleSide,
+      depthTest: true,
+      depthWrite: false
+    });
+    // Slight z offsets inside group avoid z-fighting while staying at CAPITAL_Z
+    const whitePositions = capitalXY;
+    const ringPositions: Array<readonly [number, number, number]> = capitalXY.map(
+      ([x, y]) => [x, y, CAPITAL_Z + 0.0005] as const
+    );
+    const dotPositions: Array<readonly [number, number, number]> = capitalXY.map(
+      ([x, y]) => [x, y, CAPITAL_Z + 0.001] as const
+    );
+    this.capitalWhiteMesh = createCapitalInstancedMesh(whiteGeometry, whiteMaterial, whitePositions);
+    this.capitalRingMesh = createCapitalInstancedMesh(ringGeometry, ringMaterial, ringPositions);
+    this.capitalDotMesh = createCapitalInstancedMesh(dotGeometry, dotMaterial, dotPositions);
+    this.capitalGroup = new THREE.Group();
+    this.capitalGroup.add(this.capitalWhiteMesh, this.capitalRingMesh, this.capitalDotMesh);
+    this.capitalGroup.renderOrder = CAPITAL_RENDER_ORDER;
+    // Tag for clone traversal
+    this.capitalGroup.userData.isCapitalGroup = true;
+    this.capitalWhiteMesh.userData.isCapitalMember = true;
+    this.capitalRingMesh.userData.isCapitalMember = true;
+    this.capitalDotMesh.userData.isCapitalMember = true;
+    this.tileTemplate.add(this.capitalGroup);
     this.refreshTiles();
     this.rebuildLabels();
     this.updateDetailVisibility();
@@ -645,7 +678,7 @@ export class GlobeRenderer {
     const showCapitals = this.layerVisibility.capitals && showProvinceBorders(halfHeight);
     this.provinceLines.visible = showProvinces;
     this.countryLines.visible = this.layerVisibility.countryBorders;
-    this.capitalPoints.visible = showCapitals;
+    this.capitalGroup.visible = showCapitals;
     this.labels.setVisible(this.layerVisibility.labels);
 
     const roadVisibility = new Map<THREE.Material, boolean>();
@@ -662,12 +695,12 @@ export class GlobeRenderer {
     }
 
     this.mapRoot.traverse((object) => {
-      if (object === this.provinceLines || object === this.capitalPoints) return;
+      if (object === this.provinceLines || object === this.capitalGroup) return;
       if (object instanceof LineSegments2 && object.material === this.provinceLines.material) {
         object.visible = showProvinces;
         return;
       }
-      if (object instanceof THREE.Points && object.material === this.capitalPoints.material) {
+      if (object.userData.isCapitalGroup === true || object.userData.isCapitalMember === true) {
         object.visible = showCapitals;
         return;
       }
@@ -925,15 +958,14 @@ export class GlobeRenderer {
     for (const entry of this.roadMeshEntries) {
       disposeRoadMesh(entry.mesh);
     }
-    this.capitalPoints.geometry.dispose();
-    const capitalMaterial = this.capitalPoints.material;
-    if (!Array.isArray(capitalMaterial) && capitalMaterial instanceof THREE.PointsMaterial) {
-      capitalMaterial.map?.dispose();
-      capitalMaterial.dispose();
-    } else if (Array.isArray(capitalMaterial)) {
-      for (const entry of capitalMaterial) entry.dispose();
-    } else {
-      capitalMaterial.dispose();
+    for (const mesh of [this.capitalWhiteMesh, this.capitalRingMesh, this.capitalDotMesh]) {
+      mesh.geometry.dispose();
+      const material = mesh.material;
+      if (Array.isArray(material)) {
+        for (const entry of material) entry.dispose();
+      } else {
+        material.dispose();
+      }
     }
     this.ocean.geometry.dispose();
     this.oceanMaterial.dispose();
