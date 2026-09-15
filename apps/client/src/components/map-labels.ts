@@ -38,8 +38,8 @@ const GEOMETRY_SAMPLE_LIMIT = 96;
 const BASELINE_SAMPLES = 18;
 /** Fraction of path length available for text before spacing caps. */
 const PATH_FILL_RATIO = 0.55;
-/** How much of the sampled curve to keep vs a straight chord (0 = straight). */
-const PATH_BEND_STRENGTH = 0.22;
+/** Provinces stay close to a straight medial chord so border zigzags do not bow labels out. */
+const PROVINCE_PATH_BEND_STRENGTH = 0.06;
 /** Max letter tilt relative to the overall path direction. */
 const MAX_GLYPH_TILT_DEG = 18;
 /** Minimum center-to-center glyph spacing in em (uppercase serif advance). */
@@ -543,6 +543,75 @@ function pushInside(
   return best;
 }
 
+/**
+ * Midpoint of the polygon along ±normal through `origin`.
+ * Recenters points that are already inside but near an edge without a
+ * multi-direction clearance search (that froze world-map label rebuilds).
+ */
+function centerInStrip(
+  origin: LabelPoint,
+  normalX: number,
+  normalY: number,
+  geometry: GeoJsonGeometry,
+  maxOffset: number
+): LabelPoint | undefined {
+  let seed = origin;
+  if (!pointInGeometry(seed.x, seed.y, geometry)) {
+    const pulled = pushInside(origin, normalX, normalY, geometry, maxOffset);
+    if (pulled === undefined) return undefined;
+    seed = pulled;
+  }
+
+  const refineEdge = (dirX: number, dirY: number): number => {
+    const far = {
+      x: seed.x + dirX * maxOffset,
+      y: seed.y + dirY * maxOffset
+    };
+    if (pointInGeometry(far.x, far.y, geometry)) return maxOffset;
+    let insideT = 0;
+    let outsideT = maxOffset;
+    for (let iter = 0; iter < 10; iter += 1) {
+      const mid = (insideT + outsideT) / 2;
+      if (pointInGeometry(seed.x + dirX * mid, seed.y + dirY * mid, geometry)) {
+        insideT = mid;
+      } else {
+        outsideT = mid;
+      }
+    }
+    return insideT;
+  };
+
+  const toward = refineEdge(normalX, normalY);
+  const against = refineEdge(-normalX, -normalY);
+  const shift = (toward - against) / 2;
+  return {
+    x: seed.x + normalX * shift,
+    y: seed.y + normalY * shift
+  };
+}
+
+/** Area centroid of an outer ring in map XY (avoids vertex-density bias on wiggly borders). */
+function ringAreaCentroid(ring: readonly [number, number][]): LabelPoint | undefined {
+  if (ring.length < 3) return undefined;
+  const points = ring.map(([lon, lat]) => {
+    const [x, y] = lonLatToMapXY(lon, lat);
+    return { x, y };
+  });
+  let area2 = 0;
+  let cx = 0;
+  let cy = 0;
+  for (let index = 0, previous = points.length - 1; index < points.length; previous = index, index += 1) {
+    const a = points[previous]!;
+    const b = points[index]!;
+    const cross = a.x * b.y - b.x * a.y;
+    area2 += cross;
+    cx += (a.x + b.x) * cross;
+    cy += (a.y + b.y) * cross;
+  }
+  if (Math.abs(area2) < 1e-12) return undefined;
+  return { x: cx / (3 * area2), y: cy / (3 * area2) };
+}
+
 function shortFallbackPath(
   center: LabelPoint,
   axisX: number,
@@ -573,10 +642,8 @@ export function buildProvinceBaseline(
   }
 
   const axis = principalAxis(boundary);
-  const center =
-    preferredCenter !== undefined && pointInGeometry(preferredCenter.x, preferredCenter.y, geometry)
-      ? preferredCenter
-      : axis.mean;
+  // Area centroid — not capital, not boundary-vertex mean (wiggly Alps pull north).
+  const center = ringAreaCentroid(ring) ?? axis.mean;
   let minProj = Number.POSITIVE_INFINITY;
   let maxProj = Number.NEGATIVE_INFINITY;
   for (const point of boundary) {
@@ -603,14 +670,22 @@ export function buildProvinceBaseline(
       x: center.x + axis.axisX * t,
       y: center.y + axis.axisY * t
     };
-    const inside = pushInside(candidate, axis.normalX, axis.normalY, geometry, secondary * 1.25);
+    const inside = centerInStrip(
+      candidate,
+      axis.normalX,
+      axis.normalY,
+      geometry,
+      secondary * 1.25
+    );
     if (inside !== undefined) raw.push(inside);
   }
 
   if (raw.length < 2) {
     return shortFallbackPath(center, axis.axisX, axis.axisY, Math.max(0.5, extent / 4));
   }
-  return normalizeReadingDirection(blendTowardStraight(smoothPath(raw), PATH_BEND_STRENGTH));
+  return normalizeReadingDirection(
+    blendTowardStraight(smoothPath(raw), PROVINCE_PATH_BEND_STRENGTH)
+  );
 }
 
 /** Gentle PCA chord with a mild bow — not a polyline through every capital. */
@@ -725,19 +800,23 @@ export function layoutGlyphsAlongPath(
   const length = Math.max(polylineLength(screenPath), 1);
   const budget = Math.min(length * fillRatio, length);
   let fontSizePx = Math.max(min, Math.min(max, budget / Math.max(chars.length, 1)));
+  let allowTightSpacing = false;
   if (chars.length > 1) {
     const minSpan = (chars.length - 1) * fontSizePx * MIN_GLYPH_ADVANCE_EM;
     if (minSpan > budget) {
       fontSizePx = budget / ((chars.length - 1) * MIN_GLYPH_ADVANCE_EM);
       if (fontSizePx < ABSOLUTE_MIN_FONT_PX) {
-        return { fontSizePx: ABSOLUTE_MIN_FONT_PX, glyphs: [] };
+        fontSizePx = ABSOLUTE_MIN_FONT_PX;
+        allowTightSpacing = true;
       }
     }
   }
   const gapEm = maxGlyphGapEm(kind);
   const maxUsed = chars.length <= 1 ? fontSizePx : (chars.length - 1) * fontSizePx * gapEm;
   const minUsed = chars.length <= 1 ? 0 : (chars.length - 1) * fontSizePx * MIN_GLYPH_ADVANCE_EM;
-  const used = Math.min(Math.max(minUsed, Math.min(budget, maxUsed)), length);
+  const used = allowTightSpacing
+    ? Math.min(budget, length)
+    : Math.min(Math.max(minUsed, Math.min(budget, maxUsed)), length);
   const start = (length - used) / 2;
   const mid = pointAtArcLength(screenPath, length / 2).point;
   const step = chars.length === 1 ? 0 : used / (chars.length - 1);
@@ -814,10 +893,11 @@ function capitalPoint(feature: ProvinceFeature): LabelPoint {
 export function buildProvinceLabels(provinces: readonly ProvinceFeature[]): MapLabelSpec[] {
   const labels: MapLabelSpec[] = [];
   for (const feature of provinces) {
-    const text = feature.properties.nameEn ?? feature.properties.name;
-    if (text === undefined || text.length === 0) continue;
+    const baseText = feature.properties.nameEn ?? feature.properties.name;
+    if (baseText === undefined || baseText.length === 0) continue;
+    const text = feature.properties.disputed === undefined ? baseText : `${baseText} *`;
     const capital = capitalPoint(feature);
-    const path = buildProvinceBaseline(feature.geometry, capital);
+    const path = buildProvinceBaseline(feature.geometry);
     const anchor = pathAnchor(path, capital);
     const placement = labelPlacementFromPoints(path, text, "province");
     labels.push({
@@ -918,10 +998,10 @@ export function buildCountryLabelAnchors(
       points.length >= 3
         ? buildCountryBaseline(points)
         : largest !== undefined
-          ? buildProvinceBaseline(largest.geometry, largest.capital)
+          ? buildProvinceBaseline(largest.geometry)
           : shortFallbackPath(mean, 1, 0);
     if (polylineLength(path) < 0.5 && largest !== undefined) {
-      path = buildProvinceBaseline(largest.geometry, largest.capital);
+      path = buildProvinceBaseline(largest.geometry);
     }
     const anchor = pathAnchor(path, mean);
     const placement = labelPlacementFromPoints(path, text, kind);

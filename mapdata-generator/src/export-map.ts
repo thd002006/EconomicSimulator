@@ -18,6 +18,11 @@ import {
 } from "./class-split.js";
 import type { ProvinceDemographicsEntry } from "./socioeconomic/aggregate.js";
 import { interiorPoint, pointInGeometry } from "./geo.js";
+import {
+  findDisputedSpecForProvinces,
+  loadDisputedTerritories,
+  toDisputedProperty
+} from "./disputed-territories.js";
 import { allocateMapId, loadProject, validatePartition, type ProjectGroup } from "./project.js";
 import {
   buildTopology,
@@ -187,6 +192,7 @@ export async function exportProjectToL3L4(options: {
   const project = await loadProject(projectDir);
   const baseRoot = join(options.generatorRoot, "base", project.meta.baseMapId);
   const base = await loadBaseProvinces(baseRoot);
+  const disputedConfig = await loadDisputedTerritories(options.generatorRoot);
   const errors = validatePartition(project.groups, new Set(base.keys()));
   if (errors.length > 0) {
     throw new Error(`Invalid L2 partition:\n${errors.slice(0, 20).join("\n")}`);
@@ -279,6 +285,7 @@ export async function exportProjectToL3L4(options: {
         climateProfileId: primaryClimate
       });
 
+      const groupDisputed = findDisputedSpecForProvinces(group.members, disputedConfig);
       derivedFeatures.push(
         makeAuthoredFeature(
           group.id,
@@ -288,7 +295,8 @@ export async function exportProjectToL3L4(options: {
             adm0A3: group.countryId,
             type: "Game province",
             coreProvinceId,
-            capital
+            capital,
+            ...(groupDisputed === undefined ? {} : { disputed: toDisputedProperty(groupDisputed) })
           },
           geometry
         )

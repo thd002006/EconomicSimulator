@@ -85,6 +85,13 @@ export interface ProvinceFeatureProperties extends MapFeatureProperties {
   readonly coreProvinceId?: string;
   /** Short English intro, ≤100 chars (excluding merger prefix). */
   readonly description?: string;
+  readonly disputed?: {
+    readonly level: "disputed-area" | "de-facto-control" | "special-admin";
+    readonly claimedBy: readonly string[];
+    readonly administeredBy: string;
+    readonly noteZh: string;
+    readonly noteEn: string;
+  };
 }
 
 export type GeoJsonGeometry =

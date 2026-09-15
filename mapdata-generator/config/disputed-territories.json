@@ -1,0 +1,274 @@
+{
+  "disputedTerritories": [
+    {
+      "provinceIdPattern": "TWN-*",
+      "countryId": "TWN",
+      "level": "de-facto-control",
+      "claimedBy": ["CHN"],
+      "administeredBy": "TWN",
+      "noteZh": "台湾地区：中华人民共和国主张主权，联合国视为中国一省，实际由台湾当局控制",
+      "noteEn": "Taiwan: Claimed by the PRC; UN considers it a province of China; administered by the ROC"
+    },
+    {
+      "provinceIdPattern": "HKG-*",
+      "countryId": "HKG",
+      "level": "special-admin",
+      "claimedBy": ["CHN"],
+      "administeredBy": "HKG",
+      "noteZh": "香港特别行政区：中国主权下的高度自治地区",
+      "noteEn": "Hong Kong SAR: Chinese sovereignty with a high degree of autonomy"
+    },
+    {
+      "provinceIdPattern": "MO-M",
+      "countryId": "MAC",
+      "level": "special-admin",
+      "claimedBy": ["CHN"],
+      "administeredBy": "MAC",
+      "noteZh": "澳门特别行政区：中国主权下的高度自治地区",
+      "noteEn": "Macau SAR: Chinese sovereignty with a high degree of autonomy"
+    },
+    {
+      "provinceIdPattern": "-99-X04~",
+      "countryId": "CYN",
+      "level": "disputed-area",
+      "claimedBy": ["CYP", "TUR"],
+      "administeredBy": "CYN",
+      "noteZh": "北塞浦路斯：塞浦路斯共和国主张主权，土耳其支持的北塞浦路斯土耳其共和国实际控制",
+      "noteEn": "Northern Cyprus: Claimed by the Republic of Cyprus; administered by the Turkey-backed TRNC"
+    },
+    {
+      "provinceIdPattern": "-99-X06~",
+      "countryId": "KAS",
+      "level": "disputed-area",
+      "claimedBy": ["IND", "PAK", "CHN"],
+      "administeredBy": "IND",
+      "noteZh": "克什米尔（锡亚琴冰川）：印度、巴基斯坦、中国三方主张主权，印度实际控制",
+      "noteEn": "Kashmir (Siachen Glacier): Claimed by India, Pakistan and China; administered by India"
+    },
+    {
+      "provinceIdPattern": "IN-JK",
+      "countryId": "IND",
+      "level": "disputed-area",
+      "claimedBy": ["IND", "PAK", "CHN"],
+      "administeredBy": "IND",
+      "noteZh": "查谟-克什米尔：印度、巴基斯坦、中国三方主权争议，印度实际控制",
+      "noteEn": "Jammu & Kashmir: Disputed by India, Pakistan and China; administered by India"
+    },
+    {
+      "provinceIdPattern": "PK-JK",
+      "countryId": "PAK",
+      "level": "disputed-area",
+      "claimedBy": ["IND", "PAK"],
+      "administeredBy": "PAK",
+      "noteZh": "阿扎德克什米尔：印度与巴基斯坦主权争议，巴基斯坦实际控制",
+      "noteEn": "Azad Kashmir: Disputed by India and Pakistan; administered by Pakistan"
+    },
+    {
+      "provinceIdPattern": "PK-GB",
+      "countryId": "PAK",
+      "level": "disputed-area",
+      "claimedBy": ["IND", "PAK"],
+      "administeredBy": "PAK",
+      "noteZh": "吉尔吉特-巴尔蒂斯坦：印度与巴基斯坦主权争议，巴基斯坦实际控制",
+      "noteEn": "Gilgit-Baltistan: Disputed by India and Pakistan; administered by Pakistan"
+    },
+    {
+      "provinceIdPattern": "UA-43",
+      "countryId": "RUS",
+      "level": "disputed-area",
+      "claimedBy": ["UKR", "RUS"],
+      "administeredBy": "RUS",
+      "noteZh": "克里米亚：乌克兰主张主权，俄罗斯自2014年起实际控制",
+      "noteEn": "Crimea: Claimed by Ukraine; administered by Russia since 2014"
+    },
+    {
+      "provinceIdPattern": "UA-40",
+      "countryId": "RUS",
+      "level": "disputed-area",
+      "claimedBy": ["UKR", "RUS"],
+      "administeredBy": "RUS",
+      "noteZh": "塞瓦斯托波尔：乌克兰主张主权，俄罗斯自2014年起实际控制",
+      "noteEn": "Sevastopol: Claimed by Ukraine; administered by Russia since 2014"
+    },
+    {
+      "provinceIdPattern": "UA-09",
+      "countryId": "UKR",
+      "level": "disputed-area",
+      "claimedBy": ["UKR", "RUS"],
+      "administeredBy": "UKR",
+      "noteZh": "卢甘斯克：乌克兰与俄罗斯主权争议，2022年并入俄罗斯的声索未获国际承认",
+      "noteEn": "Luhansk: Disputed by Ukraine and Russia; Russia's 2022 annexation is not internationally recognized"
+    },
+    {
+      "provinceIdPattern": "UA-14",
+      "countryId": "UKR",
+      "level": "disputed-area",
+      "claimedBy": ["UKR", "RUS"],
+      "administeredBy": "UKR",
+      "noteZh": "顿涅茨克：乌克兰与俄罗斯主权争议，2022年并入俄罗斯的声索未获国际承认",
+      "noteEn": "Donetsk: Disputed by Ukraine and Russia; Russia's 2022 annexation is not internationally recognized"
+    },
+    {
+      "provinceIdPattern": "EH-X01~",
+      "countryId": "SAH",
+      "level": "disputed-area",
+      "claimedBy": ["MAR", "SAH"],
+      "administeredBy": "MAR",
+      "noteZh": "西撒哈拉：摩洛哥主张主权并实际控制大部，撒拉威阿拉伯民主共和国宣称全部主权",
+      "noteEn": "Western Sahara: Claimed by Morocco and the SADR; Morocco administers most of the territory"
+    },
+    {
+      "provinceIdPattern": "-99-X08~",
+      "countryId": "PGA",
+      "level": "disputed-area",
+      "claimedBy": ["CHN", "VNM", "PHL", "MYS", "BRN", "TWN"],
+      "administeredBy": "PGA",
+      "noteZh": "南沙群岛：中国、越南、菲律宾、马来西亚、文莱、台湾六方主权重叠，各控制部分岛礁",
+      "noteEn": "Spratly Islands: Overlapping claims by China, Vietnam, the Philippines, Malaysia, Brunei and Taiwan"
+    },
+    {
+      "provinceIdPattern": "CN-X01~",
+      "countryId": "CHN",
+      "level": "disputed-area",
+      "claimedBy": ["CHN", "VNM", "TWN"],
+      "administeredBy": "CHN",
+      "noteZh": "西沙群岛：中国、越南、台湾三方主权争议，中国实际控制",
+      "noteEn": "Paracel Islands: Disputed by China, Vietnam and Taiwan; administered by China"
+    },
+    {
+      "provinceIdPattern": "PS-GZZ",
+      "countryId": "PSX",
+      "level": "disputed-area",
+      "claimedBy": ["PSE", "ISR"],
+      "administeredBy": "PSX",
+      "noteZh": "加沙地带：巴勒斯坦与以色列主权争议，边境与空域由以色列控制",
+      "noteEn": "Gaza Strip: Disputed by Palestine and Israel; Israel controls its borders and airspace"
+    },
+    {
+      "provinceIdPattern": "PS-WBK",
+      "countryId": "PSX",
+      "level": "disputed-area",
+      "claimedBy": ["PSE", "ISR"],
+      "administeredBy": "PSX",
+      "noteZh": "约旦河西岸：巴勒斯坦与以色列主权争议，以色列军事控制，巴勒斯坦自治机构部分行政",
+      "noteEn": "West Bank: Disputed by Palestine and Israel; Israeli military control with partial PA civil administration"
+    },
+    {
+      "provinceIdPattern": "SY-QU",
+      "countryId": "SYR",
+      "level": "disputed-area",
+      "claimedBy": ["SYR", "ISR"],
+      "administeredBy": "ISR",
+      "noteZh": "戈兰高地：叙利亚主张主权，以色列自1967年起实际控制",
+      "noteEn": "Golan Heights: Claimed by Syria; administered by Israel since 1967"
+    },
+    {
+      "provinceIdPattern": "FK-X01~",
+      "countryId": "FLK",
+      "level": "disputed-area",
+      "claimedBy": ["ARG", "GBR"],
+      "administeredBy": "GBR",
+      "noteZh": "福克兰群岛（马尔维纳斯群岛）：阿根廷主张主权，英国实际控制",
+      "noteEn": "Falkland Islands (Islas Malvinas): Claimed by Argentina; administered by the UK"
+    },
+    {
+      "provinceIdPattern": "GI-X01~",
+      "countryId": "GIB",
+      "level": "disputed-area",
+      "claimedBy": ["ESP", "GBR"],
+      "administeredBy": "GBR",
+      "noteZh": "直布罗陀：西班牙主张主权，英国实际控制",
+      "noteEn": "Gibraltar: Claimed by Spain; administered by the UK"
+    },
+    {
+      "provinceIdPattern": "GE-AB",
+      "countryId": "GEO",
+      "level": "disputed-area",
+      "claimedBy": ["GEO"],
+      "administeredBy": "GEO",
+      "noteZh": "阿布哈兹：格鲁吉亚主张主权，俄罗斯支持的分离当局实际控制",
+      "noteEn": "Abkhazia: Claimed by Georgia; administered by a Russia-backed breakaway authority"
+    },
+    {
+      "provinceIdPattern": "MD-SN",
+      "countryId": "MDA",
+      "level": "disputed-area",
+      "claimedBy": ["MDA"],
+      "administeredBy": "MDA",
+      "noteZh": "德涅斯特河沿岸：摩尔多瓦主张主权，俄罗斯支持的分离当局实际控制",
+      "noteEn": "Transnistria: Claimed by Moldova; administered by a Russia-backed breakaway authority"
+    },
+    {
+      "provinceIdPattern": "ne-1159311147",
+      "countryId": "MDA",
+      "level": "disputed-area",
+      "claimedBy": ["MDA"],
+      "administeredBy": "MDA",
+      "noteZh": "德涅斯特河沿岸：摩尔多瓦主张主权，俄罗斯支持的分离当局实际控制",
+      "noteEn": "Transnistria: Claimed by Moldova; administered by a Russia-backed breakaway authority"
+    },
+    {
+      "provinceIdPattern": "IN-AR",
+      "countryId": "IND",
+      "level": "disputed-area",
+      "claimedBy": ["IND", "CHN"],
+      "administeredBy": "IND",
+      "noteZh": "阿鲁纳恰尔邦（藏南）：印度实际控制，中国主张主权",
+      "noteEn": "Arunachal Pradesh (South Tibet): Administered by India; claimed by China"
+    },
+    {
+      "provinceIdPattern": "XK-X20~",
+      "countryId": "KOS",
+      "level": "disputed-area",
+      "claimedBy": ["SRB", "KOS"],
+      "administeredBy": "KOS",
+      "noteZh": "科索沃：塞尔维亚主张主权，科索沃实际控制，国际承认存在分歧",
+      "noteEn": "Kosovo: Claimed by Serbia; administered by Kosovo with divided international recognition"
+    },
+    {
+      "provinceIdPattern": "XK-X10~",
+      "countryId": "KOS",
+      "level": "disputed-area",
+      "claimedBy": ["SRB", "KOS"],
+      "administeredBy": "KOS",
+      "noteZh": "科索沃：塞尔维亚主张主权，科索沃实际控制，国际承认存在分歧",
+      "noteEn": "Kosovo: Claimed by Serbia; administered by Kosovo with divided international recognition"
+    },
+    {
+      "provinceIdPattern": "XK-X09~",
+      "countryId": "KOS",
+      "level": "disputed-area",
+      "claimedBy": ["SRB", "KOS"],
+      "administeredBy": "KOS",
+      "noteZh": "科索沃：塞尔维亚主张主权，科索沃实际控制，国际承认存在分歧",
+      "noteEn": "Kosovo: Claimed by Serbia; administered by Kosovo with divided international recognition"
+    },
+    {
+      "provinceIdPattern": "-99-X11~",
+      "countryId": "SOL",
+      "level": "disputed-area",
+      "claimedBy": ["SOM", "SOL"],
+      "administeredBy": "SOL",
+      "noteZh": "索马里兰：索马里主张主权，索马里兰实际自治，未获普遍国际承认",
+      "noteEn": "Somaliland: Claimed by Somalia; self-governing, with limited international recognition"
+    },
+    {
+      "provinceIdPattern": "AQ-X01~",
+      "countryId": "ATA",
+      "level": "special-admin",
+      "claimedBy": ["ARG", "AUS", "CHL", "FRA", "NZL", "NOR", "GBR"],
+      "administeredBy": "ATA",
+      "noteZh": "南极洲：南极条约冻结一切主权声索，仅用于和平与科学目的",
+      "noteEn": "Antarctica: The Antarctic Treaty freezes all sovereignty claims for peaceful and scientific use"
+    },
+    {
+      "provinceIdPattern": "CL-MA",
+      "countryId": "CHL",
+      "level": "special-admin",
+      "claimedBy": ["CHL", "ARG", "GBR"],
+      "administeredBy": "CHL",
+      "noteZh": "智利南极领地：南极条约冻结主权争议",
+      "noteEn": "Chilean Antarctic Territory: Sovereignty disputes frozen by the Antarctic Treaty"
+    }
+  ]
+}

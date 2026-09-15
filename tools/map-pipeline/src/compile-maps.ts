@@ -171,7 +171,8 @@ function pickProperties(properties: RecordValue | null | undefined): RecordValue
     "scalerank",
     "description",
     "coreProvinceId",
-    "core_province_id"
+    "core_province_id",
+    "disputed"
   ];
   return Object.fromEntries(
     allowed.filter((key) => properties[key] !== undefined).map((key) => [key, properties[key]])

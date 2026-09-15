@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ProvinceFeature } from "@economic-simulator/map-runtime";
+import { pointInGeometry, type ProvinceFeature } from "@economic-simulator/map-runtime";
 import {
   buildCountryBaseline,
   buildCountryLabelAnchors,
@@ -19,6 +19,16 @@ import {
   wrapPathToCamera
 } from "./map-labels.js";
 import { MAP_WRAP } from "./map-controls.js";
+
+function pathLength(path: readonly { x: number; y: number }[]): number {
+  let length = 0;
+  for (let index = 1; index < path.length; index += 1) {
+    const previous = path[index - 1]!;
+    const point = path[index]!;
+    length += Math.hypot(point.x - previous.x, point.y - previous.y);
+  }
+  return length;
+}
 
 function province(id: string, owner: string, lon: number, lat: number, name = id): ProvinceFeature {
   return {
@@ -155,8 +165,8 @@ describe("map label LOD", () => {
 
 describe("curved label baselines", () => {
   it("builds a north-south baseline for an elongated province", () => {
-    const path = buildProvinceBaseline({
-      type: "Polygon",
+    const geometry = {
+      type: "Polygon" as const,
       coordinates: [
         [
           [0, -10],
@@ -166,11 +176,104 @@ describe("curved label baselines", () => {
           [0, -10]
         ]
       ]
-    });
+    };
+    const path = buildProvinceBaseline(geometry);
     expect(path.length).toBeGreaterThanOrEqual(2);
     const dy = Math.abs(path[path.length - 1]!.y - path[0]!.y);
     const dx = Math.abs(path[path.length - 1]!.x - path[0]!.x);
     expect(dy).toBeGreaterThan(dx);
+    // Full PCA extent sampling — path should use most of the ~20° north-south span.
+    expect(pathLength(path)).toBeGreaterThan(20 * 0.75);
+    for (const point of path) {
+      expect(pointInGeometry(point.x, point.y, geometry)).toBe(true);
+    }
+  });
+
+  it("keeps a narrow corridor baseline inside the polygon", () => {
+    const geometry = {
+      type: "Polygon" as const,
+      coordinates: [
+        [
+          [0, 0],
+          [12, 0],
+          [12, 1],
+          [0, 1],
+          [0, 0]
+        ]
+      ]
+    };
+    const path = buildProvinceBaseline(geometry, { x: 6, y: 0.5 });
+    expect(path.length).toBeGreaterThanOrEqual(2);
+    expect(pathLength(path)).toBeGreaterThan(12 * 0.75);
+    for (const point of path) {
+      expect(pointInGeometry(point.x, point.y, geometry)).toBe(true);
+    }
+  });
+
+  it("centers the baseline in the strip even when the capital sits on the south edge", () => {
+    const geometry = {
+      type: "Polygon" as const,
+      coordinates: [
+        [
+          [0, 0],
+          [20, 0],
+          [20, 4],
+          [0, 4],
+          [0, 0]
+        ]
+      ]
+    };
+    // Capital near the southern border — must not pin the label there.
+    const path = buildProvinceBaseline(geometry, { x: 10, y: 0.3 });
+    expect(path.length).toBeGreaterThanOrEqual(2);
+    const meanY = path.reduce((sum, point) => sum + point.y, 0) / path.length;
+    expect(meanY).toBeGreaterThan(1.5);
+    expect(meanY).toBeLessThan(2.5);
+    for (const point of path) {
+      expect(pointInGeometry(point.x, point.y, geometry)).toBe(true);
+    }
+  });
+
+  it("keeps the baseline in the thick body when a northern spike would pull a midpoint north", () => {
+    // Wide band y∈[0,3] plus a thin northern peninsula — chord midpoint would sit high.
+    const geometry = {
+      type: "Polygon" as const,
+      coordinates: [
+        [
+          [0, 0],
+          [20, 0],
+          [20, 3],
+          [12, 3],
+          [12, 8],
+          [8, 8],
+          [8, 3],
+          [0, 3],
+          [0, 0]
+        ]
+      ]
+    };
+    const path = buildProvinceBaseline(geometry);
+    expect(path.length).toBeGreaterThanOrEqual(2);
+    // Fast strip midpoint still avoids sitting up in the peninsula tip.
+    const meanY = path.reduce((sum, point) => sum + point.y, 0) / path.length;
+    expect(meanY).toBeLessThan(4.5);
+    expect(meanY).toBeGreaterThan(0.5);
+    for (const point of path) {
+      expect(pointInGeometry(point.x, point.y, geometry)).toBe(true);
+    }
+  });
+
+  it("still shows glyphs when the screen path is too short for comfortable spacing", () => {
+    const layout = layoutGlyphsAlongPath(
+      [
+        { x: 0, y: 0 },
+        { x: 24, y: 0 }
+      ],
+      "Northern Great Plain",
+      "province"
+    );
+    expect(layout.glyphs.length).toBeGreaterThan(0);
+    expect(layout.fontSizePx).toBeGreaterThanOrEqual(8);
   });
 
   it("builds a gentle country chord along the principal axis", () => {
@@ -289,7 +392,7 @@ describe("curved label baselines", () => {
     }
   });
 
-  it("hides glyphs when even the absolute min font cannot fit without overlap", () => {
+  it("keeps glyphs at absolute min font when the path is too short for comfortable spacing", () => {
     const layout = layoutGlyphsAlongPath(
       [
         { x: 0, y: 0 },
@@ -298,7 +401,8 @@ describe("curved label baselines", () => {
       "UNITED STATES OF AMERICA",
       "country-major"
     );
-    expect(layout.glyphs).toHaveLength(0);
+    expect(layout.glyphs.length).toBeGreaterThan(0);
+    expect(layout.fontSizePx).toBe(8);
   });
 });
 

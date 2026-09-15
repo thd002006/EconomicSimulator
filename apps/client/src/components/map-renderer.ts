@@ -32,6 +32,14 @@ const CLEAR = 0xc8b898;
 const OCEAN = 0x9eb5b0;
 const COAST = 0x3a2a1a;
 const PROVINCE_BORDER = 0x5a4030;
+const DISPUTED_BORDER = 0x8a3a1a;
+const DISPUTED_BORDER_WIDTH = 1.6;
+const DISPUTED_BORDER_OPACITY = 0.72;
+/** Short dash + gap so disputed borders read as a bead chain, not long dashes. */
+const DISPUTED_BORDER_DASH = 0.07;
+const DISPUTED_BORDER_GAP = 0.11;
+/** How far to bleach disputed fills toward white (1 = pure white). */
+const DISPUTED_FILL_BLEACH = 0.5;
 const COUNTRY_BORDER = 0x2a1c12;
 const CAPITAL_DARK_RED = 0x7a1f1f;
 const HOVER_FILL = new THREE.Color("#c4a060");
@@ -122,6 +130,10 @@ function countryFill(adm0A3: string | undefined): THREE.Color {
   );
 }
 
+function disputedFill(base: THREE.Color): THREE.Color {
+  return base.clone().lerp(new THREE.Color("#ffffff"), DISPUTED_FILL_BLEACH);
+}
+
 function clipSegmentToWorld(
   lon0: number,
   lat0: number,
@@ -193,7 +205,8 @@ function makeWideLines(
   color: number,
   width: number,
   opacity = 1,
-  renderOrder = 0
+  renderOrder = 0,
+  dash?: { dashSize: number; gapSize: number }
 ): LineSegments2 {
   const geometry = new LineSegmentsGeometry();
   geometry.setPositions(positions.length === 0 ? [0, 0, 0, 0, 0, 0] : positions);
@@ -207,9 +220,13 @@ function makeWideLines(
     // A2C + low opacity becomes a screen-door stipple that reads as dotted ink.
     alphaToCoverage: !translucent,
     depthTest: true,
-    depthWrite: false
+    depthWrite: false,
+    ...(dash === undefined
+      ? {}
+      : { dashed: true, dashSize: dash.dashSize, gapSize: dash.gapSize })
   });
   const lines = new LineSegments2(geometry, material);
+  if (dash !== undefined) lines.computeLineDistances();
   lines.frustumCulled = false;
   lines.visible = positions.length > 0;
   lines.renderOrder = renderOrder;
@@ -435,6 +452,7 @@ export class GlobeRenderer {
   private readonly labels: MapLabelLayer;
   private coastLines: LineSegments2;
   private provinceLines: LineSegments2;
+  private disputedProvinceLines: LineSegments2;
   private countryLines: LineSegments2;
   private readonly roadMeshEntries: Array<{
     typeId: string;
@@ -442,6 +460,7 @@ export class GlobeRenderer {
     mesh: THREE.Mesh;
   }> = [];
   private provinceLineHasGeometry = false;
+  private disputedProvinceLineHasGeometry = false;
   private ownerLookup: (provinceId: string) => string | undefined;
   private hoveredSelection: MapSelection | undefined;
   private selectedSelection: MapSelection | undefined;
@@ -544,6 +563,13 @@ export class GlobeRenderer {
       PROVINCE_BORDER_OPACITY,
       1
     );
+    this.disputedProvinceLines = makeWideLines(
+      [],
+      PROVINCE_BORDER,
+      PROVINCE_BORDER_WIDTH * 1.5,
+      PROVINCE_BORDER_OPACITY,
+      1
+    );
     this.countryLines = makeWideLines(
       [],
       COUNTRY_BORDER,
@@ -551,7 +577,7 @@ export class GlobeRenderer {
       COUNTRY_BORDER_OPACITY,
       COUNTRY_RENDER_ORDER
     );
-    this.tileTemplate.add(this.coastLines, this.provinceLines, this.countryLines);
+    this.tileTemplate.add(this.coastLines, this.provinceLines, this.disputedProvinceLines, this.countryLines);
     this.rebuildBoundaries();
     this.buildRoadMeshes();
 
@@ -675,8 +701,13 @@ export class GlobeRenderer {
       this.layerVisibility.provinceBorders &&
       this.provinceLineHasGeometry &&
       showProvinceBorders(halfHeight);
+    const showDisputedProvinces =
+      this.layerVisibility.provinceBorders &&
+      this.disputedProvinceLineHasGeometry &&
+      showProvinceBorders(halfHeight);
     const showCapitals = this.layerVisibility.capitals && showProvinceBorders(halfHeight);
     this.provinceLines.visible = showProvinces;
+    this.disputedProvinceLines.visible = showDisputedProvinces;
     this.countryLines.visible = this.layerVisibility.countryBorders;
     this.capitalGroup.visible = showCapitals;
     this.labels.setVisible(this.layerVisibility.labels);
@@ -698,6 +729,10 @@ export class GlobeRenderer {
       if (object === this.provinceLines || object === this.capitalGroup) return;
       if (object instanceof LineSegments2 && object.material === this.provinceLines.material) {
         object.visible = showProvinces;
+        return;
+      }
+      if (object instanceof LineSegments2 && object.material === this.disputedProvinceLines.material) {
+        object.visible = showDisputedProvinces;
         return;
       }
       if (object.userData.isCapitalGroup === true || object.userData.isCapitalMember === true) {
@@ -755,10 +790,13 @@ export class GlobeRenderer {
       if (slot === undefined) continue;
       const feature = this.model.findProvince(id);
       const fill = this.model.hooks.getProvinceFill?.(id);
-      const color =
+      let color =
         fill === undefined
           ? countryFill(this.ownerLookup(id) ?? feature?.properties.adm0A3)
           : new THREE.Color(fill);
+      if (feature?.properties.disputed !== undefined) {
+        color = disputedFill(color);
+      }
       this.paletteBytes[slot * 4] = Math.round(color.r * 255);
       this.paletteBytes[slot * 4 + 1] = Math.round(color.g * 255);
       this.paletteBytes[slot * 4 + 2] = Math.round(color.b * 255);
@@ -769,6 +807,7 @@ export class GlobeRenderer {
 
   private rebuildBoundaries(): void {
     const provincePositions: number[] = [];
+    const disputedProvincePositions: number[] = [];
     const countryPositions: number[] = [];
     for (const boundary of this.model.boundaries) {
       const leftOwner = this.ownerLookup(boundary.leftProvinceId);
@@ -779,14 +818,25 @@ export class GlobeRenderer {
         leftOwner === undefined ||
         rightOwner === undefined ||
         leftOwner !== rightOwner;
-      pushLineSegments(
-        isCountry ? countryPositions : provincePositions,
-        boundary.coordinates,
-        LINE_Z
-      );
+      const leftFeature = this.model.findProvince(boundary.leftProvinceId);
+      const rightFeature =
+        boundary.rightProvinceId === null
+          ? undefined
+          : this.model.findProvince(boundary.rightProvinceId);
+      const isDisputed =
+        leftFeature?.properties.disputed !== undefined ||
+        rightFeature?.properties.disputed !== undefined;
+      if (isCountry) {
+        pushLineSegments(countryPositions, boundary.coordinates, LINE_Z);
+      } else if (isDisputed) {
+        pushLineSegments(disputedProvincePositions, boundary.coordinates, LINE_Z);
+      } else {
+        pushLineSegments(provincePositions, boundary.coordinates, LINE_Z);
+      }
     }
-    this.tileTemplate.remove(this.provinceLines, this.countryLines);
+    this.tileTemplate.remove(this.provinceLines, this.disputedProvinceLines, this.countryLines);
     disposeWideLines(this.provinceLines);
+    disposeWideLines(this.disputedProvinceLines);
     disposeWideLines(this.countryLines);
     this.provinceLines = makeWideLines(
       provincePositions,
@@ -795,7 +845,14 @@ export class GlobeRenderer {
       PROVINCE_BORDER_OPACITY,
       1
     );
-    this.provinceLineHasGeometry = provincePositions.length > 0;
+    this.disputedProvinceLines = makeWideLines(
+      disputedProvincePositions,
+      DISPUTED_BORDER,
+      DISPUTED_BORDER_WIDTH,
+      DISPUTED_BORDER_OPACITY,
+      1,
+      { dashSize: DISPUTED_BORDER_DASH, gapSize: DISPUTED_BORDER_GAP }
+    );
     this.countryLines = makeWideLines(
       countryPositions,
       COUNTRY_BORDER,
@@ -803,16 +860,24 @@ export class GlobeRenderer {
       COUNTRY_BORDER_OPACITY,
       COUNTRY_RENDER_ORDER
     );
+    this.provinceLineHasGeometry = provincePositions.length > 0;
+    this.disputedProvinceLineHasGeometry = disputedProvincePositions.length > 0;
     this.applyLineResolutions();
-    this.tileTemplate.add(this.provinceLines, this.countryLines);
+    this.tileTemplate.add(this.provinceLines, this.disputedProvinceLines, this.countryLines);
     this.refreshTiles();
   }
+
 
   private applyLineResolutions(): void {
     this.renderer.getDrawingBufferSize(this.lineResolution);
     const width = Math.max(1, Math.floor(this.lineResolution.x));
     const height = Math.max(1, Math.floor(this.lineResolution.y));
-    const allLines = [this.coastLines, this.provinceLines, this.countryLines];
+    const allLines = [
+      this.coastLines,
+      this.provinceLines,
+      this.disputedProvinceLines,
+      this.countryLines
+    ];
     for (const lines of allLines) {
       const material = lines.material;
       if (!Array.isArray(material) && material instanceof LineMaterial) {
@@ -954,6 +1019,7 @@ export class GlobeRenderer {
     this.highlight.dispose();
     disposeWideLines(this.coastLines);
     disposeWideLines(this.provinceLines);
+    disposeWideLines(this.disputedProvinceLines);
     disposeWideLines(this.countryLines);
     for (const entry of this.roadMeshEntries) {
       disposeRoadMesh(entry.mesh);

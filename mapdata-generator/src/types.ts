@@ -75,6 +75,19 @@ export interface MergeGroup {
     "retained" | "official-region" | "area-merge" | "enclosure-merge" | "archipelago-merge";
 }
 
+export interface DisputedProvinceProperty {
+  readonly level: "disputed-area" | "de-facto-control" | "special-admin";
+  readonly claimedBy: readonly string[];
+  readonly administeredBy: string;
+  readonly noteZh: string;
+  readonly noteEn: string;
+}
+
+export interface DisputedTerritorySpec extends DisputedProvinceProperty {
+  readonly provinceIdPattern: string;
+  readonly countryId: string;
+}
+
 export interface AuthoredProvinceProperties extends Record<string, unknown> {
   readonly name: string;
   readonly nameEn: string;
@@ -82,6 +95,7 @@ export interface AuthoredProvinceProperties extends Record<string, unknown> {
   readonly type: string;
   readonly capital: ProvinceCapital;
   readonly description?: string;
+  readonly disputed?: DisputedProvinceProperty;
 }
 
 export interface ReviewProvince {
@@ -98,5 +112,6 @@ export interface ReviewProvince {
   readonly capital: ProvinceCapital;
   readonly capitalSource: "national" | "regional" | "generated";
   readonly minimumAreaKm2: number;
+  readonly disputed?: DisputedTerritorySpec;
   readonly belowMinimumReason?: "no-legal-neighbor";
 }

@@ -136,13 +136,22 @@ export function hoverStats(
     const feature = lookups.findProvince(selection.id);
     const ownerId = lookups.getOwner(selection.id);
     const pop = lookups.getProvincePopulation(selection.id);
+    const disputed = feature?.properties.disputed;
+    const lines = [
+      ownerId === undefined ? "—" : countryDisplayName(lookups, ownerId),
+      `Population ${formatCount(pop?.summary.populationPersons)}`,
+      `GDP ${formatGdp(lookups.getProvinceGdpPpp(selection.id))}`
+    ];
+    if (disputed !== undefined) {
+      lines.push(
+        `Disputed · ${countryDisplayName(lookups, disputed.administeredBy)} administers · claimed by ${disputed.claimedBy
+          .map((id) => countryDisplayName(lookups, id))
+          .join(", ")}`
+      );
+    }
     return {
       title: provinceDisplayName(feature, selection.id),
-      lines: [
-        ownerId === undefined ? "—" : countryDisplayName(lookups, ownerId),
-        `Population ${formatCount(pop?.summary.populationPersons)}`,
-        `GDP ${formatGdp(lookups.getProvinceGdpPpp(selection.id))}`
-      ]
+      lines
     };
   }
   const aggregate = lookups.getCountryPopulation(selection.id);

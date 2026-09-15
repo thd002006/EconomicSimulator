@@ -19,6 +19,11 @@ import {
 } from "./geo.js";
 import { applyManualOverrides, loadManualOverrides } from "./manual-overrides.js";
 import {
+  findDisputedSpecForProvinces,
+  loadDisputedTerritories,
+  toDisputedProperty
+} from "./disputed-territories.js";
+import {
   dynamicMinimumProvinceAreaKm2,
   loadMergePolicy,
   type MergeParameters
@@ -1184,6 +1189,7 @@ async function main(args: readonly string[]): Promise<void> {
   );
 
   const provinceDescriptions = await loadProvinceDescriptions(projectRoot);
+  const disputedConfig = await loadDisputedTerritories(projectRoot);
 
   const review: ReviewProvince[] = [];
   const mergedFeatures: GeoJsonFeature<AreaGeometry>[] = groups.map((group) => {
@@ -1209,6 +1215,10 @@ async function main(args: readonly string[]): Promise<void> {
       minimumAreaKm2: Math.round(minimumAreas.get(group.countryId)!)
     });
     const description = provinceDescriptions?.get(group.id);
+    const disputed = findDisputedSpecForProvinces(
+      members.map((member) => member.id),
+      disputedConfig
+    );
     return makeAuthoredFeature(
       group.id,
       {
@@ -1217,7 +1227,8 @@ async function main(args: readonly string[]): Promise<void> {
         adm0A3: group.countryId,
         type: "Game province",
         capital: selectedCapital.capital,
-        ...(description === undefined ? {} : { description })
+        ...(description === undefined ? {} : { description }),
+        ...(disputed === undefined ? {} : { disputed: toDisputedProperty(disputed) })
       },
       geometry
     );

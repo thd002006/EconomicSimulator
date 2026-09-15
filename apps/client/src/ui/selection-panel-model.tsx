@@ -120,6 +120,23 @@ export function buildSelectionPanelModel(
     const description = feature?.properties.description?.trim() || "—";
     const coreProvinceId = feature?.properties.coreProvinceId ?? selection.id;
     const provincePicture = provincePicturesById.get(coreProvinceId);
+    const disputed = feature?.properties.disputed;
+    const overviewRows: Array<readonly [string, string]> = [
+      ["Description", description],
+      ["Population", formatCount(summary?.populationPersons)],
+      ["GDP", formatGdp(lookups.getProvinceGdpPpp(selection.id))],
+      ["Arable land", formatAreaKm2(lookups.getProvinceArableLandKm2(selection.id))],
+      ["Livability", formatLivability(lookups.getProvinceLivability(selection.id))],
+      ["Area", formatAreaKm2(lookups.getProvinceLandAreaKm2(selection.id))]
+    ];
+    if (disputed !== undefined) {
+      overviewRows.push(
+        ["Status", disputed.level.replaceAll("-", " ")],
+        ["Administered by", countryDisplayName(lookups, disputed.administeredBy)],
+        ["Claimed by", disputed.claimedBy.map((id) => countryDisplayName(lookups, id)).join(", ")],
+        ["Dispute", disputed.noteEn]
+      );
+    }
     const tabs: EntityPanelTab[] = [
       {
         id: "overview",
@@ -127,16 +144,7 @@ export function buildSelectionPanelModel(
         content: (
           <section className="inspector-section">
             <p className="label">Overview</p>
-            <Stats
-              rows={[
-                ["Description", description],
-                ["Population", formatCount(summary?.populationPersons)],
-                ["GDP", formatGdp(lookups.getProvinceGdpPpp(selection.id))],
-                ["Arable land", formatAreaKm2(lookups.getProvinceArableLandKm2(selection.id))],
-                ["Livability", formatLivability(lookups.getProvinceLivability(selection.id))],
-                ["Area", formatAreaKm2(lookups.getProvinceLandAreaKm2(selection.id))]
-              ]}
-            />
+            <Stats rows={overviewRows} />
           </section>
         )
       }

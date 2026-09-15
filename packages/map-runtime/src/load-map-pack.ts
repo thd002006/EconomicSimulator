@@ -77,17 +77,43 @@ function normalizeProperties(raw: Record<string, unknown> | null): MapFeaturePro
   };
 }
 
+function parseDisputed(value: unknown): ProvinceFeatureProperties["disputed"] | undefined {
+  if (!isRecord(value)) return undefined;
+  const level = asString(value.level);
+  const claimedByRaw = value.claimedBy;
+  const claimedBy =
+    Array.isArray(claimedByRaw) && claimedByRaw.every((v) => typeof v === "string")
+      ? (claimedByRaw as readonly string[])
+      : undefined;
+  const administeredBy = asString(value.administeredBy);
+  const noteZh = asString(value.noteZh);
+  const noteEn = asString(value.noteEn);
+  if (
+    level === undefined ||
+    (level !== "disputed-area" && level !== "de-facto-control" && level !== "special-admin") ||
+    claimedBy === undefined ||
+    administeredBy === undefined ||
+    noteZh === undefined ||
+    noteEn === undefined
+  ) {
+    return undefined;
+  }
+  return { level, claimedBy, administeredBy, noteZh, noteEn };
+}
+
 function normalizeProvinceProperties(
   raw: Record<string, unknown> | null,
   id: string
 ): ProvinceFeatureProperties {
   const description = parseProvinceDescription(raw?.description, "provinces", id);
   const coreProvinceId = asString(raw?.coreProvinceId ?? raw?.core_province_id);
+  const disputed = parseDisputed(raw?.disputed);
   return {
     ...normalizeProperties(raw),
     capital: parseProvinceCapital(raw?.capital, "provinces", id),
     ...(coreProvinceId === undefined ? {} : { coreProvinceId }),
-    ...(description === undefined ? {} : { description })
+    ...(description === undefined ? {} : { description }),
+    ...(disputed === undefined ? {} : { disputed })
   };
 }
 
