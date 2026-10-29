@@ -8,11 +8,12 @@ const clientRoot = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const repoRoot = resolve(clientRoot, "../..");
 
 export default defineConfig({
+  base: "./",
   plugins: [react(), mapAssets(resolve(repoRoot, "assets/maps"))],
   clearScreen: false,
   publicDir: false,
   server: {
-    host: "127.0.0.1",
+    host: true,
     port: 1420,
     strictPort: true,
     fs: { allow: [repoRoot] }

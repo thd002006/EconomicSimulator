@@ -30,6 +30,20 @@ export interface MapViewProps {
 
 type LoadState = "loading" | "ready" | "error";
 
+type PointerPosition = { readonly x: number; readonly y: number };
+
+function pointerSpread(
+  pointers: ReadonlyMap<number, PointerPosition>
+): { readonly distance: number; readonly x: number; readonly y: number } | undefined {
+  const [first, second] = pointers.values();
+  if (first === undefined || second === undefined) return undefined;
+  return {
+    distance: Math.hypot(second.x - first.x, second.y - first.y),
+    x: (first.x + second.x) / 2,
+    y: (first.y + second.y) / 2
+  };
+}
+
 function createOwnerLookup(
   provinceOwners: Readonly<Record<string, string>> | undefined,
   fallback?: (provinceId: string) => string | undefined
@@ -66,6 +80,8 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   const dragRef = useRef<{ pointerId: number; x: number; y: number; moved: boolean } | undefined>(
     undefined
   );
+  const pointersRef = useRef(new Map<number, PointerPosition>());
+  const pinchRef = useRef<{ distance: number } | undefined>(undefined);
   const rafRef = useRef<number | undefined>(undefined);
   const loopingRef = useRef(false);
   const lastFrameTimeRef = useRef<number | undefined>(undefined);
@@ -272,6 +288,16 @@ export function MapView(props: MapViewProps): React.JSX.Element {
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>): void => {
     event.currentTarget.setPointerCapture(event.pointerId);
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    const spread = pointerSpread(pointersRef.current);
+    if (spread !== undefined) {
+      dragRef.current = undefined;
+      pinchRef.current = { distance: spread.distance };
+      globeRef.current?.endDrag();
+      return;
+    }
+
     dragRef.current = {
       pointerId: event.pointerId,
       x: event.clientX,
@@ -285,7 +311,22 @@ export function MapView(props: MapViewProps): React.JSX.Element {
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>): void => {
     const globe = globeRef.current;
+    if (pointersRef.current.has(event.pointerId)) {
+      pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
     if (globe === undefined) return;
+
+    const spread = pointerSpread(pointersRef.current);
+    if (spread !== undefined) {
+      const pinch = pinchRef.current;
+      if (pinch !== undefined && pinch.distance > 0 && spread.distance > 0) {
+        const rect = event.currentTarget.getBoundingClientRect();
+        globe.zoomAt(spread.x - rect.left, spread.y - rect.top, pinch.distance / spread.distance);
+        pinch.distance = spread.distance;
+      }
+      return;
+    }
+
     const drag = dragRef.current;
     if (drag !== undefined && drag.pointerId === event.pointerId) {
       if (Math.abs(event.clientX - drag.x) + Math.abs(event.clientY - drag.y) > 2) {
@@ -300,14 +341,31 @@ export function MapView(props: MapViewProps): React.JSX.Element {
   };
 
   const endDrag = (event: React.PointerEvent<HTMLCanvasElement>): void => {
-    const globe = globeRef.current;
-    const drag = dragRef.current;
-    if (globe === undefined || drag === undefined || drag.pointerId !== event.pointerId) {
-      return;
-    }
+    pointersRef.current.delete(event.pointerId);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+
+    const remainingSpread = pointerSpread(pointersRef.current);
+    pinchRef.current =
+      remainingSpread === undefined ? undefined : { distance: remainingSpread.distance };
+    if (remainingSpread !== undefined) return;
+
+    const globe = globeRef.current;
+    if (globe === undefined) return;
+
+    const remaining = [...pointersRef.current.entries()][0];
+    if (remaining !== undefined) {
+      const [pointerId, position] = remaining;
+      const rect = event.currentTarget.getBoundingClientRect();
+      dragRef.current = { pointerId, x: position.x, y: position.y, moved: true };
+      globe.beginDrag(position.x - rect.left, position.y - rect.top);
+      return;
+    }
+
+    const drag = dragRef.current;
+    if (drag === undefined || drag.pointerId !== event.pointerId) return;
+
     globe.endDrag();
     dragRef.current = undefined;
     startAnimationLoop();
@@ -414,7 +472,7 @@ export function MapView(props: MapViewProps): React.JSX.Element {
       </div>
       {props.fill === true ? null : (
         <p className="map-hint">
-          Drag to pan · scroll to zoom · click to select a province or country
+          Drag to pan · scroll or pinch to zoom · click to select a province or country
         </p>
       )}
     </section>

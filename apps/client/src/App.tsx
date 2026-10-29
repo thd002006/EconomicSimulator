@@ -60,7 +60,7 @@ export function App(): React.JSX.Element {
     setWorkerClient(client);
     let cancelled = false;
 
-    void loadMapPack(`/maps/${MAP_ID}`)
+    void loadMapPack(`${import.meta.env.BASE_URL}maps/${MAP_ID}`)
       .then(async (pack) => {
         if (cancelled) return;
         setMapPack(pack);

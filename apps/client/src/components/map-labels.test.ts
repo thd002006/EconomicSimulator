@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { pointInGeometry, type ProvinceFeature } from "@economic-simulator/map-runtime";
+import {
+  pointInGeometry,
+  type GeoJsonGeometry,
+  type ProvinceFeature
+} from "@economic-simulator/map-runtime";
 import {
   buildCountryBaseline,
   buildCountryLabelAnchors,
@@ -165,7 +169,7 @@ describe("map label LOD", () => {
 
 describe("curved label baselines", () => {
   it("builds a north-south baseline for an elongated province", () => {
-    const geometry = {
+    const geometry: GeoJsonGeometry = {
       type: "Polygon" as const,
       coordinates: [
         [
@@ -190,7 +194,7 @@ describe("curved label baselines", () => {
   });
 
   it("keeps a narrow corridor baseline inside the polygon", () => {
-    const geometry = {
+    const geometry: GeoJsonGeometry = {
       type: "Polygon" as const,
       coordinates: [
         [
@@ -211,7 +215,7 @@ describe("curved label baselines", () => {
   });
 
   it("centers the baseline in the strip even when the capital sits on the south edge", () => {
-    const geometry = {
+    const geometry: GeoJsonGeometry = {
       type: "Polygon" as const,
       coordinates: [
         [
@@ -236,7 +240,7 @@ describe("curved label baselines", () => {
 
   it("keeps the baseline in the thick body when a northern spike would pull a midpoint north", () => {
     // Wide band y∈[0,3] plus a thin northern peninsula — chord midpoint would sit high.
-    const geometry = {
+    const geometry: GeoJsonGeometry = {
       type: "Polygon" as const,
       coordinates: [
         [

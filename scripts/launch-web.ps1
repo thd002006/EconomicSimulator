@@ -32,8 +32,25 @@ if (-not (Test-Path "node_modules")) {
     }
 }
 
+function Get-LanIPv4 {
+    $addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+        Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' } |
+        Select-Object -ExpandProperty IPAddress
+    foreach ($prefix in @('^192\.168\.', '^10\.', '^172\.(1[6-9]|2[0-9]|3[01])\.')) {
+        $match = $addresses | Where-Object { $_ -match $prefix } | Select-Object -First 1
+        if ($match) { return $match }
+    }
+    return $null
+}
+
 Write-Step "正在启动 Web 开发服务器..."
-Write-Host "地址: http://127.0.0.1:1420/"
+Write-Host "电脑: http://127.0.0.1:1420/"
+$lanIp = Get-LanIPv4
+if ($lanIp) {
+    Write-Host "手机（需与电脑连同一个 Wi-Fi）: http://${lanIp}:1420/" -ForegroundColor Green
+} else {
+    Write-Host "[提示] 未检测到局域网 IP，手机可能无法访问。" -ForegroundColor Yellow
+}
 Write-Host "关闭此窗口即可停止服务器。"
 Write-Host ""
 

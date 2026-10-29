@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "predev": "pnpm --dir ../.. map:publish -- --map world-modern",
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite",
     "prebuild": "pnpm --dir ../.. map:publish -- --map world-modern",
     "build": "tsc -p tsconfig.json && vite build",
     "typecheck": "tsc -p tsconfig.json",
